@@ -1,0 +1,331 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\eblogin.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\eblogin.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG_BTN_STATE_AWAY  PNG                     "res\\btnstateaway.png"
+IDB_PNG_BTN_STATE_BUSY  PNG                     "res\\btnstatebusy.png"
+IDB_PNG_BTN_STATE_ONLINE PNG                     "res\\btnstateonline.png"
+IDB_PNG_BTN_LOGIN       PNG                     "res\\btnlogin.png"
+IDB_PNG_BTN_VISITOR     PNG                     "res\\btnvisitor.png"
+IDB_PNG_CHECKBOX        PNG                     "res\\checkbox.png"
+IDB_PNG_IMG1_REG        PNG                     "res\\img1reg.png"
+IDB_PNG_IMG_ERROR       PNG                     "res\\imgerror.png"
+IDB_PNG_IMG_QUESTION    PNG                     "res\\imgquestion.png"
+IDB_PNG_IMG_TIP         PNG                     "res\\imgtip.png"
+IDB_PNG_IMG_WARNING     PNG                     "res\\imgwarning.png"
+IDB_PNG_HOT_DELETE_S    PNG                     "res\\btnhotdeleteS.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About eblogin"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "eblogin, Version 2.2.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2013-2016",IDC_STATIC,42,26,114,8
+    DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+IDD_EBLOGIN_DIALOG DIALOGEX 0, 0, 254, 233
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+END
+
+IDD_DLG_REG DIALOGEX 0, 0, 254, 233
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_SYSMENU
+FONT 9, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "邮箱地址：",IDC_STATIC_ACCOUNT,30,35,46,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_ACCOUNT,80,35,140,12,ES_AUTOHSCROLL
+    LTEXT           "用户名称：",IDC_STATIC_NAME,30,60,47,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_USERNAME,80,60,140,12,ES_AUTOHSCROLL
+    LTEXT           "登录密码：",IDC_STATIC_PASSWOR,30,85,47,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_PASSWORD,80,85,140,12,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "确认密码：",IDC_STATIC_PWD_CONFIRM,30,110,47,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_PWD_CONFIRM,80,110,140,13,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "公司名称：",IDC_STATIC_ENT_NAME,30,135,47,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_ENT_NAME,80,135,140,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "注册",IDOK,95,170,59,15
+    PUSHBUTTON      "取消",IDCANCEL,160,170,59,15
+    PUSHBUTTON      "",IDC_BUTTON_CLOSE,224,7,23,15
+END
+
+IDD_DLG_LOGIN DIALOGEX 0, 0, 253, 312
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 9, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_USERS,19,102,156,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    CONTROL         "",IDC_TREE_USERS,"SysTreeView32",TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_NOTOOLTIPS | TVS_TRACKSELECT | TVS_FULLROWSELECT | NOT WS_VISIBLE | WS_HSCROLL | WS_TABSTOP,58,115,85,33
+    COMBOBOX        IDC_COMBO_USERS,80,51,166,82,CBS_DROPDOWN | NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_PASSWORD,34,138,140,12,ES_PASSWORD | ES_AUTOHSCROLL
+    PUSHBUTTON      "在线",IDC_BUTTON_LINESTATE,98,83,29,15
+    LTEXT           "记住密码",IDC_STATIC_SAVEPWD,34,162,49,11
+    LTEXT           "开机启动",IDC_STATIC_AUTOLOGIN,134,165,49,11
+    DEFPUSHBUTTON   "登录",IDC_BUTTON_LOGIN,38,192,142,15
+    PUSHBUTTON      "游客通道",IDC_BUTTON_VISITOR,16,279,38,15,NOT WS_VISIBLE
+    PUSHBUTTON      "免费注册",IDC_BUTTON_REG,58,278,47,15,NOT WS_VISIBLE
+    PUSHBUTTON      "连接设置",IDC_BUTTON_SETTING,162,273,47,15,NOT WS_VISIBLE
+    PUSHBUTTON      "",IDC_BUTTON_SKIN,157,0,23,15
+    PUSHBUTTON      "",IDC_BUTTON_MIN,188,0,23,15
+    PUSHBUTTON      "",IDC_BUTTON_CLOSE,211,0,23,15
+    PUSHBUTTON      "忘记密码",IDC_BUTTON_FORGET_PWD,125,277,38,15,NOT WS_VISIBLE
+    LTEXT           "error",IDC_STATIC_ERROR,38,177,49,11
+END
+
+IDD_DLG_MESSAGE_BOX DIALOGEX 0, 0, 253, 312
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 9, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,54,181,59,15
+    PUSHBUTTON      "取消",IDCANCEL,130,181,47,15
+    PUSHBUTTON      "",IDC_BUTTON_CLOSE,211,0,23,15
+END
+
+IDD_DLG_SETTING DIALOGEX 0, 0, 226, 100
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_SYSMENU
+FONT 9, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "服务器地址：",IDC_STATIC_SERVER,20,35,47,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_SERVER,70,35,100,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "确定",IDOK,61,60,59,15
+    PUSHBUTTON      "取消",IDCANCEL,133,61,59,15
+    PUSHBUTTON      "",IDC_BUTTON_CLOSE,196,7,23,15
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,2,0,323
+ PRODUCTVERSION 2,2,0,323
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080403a8"
+        BEGIN
+            VALUE "CompanyName", "Entboost.com, Inc."
+            VALUE "FileDescription", "恩布互联客户端登录验证程序"
+            VALUE "FileVersion", "2, 2, 0, 323"
+            VALUE "InternalName", "eblogin.exe"
+            VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
+            VALUE "OriginalFilename", "eblogin.exe"
+            VALUE "ProductName", "恩布互联客户端登录验证程序"
+            VALUE "ProductVersion", "2, 2, 0, 323"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 936
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_EBLOGIN_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 226
+    END
+
+    IDD_DLG_REG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 226
+    END
+
+    IDD_DLG_LOGIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 246
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 305
+    END
+
+    IDD_DLG_MESSAGE_BOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 246
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 305
+    END
+
+    IDD_DLG_SETTING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 219
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 93
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_SELECT_COLOR BITMAP                  "res\\color_select.bmp"
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About eblogin..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\eblogin.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

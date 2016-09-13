@@ -1,0 +1,382 @@
+// SplitterControl.cpp : implementation file
+//
+
+#include "stdafx.h"
+#include "SplitterControl.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// CSplitterControl
+
+// hCursor1 is for vertiacal one
+// and hCursor2 is for horizontal one
+static HCURSOR SplitterControl_hCursor1 = NULL;
+static HCURSOR SplitterControl_hCursor2 = NULL;
+#define SAFE_DELETEOBJECT(obj) {if (obj) DeleteObject(obj);}
+
+CSplitterControl::CSplitterControl()
+{
+	// Mouse is pressed down or not ?
+	m_bIsPressed = FALSE;	
+
+	// Min and Max range of the splitter.
+	m_nMin = m_nMax = -1;
+	m_colorBack = RGB(172, 217, 255);
+	m_colorBorder = RGB(172, 217, 255);
+	m_bTransparent = false;
+}
+
+CSplitterControl::~CSplitterControl()
+{
+}
+
+
+BEGIN_MESSAGE_MAP(CSplitterControl, CStatic)
+	//{{AFX_MSG_MAP(CSplitterControl)
+	ON_WM_PAINT()
+	ON_WM_MOUSEMOVE()
+	ON_WM_SETCURSOR()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CSplitterControl message handlers
+
+/****************************************************
+*	Create(DWORD dwStyle, const CRect& rect, CWnd* pParent, nID)
+*	Use this function instead of the CStatic::Create function
+* Parameters: No need to explain (see MSDN (:-) )
+*
+****************************************************/
+void CSplitterControl::Create(DWORD dwStyle, const CRect &rect, CWnd *pParent, UINT nID)
+{
+	CRect rc = rect;
+	dwStyle |= SS_NOTIFY;
+	
+	// Determine default type base on it's size.
+	m_nType = (rc.Width() < rc.Height())?
+					SPS_VERTICAL:
+					SPS_HORIZONTAL;
+	
+	if (m_nType == SPS_VERTICAL)
+		rc.right = rc.left + 5;
+	else // SPS_HORIZONTAL
+		rc.bottom = rc.top + 5;
+	
+	CStatic::Create(_T(""), dwStyle, rc, pParent, nID);
+	
+	if (!SplitterControl_hCursor1)
+	{
+		SplitterControl_hCursor1 = AfxGetApp()->LoadStandardCursor(IDC_SIZEWE);
+		SplitterControl_hCursor2 = AfxGetApp()->LoadStandardCursor(IDC_SIZENS);
+	}
+	
+	// force the splitter not to be splited.
+	SetRange(0, 0, -1);
+}
+
+// Set style for splitter control
+// nStyle = SPS_VERTICAL or SPS_HORIZONTAL
+int CSplitterControl::SetStyle(int nStyle)
+{
+	int m_nOldStyle = m_nType;
+	m_nType = nStyle;
+	return m_nOldStyle;
+}
+int CSplitterControl::GetStyle(void) const
+{
+	return m_nType;
+}
+
+void CSplitterControl::OnPaint() 
+{
+	CPaintDC dc(this); // device context for painting
+	if (m_bTransparent)
+	{
+		dc.SetBkMode(TRANSPARENT);
+		return;
+	}
+	CRect rcClient;
+	GetClientRect(rcClient);
+	
+	CBrush br, *pOB;
+	CPen pen, *pOP;
+
+	//dc.Draw3dRect(rcClient, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNSHADOW));	
+	//rcClient.DeflateRect(1,1,1,1);
+	
+	if (!pen.CreatePen(0, 1, m_colorBorder)) return;
+	if (!br.CreateSolidBrush(m_colorBack)) return;
+	pOB = dc.SelectObject(&br);
+	pOP = dc.SelectObject(&pen);
+	
+	dc.Rectangle(rcClient);
+
+	// Restore pen and brush
+	dc.SelectObject(pOB);
+	dc.SelectObject(pOP);
+	br.DeleteObject();
+	pen.DeleteObject();
+}
+void CSplitterControl::SetColor(COLORREF colorBack, COLORREF colorBorder)
+{
+	m_colorBack = colorBack;
+	m_colorBorder = colorBorder;
+	m_bTransparent = false;
+}
+void CSplitterControl::SetTransparent(bool bTransparent)
+{
+	m_bTransparent = true;
+}
+
+void CSplitterControl::OnMouseMove(UINT nFlags, CPoint point) 
+{
+	if (m_bIsPressed)
+	{
+		CWindowDC dc(NULL);
+		DrawLine(&dc, m_nX, m_nY);
+		
+		CPoint pt = point;
+		ClientToScreen(&pt);
+		GetParent()->ScreenToClient(&pt);
+
+		if (m_nMin>=0 && pt.x < m_nMin)
+			pt.x = m_nMin;
+		if (m_nMin>=0 && pt.y < m_nMin)
+			pt.y = m_nMin;
+
+		if (m_nMax>=0 && pt.x > m_nMax)
+			pt.x = m_nMax;
+		if (m_nMax>=0 && pt.y > m_nMax)
+			pt.y = m_nMax;
+
+		GetParent()->ClientToScreen(&pt);
+		m_nX = pt.x;
+		m_nY = pt.y;
+		DrawLine(&dc, m_nX, m_nY);
+	}
+	CStatic::OnMouseMove(nFlags, point);
+}
+
+BOOL CSplitterControl::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message) 
+{
+	if (nHitTest == HTCLIENT)
+	{
+		(m_nType == SPS_VERTICAL)?(::SetCursor(SplitterControl_hCursor1))
+			:(::SetCursor(SplitterControl_hCursor2));
+		return 0;
+	}
+	else
+		return CStatic::OnSetCursor(pWnd, nHitTest, message);
+}
+
+void CSplitterControl::OnLButtonDown(UINT nFlags, CPoint point) 
+{
+	CStatic::OnLButtonDown(nFlags, point);
+	
+	m_bIsPressed = TRUE;
+	SetCapture();
+	CRect rcWnd;
+	GetWindowRect(rcWnd);
+	
+	if (m_nType == SPS_VERTICAL)
+		m_nX = rcWnd.left + rcWnd.Width() / 2;	
+	
+	else
+		m_nY = rcWnd.top  + rcWnd.Height() / 2;
+	
+	if (m_nType == SPS_VERTICAL)
+		m_nSavePos = m_nX;
+	else
+		m_nSavePos = m_nY;
+
+	CWindowDC dc(NULL);
+	DrawLine(&dc, m_nX, m_nY);
+}
+
+void CSplitterControl::OnLButtonUp(UINT nFlags, CPoint point) 
+{
+	if (m_bIsPressed)
+	{
+		ClientToScreen(&point);
+		CWindowDC dc(NULL);
+
+		DrawLine(&dc, m_nX, m_nY);
+		CPoint pt(m_nX, m_nY);
+		m_bIsPressed = FALSE;
+		CWnd *pOwner = GetOwner();
+		if (pOwner && IsWindow(pOwner->m_hWnd))
+		{
+			CRect rc;
+			int delta;
+			pOwner->GetClientRect(rc);
+			pOwner->ScreenToClient(&pt);
+			MoveWindowTo(pt);
+
+			if (m_nType == SPS_VERTICAL)
+				delta = m_nX - m_nSavePos;
+			else
+				delta = m_nY - m_nSavePos;
+			
+			
+			SPC_NMHDR nmsp;
+			nmsp.hdr.hwndFrom = m_hWnd;
+			nmsp.hdr.idFrom   = GetDlgCtrlID();
+			nmsp.hdr.code     = SPN_SIZED;
+			nmsp.delta = delta;
+			pOwner->SendMessage(WM_NOTIFY, nmsp.hdr.idFrom, (LPARAM)&nmsp);
+			//SPC_NMHDR * nmsp;
+			//nmsp->hdr.hwndFrom = m_hWnd;
+			//nmsp->hdr.idFrom   = GetDlgCtrlID();
+			//nmsp->hdr.code     = SPN_SIZED;
+			//nmsp->delta = delta;
+			//pOwner->PostMessage(WM_NOTIFY, nmsp->hdr.idFrom, (LPARAM)nmsp);
+		}
+	}
+
+	CStatic::OnLButtonUp(nFlags, point);
+	ReleaseCapture();
+}
+
+void CSplitterControl::DrawLine(CDC* pDC, int x, int y)
+{
+	int nRop = pDC->SetROP2(R2_NOTXORPEN);
+
+	CRect rcWnd;
+	int d = 1;
+	GetWindowRect(rcWnd);
+	CPen  pen;
+	if (!pen.CreatePen(0, 1, RGB(200, 200, 200))) return;
+	CPen *pOP = pDC->SelectObject(&pen);
+	
+	if (m_nType == SPS_VERTICAL)
+	{
+		pDC->MoveTo(m_nX - d, rcWnd.top);
+		pDC->LineTo(m_nX - d, rcWnd.bottom);
+
+		pDC->MoveTo(m_nX + d, rcWnd.top);
+		pDC->LineTo(m_nX + d, rcWnd.bottom);
+	}
+	else // m_nType == SPS_HORIZONTAL
+	{
+		pDC->MoveTo(rcWnd.left, m_nY - d);
+		pDC->LineTo(rcWnd.right, m_nY - d);
+		
+		pDC->MoveTo(rcWnd.left, m_nY + d);
+		pDC->LineTo(rcWnd.right, m_nY + d);
+	}
+	pDC->SetROP2(nRop);
+	pDC->SelectObject(pOP);
+	pen.DeleteObject();
+}
+
+void CSplitterControl::MoveWindowTo(CPoint pt)
+{
+	CRect rc;
+	GetWindowRect(rc);
+	CWnd* pParent;
+	pParent = GetParent();
+	if (!pParent || !::IsWindow(pParent->m_hWnd))
+		return;
+
+	pParent->ScreenToClient(rc);
+	if (m_nType == SPS_VERTICAL)
+	{	
+		int nMidX = (rc.left + rc.right) / 2;
+		int dx = pt.x - nMidX;
+		rc.OffsetRect(dx, 0);
+	}
+	else
+	{	
+		int nMidY = (rc.top + rc.bottom) / 2;
+		int dy = pt.y - nMidY;
+		rc.OffsetRect(0, dy);
+	}
+	MoveWindow(rc);
+}
+
+void CSplitterControl::ChangeWidth(CWnd *pWnd, int dx, DWORD dwFlag)
+{
+	CWnd* pParent = pWnd->GetParent();
+	//if (pParent && ::IsWindow(pParent->m_hWnd))
+	{
+		CRect rcWnd;
+		pWnd->GetWindowRect(rcWnd);
+		if (pParent && ::IsWindow(pParent->m_hWnd))
+			pParent->ScreenToClient(rcWnd);
+		if (dwFlag == CW_LEFTALIGN)
+			rcWnd.right += dx;
+		else if (dwFlag == CW_RIGHTALIGN)
+			rcWnd.left -= dx;
+		pWnd->MoveWindow(rcWnd);
+	}
+}
+
+void CSplitterControl::ChangeHeight(CWnd *pWnd, int dy, DWORD dwFlag)
+{
+	CWnd* pParent = pWnd->GetParent();
+	//if (pParent && ::IsWindow(pParent->m_hWnd))
+	{
+		CRect rcWnd;
+		pWnd->GetWindowRect(rcWnd);
+		if (pParent && ::IsWindow(pParent->m_hWnd))
+			pParent->ScreenToClient(rcWnd);
+		if (dwFlag == CW_TOPALIGN)
+			rcWnd.bottom += dy;
+		else if (dwFlag == CW_BOTTOMALIGN)
+			rcWnd.top -= dy;
+		pWnd->MoveWindow(rcWnd);
+	}
+}
+
+void CSplitterControl::ChangePos(CWnd* pWnd, int dx, int dy)
+{
+	CWnd* pParent = pWnd->GetParent();
+	if (pParent && ::IsWindow(pParent->m_hWnd))
+	{
+		CRect rcWnd;
+		pWnd->GetWindowRect(rcWnd);
+		pParent->ScreenToClient(rcWnd);
+		rcWnd.OffsetRect(-dx, dy);
+
+		pWnd->MoveWindow(rcWnd);
+	}	
+}
+
+void CSplitterControl::SetRange(int nMin, int nMax)
+{
+	m_nMin = nMin;
+	m_nMax = nMax;
+}
+void CSplitterControl::GetRange(int & pOutMin, int & pOutMax) const
+{
+	pOutMin = m_nMin;
+	pOutMax = m_nMax;
+}
+
+// Set splitter range from (nRoot - nSubtraction) to (nRoot + nAddition)
+// If (nRoot < 0)
+//		nRoot =  <current position of the splitter>
+void CSplitterControl::SetRange(int nSubtraction, int nAddition, int nRoot)
+{
+	if (nRoot < 0)
+	{
+		CRect rcWnd;
+		GetWindowRect(rcWnd);
+		GetParent()->ScreenToClient(&rcWnd);	// add by hd
+
+		if (m_nType == SPS_VERTICAL)
+			nRoot = rcWnd.left + rcWnd.Width() / 2;
+		else // if m_nType == SPS_HORIZONTAL
+			nRoot = rcWnd.top + rcWnd.Height() / 2;
+	}
+	m_nMin = nRoot - nSubtraction;
+	m_nMax = nRoot + nAddition;
+}
