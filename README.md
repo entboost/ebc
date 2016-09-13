@@ -1,7 +1,7 @@
 
-# 恩布协同办公、企业即时通讯软件平台 ENTBOOST
-+ ***私有部署服务端，开源、免费、零维护；***；支持多种编程语言SDK；方便集成第三方应用；开放客户端源码；
-+ [服务端下载](http://doc.entboost.com/index.php/Downloads)；[安卓Android开源IM](https://git.oschina.net/akee/EntboostIM)；[苹果iOS开源IM](https://git.oschina.net/akee/EntboostChat)
+# 恩布协同办公、企业即时通讯软件平台
++ [服务端下载](http://doc.entboost.com/index.php/Downloads)
++ [恩布开源项目](http://doc.entboost.com/index.php/Im_source)
 
 ## 登录界面&色调换肤功能
 ![登录界面](/image/1.png "登录界面")
