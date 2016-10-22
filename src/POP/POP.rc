@@ -1691,7 +1691,7 @@ IDB_PNG_BTN_ARROWDOWN72X18 PNG                     "res\\skin\\btn_arrowdown72X1
 IDB_PNG_REDCIR_16X16    PNG                     "res\\skin\\btnredcircular16X16.png"
 IDB_PNG_WORKFRAME       PNG                     "res\\skin\\workframe.png"
 IDB_PNG_MAINFRAME       PNG                     "res\\skin\\mainframe.png"
-IDB_PNG_BTN_MY_SHARE_UISTYLE1 PNG                     "D:\\tn\\entboost\\src\\POP\\res\\skin\\btnmyshare_uistyle1.png"
+IDB_PNG_BTN_MY_SHARE_UISTYLE1 PNG                     "res\\skin\\btnmyshare_uistyle1.png"
 IDB_PNG_BTN_MY_CENTER_UISTYLE1 PNG                     "res\\skin\\btnmycenter_uistyle1.png"
 IDB_PNG_BTN_FILE_MGR_UISTYLE1 PNG                     "res\\skin\\btnfilemgr_uistyle1.png"
 

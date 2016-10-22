@@ -23,11 +23,11 @@ bool theWantExitApp = false;
 #ifndef USES_EBCOM_TEST
 #ifdef _DEBUG
 //#pragma comment(lib, "videoroomd.lib")
-#pragma comment(lib, "ustrmbas9d.lib")
+//#pragma comment(lib, "ustrmbas9d.lib")
 #pragma comment(lib, "libebumd.lib")
 #else
 //#pragma comment(lib, "videoroom.lib")
-#pragma comment(lib, "USTRMBASE9.lib")
+//#pragma comment(lib, "USTRMBASE9.lib")
 #pragma comment(lib, "libebum.lib")
 #endif
 #endif
