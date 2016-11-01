@@ -17,7 +17,7 @@
 
 ## \src\POP\cef目录下 client_handler.h,client_handler.cpp 注释掉 virtual bool OnFileDialog 函数；
 
-## 除了 boost 和 cef 二个第三方库，其他需要用到的 .h 头文件和 .lib 库文件，全部在 \src 目录下，请自行添加到VC工程里面；
+## 除了 boost 和 cef 二个第三方库，其他需要用到的 .h 头文件和 .lib 库文件，全部在 \src 目录下，请自行添加VC路径；
 ## 编译的时候，请选择编译 Debug 和 Release ，其他不需要编译；
 ## 编译成功后复制 ebc.exe 文件到恩布客户端，替换文件，尝试运行是否成功；
  
