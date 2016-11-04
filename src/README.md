@@ -6,6 +6,9 @@
 + [boost 1.55](http://www.boost.org/)
 + [cef_binary_3.2272.32.gbda8dc7_windows32](https://bitbucket.org/chromiumembedded/cef)
 
+## src\POP\cef\client_handler_win.cpp 文件对增加以行代码：
+ #include <stdafx.h>
+ 
 ## cef_binary_3.2272.32.gbda8dc7_windows32\include\internal\cef_types.h 文件91行位置，增加以下三行代码：
  #ifndef uint32
  
