@@ -7,16 +7,13 @@
 + [cef_binary_3.2272.32.gbda8dc7_windows32](https://bitbucket.org/chromiumembedded/cef)
 
 ## src\POP\cef\client_handler_win.cpp 文件对增加以行代码：
- #include <stdafx.h>
+		#include <stdafx.h>
  
 ## cef_binary_3.2272.32.gbda8dc7_windows32\include\internal\cef_types.h 文件91行位置，增加以下三行代码：
- #ifndef uint32
- 
- #define uint32 unsigned int
- 
- #endif
- 
- typedef uint32              cef_color_t;
+	#ifndef uint32
+	#define uint32 unsigned int
+	#endif
+	typedef uint32              cef_color_t;
 
 ## \src\POP\cef目录下 client_handler.h,client_handler.cpp 注释掉 virtual bool OnFileDialog 函数；
 
