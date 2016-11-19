@@ -18,6 +18,7 @@ CDlgMySession::CDlgMySession(CWnd* pParent /*=NULL*/)
 {
 	m_pViewContactInfo = NULL;
 	m_hCurrentHotItem = NULL;
+	m_bReloadRecordData = false;
 }
 
 CDlgMySession::~CDlgMySession()
@@ -38,7 +39,7 @@ BEGIN_MESSAGE_MAP(CDlgMySession, CDialog)
 	ON_MESSAGE(WM_ITEM_DOUBLE_CLICK, OnTreeItemDblclk)
 	ON_MESSAGE(WM_ITEM_TRACK_HOT, OnTreeItemTrackHot)
 	ON_COMMAND(EB_COMMAND_DELETE_SESSION, OnSessionDeleteSes)
-	//ON_MESSAGE(EB_COMMAND_DELETE_SESSION, OnMsgDeleteSes)
+	ON_MESSAGE(EB_COMMAND_DELETE_SESSION, OnMsgDeleteSes)
 	ON_MESSAGE(EB_COMMAND_NEW_CONTACT, OnMsgNewContact)
 	ON_COMMAND(EB_COMMAND_CLEAR_SESSION, OnSessionClearSes)
 	ON_WM_DESTROY()
@@ -63,11 +64,11 @@ BOOL CDlgMySession::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	//m_btnDeleteTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSession, 0xffff);
-	//m_btnDeleteTrack.SetAutoSize(false);
-	//m_btnDeleteTrack.SetAutoFocus(true);
-	//m_btnDeleteTrack.Load(IDB_PNG_HOT_DELETE);
-	//m_btnDeleteTrack.SetToolTipText(_T("删除会话记录"));
+	m_btnDeleteTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSession, 0xffff);
+	m_btnDeleteTrack.SetAutoSize(false);
+	m_btnDeleteTrack.SetAutoFocus(true);
+	m_btnDeleteTrack.Load(IDB_PNG_HOT_DELETE);
+	m_btnDeleteTrack.SetToolTipText(_T("删除会话记录"));
 	m_btnAddContact.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSession, 0xffff);
 	m_btnAddContact.SetAutoSize(false);
 	m_btnAddContact.SetAutoFocus(true);
@@ -300,7 +301,8 @@ int CALLBACK MyCompareProc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
    return t1>t2?-1:1;
 }
 
-CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount,bool bSysMsg) const
+CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount,int nMsgType) const
+//CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount,bool bSysMsg) const
 {
 	BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_pCallRecordInfo.mutex()));
 	//boost::mutex::scoped_lock lock(const_cast<boost::mutex&>(m_pCallRecordInfo.mutex()));
@@ -313,10 +315,12 @@ CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, e
 		//	(pCallRecordInfo->m_sGroupCode>0 || pCallRecordInfo->m_nFromUserId>0))
 		{
 			// 验证消息
-			if (bSysMsg)
+			if (nMsgType>0)
+			////if (bSysMsg)
 			{
-				if (sDepCode>0 && sDepCode==pCallRecordInfo->m_sGroupCode &&
-					sAccount>0 && sAccount==pCallRecordInfo->m_nFromUserId)
+				if ((sDepCode>0 && sDepCode==pCallRecordInfo->m_sGroupCode) ||
+					(sAccount>0 && sAccount==pCallRecordInfo->m_nFromUserId) ||
+					(nMsgType==EBC_MSG_TYPE_BC_MSG && pCallRecordInfo->m_nFromType==EBC_MSG_TYPE_BC_MSG))	// 消息广播只显示当前一条
 				{
 					return pCallRecordInfo;
 				}
@@ -342,9 +346,10 @@ CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, e
 	return NullCallRecordInfo;
 }
 
-void CDlgMySession::InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo,bool bSysMsg, bool bInsertNew)
+void CDlgMySession::InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo, bool bInsertNew)
+//void CDlgMySession::InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo,bool bSysMsg, bool bInsertNew)
 {
-	CCallRecordInfo::pointer pOldCallInfo = GetCallRecordInfo(pCallRecordInfo->m_sGroupCode,pCallRecordInfo->m_nFromUserId,bSysMsg);
+	CCallRecordInfo::pointer pOldCallInfo = GetCallRecordInfo(pCallRecordInfo->m_sGroupCode,pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_nFromType);
 	if (pOldCallInfo.get()!=NULL)
 	{
 		if (bInsertNew)
@@ -354,12 +359,18 @@ void CDlgMySession::InsertCallRecord(const CCallRecordInfo::pointer& pCallRecord
 		}
 		if (pCallRecordInfo->m_sGroupCode>0 || !is_visitor_uid(pCallRecordInfo->m_nFromUserId))
 		{
-			CString sSql;
 			if (bInsertNew)
+			{
+				CString sSql;
 				sSql.Format(_T("DELETE FROM call_record_t WHERE call_id=%lld"),pOldCallInfo->m_sCallId);
-			else
-				sSql.Format(_T("DELETE FROM call_record_t WHERE call_id=%lld"),pCallRecordInfo->m_sCallId);
-			theApp.m_pBoUsers->execute(sSql);
+				theApp.m_pBoUsers->execute(sSql);
+			}
+			//CString sSql;
+			//if (bInsertNew)
+			//	sSql.Format(_T("DELETE FROM call_record_t WHERE call_id=%lld"),pOldCallInfo->m_sCallId);
+			//else
+			//	sSql.Format(_T("DELETE FROM call_record_t WHERE call_id=%lld"),pCallRecordInfo->m_sCallId);
+			//theApp.m_pBoUsers->execute(sSql);
 		}
 		if (!bInsertNew)
 			return;
@@ -448,7 +459,8 @@ void CDlgMySession::OnTimer(UINT_PTR nIDEvent)
 		KillTimer(TIMERID_LOAD_CALL_RECORD);
 		const CString sSql = _T("SELECT call_id,Datetime(call_time,'localtime'),dep_code,dep_name,emp_code,from_uid,from_phone,from_account,from_name,from_type,company,title,tel,email FROM call_record_t ORDER BY call_time desc LIMIT 50");
 		int nCookie = 0;
-		theApp.m_pBoUsers->select(sSql, nCookie);
+		const int nCount = theApp.m_pBoUsers->select(sSql, nCookie);
+		m_bReloadRecordData = nCount==50?true:false;
 		cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 		while (pRecord.get()!=NULL)
 		{
@@ -474,7 +486,7 @@ void CDlgMySession::OnTimer(UINT_PTR nIDEvent)
 			//pCallRecordInfo->m_sPhone = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[12]->v.varcharVal);
 			pCallRecordInfo->m_sTel = pRecord->getVector()[12]->getStrValue();
 			pCallRecordInfo->m_sEmail = pRecord->getVector()[13]->getStrValue();
-			InsertCallRecord(pCallRecordInfo,false,false);
+			InsertCallRecord(pCallRecordInfo,false);
 			pRecord = theApp.m_pBoUsers->next(nCookie);
 		}
 		theApp.m_pBoUsers->reset(nCookie);
@@ -506,7 +518,7 @@ LRESULT CDlgMySession::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 			m_pViewContactInfo->SetMoveLeave();
 			//m_pViewContactInfo->HideReset();
 		}
-		//m_btnDeleteTrack.ShowWindow(SW_HIDE);
+		m_btnDeleteTrack.ShowWindow(SW_HIDE);
 		m_btnCallTrack.ShowWindow(SW_HIDE);
 		m_btnAddContact.ShowWindow(SW_HIDE);
 	}else if (m_btnCallTrack.GetSafeHwnd() != NULL)
@@ -568,6 +580,7 @@ LRESULT CDlgMySession::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 					m_pViewContactInfo->SetMoveLeave();
 					//m_pViewContactInfo->HideReset();
 				}
+				m_btnDeleteTrack.ShowWindow(SW_HIDE);
 				m_btnCallTrack.ShowWindow(SW_HIDE);
 				m_btnAddContact.ShowWindow(SW_HIDE);
 				return 0;
@@ -783,6 +796,16 @@ LRESULT CDlgMySession::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		{
 			m_btnAddContact.ShowWindow(SW_HIDE);
 		}
+		if (pCallRecordInfo.get()!=NULL && pCallRecordInfo->m_sGroupCode==0 && is_visitor_uid(pCallRecordInfo->m_nFromUserId))
+		{
+			// ** 游客增加删除按钮，方便操作
+			m_btnDeleteTrack.MovePoint(nRight-const_btn_width*(bAddMyContact?3:2), nTop);
+			m_btnDeleteTrack.ShowWindow(SW_SHOW);
+			m_btnDeleteTrack.Invalidate();
+		}else
+		{
+			m_btnDeleteTrack.ShowWindow(SW_HIDE);
+		}
 	}
 	return 0;
 }
@@ -810,12 +833,11 @@ BOOL CDlgMySession::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 
-	//if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnDeleteTrack.GetSafeHwnd())
-	//{
-	//	//DeleteItem(m_treeSession.GetTrackItem(),true);
-	//	this->PostMessage(EB_COMMAND_DELETE_SESSION,(WPARAM)m_treeSession.GetTrackItem(),0);
-	//}else
-	if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnCallTrack.GetSafeHwnd())
+	if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnDeleteTrack.GetSafeHwnd())
+	{
+		//DeleteItem(m_treeSession.GetTrackItem(),true);
+		this->PostMessage(EB_COMMAND_DELETE_SESSION,(WPARAM)m_treeSession.GetTrackItem(),0);
+	}else if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnCallTrack.GetSafeHwnd())
 	{
 		CallItem(m_treeSession.GetTrackItem());
 	}else if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN && pMsg->hwnd == m_treeSession.GetSafeHwnd())
@@ -868,6 +890,11 @@ void CDlgMySession::DeleteItem(HTREEITEM hItem)
 	}else
 	{
 		m_treeSession.DeleteItem(hItem);
+	}
+	if (m_bReloadRecordData && m_treeSession.GetCount()<20)
+	{
+		KillTimer(TIMERID_LOAD_CALL_RECORD);
+		SetTimer(TIMERID_LOAD_CALL_RECORD,100,NULL);
 	}
 }
 
@@ -924,7 +951,7 @@ void CDlgMySession::CallItem(HTREEITEM hItem)
 void CDlgMySession::OnDestroy()
 {
 	__super::OnDestroy();
-	//m_btnDeleteTrack.DestroyWindow();
+	m_btnDeleteTrack.DestroyWindow();
 	m_btnCallTrack.DestroyWindow();
 	m_btnAddContact.DestroyWindow();
 	if (m_pViewContactInfo)
@@ -1215,12 +1242,20 @@ void CDlgMySession::OnSessionClearSes()
 	{
 		return;
 	}
+	const bool bTemp = m_bReloadRecordData;
+	m_bReloadRecordData = false;
 	HTREEITEM hChildItem = m_treeSession.GetChildItem(TVI_ROOT);
 	while (hChildItem!=NULL)
 	{
 		HTREEITEM hNextItem = m_treeSession.GetNextItem(hChildItem, TVGN_NEXT);
 		DeleteItem(hChildItem);
 		hChildItem = hNextItem;
+	}
+	m_bReloadRecordData = bTemp;
+	if (m_bReloadRecordData && m_treeSession.GetCount()<20)
+	{
+		KillTimer(TIMERID_LOAD_CALL_RECORD);
+		SetTimer(TIMERID_LOAD_CALL_RECORD,100,NULL);
 	}
 }
 

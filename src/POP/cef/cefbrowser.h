@@ -36,7 +36,8 @@ public:
 		HWND hWnd = pParentWnd;//->GetSafeHwnd();
 		CefWindowInfo info;
 		CefBrowserSettings settings;
-		cef_string_utf8_to_utf16("UTF-8",5,&settings.default_encoding);
+		cef_string_utf8_to_utf16("GBK",3,&settings.default_encoding);
+		//cef_string_utf8_to_utf16("UTF-8",5,&settings.default_encoding);
 		//settings.javascript_open_windows = STATE_ENABLED;
 		//settings.text_area_resize = STATE_ENABLED;
 		info.SetAsChild(hWnd, rect);
@@ -77,6 +78,7 @@ public:
 	void GoForward(void) {if (g_handler.get()!=NULL && g_handler->GetBrowser()) g_handler->GetBrowser()->GoForward();}
 	bool IsLoading(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->IsLoading():false;}
 	void Reload(void) {if (g_handler.get()!=NULL && g_handler->GetBrowser()) g_handler->GetBrowser()->Reload();}
+	void ReloadIgnoreCache(void) {if (g_handler.get()!=NULL && g_handler->GetBrowser()) g_handler->GetBrowser()->ReloadIgnoreCache();}
 	void StopLoad(void) {if (g_handler.get()!=NULL && g_handler->GetBrowser()) g_handler->GetBrowser()->StopLoad();}
 	bool IsPopup(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->IsPopup():false;}
 	bool HasDocument(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->HasDocument():false;}

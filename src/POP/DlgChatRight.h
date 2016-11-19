@@ -50,6 +50,12 @@ private:
 };
 
 // CDlgChatRight dialog
+/*
+ * 聊天对话框界面右边窗口类
+ * 用于显示在聊天对话框右边，用于管理包括：电子名片，视频面板，文件传输，历史消息，等窗口。
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgChatRight : public CEbDialogBase
 {
 	DECLARE_DYNAMIC(CDlgChatRight)

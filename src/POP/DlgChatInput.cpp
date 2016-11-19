@@ -42,7 +42,7 @@ CDlgChatInput::CDlgChatInput(CWnd* pParent /*=NULL*/)
 	m_nLastMsgId = 0;
 	m_nFromUid = 0;
 	m_nToUid = 0;
-	m_nPrevReceivedFileMsgId = 0;
+	//m_nPrevReceivedFileMsgId = 0;
 	//m_tLastMsgTime = 0;
 	m_bOwnerCall = false;
 	m_nMoveEnterMsgId = 0;
@@ -179,6 +179,7 @@ BOOL CDlgChatInput::OnInitDialog()
 		//AfxMessageBox(stext);
 		return FALSE;
 	}
+	m_pMrFrameInterface->SetParameter(EBC_CONTRON_PARAMETER_DISABLE_RECEIPT,(m_pCallInfo.m_sGroupCode>0||theApp.GetDisableMsgReceipt())?1:0);
 	m_pMrFrameInterface->SetSelectCbData1(EB_MR_CTRL_DATA_TYPE_SELECT_STRING);
 	m_pMrFrameInterface->SetLineInterval(3);
 	m_pMrFrameInterface->SetBackgroundColor(theDefaultFlatBgColor);
@@ -348,7 +349,7 @@ BOOL CDlgChatInput::OnInitDialog()
 	LoadMsgRecord();
 	//ShowImageWindow(false);
 	SetTimer(TIMERID_SHOW_MRFRAME,100,NULL);
-	SetTimer(TIMERID_SEND_CALL_NOTIFY,7*1000,NULL);
+	SetTimer(TIMERID_SEND_CALL_NOTIFY,6*1000,NULL);
 	if (m_pCallInfo.m_sGroupCode==0)
 	{
 		const std::wstring sText(L"对方正在输入...");
@@ -1000,12 +1001,12 @@ void CDlgChatInput::OnSentFile(IEB_ChatFileInfo* pCrFileInfo)
 		ProcessFile(false,pCrFileInfo);
 }
 #else
-bool CDlgChatInput::OnSentFile(const CCrFileInfo * pCrFileInfo)
+bool CDlgChatInput::OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState)
 {
 	//if (pCrFileInfo->m_sReceiveAccount.empty())	// 错误
 	//	return;
 	//if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
-		return ProcessFile(false,pCrFileInfo);
+		return ProcessFile(false,pCrFileInfo,nState);
 }
 #endif
 
@@ -1140,7 +1141,7 @@ void CDlgChatInput::ProcessFile(bool bReceive,IEB_ChatFileInfo* pCrFileInfo)
 		m_pMrFrameInterface->ScrollToPos(-1);
 }
 #else
-bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
+bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo,EB_STATE_CODE nState)
 {
 	time_t tMsgTime = time(0);
 	if (!pCrFileInfo->m_sFileTime.empty())
@@ -1152,6 +1153,7 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
 	CString sWindowText;
 	m_pMrFrameInterface->AddLine(0);
 	m_pMrFrameInterface->SetAlignmentFormat(bReceive?0:2);
+	bool bUpdateMsgReceiptData = false;
 	if (bReceive)
 	{
 		sWindowText.Format(_T("已经接收文件"));
@@ -1161,11 +1163,15 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
 			sWindowText.Format(_T("成功发送离线文件"));
 		else
 		{
-			if (m_nPrevReceivedFileMsgId>0 && m_nPrevReceivedFileMsgId==pCrFileInfo->m_nMsgId)
+			if (m_pPrevReceivedFileMsgIdList.remove(pCrFileInfo->m_nMsgId))
 			{
-				m_nPrevReceivedFileMsgId = 0;
 				return false;	// *前面已经提示“对方已经接收文件”，直接返回不再打印提示
 			}
+			//if (m_nPrevReceivedFileMsgId>0 && m_nPrevReceivedFileMsgId==pCrFileInfo->m_nMsgId)
+			//{
+			//	m_nPrevReceivedFileMsgId = 0;
+			//	return false;	// *前面已经提示“对方已经接收文件”，直接返回不再打印提示
+			//}
 			sWindowText.Format(_T("成功发送文件"));
 		}
 	}else
@@ -1173,9 +1179,13 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
 		if (this->m_pCallInfo.m_sGroupCode==0)
 		{
 			sWindowText.Format(_T("对方已经接收文件"));
-			m_nPrevReceivedFileMsgId = pCrFileInfo->m_nMsgId;
+			m_pPrevReceivedFileMsgIdList.insert(pCrFileInfo->m_nMsgId,true,false);
+			//m_nPrevReceivedFileMsgId = pCrFileInfo->m_nMsgId;
+			bUpdateMsgReceiptData = true;
 		}else
+		{
 			sWindowText.Format(_T("%lld已经接收"),pCrFileInfo->m_sReceiveAccount);
+		}
 	}
 	m_pMrFrameInterface->WriteString((LPCTSTR)sWindowText,theDefaultChatSystemColor);
 	m_pMrFrameInterface->WriteSpace(1);
@@ -1184,6 +1194,11 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
 	m_pMrFrameInterface->AddLine(pCrFileInfo->m_nMsgId);
 	m_pMrFrameInterface->SetAlignmentFormat(bReceive?0:2);
 	m_pMrFrameInterface->SetFrameArc(theArcOffset,thePoloygonWidth,thePoloygonHeight);
+	if (!bReceive && m_pCallInfo.m_sGroupCode==0)
+	{
+		const long nReceiptFlag = bUpdateMsgReceiptData?(EBC_CONTRON_RECEIPT_FLAG_TRUE|EBC_CONTRON_RECEIPT_FLAG_SHOW):EBC_CONTRON_RECEIPT_FLAG_SHOW;
+		m_pMrFrameInterface->SetReceiptFlag(nReceiptFlag);
+	}
 	m_pMrFrameInterface->SetFrameBorderColor(RGB(128,128,128));
 	m_pMrFrameInterface->SetFrameBackGroundColor(bReceive?theDefaultChatBackGroundColor2:theDefaultChatBackGroundColor1);
 	const int nWavTimeLength = libEbc::GetWaveTimeLength(pCrFileInfo->m_sFileName.c_str());
@@ -1254,6 +1269,9 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo)
 		//}
 		//m_pMrFrameInterface->WriteOpenDir(L"打开文件夹",pCrFileInfo->m_sFileName.c_str());
 	}
+	if (bUpdateMsgReceiptData)
+		UpdateMsgReceiptData(pCrFileInfo->m_nMsgId, m_pFromAccountInfo.GetUserId(), nState);
+
 	const bool hIsScrollEnd = (!bReceive || m_pMrFrameInterface->IsScrollEnd()==VARIANT_TRUE)?true:false;
 	m_pMrFrameInterface->UpdateSize(VARIANT_TRUE);
 	if (hIsScrollEnd)
@@ -1397,6 +1415,42 @@ void CDlgChatInput::OnUserNotify(const CCrNotifyInfo* pNotifyInfo)
 				m_pNotifyList.add(CEbNotifyInfo::create(pNotifyInfo->m_nFromAccount));
 			}
 		}break;
+	case 2:	// *群共享，收到资源文件
+		{
+			// ** notify_data=[RESOURCE_ID]*[RESOURCE_TYPE]*[RESOURCE_SHARE_TYPE]*[FILE_SIZE]*[FILE_NAME]
+			std::vector<tstring> pList;
+			if (libEbc::ParseString(pNotifyInfo->m_sNotifyData.c_str(),"*",pList)<5) break;
+			const mycp::bigint nResourceId = cgc_atoi64(pList[0].c_str());
+			const EB_RESOURCE_TYPE nResourceType = (EB_RESOURCE_TYPE)atoi(pList[1].c_str());
+			if (nResourceType!=EB_RESOURCE_FILE) break;
+			const EB_RESOURCE_SHARE_TYPE nResourceShareType = (EB_RESOURCE_SHARE_TYPE)atoi(pList[2].c_str());
+			const mycp::bigint nFileSize = cgc_atoi64(pList[3].c_str());
+			const tstring sFileName = pList[4];
+
+			tstring sMemberName;
+			if (theEBAppClient.EB_GetMemberNameByUserId(this->m_pCallInfo.m_sGroupCode,pNotifyInfo->m_nFromAccount,sMemberName))
+			{
+				// *
+				CString sFileText;
+				if (nFileSize >= const_gb_size)
+					sFileText.Format(_T("%s(%.02fGB)"),sFileName.c_str(),(double)nFileSize/const_gb_size);
+				else if (nFileSize >= const_mb_size)
+					sFileText.Format(_T("%s(%.02fMB)"),sFileName.c_str(),(double)nFileSize/const_mb_size);
+				else if (nFileSize >= const_kb_size)
+					sFileText.Format(_T("%s(%.02fKB)"),sFileName.c_str(),(double)nFileSize/const_kb_size);
+				else if (nFileSize>0)
+					sFileText.Format(_T("%s(%lldByte)"),sFileName.c_str(),nFileSize);
+				else
+					sFileText = sFileName.c_str();
+
+				CString sText;
+				if (nResourceShareType==EB_RESOURCE_SHARE_TEMP)
+					sText.Format(_T("%s 上传群临时文件：%s"),sMemberName.c_str(),sFileText);
+				else
+					sText.Format(_T("%s 上传群共享文件：%s"),sMemberName.c_str(),sFileText);
+				this->AddLineString(0, sText, 1);	// 显示中间
+			}
+		}break;
 	default:
 		break;
 	}
@@ -1405,9 +1459,13 @@ void CDlgChatInput::OnUserNotify(const CCrNotifyInfo* pNotifyInfo)
 
 void CDlgChatInput::OnUserEnter(eb::bigint sFromAccount, const tstring& sFromInfo)
 {
-	if (!this->GetDlgItem(IDC_BUTTON_SEND)->IsWindowEnabled())
+	if (theApp.IsLogonVisitor() ||
+		m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType == EB_ACCOUNT_TYPE_VISITOR)	// 游客不能被动邀请
 	{
-		this->GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
+		if (!this->GetDlgItem(IDC_BUTTON_SEND)->IsWindowEnabled())
+		{
+			this->GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
+		}
 	}
 	//CString sWindowText;
 	//m_pMrFrameInterface->AddLine();
@@ -1458,10 +1516,11 @@ void CDlgChatInput::OnUserExit(eb::bigint sFromAccount)
 		m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType == EB_ACCOUNT_TYPE_VISITOR)	// 游客不能被动邀请
 	{
 		// 不是公司内部员工，需要重新呼叫才能通讯
-		AddLineString(0,_T("对方已经退出本次会话！"));
+		AddLineString(0,_T("对方已经退出本次会话！"),1);
 		//m_richInput.EnableWindow(FALSE);
 		this->GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);
 	}
+
 }
 
 #ifdef USES_EBCOM_TEST
@@ -1474,10 +1533,29 @@ void CDlgChatInput::OnSendRich(const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nStat
 {
 	ProcessMsg(false,pCrMsgInfo,sOutFirstMsg1,sOutFirstMsg2,nState);
 }
+
+void CDlgChatInput::OnMsgReceipt(const CCrRichInfo* pCrMsgInfo, EB_STATE_CODE nState)
+{
+	const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
+	const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
+	UpdateMsgReceiptData(nMsgId, nFromUserId, nState);
+}
 #endif
+void CDlgChatInput::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, EB_STATE_CODE nState)
+{
+	// *** read_flag=1 已经读；
+	// *** read_flag=2 对方接收回执
+	theApp.UpdateMsgReceiptData(nMsgId, nFromUserId);
+	if (m_pMrFrameInterface!=NULL)
+	{
+		const long nReceiptFlag = EBC_CONTRON_RECEIPT_FLAG_TRUE|EBC_CONTRON_RECEIPT_FLAG_SHOW;
+		m_pMrFrameInterface->SetMsgReceiptFlag(nMsgId, nReceiptFlag);
+	}
+}
+
 void CDlgChatInput::OnAlertingCall(void)
 {
-	AddLineString(0,_T("对方已经退出本次会话，正在重新邀请，请稍候...！"));
+	AddLineString(0,_T("对方已经退出本次会话，正在重新邀请，请稍候...！"),1);
 }
 
 #ifdef USES_EBCOM_TEST
@@ -1808,7 +1886,7 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 	}
 	if (nState==EB_STATE_MAX_CAPACITY_ERROR)
 	{
-		AddLineString(0,_T("超过最大消息长度！"));
+		AddLineString(0,_T("超过最大消息长度！"),1);
 		return;
 	}
 
@@ -1851,6 +1929,11 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				sFromName = m_pFromAccountInfo.m_pFromCardInfo.m_sName;
 			sToName = theEBAppClient.EB_GetUserName();
 
+			if (m_pPanelStatus!=NULL && m_pPanelStatus->IsWindowVisible())
+			{
+				KillTimer(TIMERID_HIDE_NOTIFY1);
+				SetTimer(TIMERID_HIDE_NOTIFY1,1000,NULL);
+			}
 			//if (m_labelNotify1.IsWindowVisible())
 			//{
 			//	m_labelNotify1.ShowWindow(SW_HIDE);
@@ -1967,6 +2050,8 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 	m_pMrFrameInterface->SetFrameArc(theArcOffset,thePoloygonWidth,thePoloygonHeight);
 	m_pMrFrameInterface->SetFrameBorderColor(RGB(128,128,128));
 	m_pMrFrameInterface->SetFrameBackGroundColor(bReceive?theDefaultChatBackGroundColor2:theDefaultChatBackGroundColor1);
+	if (!bReceive && m_pCallInfo.m_sGroupCode==0)
+		m_pMrFrameInterface->SetReceiptFlag(EBC_CONTRON_RECEIPT_FLAG_SHOW);
 
 	int nOutMsgLength = 0;
 	const std::vector<EB_ChatRoomMsgItem*>& pRichMsgList = pRichMsg->GetList();
@@ -2056,25 +2141,40 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				{
 					nRecordType = MRT_WAV;
 					sObjectFileName.Format(_T("%s\\%x%02x%02x.wav"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
+				}else if (nSubType==EB_RICH_SUB_TYPE_MAP_POS)	// 地图位置
+				{
+					nRecordType = MRT_MAP_POS;
+					sObjectFileName = pMsgItem->GetData();
+				}else if (nSubType==EB_RICH_SUB_TYPE_USER_DATA)	// 用户自定义数据
+				{
+					nRecordType = MRT_USER_DATA;
+					sObjectFileName.Format(_T("%s\\%x%02x%02x"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
 				}else
 				{
 					// 普通文件；
 					nRecordType = MRT_FILE;
 					sObjectFileName.Format(_T("%s\\%x%02x%02x"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
 				}
-				const char * lpObjectData = pMsgItem->GetData();
-				DWORD dwDataSize = pMsgItem->GetSize();
-				FILE * hFile = fopen(sObjectFileName,"wb");
-				if (hFile!=NULL)
+				if (nRecordType != MRT_MAP_POS)
 				{
-					fwrite(lpObjectData,dwDataSize,1,hFile);
-					fclose(hFile);
+					const char * lpObjectData = pMsgItem->GetData();
+					DWORD dwDataSize = pMsgItem->GetSize();
+					FILE * hFile = fopen(sObjectFileName,"wb");
+					if (hFile!=NULL)
+					{
+						fwrite(lpObjectData,dwDataSize,1,hFile);
+						fclose(hFile);
+					}
 				}
 			}else
 			{
 				sObjectFileName = pMsgItem->GetText().c_str();
 				if (nSubType == EB_RICH_SUB_TYPE_AUDIO)
 					nRecordType = MRT_WAV;
+				else if (nSubType == EB_RICH_SUB_TYPE_MAP_POS)		// ??
+					nRecordType = MRT_MAP_POS;
+				else if (nSubType == EB_RICH_SUB_TYPE_USER_DATA)	// ??
+					nRecordType = MRT_USER_DATA;
 			}
 			if (nSubType == EB_RICH_SUB_TYPE_JPG)
 			{
@@ -2116,7 +2216,20 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				{
 					sOutFirstMsg2->Append(_T("[语音]"));
 				}
-
+			}else if (nSubType==EB_RICH_SUB_TYPE_MAP_POS)	// 地图位置
+			{
+				// ???
+				if (sOutFirstMsg2!=NULL && sOutFirstMsg2->GetLength()<const_max_length)
+				{
+					sOutFirstMsg2->Append(_T("[地图位置]"));
+				}
+			}else if (nSubType==EB_RICH_SUB_TYPE_USER_DATA)	// 用户自定义数据
+			{
+				// ???
+				if (sOutFirstMsg2!=NULL && sOutFirstMsg2->GetLength()<const_max_length)
+				{
+					sOutFirstMsg2->Append(_T("[用户自定义数据]"));
+				}
 			}else
 			{
 				WriteFileHICON(sObjectFileName);
@@ -2177,7 +2290,15 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 		m_pMrFrameInterface->ScrollToPos(-1);
 	if (nState==EB_STATE_EXCESS_QUOTA_ERROR)
 	{
-		AddLineString(0,_T("发送不成功，对方离线消息空间已满！"));
+		AddLineString(0,_T("发送不成功，对方离线消息空间已满！"),1);
+	}else if (EB_STATE_NOT_MEMBER_ERROR==nState && m_pCallInfo.m_sGroupCode>0)
+	{
+		AddLineString(0,_T("没有其他群组成员，发送失败！"),1);
+	}else if (nState!=EB_STATE_OK)
+	{
+		CString sTemp;
+		sTemp.Format(_T("发送失败，请重试！（CODE=%d）"),(int)nState);
+		AddLineString(0,sTemp,1);
 	}
 
 	if (sOutFirstMsg1!=NULL)
@@ -2199,6 +2320,14 @@ void CDlgChatInput::OnReceiveRich(IEB_ChatRichInfo* pCrMsgInfo,CString* sOutFirs
 #else
 void CDlgChatInput::OnReceiveRich(const CCrRichInfo* pCrMsgInfo,CString* sOutFirstMsg1, CString* sOutFirstMsg2)
 {
+	if (theApp.IsLogonVisitor() ||
+		m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType == EB_ACCOUNT_TYPE_VISITOR)	// 游客不能被动邀请
+	{
+		if (!this->GetDlgItem(IDC_BUTTON_SEND)->IsWindowEnabled())
+		{
+			this->GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
+		}
+	}
 	//BOOST_ASSERT (pRichMsg.get() != 0);
 	ProcessMsg(true,pCrMsgInfo,sOutFirstMsg1,sOutFirstMsg2);
 }
@@ -2962,7 +3091,7 @@ void CDlgChatInput::WriteMsgDate(time_t tMsgTime)
 	}
 
 }
-void CDlgChatInput::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, bool bReadFlag)
+void CDlgChatInput::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag)
 {
 	if (m_nLastMsgId==nMsgId && m_nFromUid==nFromUid && m_nToUid==nToUid)
 		return;
@@ -2978,6 +3107,7 @@ void CDlgChatInput::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 	WriteMsgDate(tMsgTime);
 
 	m_pMrFrameInterface->AddLine(nMsgId);	// *** new line
+
 	if (nFromUid==theApp.GetLogonUserId())
 	{
 		m_pMrFrameInterface->SetAlignmentFormat(2);
@@ -3026,6 +3156,12 @@ void CDlgChatInput::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 		m_pMrFrameInterface->SetAlignmentFormat(2);
 		m_pMrFrameInterface->SetFrameBackGroundColor(theDefaultChatBackGroundColor1);
 		//m_pMrFrameInterface->SetFrameBackGroundColor(theApp.GetBgColor3());
+
+		if (m_pCallInfo.m_sGroupCode==0)
+		{
+			const long nReceiptFlag = (nReadFlag&EBC_READ_FLAG_RECEIPT)==EBC_READ_FLAG_RECEIPT?(EBC_CONTRON_RECEIPT_FLAG_SHOW|EBC_CONTRON_RECEIPT_FLAG_TRUE):EBC_CONTRON_RECEIPT_FLAG_SHOW;
+			m_pMrFrameInterface->SetReceiptFlag(nReceiptFlag);
+		}
 	}else
 	{
 		m_pMrFrameInterface->SetFrameBackGroundColor(theDefaultChatBackGroundColor2);
@@ -3095,7 +3231,7 @@ void CDlgChatInput::LoadMsgRecord(void)
 		//	sToName = sToAccount;
 		time_t nMsgTime = 0;
 		libEbc::ChangeTime(sMsgTime.c_str(),nMsgTime);
-		WriteTitle(sMsgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag==1?true:false);
+		WriteTitle(sMsgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag);
 		CString sWindowText;
 		if (MRT_UNKNOWN==nMsgType)
 		{
@@ -3116,6 +3252,12 @@ void CDlgChatInput::LoadMsgRecord(void)
 			CString sTemp;
 			sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgName.c_str());
 			m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
+		}else if (MRT_MAP_POS==nMsgType)	// 地图位置
+		{
+
+		}else if (MRT_USER_DATA==nMsgType)	// 用户自定义数据
+		{
+
 		}else if (MRT_WAV==nMsgType)
 		{
 			//WriteFileHICON(sMsgName.c_str());
@@ -3124,9 +3266,9 @@ void CDlgChatInput::LoadMsgRecord(void)
 			if (nWavTimeLength>=0)
 				sText.Format(_T("语音消息 %d\""),nWavTimeLength);
 			else if (nWavTimeLength==-1)
-				sText.Format(_T("语音消息不存在\""),nWavTimeLength);
+				sText =_T("语音消息不存在");
 			else
-				sText.Format(_T("语音消息格式错误\""),nWavTimeLength);
+				sText = _T("语音消息格式错误");
 			m_pMrFrameInterface->WriteWav((LPCTSTR)sText,sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
 			//m_pMrFrameInterface->WriteWav("语音消息",sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
 		}else if (MRT_FILE==nMsgType)

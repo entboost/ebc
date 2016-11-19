@@ -1,6 +1,11 @@
 #pragma once
 
 // CDlgAlertingCall dialog
+/*
+ * 振铃响应类
+ * 用于第一次请求跟外部企业员工（或用户）聊天时，本端等待对方接受应答聊天窗口，显示相应会话信息。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgAlertingCall : public CEbDialogBase
 {

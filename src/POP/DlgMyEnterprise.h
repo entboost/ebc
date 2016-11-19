@@ -4,6 +4,12 @@
 class CDlgViewContactInfo;
 
 // CDlgMyEnterprise dialog
+/*
+ * 主界面，企业组织结构窗口类
+ * 显示本人企业组织架构，支持多级显示；
+ * 个人用户不显示该窗口。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMyEnterprise : public CDialog
 	//, public CTreeCallback

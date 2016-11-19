@@ -5,7 +5,7 @@
 #include <stl/lockmap.h>
 //#include <CGCBase/cgcobject.h>
 #include <CGCBase/cgcSmartString.h>
-using namespace cgc;
+using namespace mycp;
 
 const tstring ebc_language_default_font_family_0	= "default_font_family_0";
 const tstring ebc_language_default_font_family_1	= "default_font_family_1";
@@ -42,6 +42,10 @@ const tstring ebc_language_saturday					= "saturday";
 //const tstring ebc_language_		= "";
 //const tstring ebc_language_		= "";
 
+/*
+ * 国际化语言设置类（保留用）
+ * 
+*//////////////////////////////////////////////////////
 
 class CEbcLanguages
 {

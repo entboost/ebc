@@ -1480,6 +1480,14 @@ bool CDlgFuncWindow::OnBeforeBrowse(const wchar_t* sUrl)
 	if (m_nBrowserType!=EB_BROWSER_TYPE_CEF) return false;
 	bool bCancel = false;
 	OnBeforeNavigate(sUrl,&bCancel);
+	//if (sUrl!=NULL && !bCancel && (GetKeyState(VK_CONTROL)&0x80)==0x80)
+	//{
+	//	bCancel = true;
+	//	const CString csURL(sUrl);
+	//	//ShellExecute(NULL,  "open", csURL, NULL, NULL, SW_SHOW);
+	//	COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo(csURL,"");
+	//	theApp.GetMainWnd()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
+	//}
 	return bCancel;
 }
 
@@ -1514,6 +1522,7 @@ void CDlgFuncWindow::OnStatusMessage(const wchar_t* sValue)
 		KillTimer(TIMER_HIDE_STATUS_MESSAGE);
 		KillTimer(TIMER_SHOW_STATUS_MESSAGE);
 		SetTimer(TIMER_SHOW_STATUS_MESSAGE,100,NULL);
+		SetTimer(TIMER_HIDE_STATUS_MESSAGE,10*1000,NULL);
 	}
 }
 void CDlgFuncWindow::OnLoadingStateChange(const wchar_t* sUrl, bool bIsLoading, bool bCanGoBack, bool bCanGoForward)

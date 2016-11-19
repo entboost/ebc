@@ -157,6 +157,31 @@ void CDlgDialog::SetCtrlColor(bool bInvalidate)
 //
 //}
 
+Gdiplus::Image* BuildImageFromFile(const WCHAR* sImageFile)
+{
+	Gdiplus::Image * pFromImage = new Gdiplus::Image(sImageFile);
+	const int nImageWidth = pFromImage->GetWidth();
+	const int nImageHeight = pFromImage->GetHeight();
+	// ** 处理图片成正方形显示，解决按钮显示闪问题
+	if (nImageWidth>nImageHeight)
+	{
+		delete pFromImage;
+		USES_CONVERSION;
+		Bitmap* b1 = Bitmap::FromFile(sImageFile);
+		const int x = (nImageWidth-nImageHeight)/2;
+		pFromImage = b1->Clone(x,0,nImageHeight,nImageHeight,PixelFormat24bppRGB);
+		delete b1;
+	}else if (nImageWidth<nImageHeight)
+	{
+		delete pFromImage;
+		USES_CONVERSION;
+		Bitmap* b1 = Bitmap::FromFile(sImageFile);
+		pFromImage = b1->Clone(0,0,nImageWidth,nImageWidth,PixelFormat24bppRGB);
+		delete b1;
+	}
+	return pFromImage;
+}
+
 BOOL CDlgDialog::OnInitDialog()
 {
 	CEbDialogBase::OnInitDialog();
@@ -449,26 +474,27 @@ BOOL CDlgDialog::OnInitDialog()
 				if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
 				{
 					//sImagePath = pMemberInfo.m_sHeadResourceFile;
-					m_pFromImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(pMemberInfo.m_sHeadResourceFile.c_str()));
-					const int nImageWidth = m_pFromImage->GetWidth();
-					const int nImageHeight = m_pFromImage->GetHeight();
-					// ** 处理图片成正方形显示，解决按钮显示闪问题
-					if (nImageWidth>nImageHeight)
-					{
-						delete m_pFromImage;
-						USES_CONVERSION;
-						Bitmap* b1 = Bitmap::FromFile(T2W(pMemberInfo.m_sHeadResourceFile.c_str()));
-						const int x = (nImageWidth-nImageHeight)/2;
-						m_pFromImage = b1->Clone(x,0,nImageHeight,nImageHeight,PixelFormat24bppRGB);
-						delete b1;
-					}else if (nImageWidth<nImageHeight)
-					{
-						delete m_pFromImage;
-						USES_CONVERSION;
-						Bitmap* b1 = Bitmap::FromFile(T2W(pMemberInfo.m_sHeadResourceFile.c_str()));
-						m_pFromImage = b1->Clone(0,0,nImageWidth,nImageWidth,PixelFormat24bppRGB);
-						delete b1;
-					}
+					m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(pMemberInfo.m_sHeadResourceFile.c_str()));
+					//m_pFromImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(pMemberInfo.m_sHeadResourceFile.c_str()));
+					//const int nImageWidth = m_pFromImage->GetWidth();
+					//const int nImageHeight = m_pFromImage->GetHeight();
+					//// ** 处理图片成正方形显示，解决按钮显示闪问题
+					//if (nImageWidth>nImageHeight)
+					//{
+					//	delete m_pFromImage;
+					//	USES_CONVERSION;
+					//	Bitmap* b1 = Bitmap::FromFile(T2W(pMemberInfo.m_sHeadResourceFile.c_str()));
+					//	const int x = (nImageWidth-nImageHeight)/2;
+					//	m_pFromImage = b1->Clone(x,0,nImageHeight,nImageHeight,PixelFormat24bppRGB);
+					//	delete b1;
+					//}else if (nImageWidth<nImageHeight)
+					//{
+					//	delete m_pFromImage;
+					//	USES_CONVERSION;
+					//	Bitmap* b1 = Bitmap::FromFile(T2W(pMemberInfo.m_sHeadResourceFile.c_str()));
+					//	m_pFromImage = b1->Clone(0,0,nImageWidth,nImageWidth,PixelFormat24bppRGB);
+					//	delete b1;
+					//}
 				}
 			}else if (m_pEbCallInfo->m_bOffLineUser)
 			{
@@ -523,7 +549,10 @@ BOOL CDlgDialog::OnInitDialog()
 	}
 	if (m_pFromImage == NULL)
 	{
-		m_pFromImage = theApp.m_imageDefaultMember->Clone();
+		if (PathFileExists(m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sHeadResourceFile.c_str()))
+			m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sHeadResourceFile.c_str()));
+		else
+			m_pFromImage = theApp.m_imageDefaultMember->Clone();
 	}
 
 //#ifdef USES_EBCOM_TEST
@@ -961,6 +990,13 @@ void CDlgDialog::OnSendRich(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState)
 		m_pDlgChatInput->OnSendRich(pCrMsgInfo,nState,NULL,NULL);
 	}
 }
+void CDlgDialog::OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState)
+{
+	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	{
+		m_pDlgChatInput->OnMsgReceipt(pCrMsgInfo, nState);
+	}
+}
 #endif
 
 #ifdef USES_EBCOM_TEST
@@ -983,8 +1019,22 @@ void CDlgDialog::OnSendingFile(IEB_ChatFileInfo* pCrFileInfo)
 #else
 void CDlgDialog::OnSendingFile(const CCrFileInfo * pCrFileInfo)
 {
-	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	if (pCrFileInfo->m_nMsgId>0 && pCrFileInfo->GetStateCode()!=EB_STATE_WAITING_PROCESS && m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
+		if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
+		{
+			//if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
+			{
+				const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
+				CString sSql;
+				sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
+					_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s')"),
+					pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
+					sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				theApp.m_pBoUsers->execute(sSql);
+			}
+		}
+
 		tstring sFileName = libEbc::GetFileName(pCrFileInfo->m_sFileName);
 		CString sWindowText;
 		sWindowText.Format(_T("发送文件：%s"),sFileName.c_str());
@@ -1034,28 +1084,48 @@ void CDlgDialog::OnSentFile(IEB_ChatFileInfo* pCrFileInfo)
 		::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
 }
 #else
-bool CDlgDialog::OnSentFile(const CCrFileInfo * pCrFileInfo)
+bool CDlgDialog::OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState)
 {
 	bool ret = false;
 	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
-		ret = m_pDlgChatInput->OnSentFile(pCrFileInfo);
-
 		if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
 		{
 			if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
 			{
-				eb::bigint sSaveDbToAccount = pCrFileInfo->m_sSendTo;
-				if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0)
-					sSaveDbToAccount = m_pEbCallInfo->m_pFromAccountInfo.GetUserId();
 				CString sSql;
-				sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
-					_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s')"),
-					pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
-					sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				if (nState==EB_STATE_FILE_ALREADY_EXIST)
+				{
+					const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
+					sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
+						_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s')"),
+						pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
+						sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				}else
+				{
+					sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_SENT,pCrFileInfo->m_nMsgId,EBC_READ_FLAG_SENT);
+				}
 				theApp.m_pBoUsers->execute(sSql);
 			}
 		}
+
+		//if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
+		//{
+		//	if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
+		//	{
+		//		const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
+		//		CString sSql;
+		//		sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
+		//			_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s',%d)"),
+		//			pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
+		//			sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+		//		theApp.m_pBoUsers->execute(sSql);
+		//	}else if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0 && pCrFileInfo->m_sReceiveAccount==m_pEbCallInfo->m_pFromAccountInfo.GetUserId())
+		//	{
+		//		// 对方已经接收
+		//	}
+		//}
+		ret = m_pDlgChatInput->OnSentFile(pCrFileInfo, nState);
 	}
 	if (m_pDlgChatRight.get() != NULL && m_pDlgChatRight->GetSafeHwnd())
 	{
@@ -1103,6 +1173,12 @@ void CDlgDialog::OnCancelFile(const CCrFileInfo * pCrFileInfo, bool bChangeP2PSe
 	}
 	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
+		if (!bChangeP2PSending)
+		{
+			CString sSql;
+			sSql.Format(_T("DELETE FROM msg_record_t WHERE msg_id=%lld"),pCrFileInfo->m_nMsgId);
+			theApp.m_pBoUsers->execute(sSql);
+		}
 		const tstring sFileName = libEbc::GetFileName(pCrFileInfo->m_sFileName);
 		CString sWindowText;
 		if (bChangeP2PSending)
@@ -2076,13 +2152,13 @@ bool CDlgDialog::ClearUnreadMsg(bool bFromUserClick)
 		if (bFromUserClick)
 			theApp.m_pAutoCallGroupIdList.remove(m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 		else if (theApp.m_pAutoCallGroupIdList.exist(m_pEbCallInfo->m_pCallInfo.m_sGroupCode)) return false;
-		sSql.Format(_T("UPDATE msg_record_t SET read_flag=1 WHERE dep_code=%lld AND read_flag=0"),m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
+		sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|1 WHERE dep_code=%lld AND (read_flag&1)=0"),m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 	}else
 	{
 		if (bFromUserClick)
 			theApp.m_pAutoCallFromUserIdList.remove(m_pEbCallInfo->m_pFromAccountInfo.GetUserId());
 		else if (theApp.m_pAutoCallFromUserIdList.exist(m_pEbCallInfo->m_pFromAccountInfo.GetUserId())) return false;
-		sSql.Format(_T("UPDATE msg_record_t SET read_flag=1 WHERE from_uid=%lld AND dep_code=0 AND read_flag=0"),m_pEbCallInfo->m_pFromAccountInfo.GetUserId());
+		sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|1 WHERE from_uid=%lld AND dep_code=0 AND (read_flag&1)=0"),m_pEbCallInfo->m_pFromAccountInfo.GetUserId());
 	}
 	theApp.m_pBoUsers->execute(sSql);
 	return true;
@@ -2093,10 +2169,10 @@ int CDlgDialog::GetUnreadMsgCount(void) const
 	CString sSql;
 	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
 	{
-		sSql.Format(_T("SELECT count(read_flag) FROM msg_record_t WHERE dep_code=%lld AND read_flag=0"),m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
+		sSql.Format(_T("SELECT count(read_flag) FROM msg_record_t WHERE dep_code=%lld AND (read_flag&1)=0"),m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 	}else
 	{
-		sSql.Format(_T("SELECT count(read_flag) FROM msg_record_t WHERE from_uid=%lld AND dep_code=0 AND read_flag=0"),m_pEbCallInfo->m_pFromAccountInfo.GetUserId());
+		sSql.Format(_T("SELECT count(read_flag) FROM msg_record_t WHERE from_uid=%lld AND dep_code=0 AND (read_flag&1)=0"),m_pEbCallInfo->m_pFromAccountInfo.GetUserId());
 	}
 	int nResult = 0;
 	int nCookie = 0;

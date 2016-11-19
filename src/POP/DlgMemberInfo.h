@@ -4,6 +4,11 @@
 
 
 // CDlgMemberInfo dialog
+/*
+ * 群组成员（或部门员工）信息显示类
+ * 用于显示（或修改）群组成员（或部门员工）的资料。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMemberInfo : public CEbDialogBase
 	, public CImageSelectCallback
@@ -86,6 +91,7 @@ protected:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButtonChangehead();
+	LRESULT OnMsgChangeHead(WPARAM wp, LPARAM lp);
 public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

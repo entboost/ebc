@@ -2,6 +2,11 @@
 
 
 // CDlgMessageBox dialog
+/*
+ * 消息提示框窗口类
+ * 用于显示各种消息提示、确认信息窗口对话框。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMessageBox : public CEbDialogBase
 {

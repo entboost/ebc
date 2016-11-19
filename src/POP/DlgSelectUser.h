@@ -1,6 +1,11 @@
 #pragma once
 
 // CDlgSelectUser dialog
+/*
+ * 选择用户窗口类
+ * 用于在一对一聊天界面，和群聊界面，点击添加用户，选择用户。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgSelectUser : public CEbDialogBase
 	//, public CTreeCallback

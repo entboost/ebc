@@ -4,6 +4,11 @@
 class CDlgViewContactInfo;
 
 // CDlgMyContacts dialog
+/*
+ * 主界面，好友联系人窗口类
+ * 显示好友联系人信息，支持所有好友联系人操作，包括添加、修改，删除等。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMyContacts : public CDialog
 	//, public CTreeCallback
@@ -35,7 +40,7 @@ protected:
 	CLockMap<mycp::bigint,CTreeItemInfo::pointer> m_pGroupItemInfo;		// ugi->
 	CLockMap<mycp::bigint,CTreeItemInfo::pointer> m_pContactItemInfo;	// con_id->
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//CTraButton m_btnDeleteTrack;
+	CTraButton m_btnDeleteTrack;
 	CTraButton m_btnEditTrack;
 	CTraButton m_btnCallTrack;
 	VividTree m_treeContacts;

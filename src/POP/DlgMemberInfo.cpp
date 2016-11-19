@@ -95,6 +95,8 @@ BEGIN_MESSAGE_MAP(CDlgMemberInfo, CEbDialogBase)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_CHANGEHEAD, &CDlgMemberInfo::OnBnClickedButtonChangehead)
+	ON_MESSAGE(EB_COMMAND_CHANGE_HEAD, OnMsgChangeHead)
+	
 END_MESSAGE_MAP()
 
 
@@ -273,9 +275,16 @@ BOOL CDlgMemberInfo::OnInitDialog()
 			this->GetDlgItem(IDC_EDIT_FAX)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_EDIT_ADDRESS)->EnableWindow(FALSE);
 		}
-		CString sText;
-		sText.Format(_T("更换当前%s[%s]电子名片显示头像"),GetGroupTypeText(m_nGroupType,false),m_sGroupName);
-		m_btnChangeHead.SetToolTipText(sText);
+		if (m_sMemberUserId==theApp.GetLogonUserId())	// 自己才能修改
+		{
+			CString sText;
+			sText.Format(_T("更换当前%s[%s]电子名片显示头像"),GetGroupTypeText(m_nGroupType,false),m_sGroupName);
+			m_btnChangeHead.SetToolTipText(sText);
+		}else
+		{
+			this->GetDlgItem(IDC_BUTTON_CHANGEHEAD)->ShowWindow(SW_HIDE);
+			this->GetDlgItem(IDC_BUTTON_DEFAULT_EMP)->ShowWindow(SW_HIDE);
+		}
 	}else
 	{
 		m_bNewEemployee = true;
@@ -644,9 +653,8 @@ void CDlgMemberInfo::OnDestroy()
 void CDlgMemberInfo::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-
 	//if (!m_pMemberInfo.m_sHeadResourceFile.empty())
-	if (!m_bNewEemployee)
+	if (!m_bNewEemployee && m_sMemberUserId==theApp.GetLogonUserId())	// 自己才能修改
 	{
 		CPoint pos;
 		GetCursorPos(&pos);
@@ -662,7 +670,7 @@ void CDlgMemberInfo::OnMouseMove(UINT nFlags, CPoint point)
 
 void CDlgMemberInfo::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	if (!m_bNewEemployee)
+	if (!m_bNewEemployee && m_sMemberUserId==theApp.GetLogonUserId())	// 自己才能修改
 	{
 		ReleaseCapture();
 		CPoint pos;
@@ -679,7 +687,8 @@ void CDlgMemberInfo::OnLButtonUp(UINT nFlags, CPoint point)
 void CDlgMemberInfo::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if (!m_bNewEemployee)
+	if (!m_bNewEemployee && m_sMemberUserId==theApp.GetLogonUserId())	// 自己才能修改
+	//if (!m_bNewEemployee)
 	{
 		CPoint pos;
 		GetCursorPos(&pos);
@@ -696,19 +705,33 @@ void CDlgMemberInfo::OnTimer(UINT_PTR nIDEvent)
 {
 	if (TIMERID_CHECK_RESOURCEFILE == nIDEvent)
 	{
-		//if (m_pMemberInfo.get()!=NULL)
+		mycp::bigint nHeadResourceId = 0;
+		tstring sHeadResourceFilePath;
+		int nFileSize = 0;
+		theEBAppClient.EB_GetMemberHeadFile(m_pMemberInfo.m_sMemberCode,nHeadResourceId,sHeadResourceFilePath,nFileSize);
+		// ** resourceid会先更新，不能判断resourceid
+		if (!sHeadResourceFilePath.empty() && PathFileExists(sHeadResourceFilePath.c_str()) && (sHeadResourceFilePath!=m_pMemberInfo.m_sHeadResourceFile || nFileSize!=m_nOldFileSize))
 		{
-			const tstring sHeadResourceFile = m_pMemberInfo.m_sHeadResourceFile;
-			if (!sHeadResourceFile.empty() && PathFileExists(sHeadResourceFile.c_str()))
-			{
-				unsigned int nFileSize = libEbc::GetFileSize(sHeadResourceFile.c_str());
-				if (nFileSize>0 && nFileSize!=m_nOldFileSize)
-				{
-					m_nOldFileSize = nFileSize;
-					this->Invalidate();
-				}
-			}
+			m_pMemberInfo.m_sHeadResourceId = nHeadResourceId;
+			m_pMemberInfo.m_sHeadResourceFile = sHeadResourceFilePath;
+			m_nOldFileSize = nFileSize;
+			KillTimer(TIMERID_CHECK_RESOURCEFILE);
+			this->Invalidate();
 		}
+
+		////if (m_pMemberInfo.get()!=NULL)
+		//{
+		//	const tstring sHeadResourceFile = m_pMemberInfo.m_sHeadResourceFile;
+		//	if (!sHeadResourceFile.empty() && PathFileExists(sHeadResourceFile.c_str()))
+		//	{
+		//		unsigned int nFileSize = libEbc::GetFileSize(sHeadResourceFile.c_str());
+		//		if (nFileSize>0 && nFileSize!=m_nOldFileSize)
+		//		{
+		//			m_nOldFileSize = nFileSize;
+		//			this->Invalidate();
+		//		}
+		//	}
+		//}
 	}
 	CEbDialogBase::OnTimer(nIDEvent);
 }
@@ -718,17 +741,16 @@ void CDlgMemberInfo::OnBnClickedButtonChangehead()
 	//if (m_pMemberInfo.m_sHeadResourceFile..get()!=NULL)
 	if (!m_bNewEemployee)
 	{
-		if (!m_bSetTimer)
-		{
-			m_bSetTimer = true;
-			SetTimer(TIMERID_CHECK_RESOURCEFILE,6*1000,NULL);
-		}
+		//if (!m_bSetTimer)
+		//{
+		//	m_bSetTimer = true;
+		//	SetTimer(TIMERID_CHECK_RESOURCEFILE,6*1000,NULL);
+		//}
 		if (m_pDlgChangeHead==NULL)
 		{
-
 			m_pDlgChangeHead = new CDlgChangeHead(this);
 			m_pDlgChangeHead->m_sGroupCode = this->m_sGroupCode;
-			m_pDlgChangeHead->m_sHeadResourceFile = m_pMemberInfo.m_sHeadResourceFile;
+			m_pDlgChangeHead->SetHeadResorceFile(m_pMemberInfo.m_sHeadResourceFile);
 			m_pDlgChangeHead->Create(CDlgChangeHead::IDD,this);
 			m_pDlgChangeHead->SetCallback(this);	// **必须放在这后面
 		}
@@ -745,6 +767,7 @@ void CDlgMemberInfo::OnSelectedImageInfo(const CEBImageDrawInfo& pSelectedImageI
 #endif
 	if (ret == 0)
 	{
+		m_pDlgChangeHead->SetHeadResorceFile(pSelectedImageInfo.m_sResFile);
 		m_pDlgChangeHead->ShowWindow(SW_HIDE);
 		//m_pMemberInfo.m_sHeadResourceId = pSelectedImageInfo.m_sResId;
 		m_pMemberInfo.m_sHeadResourceFile = pSelectedImageInfo.m_sResFile;
@@ -765,4 +788,11 @@ BOOL CDlgMemberInfo::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return __super::PreTranslateMessage(pMsg);
+}
+
+LRESULT CDlgMemberInfo::OnMsgChangeHead(WPARAM wp, LPARAM lp)
+{
+	KillTimer(TIMERID_CHECK_RESOURCEFILE);
+	SetTimer(TIMERID_CHECK_RESOURCEFILE,1000,NULL);
+	return 0;
 }

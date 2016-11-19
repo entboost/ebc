@@ -40,6 +40,7 @@ public:
 	void setFileName(const tstring& v) {m_uploadFile->setFileName(v);}
 	const tstring& getFileName(void) const {return m_uploadFile->getFileName();}
 	void setContentType(const tstring& v) {m_uploadFile->setContentType(v);}
+	const tstring& getContentType(void) const {return m_uploadFile->getContentType();}
 
 	cgcUploadFile::pointer getUploadFile(void) const {return m_uploadFile;}
 

@@ -8,6 +8,12 @@ const int const_video_height = 240;
 
 // CDlgVideo dialog
 #define FFT_LEN  1024
+/*
+ * 视频窗口类
+ * 用于视频聊天，显示本端或对方视频图像。
+ * 同时鼠标移动时，会自动显示视频工具条，支持屏蔽声音，屏蔽视频等操作。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgVideo : public CDialog
 	, public CVideoControlCallback

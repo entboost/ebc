@@ -278,16 +278,31 @@ CString CDlgAppWindow::GetLocationURL(void) const
 	return pOwner->m_pExplorer.get_LocationURL();
 }
 
-void CDlgAppWindow::doRefresh(void)
+void CDlgAppWindow::doRefreshOrStop(void)
 {
-	if (m_bDocumentComplete)
+	if (this->IsLoading())
 	{
 		try
 		{
 #ifdef USES_LIBCEF
 			if (m_nBrowserType==EB_BROWSER_TYPE_CEF)
 			{
-				m_pCefBrowser.Reload();
+				m_pCefBrowser.StopLoad();
+				return;
+			}
+#endif
+			m_pExplorer.Stop();
+		}catch(...)
+		{
+		}
+	}else if (m_bDocumentComplete)
+	{
+		try
+		{
+#ifdef USES_LIBCEF
+			if (m_nBrowserType==EB_BROWSER_TYPE_CEF)
+			{
+				m_pCefBrowser.ReloadIgnoreCache();
 				return;
 			}
 #endif
@@ -312,6 +327,24 @@ void CDlgAppWindow::doRefresh(void)
 	//	//theApp.InvalidateParentRect(&m_pExplorer);
 	//}
 }
+bool CDlgAppWindow::IsLoading(void) const
+{
+	try
+	{
+#ifdef USES_LIBCEF
+		if (m_nBrowserType==EB_BROWSER_TYPE_CEF)
+		{
+			return m_pCefBrowser.IsLoading();
+		}
+#endif
+		const long nReadyState = const_cast<CExplorer&>(m_pExplorer).get_ReadyState();
+		return (nReadyState == READYSTATE_LOADING)?true:false;
+	}catch(...)
+	{
+	}
+	return false;
+}
+
 void CDlgAppWindow::goBack(void)
 {
 	if (m_bDocumentComplete)
@@ -600,7 +633,7 @@ void CDlgAppWindow::DoDownloadFavicon(void)
 				WritePrivateProfileString(_T("last_modified"),sDomainName,sNewLastModified,sImageTempIniPath);
 			}
 		}
-		if (m_nShowImageType!=3)
+		if (!m_bQuit && m_nShowImageType!=3)
 		{
 			m_nShowImageType = 1;
 			this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_VIEW_ICO,(WPARAM)(CWnd*)this,(LPARAM)0);
@@ -776,7 +809,7 @@ bool CDlgAppWindow::OnJSDialog(const wchar_t* sOriginUrl, const wchar_t* sAccept
 			//CString sTitle;
 			//sTitle.Format(_T("½Å±¾ - %s"),sUrl);
 			CString sText = sMessageText==NULL?"":W2A(sMessageText);
-			//CDlgMessageBox::EbDoModal(this,sTitle,sText,CDlgMessageBox::IMAGE_NULL,true,0);
+			//const tstring sTemp = libEbc::UTF82ACP(sText);
 			CDlgMessageBox::EbDoModal(this,"",sText,CDlgMessageBox::IMAGE_NULL,true,0);
 			return true;
 		}break;
@@ -1000,6 +1033,18 @@ bool CDlgAppWindow::OnBeforeBrowse(const wchar_t* sUrl)
 	if (m_nBrowserType!=EB_BROWSER_TYPE_CEF) return false;
 	bool bCancel = false;
 	OnBeforeNavigate(sUrl,&bCancel);
+	if (sUrl!=NULL && !bCancel && (GetKeyState(VK_CONTROL)&0x80)==0x80)
+	{
+		const CString csURL(sUrl);
+		if (csURL!=m_sToNavigateUrl.c_str())
+		{
+			bCancel = true;
+			COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo(csURL,"");
+			pOpenAppUrlInfo->m_nOpenParam = 0;
+			pOpenAppUrlInfo->m_hwndFrom = this->GetSafeHwnd();
+			this->GetParent()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
+		}
+	}
 	return bCancel;
 }
 
@@ -1066,15 +1111,24 @@ void CDlgAppWindow::OnStatusMessage(const wchar_t* sValue)
 		KillTimer(TIMER_HIDE_STATUS_MESSAGE);
 		KillTimer(TIMER_SHOW_STATUS_MESSAGE);
 		SetTimer(TIMER_SHOW_STATUS_MESSAGE,100,NULL);
+		SetTimer(TIMER_HIDE_STATUS_MESSAGE,10*1000,NULL);
 	}
 }
 void CDlgAppWindow::OnLoadError(int nErrorCode,const wchar_t* sErrorText, const wchar_t* sFailedUrl)
 {
 	m_bSaveBrowseTitle = false;
+	const WPARAM nShowRefreshOrStop = 1;	// 1=show refresh; 2=show stop
+	this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,nShowRefreshOrStop,(WPARAM)(CWnd*)this);
 }
 void CDlgAppWindow::OnLoadingStateChange(const wchar_t* sUrl, bool bIsLoading, bool bCanGoBack, bool bCanGoForward)
 {
 	if (m_nBrowserType!=EB_BROWSER_TYPE_CEF) return;
+
+	if (m_sToNavigateUrl!="about:blank")
+	{
+		const WPARAM nShowRefreshOrStop = bIsLoading?2:1;	// 1=show refresh; 2=show stop
+		this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,nShowRefreshOrStop,(WPARAM)(CWnd*)this);
+	}
 
 	if (bIsLoading)
 	{
@@ -1673,6 +1727,9 @@ void CDlgAppWindow::OnDocumentComplete(LPDISPATCH pDisp, VARIANT* URL)
 {
 	if (m_nBrowserType!=EB_BROWSER_TYPE_IE)
 		return;
+
+	const WPARAM nShowRefreshOrStop = 1;	// 1=show refresh; 2=show stop
+	this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,nShowRefreshOrStop,(WPARAM)(CWnd*)this);
 
 	if (!m_bDocumentComplete)
 	{

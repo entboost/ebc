@@ -49,6 +49,8 @@ typedef enum MSG_RECORD_TYPE
 	, MRT_JPG
 	, MRT_FILE
 	, MRT_WAV
+	, MRT_MAP_POS	= 10
+	, MRT_USER_DATA
 };
 const CEBString const_default_group_name = "默认分组";
 const eb::bigint const_default_group_ugid = 0;
@@ -68,6 +70,12 @@ const int const_default_menu_image_size = 24;
 #define USES_LIBCEF_USER_CACHE
 
 // CPOPApp:
+/*
+ * ebc程序，APP类
+ * 启动开始执行，调用CDlgOAuth自动验证窗口后，登录成功之后，显示CPOPD主界面。
+ * 
+*//////////////////////////////////////////////////////
+
 class CPOPApp : public CWinApp
 	, public CTreeCallback
 {
@@ -120,6 +128,7 @@ public:
 	//void ShowAutoOpenSubscribeFunc(int nCmdShow);
 	void ShowHideAutoOpenSubscribeFunc(bool bShow);
 	bool IsEnterpriseuserUser(void);
+	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId);
 
 	//CDlgVideoConference::pointer GetDlgVideoConference(const CEBCCallInfo::pointer& pEbCallInfo,bool bBuildNew = true);
 	int m_nSendType;
@@ -235,6 +244,7 @@ public:
 	bool GetDisableVideo(void) const {return m_bDisableVideo;}
 	bool GetDisableRD(void) const {return m_bDisableRemoteDesktop;}
 	bool GetDisableAccountEdit(void) const {return m_bDisableAccountEdit;}
+	bool GetDisableMsgReceipt(void) const {return m_bDisableMsgReceipt;}
 	void SetEnterpriseCreateUserId(eb::bigint nUserId) {m_nEnterpriseCreateUserId = nUserId;}
 	eb::bigint GetEnterpriseCreateUserId(void) const {return m_nEnterpriseCreateUserId;}
 	bool IsEnterpriseCreateUserId(eb::bigint nUserId) {return (nUserId>0 && nUserId==m_nEnterpriseCreateUserId)?true:false;}
@@ -317,6 +327,7 @@ private:
 	eb::bigint m_nEnterpriseCreateUserId;
 	EB_BROWSER_TYPE m_nDefaultBrowserType;
 	EB_UI_STYLE_TYPE m_nDefaultUIStyleType;
+	bool m_bDisableMsgReceipt;
 
 	bool m_bIeException;
 	bool m_bAdaptIeVersion;
@@ -349,6 +360,7 @@ private:
 
 	DECLARE_MESSAGE_MAP()
 	virtual int ExitInstance();
+	afx_msg void OnAbout();
 };
 extern bool theWantExitApp;
 

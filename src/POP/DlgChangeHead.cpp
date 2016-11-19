@@ -305,12 +305,15 @@ void CDlgChangeHead::OnBnClickedOk()
 		return;
 	}
 
+	SetHeadResorceFile(m_sNewHeadFile);
 #ifdef USES_EBCOM_TEST
 	theEBClientCore->EB_SetMyGroupHeadFile(m_sGroupCode,m_sNewHeadFile.c_str());
 #else
 	theEBAppClient.EB_SetMyGroupHeadFile(m_sGroupCode,m_sNewHeadFile.c_str());
 #endif
 	m_sNewHeadFile.clear();
+	this->GetParent()->PostMessage(EB_COMMAND_CHANGE_HEAD);
+	this->Invalidate();
 	//SetTimer(TIMERID_INVALIDATE_PARENT,10*1000,NULL);
 }
 
@@ -546,4 +549,15 @@ void CDlgChangeHead::OnBnClickedButtonHead2()
 void CDlgChangeHead::SetCallback(CImageSelectCallback* pCallback)
 {
 	m_pDlgSelectHead->SetCallback(pCallback);
+}
+
+void CDlgChangeHead::SetHeadResorceFile(const tstring& sHeadResourceFile)
+{
+	m_sHeadResourceFile = sHeadResourceFile;
+	if (m_imageHead1!=NULL)
+	{
+		delete m_imageHead1;
+		USES_CONVERSION;
+		m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sHeadResourceFile.c_str()));
+	}
 }

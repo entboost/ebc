@@ -19,6 +19,12 @@
 #define CPARENT_DIALOG CDialog
 #endif
 
+/*
+ * 工作区窗口类
+ * 实现工作区集成应用显示窗口，是一个标准浏览器窗口控件。
+ * 支持 IE 和 Chrome 二个浏览器控件，自动切换；
+*//////////////////////////////////////////////////////
+
 class CDlgAppWindow : public CPARENT_DIALOG
 	, public CWebUICallback
 #ifdef USES_LIBCEF
@@ -41,7 +47,8 @@ public:
 	UINT GetUserData(void) const {return m_nUserData;}
 	void SetSaveBrowseTitle(bool b) {m_bSaveBrowseTitle = b;}
 	CString GetLocationURL(void) const;
-	void doRefresh(void);
+	void doRefreshOrStop(void);
+	bool IsLoading(void) const;
 	void goBack(void);
 	void goForward(void);
 	void SetWebFocus(bool bRefresh=false);

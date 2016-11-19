@@ -126,16 +126,25 @@ void CPanelFiles::OnSendingFile(IEB_ChatFileInfo* pCrFileInfo)
 #else
 void CPanelFiles::OnSendingFile(const CCrFileInfo * pCrFileInfo)
 {
-	CRect rect;
-	this->GetClientRect(&rect);
-	int index = m_pTranFiles.size();
-	CDlgTranFile::pointer pDlgTranFile = CDlgTranFile::create(this);
-	pDlgTranFile->m_bIsSendingFile = true;
-	//pDlgTranFile->m_sResourceId = pCrFileInfo->m_sResId;
-	pDlgTranFile->m_pCrFileInfo = pCrFileInfo;
-	pDlgTranFile->Create(CDlgTranFile::IDD, this);
-	pDlgTranFile->ShowWindow(SW_SHOW);
-	pDlgTranFile->MoveWindow(0, index*const_TranFile_Height, rect.Width(), const_TranFile_Height);
+	CDlgTranFile::pointer pDlgTranFile;
+	if (pCrFileInfo->GetParam()>0 && m_pTranFiles.find(pCrFileInfo->GetParam(),pDlgTranFile,true))
+	{
+		// ** 找到前面等待预处理发送文件，更新界面即可
+		pDlgTranFile->UpdateFileInfo(pCrFileInfo);
+	}else
+	{
+		pDlgTranFile = CDlgTranFile::create(this);
+		pDlgTranFile->m_bIsSendingFile = true;
+		//pDlgTranFile->m_sResourceId = pCrFileInfo->m_sResId;
+		pDlgTranFile->m_pCrFileInfo = pCrFileInfo;
+		pDlgTranFile->Create(CDlgTranFile::IDD, this);
+		pDlgTranFile->ShowWindow(SW_SHOW);
+
+		CRect rect;
+		this->GetClientRect(&rect);
+		int index = m_pTranFiles.size();
+		pDlgTranFile->MoveWindow(0, index*const_TranFile_Height, rect.Width(), const_TranFile_Height);
+	}
 	m_pTranFiles.insert(pCrFileInfo->m_nMsgId, pDlgTranFile);
 }
 #endif

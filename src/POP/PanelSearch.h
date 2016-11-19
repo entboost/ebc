@@ -6,6 +6,11 @@ const CString theUrlGroupResultName = _T("最新浏览记录：");
 
 class CPanelSearchResult;
 // CPanelSearch dialog
+/*
+ * 搜索面板工具条
+ * 用于主界面、和工作区面板里面，显示搜索工具条。
+ * 
+*//////////////////////////////////////////////////////
 
 class CPanelSearch : public CEbDialogBase
 {
@@ -32,6 +37,7 @@ protected:
 	CTraButton m_btnGoBack;
 	CTraButton m_btnGoForward;
 	CTraButton m_btnRefresh;
+	CTraButton m_btnStop;
 	CTraButton m_btnOptions;
 	CPanelSearchResult * m_pPanelSearchResult;
 	//VividTree m_treeSearch;				// itemdata:1=employee;2=contact
@@ -51,6 +57,7 @@ protected:
 	afx_msg void OnCmdChangeBrowserType();
 	afx_msg void OnCmdFileManager();
 	afx_msg void OnBnClickedButtonRefresh();
+	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
@@ -64,6 +71,7 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	LRESULT OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgSearchSetFocusSel(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam);
 	void OnEditSearch(void);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnEnChangeEditSearch();

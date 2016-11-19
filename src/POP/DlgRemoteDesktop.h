@@ -5,6 +5,10 @@
 
 
 // CDlgRemoteDesktop dialog
+/*
+ * 远程桌面窗口类（没有用）
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgRemoteDesktop : public CDialog
 {

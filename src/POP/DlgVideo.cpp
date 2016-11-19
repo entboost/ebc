@@ -189,7 +189,7 @@ void CDlgVideo::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (m_pVoiceBar != NULL && m_pVoiceBar->GetSafeHwnd())
 		{
-			if (m_nVoicePos > 0 && !m_pVoiceBar->IsWindowVisible())
+			if (m_nVoicePos > 0 && !m_pVoiceBar->IsWindowVisible() && this->IsWindowVisible())
 			{
 				m_pVoiceBar->ShowWindow(SW_SHOW);
 			}
@@ -211,7 +211,7 @@ void CDlgVideo::OnTimer(UINT_PTR nIDEvent)
 			//this->GetWindowRect(&rect);
 			//this->ScreenToClient(&rect);
 			//rect.bottom -= 22;
-			if (/*this->m_nUserId > 0 && */!m_pVideoControl->IsWindowVisible() && rect.PtInRect(pos))
+			if (/*this->m_nUserId > 0 && */!m_pVideoControl->IsWindowVisible() && rect.PtInRect(pos) && this->IsWindowVisible())
 			{
 				m_pVideoControl->ShowWindow(SW_SHOW);
 			}else if (!rect.PtInRect(pos) && m_pVideoControl->IsWindowVisible())

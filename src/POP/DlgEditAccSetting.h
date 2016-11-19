@@ -2,6 +2,11 @@
 
 
 // CDlgEditAccSetting dialog
+/*
+ * 个人中心配置信息窗口类
+ * 用于显示（或修改）个人配置信息，如是否接受离线文件等。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgEditAccSetting : public CEbDialogBase
 {

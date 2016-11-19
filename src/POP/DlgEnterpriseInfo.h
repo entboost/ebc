@@ -2,6 +2,12 @@
 
 // CDlgEnterpriseInfo dialog
 
+/*
+ * 企业资料信息显示类
+ * 用于显示（或修改）企业资料信息。
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgEnterpriseInfo : public CEbDialogBase
 {
 	DECLARE_DYNAMIC(CDlgEnterpriseInfo)

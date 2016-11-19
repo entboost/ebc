@@ -188,6 +188,7 @@ BOOL CDlgMsgRecord::OnInitDialog()
 		this->SetMouseMove(FALSE);
 	}else
 	{
+		//ModifyStyle(0, WS_CLIPSIBLINGS);
 		//ModifyStyle(0, WS_CLIPSIBLINGS|WS_CLIPCHILDREN);
 		ModifyStyle(0, WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU);
 		this->SetSplitterBorder();
@@ -285,6 +286,7 @@ BOOL CDlgMsgRecord::OnInitDialog()
 	pUnknown->QueryInterface(__uuidof(IEBRichMessage),(void**)&m_pMrFrameInterface);
 	if (m_pMrFrameInterface==NULL)
 		return FALSE;
+	m_pMrFrameInterface->SetParameter(EBC_CONTRON_PARAMETER_DISABLE_RECEIPT,(m_sGroupCode>0||theApp.GetDisableMsgReceipt())?1:0);
 	m_pMrFrameInterface->SetSelectCbData1(EB_MR_CTRL_DATA_TYPE_SELECT_STRING);
 	m_pMrFrameInterface->SetLineInterval(3);
 	m_pMrFrameInterface->SetBackgroundColor(theDefaultFlatBgColor);
@@ -367,9 +369,13 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 			{
 				if (m_nBrowserType==EB_BROWSER_TYPE_CEF && m_pCefBrowser.GetSafeHwnd())
 				{
+					if (!m_bChildMode)
+						ModifyStyle(0, WS_CLIPSIBLINGS|WS_CLIPCHILDREN);
 					HWND hWnd = m_pCefBrowser.GetSafeHwnd();
 					::ShowWindow(hWnd,SW_HIDE);
 					::ShowWindow(hWnd,SW_SHOW);
+					if (!m_bChildMode)
+						ModifyStyle(WS_CLIPSIBLINGS|WS_CLIPCHILDREN,0);
 				}else if (m_pExplorer.GetSafeHwnd())
 				{
 					const long nReadyState = m_pExplorer.get_ReadyState();
@@ -631,7 +637,7 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 				this->GetClientRect(&rect);
 				const int nStringWidth = m_pPanelStatus->MeasureTextWidth(m_sStatusMessage.c_str(),rect.Width());
 				const int const_status_height = 22;
-				CRect rectStatus(0,rect.Height()-const_status_height,nStringWidth+2,rect.Height());
+				CRect rectStatus(0,rect.Height()-28-const_status_height,nStringWidth+2,rect.Height()-28);
 				CPoint pos;
 				::GetCursorPos(&pos);
 				this->ScreenToClient(&pos);
@@ -693,7 +699,8 @@ void CDlgMsgRecord::OnSize(UINT nType, int cx, int cy)
 		if (m_nBrowserType==EB_BROWSER_TYPE_CEF)
 		{
 			m_pCefBrowser.MoveWindow(const_interval,nExpolorerTop,cx-const_interval*2,cy-nExpolorerTop-28);
-			SetTimer(TIMER_REFRESH_BROWSER,10,NULL);
+			if (m_labelLineConversation.GetCheck())
+				SetTimer(TIMER_REFRESH_BROWSER,10,NULL);
 		}else
 			m_pExplorer.MoveWindow(const_interval,nExpolorerTop,cx-const_interval*2,cy-nExpolorerTop-28);
 	}
@@ -869,6 +876,8 @@ void CDlgMsgRecord::OnPaint()
 
 void CDlgMsgRecord::LoadAccountMsgRecord(eb::bigint sAccount, const tstring& sName)
 {
+	if (m_pMrFrameInterface!=NULL)
+		m_pMrFrameInterface->SetParameter(EBC_CONTRON_PARAMETER_DISABLE_RECEIPT,(m_sGroupCode>0||theApp.GetDisableMsgReceipt())?1:0);
 	m_sAccount = sAccount;
 	m_sGroupCode = 0;
 	m_sName = sName;
@@ -877,6 +886,8 @@ void CDlgMsgRecord::LoadAccountMsgRecord(eb::bigint sAccount, const tstring& sNa
 
 void CDlgMsgRecord::LoadDepartmentMsgRecord(eb::bigint sDepCode, const tstring& sName)
 {
+	if (m_pMrFrameInterface!=NULL)
+		m_pMrFrameInterface->SetParameter(EBC_CONTRON_PARAMETER_DISABLE_RECEIPT,1);
 	m_sAccount = 0;
 	m_sGroupCode = sDepCode;
 	m_sName = sName;
@@ -918,7 +929,7 @@ void CDlgMsgRecord::OnMove(void)
 		SetTimer(TIMER_REFRESH_BROWSER,20,NULL);
 	}
 }
-void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime)
+void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime,int nReadFlag)
 {
 	if (m_nLastMsgId==nMsgId && m_nFromUid==nFromUid && m_nToUid==nToUid)
 		return;
@@ -988,6 +999,11 @@ void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 	{
 		m_pMrFrameInterface->SetAlignmentFormat(2);
 		m_pMrFrameInterface->SetFrameBackGroundColor(theDefaultChatBackGroundColor1);
+		if (m_sGroupCode==0)
+		{
+			const long nReceiptFlag = (nReadFlag&EBC_READ_FLAG_RECEIPT)==EBC_READ_FLAG_RECEIPT?(EBC_CONTRON_RECEIPT_FLAG_SHOW|EBC_CONTRON_RECEIPT_FLAG_TRUE):EBC_CONTRON_RECEIPT_FLAG_SHOW;
+			m_pMrFrameInterface->SetReceiptFlag(nReceiptFlag);
+		}
 	}else
 	{
 		m_pMrFrameInterface->SetFrameBackGroundColor(theDefaultChatBackGroundColor2);
@@ -1050,8 +1066,7 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 		const int nMsgType = pRecord->getVector()[8]->getIntValue();
 		const tstring sMsgName(libEbc::UTF82ACP(pRecord->getVector()[9]->getStrValue().c_str()));
 		tstring sMsgText(libEbc::UTF82ACP(pRecord->getVector()[10]->getStrValue().c_str()));
-		//const int nMsgSize = pResltSet->rsvalues[i]->fieldvalues[10]->v.varcharVal.size;
-		//const int nReadFlag = pRecord->getVector()[11]->getIntValue();
+		const int nReadFlag = pRecord->getVector()[11]->getIntValue();
 		pRecord = theApp.m_pBoUsers->next(nCookie);
 
 		//// 兼容旧版本
@@ -1059,7 +1074,7 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 		//	sFromName = sFromAccount;
 		//if (sToName.empty())
 		//	sToName = sToAccount;
-		WriteTitle(sMsgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime);
+		WriteTitle(sMsgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag);
 		CString sWindowText;
 		if (MRT_UNKNOWN==nMsgType)
 		{
@@ -1106,6 +1121,12 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 			CString sTemp;
 			sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgName.c_str());
 			m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
+		}else if (MRT_MAP_POS==nMsgType)	// 地图位置
+		{
+			// ???
+		}else if (MRT_USER_DATA==nMsgType)	// 用户自定义数据
+		{
+			// ???
 		}else if (MRT_WAV==nMsgType)
 		{
 			//WriteFileHICON(sMsgName.c_str());
@@ -1114,9 +1135,9 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 			if (nWavTimeLength>=0)
 				sText.Format(_T("语音消息 %d\""),nWavTimeLength);
 			else if (nWavTimeLength==-1)
-				sText.Format(_T("语音消息不存在\""),nWavTimeLength);
+				sText = _T("语音消息不存在");
 			else
-				sText.Format(_T("语音消息格式错误\""),nWavTimeLength);
+				sText = _T("语音消息格式错误\"");
 			m_pMrFrameInterface->WriteWav((LPCTSTR)sText,sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
 			//m_pMrFrameInterface->WriteWav("播放语音",sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
 		}else if (MRT_FILE==nMsgType)
@@ -1245,12 +1266,13 @@ void CDlgMsgRecord::OnClose()
 	//this->EndDialog(IDOK);
 }
 
-//BOOL CDlgMsgRecord::OnEraseBkgnd(CDC* pDC)
-//{
-//	// TODO: Add your message handler code here and/or call default
-//	return TRUE;
-//	return CEbDialogBase::OnEraseBkgnd(pDC);
-//}
+BOOL CDlgMsgRecord::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: Add your message handler code here and/or call default
+	return FALSE;
+	//return TRUE;
+	//return CEbDialogBase::OnEraseBkgnd(pDC);
+}
 
 void CDlgMsgRecord::OnBnClickedButtonDeleteall()
 {

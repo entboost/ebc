@@ -3,6 +3,11 @@
 class CDlgSelectHead;
 
 // CDlgChangeHead dialog
+/*
+ * 更换头像类
+ * 用于实现修改部门员工（或群组成员）资料，里面的“更换头像”功能；
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgChangeHead : public CEbDialogBase
 	//, public CImageSelectCallback
@@ -15,12 +20,13 @@ public:
 
 	void SetCallback(CImageSelectCallback* pCallback);
 	eb::bigint m_sGroupCode;
-	tstring m_sHeadResourceFile;
+	void SetHeadResorceFile(const tstring& sHeadResourceFile);
 
 // Dialog Data
 	enum { IDD = IDD_DLG_CHANGE_HEAD };
 
 protected:
+	tstring m_sHeadResourceFile;
 	CRect m_rectHead;
 	CRect m_rectBig;
 	Gdiplus::Image * m_imageHead1;

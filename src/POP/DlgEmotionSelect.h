@@ -3,7 +3,6 @@
 
 //#include "Core/MrSkinVBar.h"
 
-
 class CEBImageDrawInfo : public EB_EmotionInfo
 {
 public:
@@ -32,6 +31,12 @@ class CImageSelectCallback
 public:
 	virtual void OnSelectedImageInfo(const CEBImageDrawInfo& pSelectedImageInfo) = 0;
 };
+
+/*
+ * 选择表情窗口类
+ * 用于聊天过程中，点击弹出选择表情窗口。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgEmotionSelect : public CEbDialogBase
 {

@@ -49,7 +49,7 @@ public:
 	//void SetCheckedTextColor(COLORREF v) {m_crCheckedText = v;}
 	void SetDrawPanel(bool bDrawPanel, COLORREF crNor, COLORREF crHot=-1, COLORREF crPre=-1, COLORREF crDis=-1);	// default -1=crNor
 	void SetDrawPanelRgn(bool bCreateRgn = true) {m_bCreateRgn = bCreateRgn;}	// default true
-	void SetDrawClosePic(bool bDrawClose, COLORREF crNor, COLORREF crHot, COLORREF crPre=-1, COLORREF crDis=-1, int nWidth=2);
+	void SetDrawClosePic(bool bDrawClose, COLORREF crNor, COLORREF crHot, COLORREF crPre=-1, COLORREF crDis=-1, int nWidth=2, int nOffset=2);
 	// nButtonType 0:disable 1:最小化 2:最大化 3:还原 4:关闭
 	// 10:圆点
 	void SetDrawToolButtonPic(int nButtonType, COLORREF crNor, COLORREF crHot, COLORREF crPre=-1, COLORREF crDis=-1, int nWidth1=2, int nWidth2=8);
@@ -117,6 +117,7 @@ private:
 	COLORREF		m_crClosePicPre;
 	COLORREF		m_crClosePicDis;
 	int				m_nClosePicWidth;
+	int				m_nClosePicOffset;
 	int				m_nDrawToolButtonPic;
 	COLORREF		m_crToolButtonPicNor;
 	COLORREF		m_crToolButtonPicHot;

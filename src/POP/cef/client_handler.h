@@ -125,11 +125,18 @@ class ClientHandler : public CefClient,
                                     EventFlags event_flags) OVERRIDE;
 
   // CefDialogHandler methods
+  //virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser,
+  //                          FileDialogMode mode,
+  //                          const CefString& title,
+  //                          const CefString& default_file_name,
+  //                          const std::vector<CefString>& accept_types,
+  //                          CefRefPtr<CefFileDialogCallback> callback) OVERRIDE;
   virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser,
                             FileDialogMode mode,
                             const CefString& title,
-                            const CefString& default_file_name,
-                            const std::vector<CefString>& accept_types,
+                            const CefString& default_file_path,
+                            const std::vector<CefString>& accept_filters,
+                            int selected_accept_filter,
                             CefRefPtr<CefFileDialogCallback> callback) OVERRIDE;
 
   // CefDisplayHandler methods

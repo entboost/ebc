@@ -7,6 +7,11 @@
 class CDlgViewContactInfo;
 
 // CPanelSearchResult dialog
+/*
+ * 搜索结果显示面板
+ * 用于搜索工具条下面，显示搜索结果。
+ * 
+*//////////////////////////////////////////////////////
 
 class CPanelSearchResult : public CEbDialogBase
 #ifdef USES_EBCOM_TEST

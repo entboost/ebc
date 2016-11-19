@@ -2,6 +2,11 @@
 
 
 // CDlgSelectHead dialog
+/*
+ * 选择系统头像窗口类
+ * 用于更换系统头像。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgSelectHead : public CEbDialogBase
 {

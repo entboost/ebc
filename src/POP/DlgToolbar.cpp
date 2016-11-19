@@ -153,14 +153,18 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 					{
 						m_nButtonCount++;
 						m_btnOpen1.SetWindowText(pSubscribeFuncInfo.m_sFunctionName.c_str());
-						m_btnOpen1.SetToolTipText(pSubscribeFuncInfo.m_sFunctionName.c_str());
+						CString sTipText;
+						sTipText.Format(_T("选择文本提交%s"),pSubscribeFuncInfo.m_sFunctionName.c_str());
+						m_btnOpen1.SetToolTipText(sTipText);
 						m_btnOpen1.ShowWindow(SW_SHOW);
 					}
 					else if (i==1)
 					{
 						m_nButtonCount++;
 						m_btnOpen2.SetWindowText(pSubscribeFuncInfo.m_sFunctionName.c_str());
-						m_btnOpen2.SetToolTipText(pSubscribeFuncInfo.m_sFunctionName.c_str());
+						CString sTipText;
+						sTipText.Format(_T("选择文本提交%s"),pSubscribeFuncInfo.m_sFunctionName.c_str());
+						m_btnOpen2.SetToolTipText(sTipText);
 						m_btnOpen2.ShowWindow(SW_SHOW);
 					}
 					else

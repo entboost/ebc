@@ -12,6 +12,12 @@
 #define MAX_VIDEO_COUNT 12
 #define FFT_LEN  1024
 
+/*
+ * 视频图像窗口管理面板
+ * 用于视频聊天时，显示当前所有视频图像窗口。
+ * 
+*//////////////////////////////////////////////////////
+
 class CPanelVideos : public CEbDialogBase
 #ifdef USES_EBCOM_TEST
 	, public CEBVideoDataEventsSink

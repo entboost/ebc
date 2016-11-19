@@ -59,6 +59,7 @@ CDlgOAuth::CDlgOAuth(CWnd* pParent /*=NULL*/)
 	m_bDisableRemoteDesktop = false;
 	m_bDisableAccountEdit = false;
 	m_nDefaultBrowserType = EB_BROWSER_TYPE_CEF;
+	m_bDisableMsgReceipt = false;
 
 	m_nWaitCloseIndex = 0;
 	m_bDocumentComplete = false;
@@ -176,6 +177,7 @@ LRESULT CDlgOAuth::OnMessageLogonSuccess(WPARAM wParam, LPARAM lParam)
 #endif
 	if (!sLogonHttpReqUrl.empty())
 	{
+		// ??? V1.22版本，1.23以后使用访问令牌，完美解决网络问题，可以删除该代码；
 		// ***解决用户电脑使用各种VPN，浏览器代理工具，导致跳转应用错误问题；
 		try
 		{
@@ -447,6 +449,10 @@ LRESULT CDlgOAuth::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long nDefaultBrowserType = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_BROWSER_TYPE,&nDefaultBrowserType);
 	m_nDefaultBrowserType = nDefaultBrowserType==1?EB_BROWSER_TYPE_IE:EB_BROWSER_TYPE_CEF;
+	unsigned long nDisableMsgReceipt = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_MSG_RECEIPT,&nDisableMsgReceipt);
+	m_bDisableMsgReceipt = nDisableMsgReceipt==1?true:false;
+
 #endif
 	return 0;
 }
@@ -613,7 +619,7 @@ void CDlgOAuth::OnTimer(UINT_PTR nIDEvent)
 		}
 	}else if (TIMER_ID_CLOSE==nIDEvent)
 	{
-		if (m_bDocumentComplete || m_bIeException || (m_nWaitCloseIndex++)>=12)
+		if (m_bDocumentComplete || m_bIeException || (m_nWaitCloseIndex++)>15)
 		{
 			KillTimer(nIDEvent);
 			this->PostMessage(WM_CLOSE, 0, 0);

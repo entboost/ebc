@@ -2,6 +2,12 @@
 #include "afxcmn.h"
 
 // CDlgTranFile dialog
+/*
+ * 文件传输（上传、下载）信息窗口类
+ * 用于显示传输文件信息，支持接受、拒绝、取消、另存等操作功能；
+ * 支持显示文件名称，文件大小，传输进度等。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgTranFile : public CEbDialogBase
 {
@@ -17,6 +23,7 @@ public:
 	}
 
 	void Cancel(void);
+	void UpdateFileInfo(const CCrFileInfo * pCrFileInfo);
 #ifdef USES_EBCOM_TEST
 	void SetFilePercent(IEB_ChatFilePercent* pChatRoomFilePercent);
 #else

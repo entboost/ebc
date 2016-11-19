@@ -3,6 +3,11 @@
 class CDlgViewContactInfo;
 
 // CDlgMyGroup dialog
+/*
+ * 主界面，我的部门（群组）窗口类
+ * 显示所有我的部门、项目组、个人群组和讨论组。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMyGroup : public CDialog
 	//, public CTreeCallback

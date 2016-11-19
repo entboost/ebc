@@ -83,7 +83,7 @@ CAPTION "关于恩布互联 Entboost"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "Entboost.com, 1.22",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Entboost.com, 1.23",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2012-2016",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
 END
@@ -631,16 +631,16 @@ FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     LTEXT           "我的联系人：",IDC_STATIC_CONTACT,10,10,42,12,SS_CENTERIMAGE
     LTEXT           "当我在线时，自动接通我的联系人会话",IDC_CHECK_ENABLE_CONTACT_ACCEPT,70,10,130,12
-    LTEXT           "企业用户：",IDC_STATIC_OUTENT,10,30,49,12,SS_CENTERIMAGE
+    LTEXT           "外部企业：",IDC_STATIC_OUTENT,10,30,49,12,SS_CENTERIMAGE
     LTEXT           "开放外部企业用户通讯权限",IDC_CHECK_ENABLE_OUTENT_CALL,70,30,120,12
     LTEXT           "当我在线时，自动接通会话",IDC_CHECK_ENABLE_OUTENT_ACCEPT,70,45,120,12
-    LTEXT           "注册用户：",IDC_STATIC_REG,10,65,35,12,SS_CENTERIMAGE
-    LTEXT           "开放注册用户通讯权限",IDC_CHECK_ENABLE_USER_CALL,70,65,120,12
+    LTEXT           "个人用户：",IDC_STATIC_REG,10,65,35,12,SS_CENTERIMAGE
+    LTEXT           "开放个人用户通讯权限",IDC_CHECK_ENABLE_USER_CALL,70,65,120,12
     LTEXT           "当我在线时，自动接通会话",IDC_CHECK_ENABLE_USER_ACCEPT,70,80,120,12
     LTEXT           "游客用户：",IDC_STATIC_VISITOR,10,100,35,12,SS_CENTERIMAGE
     LTEXT           "开放游客通讯权限",IDC_CHECK_ENABLE_VISITOR_CALL,70,100,120,12
     LTEXT           "当我在线时，自动接通会话",IDC_CHECK_ENABLE_VISITOR_ACCEPT,70,115,120,12
-    LTEXT           "离线状态：",IDC_STATIC_OFFLINE,10,135,35,12,SS_CENTERIMAGE
+    LTEXT           "我离线时：",IDC_STATIC_OFFLINE,10,135,35,12,SS_CENTERIMAGE
     LTEXT           "开放接收离线文件权限",IDC_CHECK_ENABLE_OFF_FILE,70,135,120,12
     LTEXT           "当我离线时，自动接收离线信息",IDC_CHECK_ENABLE_OFF_CALL,70,150,120,12
 END
@@ -879,8 +879,9 @@ BEGIN
     PUSHBUTTON      "<",IDC_BUTTON_GOBACK,1,0,13,14
     PUSHBUTTON      ">",IDC_BUTTON_GOFORWARD,19,0,13,14
     PUSHBUTTON      "^",IDC_BUTTON_REFRESH,39,0,13,14
-    PUSHBUTTON      "...",IDC_BUTTON_OPTIONS,61,0,13,14
-    EDITTEXT        IDC_EDIT_SEARCH,81,2,137,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    PUSHBUTTON      "s",IDC_BUTTON_STOP,54,1,13,14
+    PUSHBUTTON      "...",IDC_BUTTON_OPTIONS,205,6,13,14
+    EDITTEXT        IDC_EDIT_SEARCH,81,2,116,12,ES_AUTOHSCROLL | NOT WS_VISIBLE
 END
 
 IDD_PAN_BROWSER_NAVIGATE DIALOGEX 0, 0, 173, 26
@@ -1000,8 +1001,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,22,0,484
- PRODUCTVERSION 1,22,0,484
+ FILEVERSION 1,23,0,501
+ PRODUCTVERSION 1,23,0,501
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1017,13 +1018,13 @@ BEGIN
         BLOCK "080403a8"
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
-            VALUE "FileDescription", "恩布协同办公客户端"
-            VALUE "FileVersion", "1, 22, 0, 484"
+            VALUE "FileDescription", "恩布互联客户端"
+            VALUE "FileVersion", "1, 23, 0, 501"
             VALUE "InternalName", "ebc.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "ebc.exe"
-            VALUE "ProductName", "恩布协同办公客户端"
-            VALUE "ProductVersion", "1, 22, 0, 484"
+            VALUE "ProductName", "恩布互联客户端"
+            VALUE "ProductVersion", "1, 23, 0, 501"
         END
     END
     BLOCK "VarFileInfo"

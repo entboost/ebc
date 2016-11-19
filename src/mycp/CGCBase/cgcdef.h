@@ -135,8 +135,9 @@ namespace mycp {
 	typedef enum Module_Protocol
 	{
 		MODULE_PROTOCOL_SOTP									= 0
-		, MODULE_PROTOCOL_HTTP								= 1
-		, MODULE_PROTOCOL_SOTP_CLIENT_SERVICE	= 8
+		, MODULE_PROTOCOL_HTTP								= 0x1
+		//, MODULE_PROTOCOL_WEB_PROXY						= 0x2
+		, MODULE_PROTOCOL_SOTP_CLIENT_SERVICE	= 0x8
 	}MODULE_PROTOCOL;
 
 	// LogLevel
@@ -150,7 +151,7 @@ namespace mycp {
 		, LOG_ALERT		= 0x20
 	}LOGLEVEL;
 
-	const int MAX_LOG_SIZE = 5*1024;
+	const int MAX_LOG_SIZE = 8*1024;
 
 	// ProtocolType
 	typedef enum ProtocolType

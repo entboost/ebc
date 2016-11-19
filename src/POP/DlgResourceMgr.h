@@ -1,6 +1,13 @@
 #pragma once
 
 // CDlgResourceMgr dialog
+/*
+ * 资源显示窗口灰石
+ * 用于显示“个人云盘”、“群共享”所有在线资源；
+ * 支持单独弹出显示和集成在多人群组聊天的右边窗口；
+ * 支持上传、下载，点击在线浏览等功能。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgResourceMgr : public CEbDialogBase
 	//, public CTreeCallback

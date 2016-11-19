@@ -7,6 +7,11 @@
 
 
 // CDlgEditVideo dialog
+/*
+ * 个人中心视频设置窗口类
+ * 用于设置和调试个人默认摄像头，可以看到个人视频效果以及说话声音效果。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgEditVideo : public CEbDialogBase
 	, public CEBMMRoomEventsSink

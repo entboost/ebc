@@ -33,6 +33,7 @@ void CPanelSearch::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_GOBACK, m_btnGoBack);
 	DDX_Control(pDX, IDC_BUTTON_GOFORWARD, m_btnGoForward);
 	DDX_Control(pDX, IDC_BUTTON_REFRESH, m_btnRefresh);
+	DDX_Control(pDX, IDC_BUTTON_STOP, m_btnStop);
 	DDX_Control(pDX, IDC_BUTTON_OPTIONS, m_btnOptions);
 	DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
 }
@@ -40,6 +41,7 @@ void CPanelSearch::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CPanelSearch, CEbDialogBase)
 	ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CPanelSearch::OnBnClickedButtonRefresh)
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &CPanelSearch::OnBnClickedButtonStop)
 	ON_WM_SIZE()
 	ON_WM_PAINT()
 	ON_WM_CTLCOLOR()
@@ -56,6 +58,7 @@ BEGIN_MESSAGE_MAP(CPanelSearch, CEbDialogBase)
 	ON_COMMAND(EB_COMMAND_FILE_MANAGER, &OnCmdFileManager)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
 	ON_MESSAGE(EB_COMMAND_SEARCH_SET_FOCUS_SEL, OnMsgSearchSetFocusSel)
+	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
 	//ON_WM_INITMENUPOPUP()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
@@ -72,9 +75,12 @@ void CPanelSearch::SetSearchEditShow(bool bShow)
 
 void CPanelSearch::OnBnClickedButtonRefresh()
 {
-	this->GetParent()->PostMessage(EB_COMMAND_REFRESH_URL);
+	this->GetParent()->PostMessage(EB_COMMAND_REFRESH_OR_STOP_URL);
 }
-
+void CPanelSearch::OnBnClickedButtonStop()
+{
+	this->GetParent()->PostMessage(EB_COMMAND_REFRESH_OR_STOP_URL);
+}
 void CPanelSearch::OnSize(UINT nType, int cx, int cy)
 {
 	CEbDialogBase::OnSize(nType, cx, cy);
@@ -85,6 +91,10 @@ void CPanelSearch::OnSize(UINT nType, int cx, int cy)
 	m_btnGoForward.MovePoint(x,0);
 	x += const_btn_width+2;
 	m_btnRefresh.MovePoint(x,0);
+	if (m_btnStop.GetSafeHwnd()!=NULL)
+	{
+		m_btnStop.MoveWindow(x,0,const_btn_width,const_btn_width);
+	}
 	//x += const_btn_width+2;
 	//m_btnOptions.MovePoint(x,0);
 	const int const_search_width = cx-x-const_btn_width*2-12;
@@ -131,6 +141,10 @@ BOOL CPanelSearch::OnInitDialog()
 	m_btnRefresh.Load(IDB_PNG_BTN_REFRESH72X18);
 	m_btnRefresh.SetWindowText(_T(""));
 	m_btnRefresh.SetToolTipText(_T("刷新（F5）"));
+	m_btnStop.SetDrawClosePic(true,RGB(224,224,223),theDefaultBtnCloseColor,-1,-1,2,4);
+	m_btnStop.SetWindowText(_T(""));
+	m_btnStop.SetToolTipText(_T("停止加载"));
+	OnMsgShowRefreshOrStop(1,0);	// 1=show fresh
 	m_btnOptions.Load(IDB_PNG_BTN_ARROWDOWN72X18);
 	m_btnOptions.SetWindowText(_T(""));
 	m_btnOptions.SetToolTipText(_T("选项"));
@@ -515,7 +529,26 @@ LRESULT CPanelSearch::OnMsgSearchSetFocusSel(WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
-
+LRESULT CPanelSearch::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
+{
+	// wParam=1: show refresh
+	// wParam=2: show stop
+	const bool bShowRefresh = wParam==1?true:false;
+	if (bShowRefresh)
+	{
+		if (!m_btnRefresh.IsWindowVisible())
+			m_btnRefresh.ShowWindow(SW_SHOW);
+		if (m_btnStop.IsWindowVisible())
+			m_btnStop.ShowWindow(SW_HIDE);
+	}else
+	{
+		if (!m_btnStop.IsWindowVisible())
+			m_btnStop.ShowWindow(SW_SHOW);
+		if (m_btnRefresh.IsWindowVisible())
+			m_btnRefresh.ShowWindow(SW_HIDE);
+	}
+	return 0;
+}
 void CPanelSearch::OnEditSearch(void)
 {
 	boost::mutex::scoped_lock lockSearch(m_mutexSearch);

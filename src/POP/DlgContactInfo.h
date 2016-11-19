@@ -3,6 +3,11 @@
 
 
 // CDlgContactInfo dialog
+/*
+ * 联系人窗口类
+ * 用于显示（或修改）联系人资料。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgContactInfo : public CEbDialogBase
 {

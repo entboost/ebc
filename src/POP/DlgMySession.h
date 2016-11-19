@@ -2,6 +2,11 @@
 #include "Core/VividTree.h"
 
 class CDlgViewContactInfo;
+/*
+ * 主界面，最近会话窗口类
+ * 显示最近50条，有联系的会话，可以直接点击进入聊天会话。
+ * 
+*//////////////////////////////////////////////////////
 
 class CCallRecordInfo
 {
@@ -54,8 +59,10 @@ public:
 	CDlgMySession(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDlgMySession();
 
-	void InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo,bool bSysMsg, bool bInsertNew);
-	CCallRecordInfo::pointer GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount, bool bSysMsg = false) const;
+	void InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo, bool bInsertNew);
+	//void InsertCallRecord(const CCallRecordInfo::pointer& pCallRecordInfo,bool bSysMsg, bool bInsertNew);
+	CCallRecordInfo::pointer GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount, int nMsgType = 0) const;
+	//CCallRecordInfo::pointer GetCallRecordInfo(eb::bigint sDepCode, eb::bigint sAccount, bool bSysMsg = false) const;
 	void SetCtrlColor(void);
 
 // Dialog Data
@@ -65,11 +72,12 @@ protected:
 	CDlgViewContactInfo* m_pViewContactInfo;
 	CLockMap<HTREEITEM, CCallRecordInfo::pointer> m_pCallRecordInfo;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//CTraButton m_btnDeleteTrack;
+	CTraButton m_btnDeleteTrack;
 	CTraButton m_btnCallTrack;
 	CTraButton m_btnAddContact;
 	VividTree m_treeSession;
 	HTREEITEM m_hCurrentHotItem;
+	bool m_bReloadRecordData;
 
 	void DeleteMsgRecord(const CCallRecordInfo::pointer& pCallRecordInfo, bool bQuesiton);
 	void DeleteItem(HTREEITEM hItem);

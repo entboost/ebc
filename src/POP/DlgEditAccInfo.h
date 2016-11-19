@@ -2,6 +2,11 @@
 
 
 // CDlgEditAccInfo dialog
+/*
+ * 个人中心基本信息窗口类
+ * 用于显示（或修改）个人基本资料。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgEditAccInfo : public CEbDialogBase
 {

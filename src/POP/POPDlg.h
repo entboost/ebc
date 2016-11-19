@@ -74,7 +74,30 @@ private:
 	time_t m_tCreateTime;
 };
 
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
+class CAboutDlg : public CDialog
+{
+public:
+	CAboutDlg();
+
+// 对话框数据
+	enum { IDD = IDD_ABOUTBOX };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
 // CPOPDlg 对话框
+/*
+ * ebc程序，主界面
+ * 
+*//////////////////////////////////////////////////////
+
 class CPOPDlg : public CEbDialogBase
 	, public CTreeCallback
 #ifdef USES_EBCOM_TEST
@@ -288,6 +311,7 @@ protected:
 	LRESULT OnMessageUserNotify(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageReceiveRich(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageSendRich(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageMsgReceipt(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageSendingFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageSendedFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageCancelFile(WPARAM wParam, LPARAM lParam);
@@ -370,6 +394,7 @@ protected:
 	LRESULT OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam);
 	//LRESULT OnMsgShellExecuteOpen(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgRefreshUrl(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgRefreshOrStopUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgRedrawAppFrame(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgGoBack(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgGoForward(WPARAM wParam, LPARAM lParam);
@@ -479,6 +504,7 @@ protected:
 	afx_msg void OnBnClickedButtonNewApp();
 	afx_msg void OnBnClickedButtonSwitchToolbar2();
 	LRESULT OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedButtonGoback();
 	afx_msg void OnBnClickedButtonGoforward();

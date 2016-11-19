@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+ * 窗口管理基类
+ * 用于主界面和聊天会话列表，管理所有各种窗口，包括工作区窗口、聊天会话窗口等。
+ * 
+*//////////////////////////////////////////////////////
+
 #define FRAME_BTN_ID_MIN		101
 #define FRAME_BTN_ID_WORKFRAME	FRAME_BTN_ID_MIN
 #define FRAME_BTN_ID_MAINFRAME	(FRAME_BTN_ID_WORKFRAME+1)

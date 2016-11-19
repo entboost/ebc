@@ -131,11 +131,18 @@ BOOL CDlgTranFile::OnInitDialog()
 			this->GetDlgItem(IDC_BUTTON_SAVEAS)->ShowWindow(SW_HIDE);
 			this->GetDlgItem(IDC_BUTTON_SAVE)->ShowWindow(SW_HIDE);
 			this->GetDlgItem(IDC_BUTTON_REJECT)->ShowWindow(SW_HIDE);
-			if (m_pCrFileInfo.m_sResId>0 || m_pCrFileInfo.m_bOffFile)
+			if (m_pCrFileInfo.GetStateCode()==EB_STATE_WAITING_PROCESS)
+			{
 				this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_HIDE);
-			else
-				this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_SHOW);
-			this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_SHOW);
+				this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_HIDE);
+			}else
+			{
+				if (m_pCrFileInfo.m_sResId>0 || m_pCrFileInfo.m_bOffFile)
+					this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_HIDE);
+				else
+					this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_SHOW);
+				this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_SHOW);
+			}
 		}else if (m_pCrFileInfo.m_sResId>0)// && m_pCrFileInfo.m_sResId==m_pCrFileInfo.m_nMsgId)
 		{
 			this->GetDlgItem(IDC_BUTTON_SAVEAS)->ShowWindow(SW_HIDE);
@@ -306,6 +313,26 @@ void CDlgTranFile::OnBnClickedButtonReject()
 void CDlgTranFile::Cancel(void)
 {
 	OnBnClickedButtonCancel();
+}
+void CDlgTranFile::UpdateFileInfo(const CCrFileInfo * pCrFileInfo)
+{
+	m_pCrFileInfo = pCrFileInfo;
+	// 更新 界面
+	if (m_bIsSendingFile)
+	{
+		if (m_pCrFileInfo.GetStateCode()==EB_STATE_WAITING_PROCESS)
+		{
+			this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_HIDE);
+			this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_HIDE);
+		}else
+		{
+			if (m_pCrFileInfo.m_sResId>0 || m_pCrFileInfo.m_bOffFile)
+				this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_HIDE);
+			else
+				this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_SHOW);
+			this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_SHOW);
+		}
+	}
 }
 
 void CDlgTranFile::OnBnClickedButtonCancel()

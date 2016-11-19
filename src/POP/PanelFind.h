@@ -14,6 +14,11 @@ public:
 };
 
 // CPanelFind dialog
+/*
+ * 查找面板窗口类
+ * 用于在工作区，集成浏览器，按Ctrl+F时，显示查找面板窗口，按ESC自动隐藏退出。
+ * 
+*//////////////////////////////////////////////////////
 
 class CPanelFind : public CEbDialogBase
 {

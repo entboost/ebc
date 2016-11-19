@@ -167,11 +167,11 @@ public:
 					this,shared_from_this(),boost::asio::placeholders::error));
 			}catch (std::exception & e)
 			{
-#ifdef WIN32
-				printf("start_accept exception. %s, lasterror=%d\n", e.what(), GetLastError());
-#else
-				printf("start_accept exception. %s\n", e.what());
-#endif
+//#ifdef WIN32
+//				printf("start_accept exception. %s, lasterror=%d\n", e.what(), GetLastError());
+//#else
+//				printf("start_accept exception. %s\n", e.what());
+//#endif
 			}catch (boost::exception &)
 			{}
 			catch(...)
@@ -352,7 +352,7 @@ private:
 	void start_read(void)
 	{
 		// **这里不做TRY CATCH，由IOSERVICE统一处理，有问题，会自动重启服务
-		//try
+		try
 		{
 			//printf("**** start_read->async_read_some,socket=%x,buffer=%x\n",m_socket,m_pBuffer.get());
 			m_socket->async_read_some(boost::asio::buffer(const_cast<unsigned char*>(m_pBuffer->data()), m_maxbuffersize),
@@ -364,15 +364,17 @@ private:
 			//m_socket.async_read_some(boost::asio::buffer(const_cast<unsigned char*>(newBuffer->data()), m_maxbuffersize),
 			//	boost::bind(&TcpConnection::read_some_handler, this, newBuffer,
 			//	boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-//		}catch (std::exception & e)
-//		{
+		}catch (std::exception & e)
+		{
 //#ifdef WIN32
 //			printf("start_read exception. %s, lasterror=%d\n", e.what(), GetLastError());
 //#else
 //			printf("start_read exception. %s\n", e.what());
 //#endif
-//		}catch(...)
-//		{
+		}catch (boost::exception&)
+		{
+		}catch(...)
+		{
 		}
 	}
 

@@ -1841,6 +1841,7 @@ void CDlgMyEnterprise::EditEmployeeInfo(HTREEITEM hSelItem)
 	if (!theEBAppClient.EB_GetGroupName(pMemberInfo.m_sGroupCode,sGroupName)) return;
 	CDlgMemberInfo pDlgMemberInfo(this);
 	pDlgMemberInfo.m_sGroupCode = pMemberInfo.m_sGroupCode;
+	pDlgMemberInfo.m_sMemberUserId = pMemberInfo.m_nMemberUserId;
 	pDlgMemberInfo.m_sMemberAccount = pMemberInfo.m_sMemberAccount.c_str();
 	pDlgMemberInfo.m_sUserName = pMemberInfo.m_sUserName.c_str();
 	pDlgMemberInfo.m_sGroupName = sGroupName.c_str();

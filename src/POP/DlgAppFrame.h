@@ -8,6 +8,12 @@ class CDlgAppWindow;
 //#define DEFAULT_TRIANGLE_BTN_HEIGHT 14
 //#define WM_RETURN_MAINFRAME WM_USER+21
 
+/*
+ * 工作区窗口信息类
+ * 管理工作区标签按钮，窗口信息等。
+ * 
+*//////////////////////////////////////////////////////
+
 class CAppWindowInfo
 {
 public:
@@ -62,7 +68,8 @@ public:
 	void ShowHide(bool bShowAndChecked);
 	void SetTitle(const CString& sTitle);
 	void SetIco(void);
-	void doRefresh(void);
+	void doRefreshOrStop(void);
+	bool IsLoading(void) const;
 	void goBack(void);
 	void goForward(void);
 	void changeBrowserType(void);
@@ -87,6 +94,11 @@ private:
 };
 
 // CDlgAppFrame dialog
+/*
+ * 工作区应用管理类
+ * 管理工作区所有窗口。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgAppFrame : public CEbDialogBase
 {
@@ -100,7 +112,8 @@ public:
 	void OnMove(void);
 
 	//void RefreshBtnShow(void);	// for USES_SUPPORT_UI_STYLE
-	void doRefresh(void);
+	void doRefreshOrStop(void);
+	bool IsLoading(void) const;
 	void goBack(void);
 	void goForward(void);
 	void changeBrowserType(void);
@@ -162,6 +175,7 @@ protected:
 	LRESULT OnFrameWndClose(WPARAM wParam, LPARAM lParam);
 	LRESULT OnFrameWndTitle(WPARAM wParam, LPARAM lParam);
 	LRESULT OnFrameViewIco(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMoveUp(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMoveDown(WPARAM wParam, LPARAM lParam);

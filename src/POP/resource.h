@@ -467,6 +467,8 @@
 #define IDC_BUTTON_DELETEALL2           1088
 #define IDC_BUTTON_DELETESEARCH         1088
 #define IDC_BUTTON_ALL                  1088
+#define IDC_BUTTON_REFRESH3             1088
+#define IDC_BUTTON_STOP                 1088
 #define IDC_BUTTON_VIDEOS               1089
 #define IDC_BUTTON_TRANED               1089
 #define IDC_BUTTON_ALLFILE2             1089

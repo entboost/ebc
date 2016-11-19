@@ -207,6 +207,8 @@ bool CDlgEditVideo::CreateVideoRoom(void)
 	return true;
 }
 
+//#define USES_WAV_RECORD_TEST
+
 void CDlgEditVideo::OnBnClickedButtonLocalVideo()
 {
 	if (m_comboVideos.GetCount() == 0)
@@ -219,14 +221,21 @@ void CDlgEditVideo::OnBnClickedButtonLocalVideo()
 		CDlgMessageBox::EbDoModal(this,_T(""),_T("找不到视频聊天组件：\r\n请重新安装程序，或重新登录再试一次！"),CDlgMessageBox::IMAGE_ERROR,true,5);
 		return;
 	}
+//#ifdef USES_WAV_RECORD_TEST
+//	//m_pVideoRoom->InitAudioCapture();
+//	//return;
+//#endif
+
 	if (m_pMyVideo == NULL)
 	{
 		// 打开本地视频
 		const int nvideoindex = m_comboVideos.GetCurSel();
-		const HRESULT hr = m_pVideoRoom->InitVideoCapture(nvideoindex, 10);
+		HRESULT hr = m_pVideoRoom->InitVideoCapture(nvideoindex, 10);
 		if (hr!=S_OK)
 			CDlgMessageBox::EbMessageBox(this,_T(""),_T("打开视频摄像头失败：\r\n请检查摄像头是否被占用或其他硬件故障！"),CDlgMessageBox::IMAGE_ERROR,5);
-		m_pVideoRoom->InitAudioCapture();
+		hr = m_pVideoRoom->InitAudioCapture();
+		if (hr!=S_OK)
+			CDlgMessageBox::EbMessageBox(this,_T(""),_T("打开麦克风失败：\r\n请检查麦克风是否被占用或其他硬件故障！"),CDlgMessageBox::IMAGE_ERROR,5);
 
 		CRect m_rectMy;
 		m_comboVideos.GetWindowRect(&m_rectMy);

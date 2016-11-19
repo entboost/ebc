@@ -2,6 +2,12 @@
 #include "Core/Explorer.h"
 
 // CDlgOAuth dialog
+/*
+ * 开放验证窗口类
+ * 用于在CPOP::InitInstance程序启动时，调用弹开，自动启动eblogin.exe程序，等待用户验证登录成功后，
+ * 自动关闭当前窗口，打开主界面。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgOAuth : public CDialog
 #ifdef USES_EBCOM_TEST
@@ -36,6 +42,7 @@ public:
 	bool GetDisableRD(void) const {return m_bDisableRemoteDesktop;}
 	bool GetDisableAccountEdit(void) const {return m_bDisableAccountEdit;}
 	EB_BROWSER_TYPE GetDefaultBrowserType(void) const {return m_nDefaultBrowserType;}
+	bool GetDisableMsgReceipt(void) const {return m_bDisableMsgReceipt;}
 	bool GetIeException(void) const {return m_bIeException;}
 
 // Dialog Data
@@ -61,6 +68,7 @@ protected:
 	bool m_bDisableRemoteDesktop;
 	bool m_bDisableAccountEdit;
 	EB_BROWSER_TYPE m_nDefaultBrowserType;
+	bool m_bDisableMsgReceipt;
 	bool m_bIeException;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 

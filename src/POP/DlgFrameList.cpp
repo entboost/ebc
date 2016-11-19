@@ -85,7 +85,8 @@ BEGIN_MESSAGE_MAP(CDlgFrameList, CEbDialogBase)
 	ON_WM_TIMER()
 	//ON_WM_MOVING()
 	ON_WM_SYSCOMMAND()
-	ON_MESSAGE(EB_COMMAND_REFRESH_URL, OnMsgRefreshUrl)
+	//ON_MESSAGE(EB_COMMAND_REFRESH_URL, OnMsgRefreshUrl)
+	ON_MESSAGE(EB_COMMAND_REFRESH_OR_STOP_URL, OnMsgRefreshOrStopUrl)
 	ON_MESSAGE(EB_COMMAND_GO_BACK, OnMsgGoBack)
 	ON_MESSAGE(EB_COMMAND_GO_FORWARD, OnMsgGoForward)
 	ON_MESSAGE(EB_COMMAND_CHANGE_BROWSER_TYPE, OnMsgChangeBrowserType)
@@ -100,6 +101,7 @@ BEGIN_MESSAGE_MAP(CDlgFrameList, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_OFFSET, OnMessageMoveOffset)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_ADJUST_WIDTH, OnMessageAdjustWidth)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
+	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
 
 	ON_COMMAND(EB_COMMAND_SHOWHEAD_ONLY, OnShowHeadOnly)
 	ON_COMMAND(EB_COMMAND_OPEN_WORKFRAME, OnOpenWorkFrame)
@@ -902,14 +904,25 @@ void CDlgFrameList::OnSysCommand(UINT nID, LPARAM lParam)
 
 LRESULT CDlgFrameList::OnMsgRefreshUrl(WPARAM wParam, LPARAM lParam)
 {
+//#ifdef USES_FRAMELIST_APPFRAME
+//	if (m_pDlgAppFrame!=0)
+//		m_pDlgAppFrame->doRefresh();
+//#else
+//	theApp.GetMainWnd()->PostMessage(EB_COMMAND_REFRESH_URL, wParam, lParam);
+//#endif
+	return 0;
+}
+LRESULT CDlgFrameList::OnMsgRefreshOrStopUrl(WPARAM wParam, LPARAM lParam)
+{
 #ifdef USES_FRAMELIST_APPFRAME
 	if (m_pDlgAppFrame!=0)
-		m_pDlgAppFrame->doRefresh();
+		m_pDlgAppFrame->doRefreshOrStop();
 #else
-	theApp.GetMainWnd()->PostMessage(EB_COMMAND_REFRESH_URL, wParam, lParam);
+	theApp.GetMainWnd()->PostMessage(EB_COMMAND_REFRESH_OR_STOP_URL, wParam, lParam);
 #endif
 	return 0;
 }
+
 LRESULT CDlgFrameList::OnMsgGoBack(WPARAM wParam, LPARAM lParam)
 {
 #ifdef USES_FRAMELIST_APPFRAME
@@ -1316,6 +1329,12 @@ LRESULT CDlgFrameList::OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam)
 	if (this->m_pPanelSearch!=NULL)
 		this->m_pPanelSearch->PostMessage(EB_COMMAND_CHANGE_APP_URL,wParam,lParam);
 	//theApp.GetMainWnd()->PostMessage(EB_COMMAND_CHANGE_APP_URL, wParam, 1);	// from CDlgFrameList
+	return 0;
+}
+LRESULT CDlgFrameList::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
+{
+	if (this->m_pPanelSearch!=NULL)
+		this->m_pPanelSearch->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,wParam,lParam);
 	return 0;
 }
 

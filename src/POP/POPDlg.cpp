@@ -118,25 +118,6 @@ time_t theCheckNewVersionTime = 0;
 #define TIMERID_APPFRAME_SETFOCUS			0x13D
 
 
-
-// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
-
-class CAboutDlg : public CDialog
-{
-public:
-	CAboutDlg();
-
-// 对话框数据
-	enum { IDD = IDD_ABOUTBOX };
-
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
-
-// 实现
-protected:
-	DECLARE_MESSAGE_MAP()
-};
-
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 {
 }
@@ -195,7 +176,7 @@ CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 {
 #ifdef _DEBUG
 	int aa1 = abc(2);
-	int aa2 = abc(2);
+	//int aa2 = abc(2);
 #endif
 	//m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	//m_bTimerToSwitchOnUIStyleTypeOffice = false;
@@ -288,6 +269,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(CR_WM_USER_NOTIFY, OnMessageUserNotify)
 	ON_MESSAGE(CR_WM_RECEIVE_RICH, OnMessageReceiveRich)
 	ON_MESSAGE(CR_WM_SEND_RICH, OnMessageSendRich)
+	ON_MESSAGE(CR_WM_MSG_RECEIPT, OnMessageMsgReceipt)
 	ON_MESSAGE(CR_WM_SENDING_FILE, OnMessageSendingFile)
 	ON_MESSAGE(CR_WM_SENT_FILE, OnMessageSendedFile)
 	ON_MESSAGE(CR_WM_CANCEL_FILE, OnMessageCancelFile)
@@ -374,7 +356,8 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_DOWN, OnMessageMoveDown)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_OFFSET, OnMessageMoveOffset)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_ADJUST_WIDTH, OnMessageAdjustWidth)
-	ON_MESSAGE(EB_COMMAND_REFRESH_URL, OnMsgRefreshUrl)
+	//ON_MESSAGE(EB_COMMAND_REFRESH_URL, OnMsgRefreshUrl)
+	ON_MESSAGE(EB_COMMAND_REFRESH_OR_STOP_URL, OnMsgRefreshOrStopUrl)
 	ON_MESSAGE(EB_COMMAND_REDRAW_APPFRAME, OnMsgRedrawAppFrame)
 	ON_MESSAGE(EB_COMMAND_GO_BACK, OnMsgGoBack)
 	ON_MESSAGE(EB_COMMAND_GO_FORWARD, OnMsgGoForward)
@@ -431,6 +414,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_BN_CLICKED(IDC_BUTTON_NEW_APP, &CPOPDlg::OnBnClickedButtonNewApp)
 	ON_BN_CLICKED(IDC_BUTTON_SWITCH_TOOLBAR2, &CPOPDlg::OnBnClickedButtonSwitchToolbar2)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
+	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
 	ON_NOTIFY(NM_CLICK, IDC_TREE_SEARCH, &CPOPDlg::OnNMClickTreeSearch)
 	ON_BN_CLICKED(IDC_BUTTON_GOBACK, &CPOPDlg::OnBnClickedButtonGoback)
 	ON_BN_CLICKED(IDC_BUTTON_GOFORWARD, &CPOPDlg::OnBnClickedButtonGoforward)
@@ -1378,7 +1362,7 @@ LRESULT CPOPDlg::OnMessageBroadcastMsg(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 
 	CString sContent;
@@ -1838,7 +1822,7 @@ LRESULT CPOPDlg::OnMessageReceiveRich(WPARAM wParam, LPARAM lParam)
 	CEBCCallInfo::pointer pEbCallInfo;
 	if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
 	{
-		return 0;
+		return -1;
 	}
 	pEbCallInfo->m_tLastTime = time(0);
 	CDlgDialog::pointer pDlgDialog = GetDlgDialog(pEbCallInfo,false);
@@ -1846,13 +1830,14 @@ LRESULT CPOPDlg::OnMessageReceiveRich(WPARAM wParam, LPARAM lParam)
 	pDlgDialog->OnReceiveRich(pChatRichInfo,&sFirstMsg);
 #else
 	const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)wParam;
-	if (pCrMsgInfo==NULL) return 1;
+	if (pCrMsgInfo==NULL || pCrMsgInfo->m_pRichMsg==NULL) return -1;
 	const eb::bigint nFromUserid = pCrMsgInfo->m_sSendFrom;
 	const eb::bigint sCallId = pCrMsgInfo->GetCallId();
 	CEBCCallInfo::pointer pEbCallInfo;
 	if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
 	{
-		return 1;
+		//theApp.LogMessage("CPOPDlg::OnMessageReceiveRich call not fine error, (callid=%lld,fromuid=%lld,msgid=%lld)\r\n",sCallId,nFromUserid,pCrMsgInfo->m_pRichMsg->GetMsgId());
+		return -1;
 	}
 	pEbCallInfo->m_tLastTime = time(0);
 	CDlgDialog::pointer pDlgDialog = GetDlgDialog(pEbCallInfo,false);
@@ -1928,9 +1913,9 @@ LRESULT CPOPDlg::OnMessageReceiveRich(WPARAM wParam, LPARAM lParam)
 
 LRESULT CPOPDlg::OnMessageSendRich(WPARAM wParam, LPARAM lParam)
 {
-	const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
-	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
-		return 0;
+	//const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
+	//if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+	//	return 0;
 
 #ifdef USES_EBCOM_TEST
 	IEB_ChatRichInfo* pChatRichInfo = (IEB_ChatRichInfo*)wParam;
@@ -1950,6 +1935,10 @@ LRESULT CPOPDlg::OnMessageSendRich(WPARAM wParam, LPARAM lParam)
 #else
 	const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)wParam;
 	if (pCrMsgInfo==NULL) return 1;
+	const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
+	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+		return 0;
+
 	const eb::bigint sCallId = pCrMsgInfo->GetCallId();
 	CEBCCallInfo::pointer pEbCallInfo;
 	if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
@@ -1988,35 +1977,79 @@ LRESULT CPOPDlg::OnMessageSendRich(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT CPOPDlg::OnMessageMsgReceipt(WPARAM wParam, LPARAM lParam)
+{
+//#ifdef USES_EBCOM_TEST
+//	IEB_ChatRichInfo* pChatRichInfo = (IEB_ChatRichInfo*)wParam;
+//	const eb::bigint sCallId = pChatRichInfo->CallId;
+//	CEBCCallInfo::pointer pEbCallInfo;
+//	if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
+//	{
+//		return 0;
+//	}
+//	pEbCallInfo->m_tLastTime = time(0);
+//	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
+//	if (pDlgDialog.get()==NULL)
+//	{
+//		return 1;
+//	}
+//	pDlgDialog->OnSendRich(pChatRichInfo,nState);
+//#else
+	const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)wParam;
+	if (pCrMsgInfo==NULL) return 1;
+	const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
+	const eb::bigint sCallId = pCrMsgInfo->GetCallId();
+	//const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
+	//const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
+
+	//CEBCCallInfo::pointer pEbCallInfo;
+	//if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
+	//{
+	//	return 1;
+	//}
+	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
+	if (pDlgDialog.get()==NULL)
+	{
+		const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
+		const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
+		theApp.UpdateMsgReceiptData(nMsgId, nFromUserId);
+		return 1;
+	}
+	pDlgDialog->OnMsgReceipt(pCrMsgInfo, nState);
+
+//#endif
+	return 0;
+}
+
 LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 {
-	EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
-	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
-		return 0;
-	switch (nState)
-	{
-	case EB_STATE_FILE_ALREADY_EXIST:
-		return 0;
-	case EB_STATE_OK:
-		break;
-	case EB_STATE_NOT_AUTH_ERROR:
-		CDlgMessageBox::EbMessageBox(this,"","没有权限：\r\n请联系管理员！",CDlgMessageBox::IMAGE_WARNING,5);
-		return 1;
-	case EB_STATE_EXCESS_QUOTA_ERROR:
-	case EB_STATE_FILE_BIG_LONG:
-		CDlgMessageBox::EbMessageBox(this,"","文件大小超出系统最大配额：\r\n请发送更小文件！",CDlgMessageBox::IMAGE_WARNING,5);
-		return 1;
-	case EB_STATE_TIMEOUT_ERROR:
-		CDlgMessageBox::EbMessageBox(this,"","文件发送超时：\r\n请重新发送！",CDlgMessageBox::IMAGE_WARNING,5);
-		return 1;
-	default:
-		{
-			CString stext;
-			stext.Format(_T("文件发送失败，错误代码：%d\r\n请检查后重试！"),(int)nState);
-			CDlgMessageBox::EbMessageBox(this,"",stext,CDlgMessageBox::IMAGE_WARNING,5);
-			return 1;
-		}
-	}
+	//EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
+	//if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+	//	return 0;
+	//switch (nState)
+	//{
+	//case EB_STATE_FILE_ALREADY_EXIST:
+	//	return 0;
+	//case EB_STATE_OK:
+	//	break;
+	//case EB_STATE_NOT_AUTH_ERROR:
+	//	CDlgMessageBox::EbMessageBox(this,"","没有权限：\r\n请联系管理员！",CDlgMessageBox::IMAGE_WARNING,5);
+	//	return 1;
+	//case EB_STATE_EXCESS_QUOTA_ERROR:
+	//case EB_STATE_FILE_BIG_LONG:
+	//	CDlgMessageBox::EbMessageBox(this,"","文件大小超出系统最大配额：\r\n请发送更小文件！",CDlgMessageBox::IMAGE_WARNING,5);
+	//	return 1;
+	//case EB_STATE_TIMEOUT_ERROR:
+	//	CDlgMessageBox::EbMessageBox(this,"","文件发送超时：\r\n请重新发送！",CDlgMessageBox::IMAGE_WARNING,5);
+	//	return 1;
+	//default:
+	//	{
+	//		CString stext;
+	//		stext.Format(_T("文件发送失败，错误代码：%d\r\n请检查后重试！"),(int)nState);
+	//		CDlgMessageBox::EbMessageBox(this,"",stext,CDlgMessageBox::IMAGE_WARNING,5);
+	//		return 1;
+	//	}
+	//}
 #ifdef USES_EBCOM_TEST
 	IEB_ChatFileInfo* pCrFileInfo = (IEB_ChatFileInfo*)wParam;
 	const eb::bigint sCallId = pCrFileInfo->CallId;
@@ -2045,6 +2078,36 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 #else
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
 	if (pCrFileInfo==NULL) return 1;
+
+	EB_STATE_CODE nState = (EB_STATE_CODE)pCrFileInfo->GetStateCode();
+	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+		return 0;
+	switch (nState)
+	{
+	case EB_STATE_FILE_ALREADY_EXIST:
+		return 0;
+	case EB_STATE_OK:
+	case EB_STATE_WAITING_PROCESS:	// ** 等待处理
+		break;
+	case EB_STATE_NOT_AUTH_ERROR:
+		CDlgMessageBox::EbMessageBox(this,"","没有权限：\r\n请联系管理员！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
+	case EB_STATE_EXCESS_QUOTA_ERROR:
+	case EB_STATE_FILE_BIG_LONG:
+		CDlgMessageBox::EbMessageBox(this,"","文件大小超出系统最大配额：\r\n请发送更小文件！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
+	case EB_STATE_TIMEOUT_ERROR:
+		CDlgMessageBox::EbMessageBox(this,"","文件发送超时：\r\n请重新发送！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
+	default:
+		{
+			CString stext;
+			stext.Format(_T("文件发送失败，错误代码：%d\r\n请检查后重试！"),(int)nState);
+			CDlgMessageBox::EbMessageBox(this,"",stext,CDlgMessageBox::IMAGE_WARNING,5);
+			return 1;
+		}
+	}
+
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
 	if (sResId>0)
@@ -2074,9 +2137,9 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 
 LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 {
-	const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
-	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
-		return 0;
+	//const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
+	//if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+	//	return 0;
 
 	//CString sSoundFile;
 	//sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
@@ -2118,6 +2181,10 @@ LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 #else
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
 	if (pCrFileInfo==NULL) return 1;
+	const EB_STATE_CODE nState = (EB_STATE_CODE)pCrFileInfo->GetStateCode();
+	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+		return 0;
+
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
 	if (sResId>0)
@@ -2144,11 +2211,19 @@ LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 		CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
 		if (pDlgDialog.get()!=NULL)
 		{
-			if (pDlgDialog->OnSentFile(pCrFileInfo) && !pDlgDialog->IsWindowVisible())
+			if (pDlgDialog->OnSentFile(pCrFileInfo, nState) && !pDlgDialog->IsWindowVisible())
 			{
 				CString sSoundFile;
 				sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
 				sndPlaySound(sSoundFile, SND_ASYNC);
+			}
+		}else
+		{
+			if (pCrFileInfo->m_sReceiveAccount!=theEBAppClient.EB_GetLogonUserId())	// * 对方接收消息回执
+			{
+				const eb::bigint nFromUserId = pCrFileInfo->m_sReceiveAccount;
+				const eb::bigint nMsgId = pCrFileInfo->m_nMsgId;
+				theApp.UpdateMsgReceiptData(nMsgId, nFromUserId);
 			}
 		}
 	}
@@ -2320,7 +2395,7 @@ LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
 	pDlgDialog->OnReceivingFile(pCrFileInfo,&sFirstMsg);
 #else
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
-	if (pCrFileInfo==NULL) return 1;
+	if (pCrFileInfo==NULL) return -1;
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
 	if (sResId>0)
 	{
@@ -2337,7 +2412,7 @@ LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
 	CEBCCallInfo::pointer pEbCallInfo;
 	if (!theApp.m_pCallList.find(sCallId,pEbCallInfo))
 	{
-		return 1;
+		return -1;
 	}
 	pEbCallInfo->m_tLastTime = time(0);
 	CDlgDialog::pointer pDlgDialog = GetDlgDialog(pEbCallInfo,false);
@@ -2546,9 +2621,9 @@ LRESULT CPOPDlg::OnMessageFilePercent(WPARAM wParam, LPARAM lParam)
 }
 LRESULT CPOPDlg::OnMessageSave2CloudDrive(WPARAM wParam, LPARAM lParam)
 {
-	const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
-	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
-		return 0;
+	//const EB_STATE_CODE nState = (EB_STATE_CODE)lParam;
+	//if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+	//	return 0;
 	//CString sSoundFile;
 	//sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
 	//sndPlaySound(sSoundFile, SND_ASYNC);
@@ -2565,6 +2640,9 @@ LRESULT CPOPDlg::OnMessageSave2CloudDrive(WPARAM wParam, LPARAM lParam)
 
 #else
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
+	const EB_STATE_CODE nState = (EB_STATE_CODE)pCrFileInfo->GetStateCode();
+	if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
+		return 0;
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 
 	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
@@ -3434,7 +3512,7 @@ void CPOPDlg::SaveCallRecord(eb::bigint sCallId,eb::bigint sGroupCode,const EB_A
 		//ftime(&tbNow);
 		//tbNow.time -= (tbNow.timezone*60);
 		//pCallRecordInfo->m_tTime = tbNow.time;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,false,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 	// ** 必须放后面
 	sSql.Format(_T("INSERT INTO call_record_t(call_id,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,from_type,company,title,tel,email) ")\
@@ -3600,9 +3678,9 @@ LRESULT CPOPDlg::OnMessageCallConnected(WPARAM wParam, LPARAM lParam)
 			{
 				CString sSql;
 				if (pConnectInfo->m_sGroupCode>0)
-					sSql.Format(_T("SELECT count(msg_id) FROM msg_record_t WHERE dep_code=%lld AND read_flag=0"),pConnectInfo->m_sGroupCode);
+					sSql.Format(_T("SELECT count(msg_id) FROM msg_record_t WHERE dep_code=%lld AND (read_flag&1)=0"),pConnectInfo->m_sGroupCode);
 				else
-					sSql.Format(_T("SELECT count(msg_id) FROM msg_record_t WHERE from_uid=%lld AND dep_code=0 AND read_flag=0"),pConnectInfo->GetFromUserId());
+					sSql.Format(_T("SELECT count(msg_id) FROM msg_record_t WHERE from_uid=%lld AND dep_code=0 AND (read_flag&1)=0"),pConnectInfo->GetFromUserId());
 				int nCookie = 0;
 				cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 				if (pRecord.get()!=NULL)
@@ -4249,7 +4327,7 @@ LRESULT CPOPDlg::OnMessageGroupEditError(WPARAM wParam, LPARAM lParam)
 	switch (nErrorCode)
 	{
 	case EB_STATE_NOT_AUTH_ERROR:
-		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有管理员权限：\r\n请联系管理员后重试！"),CDlgMessageBox::IMAGE_ERROR,5);
+		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有权限：\r\n请联系管理员！"),CDlgMessageBox::IMAGE_ERROR,5);
 		break;
 	default:
 		{
@@ -4589,7 +4667,7 @@ LRESULT CPOPDlg::OnMessageRequestJoin2Group(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #else
 	const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)wParam;
@@ -4635,7 +4713,7 @@ LRESULT CPOPDlg::OnMessageRequestJoin2Group(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 
 #endif
@@ -4705,7 +4783,7 @@ LRESULT CPOPDlg::OnMessageInviteJoin2Group(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #else
 	const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)wParam;
@@ -4751,7 +4829,7 @@ LRESULT CPOPDlg::OnMessageInviteJoin2Group(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #endif
 	if (theApp.GetGroupMsgSugId()>0)
@@ -5062,7 +5140,7 @@ LRESULT CPOPDlg::OnMessageMemberEditError(WPARAM wParam, LPARAM lParam)
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("邀请成员成功：\r\n等待对方通过验证！"),CDlgMessageBox::IMAGE_INFORMATION,5);
 		break;
 	case EB_STATE_NOT_AUTH_ERROR:
-		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有管理员权限：\r\n请联系管理员后重试！"),CDlgMessageBox::IMAGE_ERROR,5);
+		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有权限：\r\n请联系管理员！"),CDlgMessageBox::IMAGE_ERROR,5);
 		break;
 	case EB_STATE_ACCOUNT_ALREADY_EXIST:
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("帐号已经存在：\r\n请重新输入！"),CDlgMessageBox::IMAGE_ERROR,5);
@@ -5119,7 +5197,7 @@ LRESULT CPOPDlg::OnMessageRequestAddContact(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #else
 	const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)wParam;
@@ -5157,7 +5235,7 @@ LRESULT CPOPDlg::OnMessageRequestAddContact(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #endif
 
@@ -5225,7 +5303,7 @@ LRESULT CPOPDlg::OnMessageRejectAddContact(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #else
 	const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)wParam;
@@ -5263,7 +5341,7 @@ LRESULT CPOPDlg::OnMessageRejectAddContact(WPARAM wParam, LPARAM lParam)
 		pCallRecordInfo->m_nFromType = nMsgType;
 		pCallRecordInfo->m_tTime = time(0);
 		pCallRecordInfo->m_bRead = false;
-		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true,true);
+		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 #endif
 
@@ -7168,7 +7246,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 			std::vector<eb::bigint> pGroupIdList;
 			std::vector<eb::bigint> pFromUserIdList;
 			int nCookie = 0;
-			theApp.m_pBoUsers->select("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE read_flag=0 LIMIT 30", nCookie);
+			theApp.m_pBoUsers->select("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE (read_flag&1)=0 LIMIT 30", nCookie);
 			cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 			while (pRecord.get()!=NULL)
 			{
@@ -7434,6 +7512,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 		}break;
 	case TIMERID_SHRINKAGE_WIN:
 		{
+			if (this->IsIconic()) break;
 			CPoint pos;
 			GetCursorPos(&pos);
 			CRect rectWin;
@@ -7450,7 +7529,8 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 				this->ShowWindow(SW_HIDE);
 				SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
 				if (m_pPanelSearch!=0 && m_pPanelSearch->GetSafeHwnd()!=0)
-					m_pPanelSearch->ShowWindow(SW_HIDE);
+					m_pPanelSearch->CheckSearchResultShowHide();
+					//m_pPanelSearch->ShowWindow(SW_HIDE);
 			}else if (rectWin.PtInRect(pos))
 			{
 				// down
@@ -9055,8 +9135,14 @@ void CPOPDlg::OnEnChangeEditSearch()
 }
 LRESULT CPOPDlg::OnMsgRefreshUrl(WPARAM wParam, LPARAM lParam)
 {
+	//if (m_pDlgAppFrame!=0)
+	//	m_pDlgAppFrame->doRefresh();
+	return 0;
+}
+LRESULT CPOPDlg::OnMsgRefreshOrStopUrl(WPARAM wParam, LPARAM lParam)
+{
 	if (m_pDlgAppFrame!=0)
-		m_pDlgAppFrame->doRefresh();
+		m_pDlgAppFrame->doRefreshOrStop();
 	return 0;
 }
 LRESULT CPOPDlg::OnMsgRedrawAppFrame(WPARAM wParam, LPARAM lParam)
@@ -9549,7 +9635,7 @@ void CPOPDlg::OnBnClickedButtonLinestate()
 #endif
 			{
 				CString stext;
-				stext.Format(_T("%s-%s"),pMemberInfo.m_sUserName.c_str(),sGroupName.c_str());
+				stext.Format(_T("%s-%s"),sGroupName.c_str(),pMemberInfo.m_sUserName.c_str());
 
 				bool bAppendMenuError = true;
 				if (::PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
@@ -10842,92 +10928,100 @@ void CPOPDlg::OnMove(int x, int y)
 		m_pPanelSearch->MoveWindow(&rect);
 #endif
 	}
-
-	CPoint pCursorPos;
-	GetCursorPos(&pCursorPos);
-
-	int nNeedHideWin = 0;
-	if ((pCursorPos.x<=0 && y>0) || (!m_bOpenOk && x<=0 && y>0))
-		nNeedHideWin = 1;		// left
-	else if ((pCursorPos.y<=0 && y<=0) || (!m_bOpenOk && x>0 && y<=0))
-		nNeedHideWin = 2;		// top
-	else
+	if (m_pPanelSearch!=NULL && m_pPanelSearch->GetSafeHwnd()!=NULL)
 	{
-		CRect rect;
-		this->GetWindowRect(&rect);
-		const int nScreenWidth = theApp.GetScreenWidth();
-		if (((pCursorPos.x+1)>=nScreenWidth && y>0) || (!m_bOpenOk && rect.right>=nScreenWidth && y>0))
-			nNeedHideWin = 3;	// right
-
-		//CRect rect;
-		//this->GetWindowRect(&rect);
-		//int nScreenWidth = 0;
-		//int nScreenHeight = 0;
-		//theApp.GetScreenSize(nScreenWidth, nScreenHeight);
-		//if (rect.right>=nScreenWidth && y>0)
-		//	nNeedHideWin = 3;	// right
+		m_pPanelSearch->OnMove();
 	}
-	if (nNeedHideWin>0)
-	{
-		CRect rect;
-		this->GetWindowRect(&rect);
-		const int nWinWidth = rect.Width();
-		const int nWinHeight = rect.Height();
 
-		if (m_pDlgShrinkageBar==NULL)
+	if (!theApp.GetHideMainFrame())
+	{
+		CPoint pCursorPos;
+		GetCursorPos(&pCursorPos);
+
+		int nNeedHideWin = 0;
+		if ((pCursorPos.x<=0 && y>0) || (!m_bOpenOk && x<=0 && y>0))
+			nNeedHideWin = 1;		// left
+		else if ((pCursorPos.y<=0 && y<=0) || (!m_bOpenOk && x>0 && y<=0))
+			nNeedHideWin = 2;		// top
+		else
 		{
-			CWnd* pParent = GetDesktopWindow();
-			m_pDlgShrinkageBar = new CDlgShrinkageBar(pParent);
-			m_pDlgShrinkageBar->Create(CDlgShrinkageBar::IDD,pParent);
-			m_pDlgShrinkageBar->ShowWindow(SW_HIDE);
-		}
-		m_rectWin = rect;
-		bool bNeedReMoveWindow = false;
-		if (nNeedHideWin==1)
-		{
-			// left
-			bNeedReMoveWindow = m_rectWin.left!=0?true:false;
-			m_rectWin.left = 0;
-			m_rectWin.right = nWinWidth;
-			rect.left = 0;
-			rect.right = 2;
-		}else if (nNeedHideWin==2)
-		{
-			// top
-			rect.top = 0;
-			rect.bottom = 2;
-		}else
-		{
-			// right
+			CRect rect;
+			this->GetWindowRect(&rect);
 			const int nScreenWidth = theApp.GetScreenWidth();
-			bNeedReMoveWindow = (m_rectWin.right!=nScreenWidth)?true:false;
-			m_rectWin.right = nScreenWidth;
-			m_rectWin.left = m_rectWin.right-nWinWidth;
-			rect.right = nScreenWidth;
-			rect.left = rect.right-2;
+			if (((pCursorPos.x+1)>=nScreenWidth && y>0) || (!m_bOpenOk && rect.right>=nScreenWidth && y>0))
+				nNeedHideWin = 3;	// right
+
+			//CRect rect;
+			//this->GetWindowRect(&rect);
+			//int nScreenWidth = 0;
+			//int nScreenHeight = 0;
+			//theApp.GetScreenSize(nScreenWidth, nScreenHeight);
+			//if (rect.right>=nScreenWidth && y>0)
+			//	nNeedHideWin = 3;	// right
 		}
-		m_pDlgShrinkageBar->MoveWindow(&rect);
-		if (bNeedReMoveWindow)
+		if (nNeedHideWin>0)
 		{
-			ReleaseCapture();
-			MoveWindow(&m_rectWin);
-		}
-		if (!m_bShrinkageWin)
+			CRect rect;
+			this->GetWindowRect(&rect);
+			const int nWinWidth = rect.Width();
+			const int nWinHeight = rect.Height();
+
+			if (m_pDlgShrinkageBar==NULL)
+			{
+				CWnd* pParent = GetDesktopWindow();
+				m_pDlgShrinkageBar = new CDlgShrinkageBar(pParent);
+				m_pDlgShrinkageBar->Create(CDlgShrinkageBar::IDD,pParent);
+				m_pDlgShrinkageBar->ShowWindow(SW_HIDE);
+			}
+			m_rectWin = rect;
+			bool bNeedReMoveWindow = false;
+			if (nNeedHideWin==1)
+			{
+				// left
+				bNeedReMoveWindow = m_rectWin.left!=0?true:false;
+				m_rectWin.left = 0;
+				m_rectWin.right = nWinWidth;
+				rect.left = 0;
+				rect.right = 2;
+			}else if (nNeedHideWin==2)
+			{
+				// top
+				rect.top = 0;
+				rect.bottom = 2;
+			}else
+			{
+				// right
+				const int nScreenWidth = theApp.GetScreenWidth();
+				bNeedReMoveWindow = (m_rectWin.right!=nScreenWidth)?true:false;
+				m_rectWin.right = nScreenWidth;
+				m_rectWin.left = m_rectWin.right-nWinWidth;
+				rect.right = nScreenWidth;
+				rect.left = rect.right-2;
+			}
+			m_pDlgShrinkageBar->MoveWindow(&rect);
+			if (bNeedReMoveWindow)
+			{
+				ReleaseCapture();
+				MoveWindow(&m_rectWin);
+			}
+			if (!m_bShrinkageWin)
+			{
+				m_bShrinkageWin = true;
+				SetTimer(TIMERID_SHRINKAGE_WIN,100,NULL);
+				m_pDlgShrinkageBar->SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+				//SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+			}
+		}else if (nNeedHideWin==0 && m_bShrinkageWin && (x>0 || y>0))
+			//}else if (nNeedHideWin==0 && m_bShrinkageWin && x>0 && y>0)
 		{
-			m_bShrinkageWin = true;
-			SetTimer(TIMERID_SHRINKAGE_WIN,100,NULL);
-			m_pDlgShrinkageBar->SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
-			//SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+			KillTimer(TIMERID_SHRINKAGE_WIN);
+			m_bShrinkageWin = false;
+			m_pDlgShrinkageBar->ShowWindow(SW_HIDE);
+			this->ShowWindow(SW_SHOW);
+			SetWindowPos(&wndNoTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
 		}
-	}else if (nNeedHideWin==0 && m_bShrinkageWin && (x>0 || y>0))
-	//}else if (nNeedHideWin==0 && m_bShrinkageWin && x>0 && y>0)
-	{
-		KillTimer(TIMERID_SHRINKAGE_WIN);
-		m_bShrinkageWin = false;
-		m_pDlgShrinkageBar->ShowWindow(SW_HIDE);
-		this->ShowWindow(SW_SHOW);
-		SetWindowPos(&wndNoTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
 	}
+
 	//if (m_bOpenOk)
 	//{
 	//	m_nShrinkageWin = m_bShrinkageWin?1:0;
@@ -11292,7 +11386,12 @@ LRESULT CPOPDlg::OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam)
 #endif
 	return 0;
 }
-
+LRESULT CPOPDlg::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
+{
+	if (this->m_pPanelSearch!=NULL)
+		this->m_pPanelSearch->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,wParam,lParam);
+	return 0;
+}
 void CPOPDlg::OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here

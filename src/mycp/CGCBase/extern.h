@@ -31,6 +31,7 @@ extern cgcSystem::pointer theSystem;
 extern cgcServiceManager::pointer theServiceManager;
 
 #define CGC_LOG(X) theApplication->log X
+#define CGC_LOG2(X) theApplication->log2 X
 #define CGC_APP_PARAMETER(N) theApplication->getInitParameter(N)
 #define CGC_APP_VALUE(N, D) theApplication->getInitParameterValue(N, D)
 #define CGC_APP_VALUE2(N, D) theApplication->getInitParameterValue2(N, D)

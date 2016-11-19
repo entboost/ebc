@@ -57,6 +57,7 @@ mycp::bigint EbGetFileSize(const char* sFilePath)
 
 BEGIN_MESSAGE_MAP(CPOPApp, CWinApp)
 	//ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+	ON_COMMAND(ID_HELP, &CPOPApp::OnAbout)
 END_MESSAGE_MAP()
 
 CString GetLineStateText(EB_USER_LINE_STATE nLineState)
@@ -388,7 +389,6 @@ HRESULT GetPostData(LPCTSTR cszPostData,LPVARIANT pvPostData)
 	}
 
 	VariantInit(pvPostData);
-
 	psa = SafeArrayCreateVector(VT_UI1, 0, cElems);
 	if (!psa)
 	{
@@ -410,6 +410,9 @@ HRESULT GetPostData(LPCTSTR cszPostData,LPVARIANT pvPostData)
 //#define _CRTDBG_MAP_ALLOC
 //#include "stdlib.h"
 //#include "crtdbg.h"
+#ifdef _DEBUG
+int Atest(int a) {return a+1;}
+#endif
 
 CPOPApp::CPOPApp()
 {
@@ -433,7 +436,6 @@ CPOPApp::CPOPApp()
 #else
 	m_sCefCachePath.Format(_T("%s\\entboost\\cef_cache_path"),lpszBuffer);
 #endif
-
 	const tstring sSettingIniFile = m_sAppDataPath+_T("\\setting.ini");
 	m_bLogDebug = GetPrivateProfileInt("system","debug",0,sSettingIniFile.c_str())==1?true:false;
 	m_pLogDebug = NULL;
@@ -457,6 +459,7 @@ CPOPApp::CPOPApp()
 	m_bDisableRemoteDesktop = false;
 	m_bDisableAccountEdit = false;
 	m_nEnterpriseCreateUserId = 0;
+	m_bDisableMsgReceipt = false;
 
 #ifdef USES_LIBCEF
 	m_nDefaultBrowserType = EB_BROWSER_TYPE_CEF;
@@ -518,6 +521,9 @@ CPOPApp::CPOPApp()
 	m_bAdaptIeVersion = false;
 
 	m_nSendType = -1;
+#ifdef _DEBUG
+	//Atest(1);
+#endif
 }
 
 // ** 实现win7 home环境下，能实现文件拖拉事件；
@@ -727,42 +733,10 @@ int CPOPApp::GetExistAppCount(void) const
 }
 
 CefRefPtr<ClientApp> theCefApp;
-//#define USES_ZIP_TEST
-#ifdef USES_ZIP_TEST
-#include <ThirdParty/stl/zlib.h>
-static bool MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData)
-{
-	return true;
-}
-#endif
 
 ULONG_PTR theGdiplusToken=0;
 BOOL CPOPApp::InitInstance()
 {
-#ifdef USES_ZIP_TEST
-	FILE* ff = fopen("d:\\MSG3978231900071478.ebtemp","rb");
-	//FILE* ff = fopen("d:\\quant-1.bmp","rb");
-	if (ff!=NULL)
-	{
-		uLong nZipSize = 0;
-		const int ret = UnZipFile2Cb(ff,0,0,NULL,MyZipDataCallBack,0);
-		//ZipFile2Cb(ff,0,MyZipDataCallBack,0,&nZipSize,Z_DEFAULT_COMPRESSION);
-
-		std::vector<uLong> pList;
-		pList.push_back(nZipSize);
-		for (int level=Z_BEST_SPEED;level<=Z_BEST_COMPRESSION; level++)
-		{
-			ZipFile2Cb(ff,0,MyZipDataCallBack,0,&nZipSize,level);
-			pList.push_back(nZipSize);
-		}
-		//CZIB pZib;
-		//pZib.OpenZib();
-		//pZib.File2Cb(ff,0,MyZipDataCallBack,0);
-		//pZib.Close();
-		fclose(ff);
-	}
-	return FALSE;
-#endif
 	setlocale(LC_ALL, "");	// 使用默认环境 .936中文目录有问题。
 	//setlocale(LC_ALL, ".936");
 
@@ -1133,6 +1107,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_bDisableRemoteDesktop = pDlgLogin.GetDisableRD();
 	this->m_bDisableAccountEdit = pDlgLogin.GetDisableAccountEdit();
 	this->m_nDefaultBrowserType = pDlgLogin.GetDefaultBrowserType();
+	this->m_bDisableMsgReceipt = pDlgLogin.GetDisableMsgReceipt();
 
 	this->m_bIeException = pDlgLogin.GetIeException();
 	
@@ -2092,8 +2067,20 @@ void CPOPApp::SelectFirstSearch(VividTree& treeSearch, CHoverEdit& editSearch, b
 						const int nTemp = sFullString.Find(sOldString.Left(nStartChar));
 						if (nTemp>nStartChar)
 						{
+							if (nTemp>3)	// ** 判断是否http://或者www.之类开头
+							{
+								CString sTemp = sFullString.Mid(nTemp-3,3);
+								sTemp.MakeLower();
+								if (sTemp!=_T("://") && sTemp!="ww.")
+								{
+									return;
+								}
+							}
 							nSel = nStartChar;
 							sFullString = sFullString.Mid(nTemp);
+						}else
+						{
+							return;
 						}
 					}
 				}
@@ -2497,10 +2484,10 @@ void CPOPApp::NewEmployeeInfo(CWnd* pParent,const CTreeItemInfo * pTreeItemInfo)
 	//	pEditPopMemberInfo.m_sMemberAccount = sMemberAccount;
 	//	pEditPopMemberInfo.m_sUserName = sMemberAccount;
 	//	pEditPopMemberInfo.m_sJobTitle = "C++开发工程师";
-	//	pEditPopMemberInfo.m_sEmail = "yhz@entboost.com";
+	//	pEditPopMemberInfo.m_sEmail = "test@entboost.com";
 	//	pEditPopMemberInfo.m_sFax = "0755-27362216";
 	//	pEditPopMemberInfo.m_sCellPhone = "0755-27362216";
-	//	pEditPopMemberInfo.m_sAddress = "深圳宝安翻身路47区银丰商务大厦501室";
+	//	pEditPopMemberInfo.m_sAddress = "深圳宝安翻身路47区银丰商务大厦512室";
 	//	pEditPopMemberInfo.m_sDescription = "这是测试员工描述。";
 	//	theEBAppClient.EB_EditMember(&pEditPopMemberInfo);
 	//}
@@ -2590,6 +2577,7 @@ void CPOPApp::EditEmployeeInfo(CWnd* pParent,const EB_MemberInfo* pMemberInfo)
 	//pDlgMemberInfo.m_nGroupType = nGroupType;
 	pDlgMemberInfo.m_sGroupCode = pMemberInfo->m_sGroupCode;
 	pDlgMemberInfo.m_sMemberCode = pMemberInfo->m_sMemberCode;
+	pDlgMemberInfo.m_sMemberUserId = pMemberInfo->m_nMemberUserId;
 	pDlgMemberInfo.m_sMemberAccount = pMemberInfo->m_sMemberAccount.c_str();
 	pDlgMemberInfo.m_sUserName = pMemberInfo->m_sUserName.c_str();
 	pDlgMemberInfo.m_sGroupName = sDepartmentName.c_str();
@@ -3150,6 +3138,16 @@ bool CPOPApp::IsEnterpriseuserUser(void)
 #endif
 }
 
+void CPOPApp::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId)
+{
+	if (m_pBoUsers.get()!=NULL)
+	{
+		CString sSql;
+		sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
+		m_pBoUsers->execute(sSql);
+	}
+}
+
 bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const
 {
 	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
@@ -3654,4 +3652,11 @@ void CPOPApp::LogMessage(const char * format,...)
 	}catch(...)
 	{
 	}
+}
+
+void CPOPApp::OnAbout()
+{
+	CAboutDlg dlgAbout;
+	dlgAbout.DoModal();
+
 }

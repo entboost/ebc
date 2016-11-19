@@ -10,6 +10,7 @@
 #define TIMER_MOVE_ENTER	102
 #define TIMER_MOVE_LEAVE	103
 
+
 // CDlgViewContactInfo dialog
 
 IMPLEMENT_DYNAMIC(CDlgViewContactInfo, CEbDialogBase)
@@ -108,6 +109,14 @@ void CDlgViewContactInfo::DrawInfo(void)
 	case VIEW_CONTACT:
 		{
 			// 联系人（好友）
+			if ((m_pContactInfo.m_nContactType&EB_CONTACT_TYPE_MAIL)==EB_CONTACT_TYPE_MAIL)
+			{
+				const int nLabel1Width = 65;
+				Gdiplus::RectF rectLabel1(rectClient.Width()-nLabel1Width-3,1,nLabel1Width,17);
+				graphics.FillRectangle(&brushLabelBg,rectLabel1);
+				graphics.DrawString(L"邮件联系人",-1,&fontText,PointF(rectLabel1.X,rectLabel1.Y),&brushLabelText);
+			}
+
 			CEBString sImagePath;
 			bool bIsMemberAccount = false;
 			EB_USER_LINE_STATE pOutLineState = EB_LINE_STATE_UNKNOWN;

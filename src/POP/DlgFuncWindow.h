@@ -12,6 +12,11 @@
 
 
 // CDlgFuncWindow dialog
+/*
+ * 应用功能窗口类
+ * 用于显示广播消息窗口，和弹出应用集成页面等；
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgFuncWindow : public CEbDialogBase
 #ifndef USES_CEF_BROADCAST

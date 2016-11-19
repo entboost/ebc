@@ -29,6 +29,12 @@ public:
 };
 
 // CDlgChatInput dialog
+/*
+ * 聊天内容输入窗口类
+ * 用于显示在聊天对话框中间，上下二个窗口，上面显示当前聊天内容，下面可以输入聊天内容，表情，截图，和拖拉文件等；
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgChatInput : public CEbDialogBase
 	, public CImageSelectCallback
 	, public CEBRichMessageEventsSink
@@ -67,7 +73,7 @@ public:
 #else
 	void OnUserEmpInfo(const EB_MemberInfo* pMemberInfo);
 	void SelectedEmp(const EB_MemberInfo* pMemberInfo);
-	bool OnSentFile(const CCrFileInfo * pCrFileInfo);
+	bool OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState);
 	void OnReceivedFile(const CCrFileInfo * pCrFileInfo);
 #endif
 	void SelectedEmp(eb::bigint nUserId);
@@ -82,7 +88,9 @@ public:
 #else
 	void OnReceiveRich(const CCrRichInfo* pCrMsgInfo,CString* sOutFirstMsg1, CString* sOutFirstMsg2);
 	void OnSendRich(const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nState,CString* sOutFirstMsg1,CString* sOutFirstMsg2);
+	void OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nState);
 #endif
+	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, EB_STATE_CODE nState);
 	void OnAlertingCall(void);
 
 	//void ReceiveMsg(CChatMsgInfo::pointer pChatMsgInfo);
@@ -102,7 +110,8 @@ protected:
 	CNewMenu m_pSendTypeSwitchMenu;
 	EB_CallInfo m_pCallInfo;
 	EB_AccountInfo m_pFromAccountInfo;
-	entboost::cr::bigint m_nPrevReceivedFileMsgId;	// *用于实现发送文件，二条日志，只打印一条
+	CLockMap<entboost::cr::bigint,bool> m_pPrevReceivedFileMsgIdList;	// *用于实现发送文件，二条日志，只打印一条
+	//entboost::cr::bigint m_nPrevReceivedFileMsgId;	// *用于实现发送文件，二条日志，只打印一条
 	//CDlgEmotionSelect* m_pDlgEmotionSelect;
 	//bool m_bMustInviteUser;	// 如果是离线，第一次发送信息必须邀请用户进会话
 	CSplitterControl m_wndSplitter1;
@@ -153,7 +162,7 @@ protected:
 	void ProcessFile(bool bReceive,IEB_ChatFileInfo* pCrFileInfo);
 	void ProcessMsg(bool bReceive,IEB_ChatRichInfo* pCrMsgInfo,CString* sOutFirstMsg=NULL,EB_STATE_CODE nState=EB_STATE_OK);
 #else
-	bool ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo);
+	bool ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState=EB_STATE_OK);
 	void ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CString* sOutFirstMsg1=NULL,CString* sOutFirstMsg2=NULL,EB_STATE_CODE nState=EB_STATE_OK);
 #endif
 	//int GetTimeLength(const char* lpszWavFilePath);
@@ -176,7 +185,7 @@ protected:
 	time_t	m_tLastMsgTime;
 	CTime m_tLastMsgDayTime;
 	void WriteMsgDate(time_t tMsgTime);
-	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, bool bReadFlag);
+	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag);
 	void LoadMsgRecord(void);
 
 	DECLARE_MESSAGE_MAP()

@@ -5,6 +5,11 @@
 class CDlgViewContactInfo;
 
 // CDlgUserList dialog
+/*
+ * 聊天成员列表显示窗口类
+ * 用于群组聊天界面右边，显示群组成员（部门员工）名称，支持鼠标操作，进入一对一聊天界面；
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgUserList : public CEbDialogBase
 	//, public CTreeCallback

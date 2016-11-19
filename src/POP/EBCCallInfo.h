@@ -4,6 +4,11 @@
 
 //#include "EBAppClient.h"
 //#include "chatroom.h"
+/*
+ * 会话信息类
+ * 用于记录每一个聊天会话基本信息
+ * 
+*//////////////////////////////////////////////////////
 
 class CEBCCallInfo
 {

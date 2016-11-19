@@ -3,6 +3,12 @@
 class CPanelFiles;
 // CDlgFileManager dialog
 
+/*
+ * 文件管理类
+ * 用于显示正在上传（或下载）的资源文件，和显示所有已经下载过的资源文件；
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgFileManager : public CEbDialogBase
 	, public CTreeCallback
 {

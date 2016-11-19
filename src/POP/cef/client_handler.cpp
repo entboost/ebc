@@ -321,11 +321,17 @@ void ClientHandler::OnBeforeContextMenu(
 	  const bool bHasMenuItem = model->GetCount()>0?true:false;
 #endif
 
-	  if (model->GetIndexOf(MENU_ID_RELOAD)<0)
+	  //if (model->GetIndexOf(MENU_ID_RELOAD)<0)
+	  //{
+		 // const int nInsertIndexAt = model->GetIndexOf(MENU_ID_FORWARD);
+		 // if (nInsertIndexAt>=0)
+			//  model->InsertItemAt(nInsertIndexAt+1,MENU_ID_RELOAD,libEbc::ACP2UTF8("刷新(&F)").string());
+	  //}
+	  if (model->GetIndexOf(MENU_ID_RELOAD_NOCACHE)<0)
 	  {
 		  const int nInsertIndexAt = model->GetIndexOf(MENU_ID_FORWARD);
 		  if (nInsertIndexAt>=0)
-			  model->InsertItemAt(nInsertIndexAt+1,MENU_ID_RELOAD,libEbc::ACP2UTF8("重新加载(&L)").string());
+			  model->InsertItemAt(nInsertIndexAt+1,MENU_ID_RELOAD_NOCACHE,libEbc::ACP2UTF8("重新加载(&L)").string());
 	  }
 #ifdef USES_INSERT_LINK_FIRST_POS
 	  int nInsertIndexAt = 0;
@@ -703,6 +709,9 @@ bool ClientHandler::OnContextMenuCommand(
 	case MENU_ID_RELOAD:
 		browser->Reload();
 		return true;
+	case MENU_ID_RELOAD_NOCACHE:
+		browser->ReloadIgnoreCache();
+		return true;
 	//case CLIENT_ID_RELOAD:
 	//	browser->Reload();
 	//	return true;
@@ -719,6 +728,7 @@ bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
                                  const CefString& title,
                                  const CefString& default_file_name,
                                  const std::vector<CefString>& accept_types,
+																 int selected_accept_filter,
                                  CefRefPtr<CefFileDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
@@ -1101,8 +1111,11 @@ bool ClientHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser,
 {
 	if (os_event!=NULL && os_event->message==WM_KEYDOWN && os_event->wParam==VK_F5)
 	{
-		//browser->ReloadIgnoreCache();
-		browser->Reload();
+		const bool bControl = (GetKeyState(VK_CONTROL)&0x80)==0x80?true:false;
+		if (bControl)
+			browser->Reload();
+		else
+			browser->ReloadIgnoreCache();
 		return true;
 	}else if (os_event!=NULL && os_event->message==WM_KEYDOWN && os_event->wParam==VK_F12)
 	{

@@ -48,7 +48,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm133"
+				AdditionalOptions="-Zm148"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\lib\libCoder;.\"
 				PreprocessorDefinitions="CGC_SMART_STRING_USES_BSTR;WIN32;_WINDOWS;_DEBUG;_CRTDBG_MAP_ALLOC;USES_LIBCEF"
@@ -224,7 +224,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm127"
+				AdditionalOptions="-Zm148"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\lib\libCoder;.\"

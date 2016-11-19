@@ -10,6 +10,13 @@
 #include "PanelFind.h"
 
 // CDlgMsgRecord dialog
+/*
+ * 聊天记录显示类
+ * 用于显示聊天记录，包括个人聊天记录，或群组（部门）聊天记录，
+ * 支持单独弹出显示和集成聊天窗口右边；
+ * 聊天漫游消息也显示在这里显示。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMsgRecord : public CEbDialogBase
 	, public CEBRichMessageEventsSink
@@ -48,7 +55,7 @@ protected:
 	CTime m_tLastMsgDayTime;
 	bool m_bFindAllMsgId;
 	CLockMap<eb::bigint,int> m_pMsgIdOffsetList;
-	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromname,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime);
+	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromname,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag);
 	void LoadMsgRecord(const CString& sSql);
 	void WriteFileHICON(const char* lpszFilePath);
 
@@ -129,7 +136,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg void OnClose();
 public:
-	//afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnBnClickedButtonDeleteall();
 	afx_msg void OnEnChangeEditSearch();
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);

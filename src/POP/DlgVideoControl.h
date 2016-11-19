@@ -10,6 +10,11 @@ class CVideoControlCallback
 public:
 	virtual void OnControlClick(int nControlId,BOOL bChecked) = 0;
 };
+/*
+ * 视频工具条窗口类
+ * 用于鼠标移动CDlgVideo视频窗口类时，自动显示和隐藏的视频操作工具条。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgVideoControl : public CDialogSK
 {

@@ -8,6 +8,11 @@ class CDlgEditPasswd;
 class CDlgEditVideo;
 
 // CDlgEditInfo dialog
+/*
+ * 个人中心基础窗口类
+ * 管理个人中心几个窗口对象。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgEditInfo : public CEbDialogBase
 {

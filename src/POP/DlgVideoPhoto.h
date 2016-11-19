@@ -2,6 +2,11 @@
 #include "DlgVideo.h"
 
 // CDlgVideoPhoto dialog
+/*
+ * 视频图像显示窗口
+ * 用于更换头像，自拍头像。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgVideoPhoto : public CEbDialogBase
 	, public CEBMMRoomEventsSink

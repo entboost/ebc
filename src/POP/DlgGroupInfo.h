@@ -4,6 +4,11 @@
 
 
 // CDlgGroupInfo dialog
+/*
+ * 群组（部门）信息显示类
+ * 用于显示（或修改）群组（或部门）的资料。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgGroupInfo : public CEbDialogBase
 {

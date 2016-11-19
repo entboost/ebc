@@ -442,10 +442,16 @@ void CAppWindowInfo::SetIco(void)
 	}
 }
 
-void CAppWindowInfo::doRefresh(void)
+void CAppWindowInfo::doRefreshOrStop(void)
 {
 	if (m_pAppWindow!=NULL)
-		m_pAppWindow->doRefresh();
+		m_pAppWindow->doRefreshOrStop();
+}
+bool CAppWindowInfo::IsLoading(void) const
+{
+	if (m_pAppWindow!=NULL)
+		return m_pAppWindow->IsLoading();
+	return false;
 }
 void CAppWindowInfo::goBack(void)
 {
@@ -521,6 +527,7 @@ BEGIN_MESSAGE_MAP(CDlgAppFrame, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_TITLE, OnFrameWndTitle)
 	//ON_MESSAGE(EB_COMMAND_RAME_WND_OPEN, OnFrameWndOpen)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_VIEW_ICO, OnFrameViewIco)
+	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
 	ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_UP, OnMessageMoveUp)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_DOWN, OnMessageMoveDown)
@@ -709,7 +716,7 @@ void CDlgAppFrame::OnCancel()
 //#endif
 //}
 
-void CDlgAppFrame::doRefresh(void)
+void CDlgAppFrame::doRefreshOrStop(void)
 {
 	this->SetFocus();
 	BoostReadLock rdlock(m_pList.mutex());
@@ -719,11 +726,26 @@ void CDlgAppFrame::doRefresh(void)
 		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
-			pFrameWndInfo->doRefresh();
+			pFrameWndInfo->doRefreshOrStop();
 			return;
 		}
 	}
 }
+bool CDlgAppFrame::IsLoading(void) const
+{
+	AUTO_CONST_RLOCK(m_pList);
+	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
+	for (; pIter!=m_pList.end(); pIter++)
+	{
+		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		if (pFrameWndInfo->IsChecked())
+		{
+			return pFrameWndInfo->IsLoading();
+		}
+	}
+	return false;
+}
+
 void CDlgAppFrame::goBack(void)
 {
 	this->SetFocus();
@@ -882,7 +904,7 @@ void CDlgAppFrame::AddAppUrl(bool bSaveBrowseTitle, const std::string& sAppUrl, 
 			}else if (pFrameWndInfo->GetAppUrl()==sAppUrl)
 			{
 				rdlock.unlock();
-				pFrameWndInfo->doRefresh();
+				pFrameWndInfo->doRefreshOrStop();	// doRefresh
 				ShowApp(pFrameWndInfo->GetUserData(),true);
 				return;
 			}else if (pFrameWndInfo->GetAppUrl()=="about:blank")
@@ -1590,6 +1612,9 @@ void CDlgAppFrame::SendMsgChangeUrl(const CAppWindowInfo::pointer& pAppWindowInf
 		strcpy(lpszBuffer,sUrl);
 		const int nSearchFocus = (bSearchFocus || sUrl=="about:blank")?1:0;
 		this->GetParent()->PostMessage(EB_COMMAND_CHANGE_APP_URL,(WPARAM)lpszBuffer,nSearchFocus);
+
+		const WPARAM nShowRefreshOrStop = pAppWindowInfo->IsLoading()?2:1;	// 1=show refresh; 2=show stop
+		this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,nShowRefreshOrStop);
 	}
 }
 
@@ -1841,6 +1866,25 @@ LRESULT CDlgAppFrame::OnFrameViewIco(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT CDlgAppFrame::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
+{
+	const CWnd * pWnd = (CWnd*)lParam;
+	BoostReadLock rdLock(m_pList.mutex());
+	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
+	for (; pIter!=m_pList.end(); pIter++)
+	{
+		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		if (pAppWindowInfo->GetAppWindow()==pWnd)
+		{
+			if (pAppWindowInfo->IsChecked())
+			{
+				this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,wParam);
+			}
+			return 0;
+		}
+	}
+	return 0;
+}
 LRESULT CDlgAppFrame::OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam)
 {
 	COpenAppUrlInfo * pOpenAppUrlInfo = (COpenAppUrlInfo*)wParam;

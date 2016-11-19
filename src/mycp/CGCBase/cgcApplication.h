@@ -76,6 +76,8 @@ public:
 	virtual void logService(cgcLogService::pointer logService) = 0;
 	virtual void log(LogLevel level, const char* format,...) = 0;
 	virtual void log(LogLevel level, const wchar_t* format,...) = 0;
+	virtual void log2(LogLevel level, const char* sData) = 0;
+	virtual void log2(LogLevel level, const wchar_t* sData) = 0;
 
 	// The SetTimer method sets a timer on the clock.
 	virtual unsigned int SetTimer(unsigned int nIDEvent, unsigned int nElapse, cgcOnTimerHandler::pointer handler, bool bOneShot = false, const void * pvParam = NULL) = 0;

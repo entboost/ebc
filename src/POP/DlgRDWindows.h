@@ -3,6 +3,11 @@
 #include "EBCCallInfo.h"
 
 // CDlgRDWindows dialog
+/*
+ * 远程桌面窗口类
+ * 用于“远程桌面”，“远程协助”连接时，显示对方桌面。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgRDWindows : public CDialog
 {

@@ -3,6 +3,11 @@
 #include "afxwin.h"
 
 // CDlgUserInfo dialog
+/*
+ * 电子名片信息显示窗口类
+ * 用于在一对一聊天界面右边，显示聊天对方用户基本信息。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgUserInfo : public CEbDialogBase
 {

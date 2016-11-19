@@ -945,6 +945,7 @@ HANDLE COleRichEditCtrl::DDBToDIB(const CBitmap& bitmap, DWORD dwCompression, CP
 	::ReleaseDC(NULL,hDC);
 	return hDIB;
 }
+
 bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDataSize, DWORD& pOutUserData)
 {
 	// REO_IOB_SELECTION
@@ -969,16 +970,38 @@ bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDa
 	hr = (reobject.poleobj)->QueryInterface(IID_IDataObject, (void **)&lpDataObject);
 	if(FAILED(hr)) return false;
 
+	dwDataSize = 0;
 	IEnumFORMATETC *pEnumFmt = NULL;
 	if (S_OK != lpDataObject->EnumFormatEtc(DATADIR_GET,&pEnumFmt))
 	{
+		//const DWORD dwError = GetLastError();
+		STGMEDIUM sm;  //out
+		FORMATETC fm;    //in
+		fm.cfFormat = CF_DIB;  // CF_BITMAP // Clipboard format
+		fm.ptd = NULL;         // Target Device = Screen
+		fm.dwAspect = DVASPECT_CONTENT;
+		// Level of detail = Full content
+		fm.lindex = -1;        // Index = Not applicaple
+		fm.tymed = TYMED_HGLOBAL;	// TYMED_GDI;//
+		//fm.tymed = TYMED_FILE|TYMED_GDI|TYMED_HGLOBAL;	// TYMED_GDI;//
+		if (lpDataObject->GetData(&fm, &sm)==S_OK)
+		{
+			dwDataSize = ::GlobalSize(sm.hGlobal);
+			*pOutData = new char[dwDataSize];
+			::CopyMemory(*pOutData, (LPVOID)::GlobalLock(sm.hGlobal), dwDataSize);
+			::GlobalUnlock(sm.hGlobal);
+			if (sm.pUnkForRelease == NULL)
+			{
+				GlobalFree(sm.hGlobal);
+			}
+			::ReleaseStgMedium(&sm);
+		}
 		lpDataObject->Release();
-		return false;
+		return dwDataSize==0?false:true;
 	}
 
 	FORMATETC fm;  
 	STGMEDIUM sm;   
-	dwDataSize = 0;
 
 	HRESULT Ret = S_OK;
 	ULONG Fetched;
@@ -1039,7 +1062,7 @@ bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDa
 					LPMETAFILEPICT pMFP = (LPMETAFILEPICT) GlobalLock (sm.hMetaFilePict);
 					//SaveToBitMap(pMFP, strPath);
 					CDC* pDC = GetDC();
-					if (pDC)
+					if (pDC!=NULL)
 					{
 						SIZE size;
 						size.cx = pMFP->xExt;

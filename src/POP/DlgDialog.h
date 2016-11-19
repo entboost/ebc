@@ -12,6 +12,12 @@
 // CDlgDialog dialog
 class CDlgUserList;
 
+/*
+ * 聊天对话框窗口类
+ * 界面最上边显示聊天对方基本信息，和基本聊天操作按钮，如发送文件，添加用户，视频聊天等。
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgDialog : public CEbDialogBase
 {
 	DECLARE_DYNAMIC(CDlgDialog)
@@ -79,8 +85,9 @@ public:
 	void OnUserExitRoom(const CCrAccountInfo* pAccountInfo);
 	void OnReceiveRich(const CCrRichInfo * pCrMsgInfo,CString* sOutFirstMsg1,CString* sOutFirstMsg2);
 	void OnSendRich(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState);
+	void OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState);
 	void OnSendingFile(const CCrFileInfo * pCrFileInfo);
-	bool OnSentFile(const CCrFileInfo * pCrFileInfo);
+	bool OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState);
 	void OnCancelFile(const CCrFileInfo * pCrFileInfo, bool bChangeP2PSending);
 	void OnReceivingFile(const CCrFileInfo * pCrFileInfo,CString* sOutFirstMsg);
 	void OnReceivedFile(const CCrFileInfo * pCrFileInfo);

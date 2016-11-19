@@ -14,6 +14,12 @@ class CDlgAppFrame;
 
 // CDlgFrameList dialog
 
+/*
+ * 窗口面板管理类
+ * 用于“经典风格界面”显示所有会话窗口和工作区窗口；
+ * 
+*//////////////////////////////////////////////////////
+
 class CDlgFrameList : public CEbDialogBase
 	, public CFrameWndInfoProxy,CFrameWndInfoProxyCallback
 {
@@ -76,6 +82,7 @@ protected:
 
 	void DrawInfo(void);
 	LRESULT OnMsgRefreshUrl(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgRefreshOrStopUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgGoBack(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgGoForward(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgChangeBrowserType(WPARAM wParam, LPARAM lParam);
@@ -90,6 +97,7 @@ protected:
 	LRESULT OnMessageMoveOffset(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageAdjustWidth(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam);
 	
 	afx_msg void OnShowHeadOnly();
 	afx_msg void OnOpenWorkFrame();

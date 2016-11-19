@@ -6,7 +6,7 @@
 #include "DlgMyContacts.h"
 #include "DlgViewContactInfo.h"
 
-//#define TIMERID_DELETE_ITEM 100
+#define TIMERID_DELETE_ITEM 100
 #define TIMERID_EDIT_ITEM 101
 #define TIMERID_CHECK_ITEM_HOT	102
 
@@ -68,11 +68,11 @@ BOOL CDlgMyContacts::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	//m_btnDeleteTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeContacts, 0xffff);
-	//m_btnDeleteTrack.SetAutoSize(false);
-	//m_btnDeleteTrack.SetAutoFocus(true);
-	//m_btnDeleteTrack.Load(IDB_PNG_HOT_DELETE);
-	//m_btnDeleteTrack.SetToolTipText(_T("É¾³ý"));
+	m_btnDeleteTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeContacts, 0xffff);
+	m_btnDeleteTrack.SetAutoSize(false);
+	m_btnDeleteTrack.SetAutoFocus(true);
+	m_btnDeleteTrack.Load(IDB_PNG_HOT_DELETE);
+	m_btnDeleteTrack.SetToolTipText(_T("É¾³ý"));
 	m_btnEditTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeContacts, 0xffff);
 	m_btnEditTrack.SetAutoSize(false);
 	m_btnEditTrack.SetAutoFocus(true);
@@ -118,7 +118,7 @@ BOOL CDlgMyContacts::OnInitDialog()
 void CDlgMyContacts::OnDestroy()
 {
 	CDialog::OnDestroy();
-	//m_btnDeleteTrack.DestroyWindow();
+	m_btnDeleteTrack.DestroyWindow();
 	m_btnEditTrack.DestroyWindow();
 	m_btnCallTrack.DestroyWindow();
 	if (m_pViewContactInfo!=0)
@@ -488,6 +488,7 @@ void CDlgMyContacts::ContactInfo(const EB_ContactInfo* pPopContactInfo)
 		pContactItemInfo->m_nUserId = pPopContactInfo->m_nContactUserId;
 		pContactItemInfo->m_sAccount = pPopContactInfo->m_sContact;
 		pContactItemInfo->m_dwItemData = pPopContactInfo->m_nLineState;
+		pContactItemInfo->m_nSubType = pPopContactInfo->m_nContactType;
 		m_pContactItemInfo.insert(pPopContactInfo->m_nContactId,pContactItemInfo);
 		m_treeContacts.SetItemData(hContactItem,(DWORD)pContactItemInfo.get());
 	}else if (pContactItemInfo->m_sParentId != pPopContactInfo->m_nUGId)
@@ -531,6 +532,7 @@ void CDlgMyContacts::ContactInfo(const EB_ContactInfo* pPopContactInfo)
 		pContactItemInfo->m_nUserId = pPopContactInfo->m_nContactUserId;
 		pContactItemInfo->m_sAccount = pPopContactInfo->m_sContact;
 		pContactItemInfo->m_dwItemData = pPopContactInfo->m_nLineState;
+		pContactItemInfo->m_nSubType = pPopContactInfo->m_nContactType;
 		m_pContactItemInfo.insert(pPopContactInfo->m_nContactId,pContactItemInfo);
 		m_treeContacts.SetItemData(hContactItem,(DWORD)pContactItemInfo.get());
 	}else
@@ -1264,7 +1266,7 @@ LRESULT CDlgMyContacts::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 				m_pViewContactInfo->SetMoveLeave();
 				//m_pViewContactInfo->HideReset();
 			}
-			//m_btnDeleteTrack.ShowWindow(SW_HIDE);
+			m_btnDeleteTrack.ShowWindow(SW_HIDE);
 			m_btnEditTrack.ShowWindow(SW_HIDE);
 			m_btnCallTrack.ShowWindow(SW_HIDE);
 		}else if (m_btnCallTrack.GetSafeHwnd() != NULL)
@@ -1362,14 +1364,22 @@ LRESULT CDlgMyContacts::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 					m_btnCallTrack.MovePoint(nRight-const_btn_width*2, nTop);
 					m_btnCallTrack.ShowWindow(SW_SHOW);
 					m_btnCallTrack.Invalidate();
+					m_btnDeleteTrack.ShowWindow(SW_HIDE);
+				}else if ((pContactItemInfo->m_nSubType&EB_CONTACT_TYPE_AUTH)==0)
+				{
+					m_btnDeleteTrack.MovePoint(nRight-const_btn_width*2, nTop);
+					m_btnDeleteTrack.ShowWindow(SW_SHOW);
+					m_btnDeleteTrack.Invalidate();
+					m_btnCallTrack.ShowWindow(SW_HIDE);
 				}else
 				{
+					m_btnDeleteTrack.ShowWindow(SW_HIDE);
 					m_btnCallTrack.ShowWindow(SW_HIDE);
 				}
 			}else
 			{
 				m_btnCallTrack.ShowWindow(SW_HIDE);
-				//m_btnDeleteTrack.ShowWindow(SW_HIDE);
+				m_btnDeleteTrack.ShowWindow(SW_HIDE);
 				m_btnEditTrack.ShowWindow(SW_HIDE);
 			}
 		}
@@ -1455,17 +1465,19 @@ BOOL CDlgMyContacts::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 
-	//if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnDeleteTrack.GetSafeHwnd())
-	//{
-	//	SetTimer(TIMERID_DELETE_ITEM,1,NULL);
-	//}else
-	if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnEditTrack.GetSafeHwnd())
+	if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnDeleteTrack.GetSafeHwnd())
+	{
+		SetTimer(TIMERID_DELETE_ITEM,1,NULL);
+	}
+	else if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnEditTrack.GetSafeHwnd())
 	{
 		SetTimer(TIMERID_EDIT_ITEM,1,NULL);
-	}else if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN && pMsg->hwnd == m_treeContacts.GetSafeHwnd())
+	}
+	else if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN && pMsg->hwnd == m_treeContacts.GetSafeHwnd())
 	{
 		CallItem(m_treeContacts.GetSelectedItem());
-	}else if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnCallTrack.GetSafeHwnd())
+	}
+	else if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnCallTrack.GetSafeHwnd())
 	{
 		CallItem(m_treeContacts.GetTrackItem());
 	}
@@ -1475,16 +1487,17 @@ BOOL CDlgMyContacts::PreTranslateMessage(MSG* pMsg)
 
 void CDlgMyContacts::OnTimer(UINT_PTR nIDEvent)
 {
-	//if (TIMERID_DELETE_ITEM == nIDEvent)
-	//{
-	//	KillTimer(nIDEvent);
-	//	DeleteItem(m_treeContacts.GetTrackItem());
-	//}else 
-	if (TIMERID_EDIT_ITEM == nIDEvent)
+	if (TIMERID_DELETE_ITEM == nIDEvent)
+	{
+		KillTimer(nIDEvent);
+		DeleteItem(m_treeContacts.GetTrackItem());
+	}
+	else if (TIMERID_EDIT_ITEM == nIDEvent)
 	{
 		KillTimer(nIDEvent);
 		EditItem(m_treeContacts.GetTrackItem());
-	}else if (TIMERID_CHECK_ITEM_HOT==nIDEvent)
+	}
+	else if (TIMERID_CHECK_ITEM_HOT==nIDEvent)
 	{
 		KillTimer(TIMERID_CHECK_ITEM_HOT);
 		if (m_hCurrentHotItem!=NULL && m_hCurrentHotItem==m_treeContacts.GetTrackItem())

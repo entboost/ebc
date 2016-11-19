@@ -819,8 +819,11 @@ bool CFrameWndInfoProxy::AddUnreadMsg(eb::bigint nCallId, eb::bigint nMsgId)
 AddUnreadMsgCount:
 	if (nMsgId>0)
 	{
+		// *** read_flag=1 已经读；
+		// *** read_flag=2 对方接收回执
 		CString sSql;
-		sSql.Format(_T("UPDATE msg_record_t SET read_flag=0 WHERE msg_id=%lld AND read_flag=1"),nMsgId);
+		sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag&2 WHERE msg_id=%lld AND (read_flag&1)=1"),nMsgId);	// 1->0;3->2
+		//sSql.Format(_T("UPDATE msg_record_t SET read_flag=0 WHERE msg_id=%lld AND read_flag=1"),nMsgId);
 		theApp.m_pBoUsers->execute(sSql);
 	}
 	return bResult;
