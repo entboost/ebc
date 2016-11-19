@@ -465,7 +465,8 @@ BOOL CDlgDialog::OnInitDialog()
 			}
 #else
 			EB_MemberInfo pMemberInfo;
-			if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sMemberCode))
+			if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sMemberCode) ||
+				theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.GetUserId()))
 			{
 				m_sFromName = pMemberInfo.m_sUserName;
 				m_sFullName.Format(_T("%s(%lld)"),m_sFromName.c_str(),pMemberInfo.m_nMemberUserId);
@@ -2104,6 +2105,8 @@ void CDlgDialog::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 #else
 			EB_MemberInfo pMemberInfo;
 			if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sMemberCode))
+			//if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sMemberCode) ||
+			//	theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,m_pEbCallInfo->m_pFromAccountInfo.GetUserId()))
 			{
 				m_sFromName = pMemberInfo.m_sUserName;
 				m_nFromLineState = pMemberInfo.m_nLineState;
