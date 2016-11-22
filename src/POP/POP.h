@@ -68,7 +68,7 @@ const int const_default_menu_image_size = 24;
 //#define MENU_TOOLBAR_ICON_OFFSET_ADDUSER		10
 
 #define USES_LIBCEF_USER_CACHE
-
+//class CAboutDlg;
 // CPOPApp:
 /*
  * ebc≥Ã–Ú£¨APP¿‡
@@ -349,6 +349,7 @@ private:
 	virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,CBitmap** pBitmapOpened,CBitmap** pBitmapClosed) const;
 	virtual COLORREF GetItemTextColor(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem, COLORREF colorDefault) const;
 private:
+	//CAboutDlg* m_dlgAbout;
 	int GetExistAppCount(void) const;
 // ÷ÿ–¥
 	//bool openebuser(void);

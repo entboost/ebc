@@ -521,6 +521,7 @@ CPOPApp::CPOPApp()
 	m_bAdaptIeVersion = false;
 
 	m_nSendType = -1;
+	//m_dlgAbout = NULL;
 #ifdef _DEBUG
 	//Atest(1);
 #endif
@@ -1760,6 +1761,12 @@ BOOL CPOPApp::InitInstance()
 
 int CPOPApp::ExitInstance()
 {
+	//if (m_dlgAbout!=NULL)
+	//{
+	//	m_dlgAbout->DestroyWindow();
+	//	delete m_dlgAbout;
+	//	m_dlgAbout = NULL;
+	//}
 	m_pChatMenuSubscribeFuncList.clear();
 	m_pChatCopySubscribeFuncList.clear();
 	if (m_pDlgEmotionSelect)
@@ -3656,7 +3663,13 @@ void CPOPApp::LogMessage(const char * format,...)
 
 void CPOPApp::OnAbout()
 {
-	CAboutDlg dlgAbout;
-	dlgAbout.DoModal();
-
+	CString sText;
+	sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2016"),theSetting.GetVersion().c_str());
+	CDlgMessageBox::EbMessageBox(AfxGetMainWnd(),"关于恩布互联 Entboost.com",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
+	//if (m_dlgAbout==NULL)
+	//{
+	//	m_dlgAbout = new CAboutDlg();
+	//	m_dlgAbout->Create(CAboutDlg::IDD,::AfxGetMainWnd());
+	//}
+	//m_dlgAbout->ShowWindow(SW_SHOW);
 }

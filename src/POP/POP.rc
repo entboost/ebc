@@ -1001,8 +1001,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,23,0,501
- PRODUCTVERSION 1,23,0,501
+ FILEVERSION 1,23,0,503
+ PRODUCTVERSION 1,23,0,503
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1019,12 +1019,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
             VALUE "FileDescription", "恩布互联客户端"
-            VALUE "FileVersion", "1, 23, 0, 501"
+            VALUE "FileVersion", "1, 23, 0, 503"
             VALUE "InternalName", "ebc.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "ebc.exe"
             VALUE "ProductName", "恩布互联客户端"
-            VALUE "ProductVersion", "1, 23, 0, 501"
+            VALUE "ProductVersion", "1, 23, 0, 503"
         END
     END
     BLOCK "VarFileInfo"
@@ -1695,6 +1695,7 @@ IDB_PNG_MAINFRAME       PNG                     "res\\skin\\mainframe.png"
 IDB_PNG_BTN_MY_SHARE_UISTYLE1 PNG                     "res\\skin\\btnmyshare_uistyle1.png"
 IDB_PNG_BTN_MY_CENTER_UISTYLE1 PNG                     "res\\skin\\btnmycenter_uistyle1.png"
 IDB_PNG_BTN_FILE_MGR_UISTYLE1 PNG                     "res\\skin\\btnfilemgr_uistyle1.png"
+IDB_PNG_ENTBOOST42      PNG                     "res\\entboost42.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

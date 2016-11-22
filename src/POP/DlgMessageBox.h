@@ -22,6 +22,7 @@ public:
 		, IMAGE_QUESTION
 		, IMAGE_WARNING
 		, IMAGE_ERROR
+		, IMAGE_ENTBOOST
 	}IMAGE_TYPE;
 
 	static CDlgMessageBox* EbMessageBox(CWnd * pParent,LPCTSTR lpszTitle,LPCTSTR lpszText, IMAGE_TYPE nImageType, int nAutoClose=0);
@@ -40,6 +41,8 @@ public:
 	enum { IDD = IDD_DLG_MESSAGE_BOX };
 
 protected:
+	Image * m_pImage;
+	CRect m_rectImage;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CTraButton m_btnClose;
 	CTraButton m_btnOk;
@@ -58,4 +61,6 @@ protected:
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButtonClose();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };

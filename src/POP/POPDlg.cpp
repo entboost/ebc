@@ -964,8 +964,11 @@ void CPOPDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
+		CString sText;
+		sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2016"),theSetting.GetVersion().c_str());
+		CDlgMessageBox::EbMessageBox(AfxGetMainWnd(),"关于恩布互联 Entboost.com",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
+		//CAboutDlg dlgAbout;
+		//dlgAbout.DoModal();
 	}
 	else if (nID==SC_CLOSE)
 	{
@@ -7644,7 +7647,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 					}
 					CString sText;
 					sText.Format(_T("当前 %s\r\n已经是最新版本！"),sClientVersion);
-					CDlgMessageBox::EbMessageBox(this,"",sText,CDlgMessageBox::IMAGE_INFORMATION,5);
+					CDlgMessageBox::EbMessageBox(this,"",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
 				}else if (nUpdateType==102)
 				{
 					CString sText;

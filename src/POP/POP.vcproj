@@ -2184,6 +2184,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\entboost38.png"
+				>
+			</File>
+			<File
+				RelativePath=".\res\entboost42.png"
+				>
+			</File>
+			<File
 				RelativePath=".\res\skin\img1cloud.png"
 				>
 			</File>

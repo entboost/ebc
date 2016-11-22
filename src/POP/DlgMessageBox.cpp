@@ -16,6 +16,7 @@ CDlgMessageBox::CDlgMessageBox(CWnd* pParent /*=NULL*/)
 {
 	m_bDeleteThis = TRUE;
 	m_nImageType = IMAGE_NULL;
+	m_pImage = NULL;
 	m_nAutoClose = 0;
 	m_bCloseOnlyMode = false;
 }
@@ -40,6 +41,8 @@ BEGIN_MESSAGE_MAP(CDlgMessageBox, CEbDialogBase)
 	ON_WM_SIZE()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CDlgMessageBox::OnBnClickedButtonClose)
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -47,6 +50,11 @@ END_MESSAGE_MAP()
 
 void CDlgMessageBox::OnDestroy()
 {
+	if (m_pImage!=NULL)
+	{
+		delete m_pImage;
+		m_pImage = NULL;
+	}
 	CEbDialogBase::OnDestroy();
 	if (m_bDeleteThis)
 		delete this;
@@ -210,47 +218,54 @@ void CDlgMessageBox::DrawInfo(void)
 	{
 	case IMAGE_INFORMATION:
 		{
-			Image * pImage = NULL;
-			if (libEbc::ImageFromIDResource(IDB_PNG_IMG_TIP, _T("png"), pImage))
-			{
-				x += pImage->GetWidth();
-				graphics.DrawImage(pImage, const_image_x, const_image_y);
-				delete pImage;
-			}
+			if (m_pImage==NULL)
+				libEbc::ImageFromIDResource(IDB_PNG_IMG_TIP, _T("png"), m_pImage);
+			if (m_pImage==NULL) break;
+			x += m_pImage->GetWidth();
+			graphics.DrawImage(m_pImage, const_image_x, const_image_y);
 		}break;
 	case IMAGE_QUESTION:
 		{
-			Image * pImage = NULL;
-			if (libEbc::ImageFromIDResource(IDB_PNG_IMG_QUESTION, _T("png"), pImage))
-			{
-				x += pImage->GetWidth();
-				graphics.DrawImage(pImage, const_image_x, const_image_y);
-				delete pImage;
-			}
+			if (m_pImage==NULL)
+				libEbc::ImageFromIDResource(IDB_PNG_IMG_QUESTION, _T("png"), m_pImage);
+			if (m_pImage==NULL) break;
+			x += m_pImage->GetWidth();
+			graphics.DrawImage(m_pImage, const_image_x, const_image_y);
 		}break;
 	case IMAGE_WARNING:
 		{
-			Image * pImage = NULL;
-			if (libEbc::ImageFromIDResource(IDB_PNG_IMG_WARNING, _T("png"), pImage))
-			{
-				x += pImage->GetWidth();
-				graphics.DrawImage(pImage, const_image_x, const_image_y);
-				delete pImage;
-			}
+			if (m_pImage==NULL)
+				libEbc::ImageFromIDResource(IDB_PNG_IMG_WARNING, _T("png"), m_pImage);
+			if (m_pImage==NULL) break;
+			x += m_pImage->GetWidth();
+			graphics.DrawImage(m_pImage, const_image_x, const_image_y);
 		}break;
 	case IMAGE_ERROR:
 		{
-			Image * pImage = NULL;
-			if (libEbc::ImageFromIDResource(IDB_PNG_IMG_ERROR, _T("png"), pImage))
-			{
-				x += pImage->GetWidth();
-				graphics.DrawImage(pImage, const_image_x, const_image_y);
-				delete pImage;
-			}
+			if (m_pImage==NULL)
+				libEbc::ImageFromIDResource(IDB_PNG_IMG_ERROR, _T("png"), m_pImage);
+			if (m_pImage==NULL) break;
+			x += m_pImage->GetWidth();
+			graphics.DrawImage(m_pImage, const_image_x, const_image_y);
+		}break;
+	case IMAGE_ENTBOOST:
+		{
+			if (m_pImage==NULL)
+				libEbc::ImageFromIDResource(IDB_PNG_ENTBOOST42, _T("png"), m_pImage);
+			if (m_pImage==NULL) break;
+			x += m_pImage->GetWidth();
+			graphics.DrawImage(m_pImage, const_image_x, const_image_y);
 		}break;
 	default:
 		x = 10;
 		break;
+	}
+	if (m_pImage!=NULL)
+	{
+		m_rectImage.left = const_image_x;
+		m_rectImage.right = m_rectImage.left + m_pImage->GetWidth();
+		m_rectImage.top = const_image_y;
+		m_rectImage.bottom = m_rectImage.top + m_pImage->GetHeight();
 	}
 
 	// Ð´±êÌâ
@@ -376,4 +391,37 @@ void CDlgMessageBox::OnTimer(UINT_PTR nIDEvent)
 void CDlgMessageBox::OnBnClickedButtonClose()
 {
 	PostMessage(WM_CLOSE, 0, 0);
+}
+
+void CDlgMessageBox::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (m_nImageType==IMAGE_ENTBOOST && m_pImage!=NULL)
+	{
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (m_rectImage.PtInRect(pos))
+		{
+			ShellExecute(NULL,  "open", "http://www.entboost.com", NULL, NULL, SW_SHOW);
+		}
+	}
+	CEbDialogBase::OnLButtonDown(nFlags, point);
+}
+
+void CDlgMessageBox::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (m_nImageType==IMAGE_ENTBOOST && m_pImage!=NULL)
+	{
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (m_rectImage.PtInRect(pos))
+		{
+			::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
+			return;
+		}
+	}
+	CEbDialogBase::OnMouseMove(nFlags, point);
 }
