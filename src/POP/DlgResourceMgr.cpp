@@ -5,7 +5,7 @@
 #include "POP.h"
 #include "DlgResourceMgr.h"
 
-static TCHAR BASED_CODE theAllFilesFilter[] = _T("All Files (*.*)|*.*||");
+//static TCHAR BASED_CODE theAllFilesFilter[] = _T("All Files (*.*)|*.*||");
 
 // CDlgResourceMgr dialog
 
@@ -918,13 +918,11 @@ void CDlgResourceMgr::OnNMRClickTreeDir(NMHDR *pNMHDR, LRESULT *pResult)
 		CNewMenu m_menuSub;
 		m_menu2.CreatePopupMenu();
 #ifdef USES_EBCOM_TEST
-		const bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-		const bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+		//const bool bCanAddGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
 #else
-		const bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-		const bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+		const bool bCanAddGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
 #endif
-		if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))
+		if ((m_nManagerType==RES_MANAGER_GROUP && bCanAddGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 			m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_NEW_DIR_RES,_T("新建根目录"));
 
 		const HTREEITEM hSelItem = m_treeDir.SelectHitTest();
@@ -932,6 +930,13 @@ void CDlgResourceMgr::OnNMRClickTreeDir(NMHDR *pNMHDR, LRESULT *pResult)
 		const CTreeItemInfo * pTreeItemInfo = hSelItem==NULL?NULL:(const CTreeItemInfo*)m_treeDir.GetItemData(hSelItem);
 		if (pTreeItemInfo!=NULL && pTreeItemInfo!=m_pAllResParent.get())
 		{
+#ifdef USES_EBCOM_TEST
+			//const bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+			//const bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+#else
+			const bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,pTreeItemInfo->m_sId);
+			const bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode,pTreeItemInfo->m_sId);
+#endif
 			if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) ||
 				(m_nManagerType==RES_MANAGER_MY))
 			{
@@ -1035,13 +1040,11 @@ void CDlgResourceMgr::OnNMRClickTreeItem(NMHDR *pNMHDR, LRESULT *pResult)
 		m_menu2.CreatePopupMenu();
 		m_menu2.SetBitmapBackground(RGB(192,192,192));
 #ifdef USES_EBCOM_TEST
-		bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-		bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+		//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
 #else
-		bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-		bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+		bool bCanAddGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
 #endif
-		if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))
+		if ((m_nManagerType==RES_MANAGER_GROUP && bCanAddGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 		{
 			m_menu2.InsertODMenu(-1, _T("上传文件"),MF_BYPOSITION,EB_COMMAND_NEW_FILE_RES,IDB_BITMAP_MENU_UPLOAD);
 			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_NEW_FILE_RES,_T("上传文件"));
@@ -1052,6 +1055,13 @@ void CDlgResourceMgr::OnNMRClickTreeItem(NMHDR *pNMHDR, LRESULT *pResult)
 		const CTreeItemInfo * pTreeItemInfo = hSelItem==NULL?NULL:(const CTreeItemInfo*)m_treeItem.GetItemData(hSelItem);
 		if (pTreeItemInfo !=NULL)
 		{
+#ifdef USES_EBCOM_TEST
+			//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+			//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+#else
+			bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,pTreeItemInfo->m_sId);
+			bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode,pTreeItemInfo->m_sId);
+#endif
 			if (!pTreeItemInfo->m_sGroupName.empty())	// ** online-view-url
 			{
 				m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_ONLINE_VIEW,_T("在线浏览"));
@@ -1108,11 +1118,11 @@ void CDlgResourceMgr::OnNMRClickTreeItem(NMHDR *pNMHDR, LRESULT *pResult)
 void CDlgResourceMgr::OnNewDirRes(void)
 {
 #ifdef USES_EBCOM_TEST
-	bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-	bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
 #else
-	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-	bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
+	//bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
 #endif
 	if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 	{
@@ -1136,11 +1146,11 @@ void CDlgResourceMgr::OnNewDirRes(void)
 void CDlgResourceMgr::NewSubDirRes(HTREEITEM hParentItem)
 {
 #ifdef USES_EBCOM_TEST
-	bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-	bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
 #else
-	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-	bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
+	//bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
 #endif
 	if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 	{
@@ -1163,11 +1173,11 @@ void CDlgResourceMgr::OnNewSubDirRes(void)
 void CDlgResourceMgr::OnNewFileRes(void)
 {
 #ifdef USES_EBCOM_TEST
-	bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-	bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
 #else
-	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-	bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
+	//bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
 #endif
 	if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 	{
@@ -1258,17 +1268,17 @@ void CDlgResourceMgr::OnEditDirRes(void)
 }
 void CDlgResourceMgr::DeleteItemRes(HTREEITEM hSelItem)
 {
+	const CTreeItemInfo* pTreeItemInfo = hSelItem==NULL?NULL:(const CTreeItemInfo*)m_treeItem.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL) return;
 #ifdef USES_EBCOM_TEST
-	bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
-	bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
+	//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
 #else
-	bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
-	bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
+	//bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
+	bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode,pTreeItemInfo->m_sId);
 #endif
 	if ((m_nManagerType==RES_MANAGER_GROUP && bCanDeleteGroupRes) || (m_nManagerType==RES_MANAGER_MY))
 	{
-		const CTreeItemInfo* pTreeItemInfo = hSelItem==NULL?NULL:(const CTreeItemInfo*)m_treeItem.GetItemData(hSelItem);
-		if (pTreeItemInfo == NULL) return;
 		if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_DIR)
 		{
 #ifdef USES_EBCOM_TEST
@@ -1457,10 +1467,15 @@ void CDlgResourceMgr::NewItem(const EB_ResourceInfo& pResourceInfo)
 			theEBAppClient.EB_GetMemberNameByUserId(m_sGroupCode,pResourceInfo.m_nCreateUserId,sMemberName);
 			if (pResourceInfo.m_nShare==EB_RESOURCE_SHARE_TEMP)
 			{
+				if (!pResourceInfo.m_sDeleteTime.empty())
+				{
+					sItemName.Format(_T("%s到期"),pResourceInfo.m_sDeleteTime.c_str());
+					sTime = sItemName;
+				}
 				if (pResourceInfo.m_nDownloads>0)
-					sItemName.Format(_T("%s  （群组临时文件，上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
+					sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
 				else
-					sItemName.Format(_T("%s  （群组临时文件，上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
+					sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
 			}else
 			{
 				if (pResourceInfo.m_nDownloads>0)
@@ -1808,7 +1823,7 @@ void CDlgResourceMgr::OnDropFiles(HDROP hDropInfo)
 	const bool bCanEditGroupRes = theEBClientCore->GetEB_CanEditGroupRes(this->m_sGroupCode)?true:false;
 	//bool bCanDeleteGroupRes = theEBClientCore->GetEB_CanDeleteGroupRes(this->m_sGroupCode)?true:false;
 #else
-	const bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode);
+	const bool bCanEditGroupRes = theEBAppClient.EB_CanEditGroupRes(this->m_sGroupCode,0);
 	//bool bCanDeleteGroupRes = theEBAppClient.EB_CanDeleteGroupRes(this->m_sGroupCode);
 #endif
 	if ((m_nManagerType==RES_MANAGER_GROUP && bCanEditGroupRes) || (m_nManagerType==RES_MANAGER_MY))

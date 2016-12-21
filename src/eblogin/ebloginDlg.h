@@ -6,6 +6,11 @@
 
 
 // CebloginDlg dialog
+/*
+ * VC工程自动生成类（无实际使用）
+ * 
+*//////////////////////////////////////////////////////
+
 class CebloginDlg : public CDialog
 {
 // Construction

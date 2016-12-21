@@ -57,13 +57,15 @@ public:
 	void RichBufferAddResource(const char* sResource);
 	void RichBufferClear(void);
 	int SendRichBuffser(cr::bigint sTo=0,bool nPrivate=false);
+	int SendMapPos(const char * sPosData);
 	int SendRich(const EB_ChatRoomRichMsg* pRichMsg,cr::bigint sTo=0,bool bPrivate=false);
 	int SendFile(const char * sFilePath,cr::bigint sTo=0,bool bPrivate=false,bool bSendOffFile=false);
-	int SendResource(cr::bigint sResourceId,const char * sFilePath);
+	int SendResource(cr::bigint sResourceId,const char * sFilePath,bool bNewUpload);
 	int CancelSendingFile(cr::bigint nMsgId);
 	int ReceiveFile(cr::bigint nMsgId, const char * sSaveTo);
 	int SaveFile2CloudDrive(cr::bigint nMsgId);
 	int ResendMsg(cr::bigint nMsgId);
+	int MsgAck(cr::bigint nMsgId,int nAckType);
 	int RecviveResource(cr::bigint sResourceId,const char* sSaveTo);
 
 	int SetDestAddress(int nUserIndex,const tstring& sToAddress);

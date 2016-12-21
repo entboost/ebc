@@ -67,7 +67,10 @@ typedef enum EB_SYSTEM_PARAMETER
 	, EB_SYSTEM_PARAMETER_DISABLE_REMOTE_DESKTOP		// int 0/1
 	, EB_SYSTEM_PARAMETER_DISABLE_ACCOUNT_EDIT			// int 0/1
 	, EB_SYSTEM_PARAMETER_DEFAULT_BROWSER_TYPE			// int 0=谷歌Chrome浏览器 1=微软IE浏览器
-	, EB_SYSTEM_PARAMETER_LOGON_USER_DATA				// char* set only
+	, EB_SYSTEM_PARAMETER_LOGON_USER_DATA					// char* set only
+	, EB_SYSTEM_PARAMETER_DISABLE_MSG_RECEIPT			// int 0/1
+	, EB_SYSTEM_PARAMETER_LICENSE_TYPE						// int 许可类型；0=未授权；1=终身授权；2=时间授权
+	, EB_SYSTEM_PARAMETER_STAT_SUB_GROUP_MEMBER		// int 是否统计子部门人数 0/1
 };
 
 /*==========================================================
@@ -86,7 +89,9 @@ RICH SUB TYPE
 typedef enum EB_RICH_SUB_TYPE
 {
 	EB_RICH_SUB_TYPE_JPG
-	, EB_RICH_SUB_TYPE_AUDIO	= 11
+	, EB_RICH_SUB_TYPE_AUDIO			= 11
+	, EB_RICH_SUB_TYPE_MAP_POS		= 21	// 地图位置
+	, EB_RICH_SUB_TYPE_USER_DATA	= 200	// 用户自定义数据
 };
 
 /*==========================================================
@@ -97,7 +102,8 @@ typedef enum EB_BROADCAST_SUB_TYPE
 	EB_BROADCAST_SUB_TYPE_BC
 	, EB_BROADCAST_SUB_TYPE_NEW_EMAIL
 	, EB_BROADCAST_SUB_TYPE_UNREAD_EMAIL
-	, EB_BROADCAST_SUB_TYPE_TW_MSG		// 协同办公提醒消息
+	, EB_BROADCAST_SUB_TYPE_TW_MSG							// 协同办公提醒消息
+	, EB_BROADCAST_SUB_TYPE_SUBID_UNREAD_MSG		// 订购ID，未读消息；content格式: [订购ID],[未读消息数量]，例如: "1002300105,3" 表示 1002300105 该订购ID，有3条未读消息；
 };
 
 /*==========================================================
@@ -124,6 +130,7 @@ typedef enum EB_FUNC_LOCATION
 	, EB_FUNC_LOCATION_RIGHT_CLICK_MENU_CHAT_RECORD	= 0x4000		// 聊天记录右键菜单
 	, EB_FUNC_LOCATION_ALL_RIGHT_CLICK_MENU_CHAT = EB_FUNC_LOCATION_RIGHT_CLICK_MENU_USER_CHAT|EB_FUNC_LOCATION_RIGHT_CLICK_MENU_GROUP_CHAT|EB_FUNC_LOCATION_RIGHT_CLICK_MENU_CHAT_RECORD
 	, EB_FUNC_LOCATION_CHAT_COPY_TEXT_TOOLBAR				= 0x8000		// 聊天窗口复制文本工具栏
+	, EB_FUNC_LOCATION_DISABLE_PC										= 0x10000		// 禁用PC端
 };
 
 /*==========================================================
@@ -205,6 +212,7 @@ typedef enum EB_RESOURCE_FROM_TYPE
 	, EB_RESOURCE_FROM_TYPE_ENT
 	, EB_RESOURCE_FROM_TYPE_GROUP
 	, EB_RESOURCE_FROM_TYPE_USER
+	, EB_RESOURCE_FROM_TYPE_OFFMSG
 	, EB_RESOURCE_FROM_TYPE_FUNC			= 10
 	, EB_RESOURCE_FROM_TYPE_PLAN			= 11
 	, EB_RESOURCE_FROM_TYPE_TASK
@@ -288,6 +296,8 @@ typedef enum EB_STATE_CODE
 	, EB_STATE_OAUTH_FORWARD					// OAUTH转发
 	, EB_STATE_UNAUTH_ERROR						// 未验证错误
 	, EB_STATE_ACCOUNT_FREEZE					// 帐号已经冻结
+	, EB_STATE_NEED_DELETE_MSG				// 13 需要删除消息
+	, EB_STATE_WAITING_PROCESS				// 14 等待处理（消息）
 	, EB_STATE_PARAMETER_ERROR			= 15	// 参数错误
 	, EB_STATE_DATABASE_ERROR					// 数据库操作错误
 	, EB_STATE_NEW_VERSION						// 新版本

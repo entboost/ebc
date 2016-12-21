@@ -603,8 +603,8 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 			if (!m_pDeletMsgId.empty())
 			{
 				CString sText;
-				sText.Format(_T("确定删除选中的：%d 条聊天记录吗？"), m_pDeletMsgId.size());
-				if (CDlgMessageBox::EbDoModal(this,"删除聊天记录",sText,CDlgMessageBox::IMAGE_QUESTION)==IDOK)
+				sText.Format(_T("确定删除选中的：%d 条聊天消息吗？"), m_pDeletMsgId.size());
+				if (CDlgMessageBox::EbDoModal(this,"删除聊天消息",sText,CDlgMessageBox::IMAGE_QUESTION)==IDOK)
 				{
 					for (size_t i=0;i<m_pDeletMsgId.size();i++)
 					{
@@ -929,6 +929,27 @@ void CDlgMsgRecord::OnMove(void)
 		SetTimer(TIMER_REFRESH_BROWSER,20,NULL);
 	}
 }
+void CDlgMsgRecord::OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType)
+{
+	if (m_pMrFrameInterface!=NULL)
+	{
+		const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
+		const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
+		const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
+		if (nAckType==4)
+		{
+			if (nState==EB_STATE_OK)
+			{
+				// 1: 表示只更新第1行，第0行是标题，不更新；
+				m_pMrFrameInterface->UpdateMsgText(nMsgId,1,"[撤回一条消息]",theDefaultChatSystemColor);
+				m_pMrFrameInterface->SetMsgReceiptFlag(nMsgId, EBC_CONTRON_RECEIPT_FLAG_HIDE);
+				m_pMrFrameInterface->UpdateSize(VARIANT_TRUE);
+				m_pMrFrameControl.Invalidate();
+			}
+		}
+	}
+}
+
 void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime,int nReadFlag)
 {
 	if (m_nLastMsgId==nMsgId && m_nFromUid==nFromUid && m_nToUid==nToUid)
@@ -972,8 +993,9 @@ void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 		else if (nToUid>0)
 			sToText.Format(_T("对%s说"),sToName.c_str());
 	}
+	const bool bReceive = nFromUid==theApp.GetLogonUserId()?false:true;
 	CString sWindowText;
-	if (m_nFromUid!=theApp.GetLogonUserId())// && m_sGroupCode>0)
+	if (bReceive)// && m_sGroupCode>0)
 	{
 		if (nToUid>0)
 		{
@@ -983,6 +1005,10 @@ void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 			sWindowText.Format(_T("%s#CTRL:%d:%d:%lld#%s%s"),sPrivateText,(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_UID,m_nFromUid,sFromName.c_str(),sToText);
 		else
 			sWindowText.Format(_T("%s%s%s"),sPrivateText,sFromName.c_str(),sToText);
+			sWindowText.Format(_T("%s%s%s"),sPrivateText,sFromName.c_str(),sToText);
+	//}else if (!bReceive && (nReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+	//{
+	//	sWindowText.Format(_T("#CTRL:%d:%d:%lld#%s"),(int)(EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_SEND_MSGID,nMsgId,sFromName.c_str());
 	}else
 	{
 		sWindowText.Format(_T("%s%s%s"),sPrivateText,sFromName.c_str(),sToText);
@@ -1032,6 +1058,7 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 	//time_t nLocalMsgTime = 0;
 	USES_CONVERSION;
 	int nCookie = 0;
+	mycp::bigint nLastWithdrawMsgId = 0;
 	const mycp::bigint nRet = theApp.m_pBoUsers->select(sSql, nCookie);
 	cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 	int nIndex = 0;
@@ -1075,126 +1102,185 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 		//if (sToName.empty())
 		//	sToName = sToAccount;
 		WriteTitle(sMsgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag);
-		CString sWindowText;
-		if (MRT_UNKNOWN==nMsgType)
+		if ((nReadFlag&EBC_READ_FLAG_WITHDRAW)==EBC_READ_FLAG_WITHDRAW)
 		{
-			//pRecord = theApp.m_pBoUsers->next(nCookie);
-			continue;
-		}else if (MRT_TEXT==nMsgType)
-		{
-			const bool bReceive = sFromAccount!=theApp.GetLogonUserId();
-			CSqliteCdbc::escape_string_out(sMsgText);
-			const COLORREF colorText = m_nViewMsgId>0&&m_nViewMsgId==sMsgId?RGB(255,0,0):(bReceive?theDefaultChatTextColor2:theDefaultChatTextColor1);
-			bool bSearchStringExistUrl = false;
-			if (!sSearchStringTemp.empty())
+			if (nLastWithdrawMsgId!=sMsgId)
 			{
-				CString sStringLower(sMsgText.c_str());
-				sStringLower.MakeLower();
-				int nfind1 = sStringLower.Find("http://");
-				if (nfind1 < 0)
-					nfind1 = sStringLower.Find("https://");
-				if (nfind1 < 0)
-					nfind1 = sStringLower.Find("www.");
-				bSearchStringExistUrl = (nfind1>=0)?true:false;
-			}
-			if (sSearchStringTemp.empty() || bSearchStringExistUrl)
-				m_pMrFrameInterface->WriteString(sMsgText.c_str(),colorText);
-			else
-			{
-				std::vector<tstring> pList;
-				const int nSize = libEbc::ParseString(sMsgText.c_str(),sSearchStringTemp.c_str(),pList);
-				const bool bLastTextIsSearchText = sMsgText.size()<sSearchStringTemp.size()?false:(sMsgText.substr(sMsgText.size()-sSearchStringTemp.size())==sSearchStringTemp);
-				for (int i=0;i<nSize; i++)
-				{
-					const tstring sTextTemp(pList[i]);
-					if (!sTextTemp.empty())
-						m_pMrFrameInterface->WriteString(sTextTemp.c_str(),colorText);
-					if ((i+1)!=nSize || bLastTextIsSearchText)
-					{
-						m_pMrFrameInterface->WriteString(sSearchStringTemp.c_str(),RGB(255,128,0));
-					}
-				}
-			}
-		}else if (MRT_JPG==nMsgType)
-		{
-			const tstring sFilePath(libEbc::URLEncode(sMsgName.c_str()));
-			CString sTemp;
-			sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgName.c_str());
-			m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
-		}else if (MRT_MAP_POS==nMsgType)	// 地图位置
-		{
-			// ???
-		}else if (MRT_USER_DATA==nMsgType)	// 用户自定义数据
-		{
-			// ???
-		}else if (MRT_WAV==nMsgType)
-		{
-			//WriteFileHICON(sMsgName.c_str());
-			const int nWavTimeLength = libEbc::GetWaveTimeLength(sMsgName.c_str());
-			CString sText;
-			if (nWavTimeLength>=0)
-				sText.Format(_T("语音消息 %d\""),nWavTimeLength);
-			else if (nWavTimeLength==-1)
-				sText = _T("语音消息不存在");
-			else
-				sText = _T("语音消息格式错误\"");
-			m_pMrFrameInterface->WriteWav((LPCTSTR)sText,sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
-			//m_pMrFrameInterface->WriteWav("播放语音",sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
-		}else if (MRT_FILE==nMsgType)
-		{
-			//const bool bReceive = sFromAccount!=theApp.GetLogonUserId();
-
-			const std::wstring sImagePath = A2W_ACP(sMsgText.c_str());
-			bool bIsImage = false;
-			eb::bigint nFileSize = -1;
-			FILE * f = fopen(sMsgText.c_str(), "rb");
-			if (f != NULL)
-			{
-				_fseeki64(f, 0, SEEK_END);
-				nFileSize = _ftelli64(f);
-				fclose(f);
-				Gdiplus::Image * image = Gdiplus::Image::FromFile(sImagePath.c_str());
-				bIsImage = (bool)(image->GetType()!= Gdiplus::ImageTypeUnknown);
-				delete image;
-			}
-			if (bIsImage)
-			{
-				const tstring sFilePath(libEbc::URLEncode(sMsgText.c_str()));
-				CString sTemp;
-				sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgText.c_str());
-				m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
-				m_pMrFrameInterface->WriteLine();
+				nLastWithdrawMsgId = sMsgId;
+				m_pMrFrameInterface->WriteString("[撤回一条消息]",theDefaultChatSystemColor);
+				m_pMrFrameInterface->SetReceiptFlag(EBC_CONTRON_RECEIPT_FLAG_HIDE);
 			}else
 			{
-				WriteFileHICON(sMsgText.c_str());
+
 			}
+			continue;
+		}
+		nLastWithdrawMsgId = 0;
+		CString sWindowText;
+		switch (nMsgType)
+		{
+		case MRT_UNKNOWN:
+			continue;
+		case MRT_TEXT:
 			{
-				const tstring sFileName = libEbc::GetFileName(sMsgText);
-				CString sFileText;
-				if (nFileSize == -1)
-					sFileText.Format(_T("%s (文件不存在)"),sFileName.c_str());
-				else if (nFileSize >= const_gb_size)
-					sFileText.Format(_T("%s (%.02fGB)"),sFileName.c_str(),(double)nFileSize/const_gb_size);
-				else if (nFileSize >= const_mb_size)
-					sFileText.Format(_T("%s (%.02fMB)"),sFileName.c_str(),(double)nFileSize/const_mb_size);
-				else if (nFileSize >= const_kb_size)
-					sFileText.Format(_T("%s (%.02fKB)"),sFileName.c_str(),(double)nFileSize/const_kb_size);
+				const bool bReceive = sFromAccount!=theApp.GetLogonUserId();
+				CSqliteCdbc::escape_string_out(sMsgText);
+				const COLORREF colorText = m_nViewMsgId>0&&m_nViewMsgId==sMsgId?RGB(255,0,0):(bReceive?theDefaultChatTextColor2:theDefaultChatTextColor1);
+				bool bSearchStringExistUrl = false;
+				if (!sSearchStringTemp.empty())
+				{
+					CString sStringLower(sMsgText.c_str());
+					sStringLower.MakeLower();
+					int nfind1 = sStringLower.Find("http://");
+					if (nfind1 < 0)
+						nfind1 = sStringLower.Find("https://");
+					if (nfind1 < 0)
+						nfind1 = sStringLower.Find("www.");
+					bSearchStringExistUrl = (nfind1>=0)?true:false;
+				}
+				if (sSearchStringTemp.empty() || bSearchStringExistUrl)
+					m_pMrFrameInterface->WriteString(sMsgText.c_str(),colorText);
 				else
-					sFileText.Format(_T("%s (%lldByte)"),sFileName.c_str(),nFileSize);
-				m_pMrFrameInterface->WriteSpace(1);
+				{
+					std::vector<tstring> pList;
+					const int nSize = libEbc::ParseString(sMsgText.c_str(),sSearchStringTemp.c_str(),pList);
+					const bool bLastTextIsSearchText = sMsgText.size()<sSearchStringTemp.size()?false:(sMsgText.substr(sMsgText.size()-sSearchStringTemp.size())==sSearchStringTemp);
+					for (int i=0;i<nSize; i++)
+					{
+						const tstring sTextTemp(pList[i]);
+						if (!sTextTemp.empty())
+							m_pMrFrameInterface->WriteString(sTextTemp.c_str(),colorText);
+						if ((i+1)!=nSize || bLastTextIsSearchText)
+						{
+							m_pMrFrameInterface->WriteString(sSearchStringTemp.c_str(),RGB(255,128,0));
+						}
+					}
+				}
+			}break;
+		case MRT_JPG:
+			{
+				const tstring sFilePath(libEbc::URLEncode(sMsgName.c_str()));
 				CString sTemp;
-				sTemp.Format(_T("#CTRL:0:%d:#%s"),(int)EB_MR_CTRL_DATA_TYPE_FILE,sFileText);
-				m_pMrFrameInterface->WriteUrl((LPCTSTR)sTemp, sMsgText.c_str(),EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB,theDefaultFlatBlackTextColor);
-				//m_pMrFrameInterface->WriteUrl((LPCTSTR)sFileText, sMsgText.c_str(), EB_MR_CTRL_TYPE_LDBLCLICK_OPEN,theDefaultFlatBlackTextColor);
-			}
-			//m_pMrFrameInterface->WriteLine();
-			//m_pMrFrameInterface->WriteSpace(11);
-			//if (nFileSize>=0)
-			//{
-			//	m_pMrFrameInterface->WriteOpenFile(L"打开",sMsgText.c_str());
-			//	m_pMrFrameInterface->WriteSpace(2);
-			//}
-			//m_pMrFrameInterface->WriteOpenDir(L"打开文件夹",sMsgText.c_str());
+				sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgName.c_str());
+				m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
+			}break;
+		case MRT_MAP_POS:	// 地图位置
+			{
+				// ???
+			}break;
+		case MRT_USER_DATA:	// 用户自定义数据
+			{
+				// ???
+			}break;
+		case MRT_WAV:
+			{
+				//WriteFileHICON(sMsgName.c_str());
+				const int nWavTimeLength = libEbc::GetWaveTimeLength(sMsgName.c_str());
+				CString sText;
+				if (nWavTimeLength>=0)
+					sText.Format(_T("语音消息 %d\""),nWavTimeLength);
+				else if (nWavTimeLength==-1)
+					sText = _T("语音消息不存在");
+				else
+					sText = _T("语音消息格式错误\"");
+				m_pMrFrameInterface->WriteWav((LPCTSTR)sText,sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
+				//m_pMrFrameInterface->WriteWav("播放语音",sMsgName.c_str(),EB_MR_CTRL_TYPE_LCLICK_OPEN);
+			}break;
+		case MRT_RESOURCE:
+			{
+				//
+				//CString sMsgText;
+				//sMsgText.Format(_T("%lld,%lld"),pCrFileInfo->m_sResId,nFileSize)
+				const std::string::size_type nFind = sMsgText.find(",");
+				if (nFind == std::string::npos) break;
+
+				const tstring& sFileName = sMsgName;
+				const mycp::bigint nResourceId = cgc_atoi64(sMsgText.substr(0,nFind).c_str());
+				const mycp::bigint nFileSize = cgc_atoi64(sMsgText.substr(nFind+1).c_str());
+				// *
+				CString sFileText;
+				if (nFileSize >= const_gb_size)
+					sFileText.Format(_T("上传群共享文件：%s(%.02fGB)"),sFileName.c_str(),(double)nFileSize/const_gb_size);
+				else if (nFileSize >= const_mb_size)
+					sFileText.Format(_T("上传群共享文件：%s(%.02fMB)"),sFileName.c_str(),(double)nFileSize/const_mb_size);
+				else if (nFileSize >= const_kb_size)
+					sFileText.Format(_T("上传群共享文件：%s(%.02fKB)"),sFileName.c_str(),(double)nFileSize/const_kb_size);
+				else if (nFileSize>0)
+					sFileText.Format(_T("上传群共享文件：%s(%lldByte)"),sFileName.c_str(),nFileSize);
+				else
+					sFileText.Format(_T("上传群共享文件：%s"), sFileName.c_str());
+
+				CString sText;
+				WriteFileHICON(sFileName.c_str(),0);
+				m_pMrFrameInterface->WriteString((LPCTSTR)sFileText,theDefaultChatSystemColor);
+				m_pMrFrameInterface->WriteSpace(1);
+				sText.Format(_T("#CTRL:%d:%d:%lld,%s#下载"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB),(int)EB_MR_CTRL_DATA_TYPE_DOWNLOAD_RESOURCE,nResourceId,sFileName.c_str());
+				m_pMrFrameInterface->WriteString((LPCTSTR)sText,RGB(0, 0, 255));
+				if (m_bChildMode && m_sGroupCode>0 && !theApp.GetDisableGroupSharedCloud())
+				{
+					m_pMrFrameInterface->WriteSpace(2);
+					sText.Format(_T("#CTRL:%d:%d:0#群共享"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB),(int)EB_MR_CTRL_DATA_TYPE_OPEN_SHARE);
+					m_pMrFrameInterface->WriteString((LPCTSTR)sText,RGB(0, 0, 255));
+				}
+			}break;
+		case MRT_FILE:
+			{
+				//const bool bReceive = sFromAccount!=theApp.GetLogonUserId();
+
+				const std::wstring sImagePath = A2W_ACP(sMsgText.c_str());
+				bool bIsImage = false;
+				eb::bigint nFileSize = -1;
+				FILE * f = fopen(sMsgText.c_str(), "rb");
+				if (f != NULL)
+				{
+					_fseeki64(f, 0, SEEK_END);
+					nFileSize = _ftelli64(f);
+					fclose(f);
+					Gdiplus::Image * image = Gdiplus::Image::FromFile(sImagePath.c_str());
+					bIsImage = (bool)(image->GetType()!= Gdiplus::ImageTypeUnknown);
+					delete image;
+				}
+				if (bIsImage)
+				{
+					const tstring sFilePath(libEbc::URLEncode(sMsgText.c_str()));
+					CString sTemp;
+					sTemp.Format(_T("#CTRL:%d:%d:%s#%s"),(int)(EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_IMAGE,sFilePath.c_str(),sMsgText.c_str());
+					m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,0,0);
+					m_pMrFrameInterface->WriteLine();
+				}else
+				{
+					WriteFileHICON(sMsgText.c_str());
+				}
+				{
+					const tstring sFileName = libEbc::GetFileName(sMsgText);
+					CString sFileText;
+					if (nFileSize == -1)
+						sFileText.Format(_T("%s (文件不存在)"),sFileName.c_str());
+					else if (nFileSize >= const_gb_size)
+						sFileText.Format(_T("%s (%.02fGB)"),sFileName.c_str(),(double)nFileSize/const_gb_size);
+					else if (nFileSize >= const_mb_size)
+						sFileText.Format(_T("%s (%.02fMB)"),sFileName.c_str(),(double)nFileSize/const_mb_size);
+					else if (nFileSize >= const_kb_size)
+						sFileText.Format(_T("%s (%.02fKB)"),sFileName.c_str(),(double)nFileSize/const_kb_size);
+					else
+						sFileText.Format(_T("%s (%lldByte)"),sFileName.c_str(),nFileSize);
+					m_pMrFrameInterface->WriteSpace(1);
+					CString sTemp;
+					sTemp.Format(_T("#CTRL:0:%d:#%s"),(int)EB_MR_CTRL_DATA_TYPE_FILE,sFileText);
+					m_pMrFrameInterface->WriteUrl((LPCTSTR)sTemp, sMsgText.c_str(),EB_MR_CTRL_TYPE_LDBLCLICK_OPEN|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB,theDefaultFlatBlackTextColor);
+					//m_pMrFrameInterface->WriteUrl((LPCTSTR)sFileText, sMsgText.c_str(), EB_MR_CTRL_TYPE_LDBLCLICK_OPEN,theDefaultFlatBlackTextColor);
+				}
+				//m_pMrFrameInterface->WriteLine();
+				//m_pMrFrameInterface->WriteSpace(11);
+				//if (nFileSize>=0)
+				//{
+				//	m_pMrFrameInterface->WriteOpenFile(L"打开",sMsgText.c_str());
+				//	m_pMrFrameInterface->WriteSpace(2);
+				//}
+				//m_pMrFrameInterface->WriteOpenDir(L"打开文件夹",sMsgText.c_str());
+			}break;
+		default:
+			break;
 		}
 		//pRecord = theApp.m_pBoUsers->next(nCookie);
 	}
@@ -1232,7 +1318,7 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 		SetForegroundWindow();
 	}
 }
-void CDlgMsgRecord::WriteFileHICON(const char* lpszFilePath)
+void CDlgMsgRecord::WriteFileHICON(const char* lpszFilePath,long nCtrlType)
 {
 	SHFILEINFO sfi; 
 	ZeroMemory(&sfi,sizeof(sfi)); 
@@ -1243,7 +1329,7 @@ void CDlgMsgRecord::WriteFileHICON(const char* lpszFilePath)
 		SHGFI_USEFILEATTRIBUTES|SHGFI_ICON);
 	if (ret == 1)
 	{
-		m_pMrFrameInterface->WriteHICON((ULONG*)sfi.hIcon,lpszFilePath,EB_MR_CTRL_TYPE_LCLICK_OPEN);
+		m_pMrFrameInterface->WriteHICON((ULONG*)sfi.hIcon,lpszFilePath,nCtrlType);
 	}
 }
 
@@ -1375,6 +1461,32 @@ void CDlgMsgRecord::Fire_onItemLBtnClick(LONG nLineId, LONG nItemId, ULONG nItem
 			theEBAppClient.EB_CallAccount(sParamString.c_str());
 #endif
 		}break;
+	case EB_MR_CTRL_DATA_TYPE_DOWNLOAD_RESOURCE:
+		{
+			const std::string::size_type find = sParamString.find(",");
+			if (find==std::string::npos) break;
+			const mycp::bigint nResourceId = cgc_atoi64(sParamString.substr(0,find).c_str());
+			const tstring sFullName = sParamString.substr(find+1);
+
+			tstring sFileName;
+			tstring sFileExt;
+			libEbc::GetFileExt(sFullName,sFileName,sFileExt);
+			CFileDialog dlg(FALSE, sFileExt.c_str(), sFullName.c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, theAllFilesFilter, this);
+			if (dlg.DoModal() == IDOK)
+			{
+				const CString sPathName(dlg.GetPathName());
+#ifdef USES_EBCOM_TEST
+				theEBClientCore->EB_DownloadFileRes(nResourceId, (LPCTSTR)sPathName);
+#else
+				theEBAppClient.EB_DownloadFileRes(nResourceId, sPathName);
+#endif
+			}
+		}break;
+	case EB_MR_CTRL_DATA_TYPE_OPEN_SHARE:
+		{
+			if (m_bChildMode)
+				this->GetParent()->PostMessage(EB_COMMAND_VIEW_GROUP_SHARE);
+		}break;
 	default:
 		break;
 	}
@@ -1447,12 +1559,13 @@ void CDlgMsgRecord::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 				m_pDlgViewContact.HideReset();
 			if (m_pDlgToolbar.GetSafeHwnd()==NULL)
 			{
+				m_pDlgToolbar.m_pCallInfo = m_pCallInfo;
 				m_pDlgToolbar.Create(CDlgToolbar::IDD,this);
 				m_pDlgToolbar.SetMsgHwnd(this->GetSafeHwnd(),this);
 				m_pDlgToolbar.SetChildMode(m_bChildMode);
 			}
 			bool bChangeData = false;
-			const int nCount = m_pDlgToolbar.SetMoveEnterData((EB_MR_CTRL_DATA_TYPE)nItemData,libEbc::URLDecode(sParamString.c_str(),false),bChangeData);
+			const int nCount = m_pDlgToolbar.SetMoveEnterData((EB_MR_CTRL_DATA_TYPE)nItemData,libEbc::URLDecode(sParamString.c_str(),false),nSelectMsgId,bChangeData);
 			if (bChangeData || !m_pDlgToolbar.IsWindowVisible())
 			{
 				CPoint pos;
@@ -1498,7 +1611,16 @@ tstring CDlgMsgRecord::GetSelectString(void) const
 	const CEBString sString(m_pMrFrameInterface->GetSelectString().GetBSTR());
 	return sString;
 }
-
+void CDlgMsgRecord::OnDeleteMsg(mycp::bigint nMsgId)
+{
+	if (nMsgId==0) return;
+	if (m_pMrFrameInterface!=NULL)
+	{
+		m_pMrFrameInterface->DeleteLine(nMsgId);
+		m_pMrFrameInterface->UpdateSize(VARIANT_TRUE);
+	}
+	theApp.DeleteDbRecord(nMsgId);
+}
 void CDlgMsgRecord::OnCancel()
 {
 	// TODO: Add your specialized code here and/or call the base class

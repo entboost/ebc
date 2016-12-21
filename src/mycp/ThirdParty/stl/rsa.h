@@ -104,7 +104,7 @@ public:
 	bool rsa_open_private_file(void){
 		if (m_pPrivateRSA == NULL)
 		{
-			OpenSSL_add_all_algorithms();
+			//OpenSSL_add_all_algorithms();
 			m_pPrivateBIO = BIO_new( BIO_s_file() );
 			BIO_read_filename( m_pPrivateBIO, m_sPrivateFile.c_str() );  
 			//m_pPrivateRSA = PEM_read_bio_RSAPrivateKey( m_pPrivateBIO, NULL, NULL, NULL);  
@@ -122,7 +122,7 @@ public:
 	bool rsa_open_private_mem(void){
 		if (m_pPrivateRSA == NULL)
 		{
-			OpenSSL_add_all_algorithms();
+			//OpenSSL_add_all_algorithms();
 			m_pPrivateBIO = BIO_new( BIO_s_mem() );
 			BIO_puts( m_pPrivateBIO, m_sPrivateKey.c_str());  
 			m_pPrivateRSA = PEM_read_bio_RSAPrivateKey( m_pPrivateBIO, NULL, &pem_password_cb, (void*)m_sPrivatePwd.c_str());  
@@ -150,7 +150,7 @@ public:
 	bool rsa_open_public_file(void){
 		if (m_pPublicRSA == NULL)
 		{
-			OpenSSL_add_all_algorithms();
+			//OpenSSL_add_all_algorithms();
 			m_pPublicBIO = BIO_new( BIO_s_file() );
 			BIO_read_filename( m_pPublicBIO, m_sPublicFile.c_str() );  
 			m_pPublicRSA = PEM_read_bio_RSAPublicKey( m_pPublicBIO, NULL, NULL, NULL);  
@@ -167,7 +167,7 @@ public:
 	bool rsa_open_public_mem(void){
 		if (m_pPublicRSA == NULL)
 		{
-			OpenSSL_add_all_algorithms();
+			//OpenSSL_add_all_algorithms();
 			m_pPublicBIO = BIO_new( BIO_s_mem() );
 			BIO_puts( m_pPublicBIO, m_sPublicKey.c_str() );  
 			m_pPublicRSA = PEM_read_bio_RSAPublicKey( m_pPublicBIO, NULL, NULL, NULL);

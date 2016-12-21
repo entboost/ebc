@@ -85,6 +85,7 @@ const CString theColorSkinsString[] = {_T("紫色"),_T("靛青"),_T("蓝色"),_T("绿色
 // 灰色 = 240,240,240
 // 蓝色 = 23,167,237
 static CString theDayOfWeek[] = {"周日","周一","周二","周三","周四","周五","周六"};
+static TCHAR theAllFilesFilter[] = _T("All Files (*.*)|*.*||");
 
 #ifndef bigint
 typedef __int64				bigint;
@@ -93,6 +94,10 @@ const double const_kb_size = 1024.0;
 const double const_mb_size = 1024*const_kb_size;
 const double const_gb_size = 1024*const_mb_size;
 
+#define MAKEINT64(lo, hi)    ((INT64)(((DWORD)(((INT64)(lo)) & 0xffffffff)) | ((INT64)((DWORD)(((INT64)(hi)) & 0xffffffff))) << 32))
+#define LOINT64(l)         ((DWORD)(((INT64)(l)) & 0xffffffff))
+#define HIINT64(l)         ((DWORD)((((INT64)(l)) >> 32) & 0xffffffff))
+
 #define EBC_MSG_TYPE_REQUEST_JOIN_2_GROUP	1
 #define EBC_MSG_TYPE_INVITE_JOIN_2_GROUP	2
 #define EBC_MSG_TYPE_REQUEST_ADD_CONTACT	3
@@ -100,10 +105,12 @@ const double const_gb_size = 1024*const_mb_size;
 #define EBC_MSG_TYPE_REJECT_ADD_CONTACT		5
 #define EBC_MSG_TYPE_BC_MSG					10
 
-#define EBC_READ_FLAG_TRUE		0x1	// 消息已读标识
-#define EBC_READ_FLAG_RECEIPT 0x2	// 对方已接收消息回执
-#define EBC_READ_FLAG_SENT		0x4	// 发送成功（文件）
+#define EBC_READ_FLAG_TRUE				0x1	// 消息已读标识
+#define EBC_READ_FLAG_RECEIPT			0x2	// 对方已接收消息回执
+#define EBC_READ_FLAG_SENT				0x4	// 发送成功（文件）
+#define EBC_READ_FLAG_WITHDRAW		0x8	// 请求撤回消息
 
+#define EBC_CONTRON_RECEIPT_FLAG_HIDE 0x0		// 隐藏消息回执标识
 #define EBC_CONTRON_RECEIPT_FLAG_TRUE 0x1		// 对方已接收消息回执
 #define EBC_CONTRON_RECEIPT_FLAG_SHOW 0x2		// 显示消息回执标识
 #define EBC_CONTRON_PARAMETER_DISABLE_RECEIPT 1
@@ -128,6 +135,10 @@ typedef enum EB_MR_CTRL_DATA_TYPE
 	, EB_MR_CTRL_DATA_TYPE_FILE
 	, EB_MR_CTRL_DATA_TYPE_SELECT_STRING
 	, EB_MR_CTRL_DATA_TYPE_READ_FLAG
+	, EB_MR_CTRL_DATA_TYPE_DOWNLOAD_RESOURCE
+	, EB_MR_CTRL_DATA_TYPE_OPEN_SHARE
+	//, EB_MR_CTRL_DATA_TYPE_DELETE_MSGID
+	//, EB_MR_CTRL_DATA_TYPE_SEND_MSGID
 };
 
 typedef enum EB_BROWSER_TYPE
@@ -199,6 +210,7 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_RAME_WND_MOVE_OFFSET
 	, EB_COMMAND_RAME_WND_ADJUST_WIDTH
 	, EB_COMMAND_SEARCH_SET_FOCUS_SEL
+	, EB_COMMAND_CLEAR_SUBID_UNREAD_MSG
 
 	, EB_MSG_SELECTED_EMP
 	, EB_COMMAND_NEW_DEPARTMENT1	// 部门
@@ -351,7 +363,9 @@ public:
 			m_sMemberCode = pItemInfo->m_sMemberCode;
 			m_sName = pItemInfo->m_sName;
 			m_sAccount = pItemInfo->m_sAccount;
-			m_dwItemData = pItemInfo->m_dwItemData;;
+			m_dwItemData = pItemInfo->m_dwItemData;
+			m_nCount1 = pItemInfo->m_nCount1;
+			m_nCount2 = pItemInfo->m_nCount2;
 		}
 	}
 	ITEM_TYPE m_nItemType;
@@ -369,6 +383,8 @@ public:
 	mycp::bigint m_sId;			// resid,...
 	mycp::bigint m_sParentId;
 	DWORD m_dwItemData;
+	int m_nCount1;
+	int m_nCount2;
 
 	//EB_EnterpriseInfo m_pEnterpriseInfo;
 	//EB_GroupInfo m_pGroupInfo;
@@ -382,6 +398,7 @@ public:
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
 		, m_dwItemData(0)
+		, m_nCount1(0), m_nCount2(0)
 	{
 	}
 	CTreeItemInfo(ITEM_TYPE nItemType,HTREEITEM hItem)
@@ -391,6 +408,7 @@ public:
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
 		, m_dwItemData(0)
+		, m_nCount1(0), m_nCount2(0)
 	{
 	}
 	CTreeItemInfo(void)
@@ -400,6 +418,7 @@ public:
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
 		, m_dwItemData(0)
+		, m_nCount1(0), m_nCount2(0)
 	{
 	}
 };

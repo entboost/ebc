@@ -263,21 +263,21 @@ void CgcBaseClient::do_proc_cid_timeout(void)
 	//if (NULL == cgcClient) return;
 
 	unsigned int index1 = 0;
-	bool bExistSeqTimeout = true;
+	bool bHasResendData = true;
 	while (!isClientState(CgcBaseClient::Exit_Client))
 //	while (!isInvalidate())
 	{
 #ifdef WIN32
-		Sleep(10);
+		Sleep(50);
 #else
-		usleep(10000);
+		usleep(50000);
 #endif
-		if (!bExistSeqTimeout && ((++index1)%50)!=1)
+		if (!bHasResendData && ((++index1)%20)!=1)
 			continue;
 
 		try
 		{
-			bExistSeqTimeout = checkSeqTimeout();
+			bHasResendData = checkSeqTimeout();
 		}catch(const std::exception &)
 		{
 		}catch(...)
@@ -2001,18 +2001,28 @@ bool CgcBaseClient::isTimeToSendP2PTry(void) const
 	return false;
 }
 
+//#define USES_WRITE_LOCK
 bool CgcBaseClient::checkSeqTimeout(void)
 {
 	//if (m_sSessionId.empty()) return false;	// ?
-	BoostReadLock rdlock(m_mapSeqInfo.mutex());
-	CLockMap<unsigned short, cgcSeqInfo::pointer>::iterator pIter;
-	for (pIter=m_mapSeqInfo.begin(); pIter!=m_mapSeqInfo.end(); pIter++)
+//#ifdef USES_WRITE_LOCK
+	//const time_t tNow = time(0);
+	int nResendCount = 0;
+	BoostWriteLock wtlock(m_mapSeqInfo.mutex());
+//#else
+//	BoostReadLock rdlock(m_mapSeqInfo.mutex());
+//#endif
+	CLockMap<unsigned short, cgcSeqInfo::pointer>::iterator pIter = m_mapSeqInfo.begin();
+	for (; pIter!=m_mapSeqInfo.end();)
 	{
 		cgcSeqInfo::pointer pCidInfo = pIter->second;
-		if (pCidInfo->isTimeout())
+		if (pCidInfo->isTimeout(0))
 		{
 			if (pCidInfo->canResendAgain())
 			{
+//#ifdef USES_WRITE_LOCK
+//				wtlock.unlock();
+//#endif
 				pCidInfo->increaseResends();
 				pCidInfo->setSendTime();
 				// resend
@@ -2020,17 +2030,25 @@ bool CgcBaseClient::checkSeqTimeout(void)
 				this->setRemoteAddr(pCidInfo->GetAddress());
 				sendData(pCidInfo->getCallData(), pCidInfo->getDataSize());
 				this->setRemoteAddr(sAddress);
-
+				if ((nResendCount++)>=10)
+				{
+					return true;
+					//return false;							// ?
+				}
 				// ?
 				//if (m_pHandler)
 				//	m_pHandler->OnCidTimeout(pCidInfo->getCid(), pCidInfo->getSign(), true);
 			}else
 			{
 				// 
-				unsigned short nSeq = pIter->first;
-				rdlock.unlock();
-				m_mapSeqInfo.remove(nSeq);
-
+//#ifdef USES_WRITE_LOCK
+				m_mapSeqInfo.erase(pIter);
+				wtlock.unlock();
+//#else
+//				unsigned short nSeq = pIter->first;
+//				rdlock.unlock();
+//				m_mapSeqInfo.remove(nSeq);
+//#endif
 				// OnCidResend
 				if (m_pHandler)
 				{
@@ -2039,9 +2057,13 @@ bool CgcBaseClient::checkSeqTimeout(void)
 					else
 						m_pHandler->OnCidTimeout(pCidInfo->getCid(), pCidInfo->getSign(), false);
 				}
+				return m_mapSeqInfo.empty()?false:true;
+				//m_mapSeqInfo.erase(pIter++);
+				//continue;
 			}
-			return true;
+			//return true;
 		}
+		pIter++;
 	}
 
 	return false;

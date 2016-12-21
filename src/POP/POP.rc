@@ -84,7 +84,7 @@ FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
     LTEXT           "Entboost.com, 1.23",IDC_STATIC,42,14,114,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2012-2016",IDC_STATIC,42,26,114,8
+    LTEXT           "Copyright (C) 2012-2017",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
 END
 
@@ -454,7 +454,7 @@ BEGIN
     CONTROL         "",IDC_TREE_SEARCH,"SysTreeView32",TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_FULLROWSELECT | WS_HSCROLL | WS_TABSTOP,16,177,85,33
     CONTROL         "",IDC_TREE_DEPARTMENT,"SysTreeView32",TVS_HASBUTTONS | TVS_FULLROWSELECT | WS_HSCROLL | WS_TABSTOP,7,52,55,115
     PUSHBUTTON      "department",IDC_BUTTON_DEPARTMENT,7,16,50,14
-    LTEXT           "已选择用户：",IDC_STATIC_SELECTED,254,31,42,8
+    LTEXT           "已选择用户：",IDC_STATIC_SELECTED,254,31,56,8
 END
 
 IDD_DLG_EDIT_EMPINFO DIALOGEX 0, 0, 350, 220
@@ -957,6 +957,8 @@ BEGIN
     PUSHBUTTON      "2",IDC_BTN_2,62,14,41,14,BS_NOTIFY
     PUSHBUTTON      "3",IDC_BTN_3,119,14,41,14,BS_NOTIFY
     PUSHBUTTON      "4",IDC_BTN_4,165,14,41,14,BS_NOTIFY
+    PUSHBUTTON      "5",IDC_BTN_5,210,14,41,14,BS_NOTIFY
+    PUSHBUTTON      "6",IDC_BTN_6,254,14,41,14,BS_NOTIFY
 END
 
 IDD_PAN_FIND DIALOGEX 0, 0, 193, 33
@@ -1001,8 +1003,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,23,0,503
- PRODUCTVERSION 1,23,0,503
+ FILEVERSION 1,24,0,519
+ PRODUCTVERSION 1,24,0,519
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1019,12 +1021,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
             VALUE "FileDescription", "恩布互联客户端"
-            VALUE "FileVersion", "1, 23, 0, 503"
+            VALUE "FileVersion", "1, 24, 0, 519"
             VALUE "InternalName", "ebc.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "ebc.exe"
             VALUE "ProductName", "恩布互联客户端"
-            VALUE "ProductVersion", "1, 23, 0, 503"
+            VALUE "ProductVersion", "1, 24, 0, 519"
         END
     END
     BLOCK "VarFileInfo"

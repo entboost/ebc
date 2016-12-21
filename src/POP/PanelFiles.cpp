@@ -126,6 +126,16 @@ void CPanelFiles::OnSendingFile(IEB_ChatFileInfo* pCrFileInfo)
 #else
 void CPanelFiles::OnSendingFile(const CCrFileInfo * pCrFileInfo)
 {
+	if (pCrFileInfo->GetStateCode()==EB_STATE_FILE_ALREADY_EXIST)
+	{
+		CDlgTranFile::pointer pDlgTranFile;
+		if (pCrFileInfo->GetParam()>0 && m_pTranFiles.find(pCrFileInfo->GetParam(),pDlgTranFile, true))
+		{
+			m_pDelTranFile.add(pDlgTranFile);
+			SetTimer(TIMER_ID_CLOSE_TRAN_FILE,10,NULL);
+		}
+		return;
+	}
 	CDlgTranFile::pointer pDlgTranFile;
 	if (pCrFileInfo->GetParam()>0 && m_pTranFiles.find(pCrFileInfo->GetParam(),pDlgTranFile,true))
 	{
@@ -135,6 +145,7 @@ void CPanelFiles::OnSendingFile(const CCrFileInfo * pCrFileInfo)
 	{
 		pDlgTranFile = CDlgTranFile::create(this);
 		pDlgTranFile->m_bIsSendingFile = true;
+		//pDlgTranFile->m_pCallInfo = m_pCallInfo;
 		//pDlgTranFile->m_sResourceId = pCrFileInfo->m_sResId;
 		pDlgTranFile->m_pCrFileInfo = pCrFileInfo;
 		pDlgTranFile->Create(CDlgTranFile::IDD, this);
@@ -303,6 +314,7 @@ void CPanelFiles::OnTimer(UINT_PTR nIDEvent)
 				const int index = m_pTranFiles.size();
 				CDlgTranFile::pointer pDlgTranFile = CDlgTranFile::create(this);
 				pDlgTranFile->m_bIsSendingFile = false;
+				//pDlgTranFile->m_pCallInfo = m_pCallInfo;
 				//pDlgTranFile->m_sResourceId = pCrFileInfo.m_sResId;
 				pDlgTranFile->m_pCrFileInfo = pCrFileInfo;
 				pDlgTranFile->Create(CDlgTranFile::IDD, this);

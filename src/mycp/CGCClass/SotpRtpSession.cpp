@@ -260,25 +260,30 @@ bool CSotpRtpSession::doRtpData(const tagSotpRtpDataHead& pRtpDataHead,const cgc
 
 void CSotpRtpSession::CheckRegisterSourceLive(short nExpireSecond, CSotpRtpCallback* pCallback,void* pUserData)
 {
-	std::vector<bigint> pRemoveList;
+	//std::vector<bigint> pRemoveList;
 	{
 		const time_t tNow = time(0);
-		BoostReadLock rdlock(m_pRoomList.mutex());
+		BoostWriteLock wtlock(m_pRoomList.mutex());
+		//BoostReadLock rdlock(m_pRoomList.mutex());
 		CLockMap<bigint,CSotpRtpRoom::pointer>::iterator pIterRoom = m_pRoomList.begin();
-		for (; pIterRoom!=m_pRoomList.end(); pIterRoom++)
+		for (; pIterRoom!=m_pRoomList.end(); )
 		{
 			CSotpRtpRoom::pointer pRtpRoom = pIterRoom->second;
 			pRtpRoom->CheckRegisterSourceLive(tNow, nExpireSecond, pCallback, pUserData);
 			if (pRtpRoom->IsEmpty())
 			{
-				pRemoveList.push_back(pRtpRoom->GetRoomId());
+				m_pRoomList.erase(pIterRoom++);
+				//pRemoveList.push_back(pRtpRoom->GetRoomId());
+			}else
+			{
+				pIterRoom++;
 			}
 		}
 	}
-	for (size_t i=0;i<pRemoveList.size();i++)
-	{
-		m_pRoomList.remove(pRemoveList[i]);
-	}
+	//for (size_t i=0;i<pRemoveList.size();i++)
+	//{
+	//	m_pRoomList.remove(pRemoveList[i]);
+	//}
 }
 
 void CSotpRtpSession::CheckRegisterSinkLive(short nExpireSecond, bigint nSrcId, const cgcRemote::pointer& pcgcRemote)

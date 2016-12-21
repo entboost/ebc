@@ -143,6 +143,7 @@ BOOL CDlgTranFile::OnInitDialog()
 					this->GetDlgItem(IDC_BUTTON_OFFFILE)->ShowWindow(SW_SHOW);
 				this->GetDlgItem(IDC_BUTTON_CANCEL)->ShowWindow(SW_SHOW);
 			}
+		//}else if (m_pCrFileInfo.m_sResId>0 && (!m_pCrFileInfo.m_bOffFile || m_pCrFileInfo.m_sResId==m_pCrFileInfo.m_nMsgId))
 		}else if (m_pCrFileInfo.m_sResId>0)// && m_pCrFileInfo.m_sResId==m_pCrFileInfo.m_nMsgId)
 		{
 			this->GetDlgItem(IDC_BUTTON_SAVEAS)->ShowWindow(SW_HIDE);
@@ -153,6 +154,11 @@ BOOL CDlgTranFile::OnInitDialog()
 			m_btnCancel.SetToolTipText(_T("取消下载文件"));
 		}else
 		{
+			//if (this->m_pCallInfo.m_sGroupCode>0)
+			//{
+			//	m_btnReject.SetWindowText(_T("取消"));
+			//	m_btnSave.SetWindowText(_T("下载"));
+			//}
 			this->GetDlgItem(IDC_BUTTON_SAVEAS)->ShowWindow(SW_SHOW);
 			this->GetDlgItem(IDC_BUTTON_SAVE)->ShowWindow(SW_SHOW);
 			this->GetDlgItem(IDC_BUTTON_REJECT)->ShowWindow(SW_SHOW);

@@ -2,6 +2,12 @@
 
 
 // CDlgMessageBox dialog
+/*
+ * 消息对话框类
+ * 支持自动关闭
+ * 支持模式，非模式窗口
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgMessageBox : public CEbDialogBase
 {

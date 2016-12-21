@@ -73,6 +73,7 @@ public:
 	void SetCtrlColor(bool bInvalidate = true);
 	void RefreshAppWnd(void);
 	void LineStateChange(eb::bigint nUserId, EB_USER_LINE_STATE bLineState);
+	void UpdateGroupUsers(void);
 	void ExitRD(void);
 	void RefreshWeb(void);
 	void OnMove(void);
@@ -117,6 +118,7 @@ public:
 	void OnReceivedFile(const CCrFileInfo * pCrFileInfo);
 	void SetFilePercent(const CChatRoomFilePercent * pChatRoomFilePercent);
 #endif
+	void OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType);
 	void OnResourceMove(const EB_ResourceInfo& pResourceInfo,eb::bigint nOldParentResId);
 	void OnResourceInfo(const EB_ResourceInfo& pResourceInfo);
 	void OnResourceDelete(const EB_ResourceInfo& pResourceInfo);

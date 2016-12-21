@@ -112,11 +112,12 @@ public:
 	void SetAddress(const tstring& sAddress) {m_sAddress=sAddress;}
 	const tstring& GetAddress(void) const {return m_sAddress;}
 
-	bool isTimeout(void)
+	bool isTimeout(time_t tNow=0)
 	{
 		if (m_timeoutSeconds == 0) return false;
 
-		time_t tNow = time(0);
+		if (tNow==0)
+			tNow = time(0);
 
 		//
 		// system time had been changed, or this is the init cgcSeqInfo

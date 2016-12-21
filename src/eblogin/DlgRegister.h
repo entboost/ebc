@@ -1,6 +1,11 @@
 #pragma once
 
 // CDlgRegister dialog
+/*
+ * 注册窗口类
+ * 实现弹出注册窗口，输入注册内容，支持“注册个人帐号”和“注册企业帐号”二种；
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgRegister : public CEbDialogBase
 #ifdef USES_EBCOM_TEST

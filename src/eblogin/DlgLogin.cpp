@@ -13,7 +13,6 @@
 
 #pragma comment(lib, "Psapi.lib")
 
-
 #define POS_STA_LEFT 33
 #define POS_ADIMG_LEFT 15
 #define POS_ADIMG_TOP 50

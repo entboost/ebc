@@ -19,11 +19,13 @@ public:
 	CCrInfo(void)
 		: m_nParam(0)
 		, m_sCallId(0), m_sChatId(0)
+		, m_nState(EB_STATE_OK)
 	{
 	}
-	CCrInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
+	CCrInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
 		: m_nParam(nParam)
 		, m_sCallId(sCallId), m_sChatId(sChatId)
+		, m_nState(nState)
 	{
 	}
 	CCrInfo(const CCrInfo& pObj)
@@ -42,6 +44,7 @@ public:
 			m_nParam = pParameter->GetParam();
 			m_sCallId = pParameter->GetCallId();
 			m_sChatId = pParameter->GetChatId();
+			m_nState = pParameter->GetStateCode();
 		}
 		return *this;
 	}
@@ -51,11 +54,14 @@ public:
 	void SetCallId(cr::bigint v) {m_sCallId = v;}
 	cr::bigint GetChatId() const {return m_sChatId;}
 	void SetChatId(cr::bigint v) {m_sChatId = v;}
+	void SetStateCode(EB_STATE_CODE nState) {m_nState = nState;}
+	EB_STATE_CODE GetStateCode(void) const {return m_nState;}
 
 protected:
 	unsigned long m_nParam;
 	cr::bigint m_sCallId;
 	cr::bigint m_sChatId;
+	EB_STATE_CODE m_nState;
 };
 
 //class CChatRoomFileInfo
@@ -111,8 +117,8 @@ public:
 		, m_nAvrSpeed(0)
 	{
 	}
-	CChatRoomFilePercent(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CChatRoomFilePercent(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_sResId(0),m_nMsgId(0)
 		, m_percent(0.0)
 		, m_nTranSeconds(0)
@@ -186,8 +192,8 @@ public:
 		, m_sReceiveAccount(0)
 	{
 	}
-	CCrFileInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CCrFileInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_sResId(0),m_nMsgId(0),m_nFileSize(0)
 		, m_bOffFile(false)
 		, m_sSendFrom(0), m_sSendTo(0)
@@ -295,8 +301,8 @@ public:
 		, m_bPrivate(false)
 	{
 	}
-	CCrRichInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CCrRichInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_pRichMsg(NULL)
 		, m_sSendFrom(0), m_sSendTo(0)
 		, m_bPrivate(false)
@@ -331,8 +337,8 @@ public:
 		, m_bOffLine(false)
 	{
 	}
-	CCrAccountInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CCrAccountInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_sAccount(0)
 		, m_bOffLine(false)
 	{
@@ -365,8 +371,8 @@ public:
 		, m_nP2PData(0)
 	{
 	}
-	CCrP2PInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CCrP2PInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_sFromAccount(0)
 		, m_nP2PData(0)
 	{
@@ -402,8 +408,8 @@ public:
 		, m_nNotityId(0)
 	{
 	}
-	CCrNotifyInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId)
-		: CCrInfo(nParam,sCallId,sChatId)
+	CCrNotifyInfo(unsigned long nParam,cr::bigint sCallId,cr::bigint sChatId,EB_STATE_CODE nState)
+		: CCrInfo(nParam,sCallId,sChatId,nState)
 		, m_nFromAccount(0)
 		, m_nNotifyType(0)
 		, m_nNotityId(0)
@@ -440,7 +446,6 @@ public:
 typedef enum CR_WINDOW_MESSAGE
 {
 	// const CCrInfo* pParameter = (const CCrInfo*)wp;
-	// EB_STATE_CODE nState = (EB_STATE_CODE)lp;
 	CR_WM_ENTER_ROOM			= WM_USER+0x1101
 	, CR_WM_EXIT_ROOM
 	/*
@@ -456,13 +461,11 @@ typedef enum CR_WINDOW_MESSAGE
 	, CR_WM_USER_NOTIFY
 	/*
 	const CCrRichInfo * pRichInfo = (const CCrRichInfo*)wParam;
-	// EB_STATE_CODE nState = (EB_STATE_CODE)lp;
 	*/
 	, CR_WM_SEND_RICH			= WM_USER+0x1111
 	, CR_WM_RECEIVE_RICH
 	/*
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
-	// EB_STATE_CODE nState = (EB_STATE_CODE)lp;
 	*/
 	, CR_WM_SENDING_FILE
 	, CR_WM_SENT_FILE
@@ -474,8 +477,11 @@ typedef enum CR_WINDOW_MESSAGE
 	*/
 	, CR_WM_FILE_PERCENT
 	/*
+	const CCrRichInfo * pRichInfo = (const CCrRichInfo*)wParam;
+	*/
+	, CR_WM_MSG_RECEIPT
+	/*
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
-	// EB_STATE_CODE nState = (EB_STATE_CODE)lp;
 	*/
 	, CR_WM_SAVE2CLOUD_DRIVE			= WM_USER+0x1121
 
@@ -499,23 +505,24 @@ typedef enum CR_WINDOW_MESSAGE
 class CChatRoomCallBack
 {
 public:
-	virtual void OnEnterRoom(const CCrInfo& pParameter,EB_STATE_CODE nState) {}
+	virtual void OnEnterRoom(const CCrInfo& pParameter) {}
 	virtual void OnExitRoom(const CCrInfo& pParameter) {}
 	virtual void OnUserEnterRoom(const CCrAccountInfo& pAccountInfo) {}
 	virtual void OnUserExitRoom(const CCrAccountInfo& pAccountInfo, bool bHangup) =0;
 	virtual void OnUserNotify(const CCrNotifyInfo& pNotifyInfo) =0;
 
-	virtual void OnSendRich(const CCrRichInfo& pRichInfo,EB_STATE_CODE nState) {}
-	virtual void OnReceiveRich(const CCrRichInfo& pRichInfo) {}
-	virtual void OnSendingFile(const CCrFileInfo& pFileInfo,EB_STATE_CODE nState) {}
-	virtual void OnSentFile(const CCrFileInfo& pFileInfo,EB_STATE_CODE nState) {}
+	virtual void OnSendRich(const CCrRichInfo& pRichInfo) {}
+	virtual int OnReceiveRich(const CCrRichInfo& pRichInfo) {return 0;}
+	virtual void OnMsgReceipt(const CCrRichInfo& pRichInfo, int nAckType) {}
+	virtual void OnSendingFile(const CCrFileInfo& pFileInfo) {}
+	virtual void OnSentFile(const CCrFileInfo& pFileInfo) {}
 	virtual void OnCancelFile(const CCrFileInfo& pFileInfo) {}
-	virtual void OnReceivingFile(const CCrFileInfo& pFileInfo) {}
+	virtual int OnReceivingFile(const CCrFileInfo& pFileInfo) {return 0;}
 	virtual void OnReceivedFile(const CCrFileInfo& pFileInfo) {}
 	virtual void OnFilePercent(const CChatRoomFilePercent& pFilePercent) {}
-	virtual void OnSave2CloudDrive(const CCrFileInfo& pFileInfo, EB_STATE_CODE nState) {}
+	virtual void OnSave2CloudDrive(const CCrFileInfo& pFileInfo) {}
 
-	virtual void OnInvalidateSession(const CCrInfo& pParameter,int nResultCode) =0;
+	virtual void OnInvalidateSession(const CCrInfo& pParameter) =0;
 	virtual void OnEnterAnother(const CCrInfo& pParameter) =0;
 
 	virtual void OnP2PRequest(const CCrP2PInfo& pP2PInfo) =0;

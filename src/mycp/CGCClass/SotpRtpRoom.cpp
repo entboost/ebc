@@ -267,11 +267,12 @@ void CSotpRtpRoom::BroadcastRtpData(const tagSotpRtpDataHead& pRtpDataHead,const
 }
 void CSotpRtpRoom::CheckRegisterSourceLive(time_t tNow,short nExpireSecond, CSotpRtpCallback* pCallback,void* pUserData)
 {
-	std::vector<bigint> pRemoveList;
+	//std::vector<bigint> pRemoveList;
 	{
-		BoostReadLock rdlock(m_pSourceList.mutex());
+		BoostWriteLock wtlock(m_pSourceList.mutex());
+		//BoostReadLock rdlock(m_pSourceList.mutex());
 		CLockMap<bigint,CSotpRtpSource::pointer>::iterator pIter = m_pSourceList.begin();
-		for (; pIter!=m_pSourceList.end(); pIter++)
+		for (; pIter!=m_pSourceList.end(); )
 		{
 			CSotpRtpSource::pointer pRtpSrcSource = pIter->second;
 			if (tNow-pRtpSrcSource->GetLastTime()>nExpireSecond)
@@ -279,14 +280,18 @@ void CSotpRtpRoom::CheckRegisterSourceLive(time_t tNow,short nExpireSecond, CSot
 				if (pCallback!=NULL)
 					pCallback->onUnRegisterSource(this->GetRoomId(), pRtpSrcSource->GetSrcId(), pRtpSrcSource->GetParam(), pUserData==NULL?pRtpSrcSource->GetCallbackUserData():pUserData);
 				UnRegisterAllSink(pRtpSrcSource, pRtpSrcSource->GetRemote(), true);
-				pRemoveList.push_back(pRtpSrcSource->GetSrcId());
+				m_pSourceList.erase(pIter++);
+				//pRemoveList.push_back(pRtpSrcSource->GetSrcId());
+			}else
+			{
+				pIter++;
 			}
 		}
 	}
-	for (size_t i=0;i<pRemoveList.size();i++)
-	{
-		m_pSourceList.remove(pRemoveList[i]);
-	}
+	//for (size_t i=0;i<pRemoveList.size();i++)
+	//{
+	//	m_pSourceList.remove(pRemoveList[i]);
+	//}
 }
 void CSotpRtpRoom::CheckRegisterSinkLive(time_t tNow,short nExpireSecond,bigint nSrcId, const cgcRemote::pointer& pcgcRemote)
 {

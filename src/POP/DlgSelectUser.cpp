@@ -303,7 +303,7 @@ void CDlgSelectUser::onGroupInfo(const EB_GroupInfo* pGroupInfo,const EB_Enterpr
 	{
 		// 这是我的群组
 		const int nMemberSize = pGroupInfo->m_nEmpCount;//theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode);
-		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode);
+		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode,1);
 		CString sText;
 		if (nOnlineSize>=0)
 			sText.Format(_T("%s [%d/%d]"),pGroupInfo->m_sGroupName.c_str(), nOnlineSize, nMemberSize);
@@ -331,8 +331,12 @@ void CDlgSelectUser::onGroupInfo(const EB_GroupInfo* pGroupInfo,const EB_Enterpr
 		{
 			pParentDepItemInfo = pEntItemInfo;
 		}
-		const int nMemberSize = pGroupInfo->m_nEmpCount;//theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode);
-		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode);
+		int nMemberSize = 0;
+		int nOnlineSize = 0;
+		theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode,0,nMemberSize,nOnlineSize);
+		//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode,0);
+		////const int nMemberSize = pGroupInfo->m_nEmpCount;//theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode);
+		//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode,0);
 		CString sText;
 		if (nOnlineSize>=0)
 			sText.Format(_T("%s [%d/%d]"),pGroupInfo->m_sGroupName.c_str(), nOnlineSize, nMemberSize);
@@ -363,6 +367,22 @@ void CDlgSelectUser::onGroupInfo(const EB_GroupInfo* pGroupInfo,const EB_Enterpr
 	}
 }
 #endif
+void CDlgSelectUser::UpdateSelectedUsers(void)
+{
+	CString sText;
+	const UINT nCount = m_treeSelected.GetCount();
+	if (nCount==0)
+	{
+		sText = _T("已选择用户：");
+	}else
+	{
+		sText.Format(_T("已选择用户：(%d)"),(int)nCount);
+	}
+	this->GetDlgItem(IDC_STATIC_SELECTED)->SetWindowText(sText);
+	//this->GetDlgItem(IDC_STATIC_SELECTED)->Invalidate();
+	theApp.InvalidateParentRect(this->GetDlgItem(IDC_STATIC_SELECTED));
+}
+
 int CDlgSelectUser::GetLocalMemberSize(eb::bigint nGroupId) const
 {
 	int nResult = 0;
@@ -635,6 +655,7 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 					//m_pSelectedTreeItem.insert(pMemberInfo->m_sMemberAccount, pMemberInfo->m_sMemberCode);
 					m_pSelectedItem.insert(pMemberInfo->m_sMemberAccount,pEmpItemInfo);
 					m_treeSelected.Invalidate();
+					UpdateSelectedUsers();
 				}
 			}
 		}
@@ -787,6 +808,7 @@ void CDlgSelectUser::onContactInfo(const EB_ContactInfo* pContactInfo, unsigned 
 					//m_pSelectedTreeItem.insert(pContactInfo->m_sAccount, 0);
 					m_pSelectedItem.insert(pContactInfo->m_sContact,pContactItemInfo);
 					m_treeSelected.Invalidate();
+					UpdateSelectedUsers();
 				}
 			}
 		}
@@ -976,6 +998,7 @@ void CDlgSelectUser::ResetSelected(void)
 	m_pSelectedItem.clear();
 	if (m_treeSelected.GetSafeHwnd()!=NULL)
 		m_treeSelected.DeleteAllItems();
+	this->GetDlgItem(IDC_STATIC_SELECTED)->SetWindowText(_T("已选择用户："));
 }
 
 void CDlgSelectUser::SelectEnterprise(HTREEITEM hSelItem)
@@ -998,6 +1021,7 @@ void CDlgSelectUser::SelectEnterprise(HTREEITEM hSelItem)
 			m_pSelectedTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_sMemberCode);
 			m_pSelectedItem.insert(pEmpItemInfo->m_sAccount,pEmpItemInfo);
 			m_treeSelected.Invalidate();
+			UpdateSelectedUsers();
 		}
 	}
 }
@@ -1021,6 +1045,7 @@ void CDlgSelectUser::SelectDepartment(HTREEITEM hSelItem)
 			m_pSelectedTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_sMemberCode);
 			m_pSelectedItem.insert(pEmpItemInfo->m_sAccount,pEmpItemInfo);
 			m_treeSelected.Invalidate();
+			UpdateSelectedUsers();
 		}
 	}
 }
@@ -1045,6 +1070,7 @@ void CDlgSelectUser::SelectContact(HTREEITEM hSelItem)
 			m_pSelectedTreeItem.insert(pConItemInfo->m_sAccount, 0);
 			m_pSelectedItem.insert(pConItemInfo->m_sAccount,pContactItemInfo);
 			m_treeSelected.Invalidate();
+			UpdateSelectedUsers();
 		}
 
 		//const EB_ContactInfo * pPopContactData = (EB_ContactInfo*)m_treeContacts.GetItemData(hSelItem);
@@ -1076,6 +1102,7 @@ void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 		m_editSearch.SetWindowText(pItemInfo->m_sAccount.c_str());
 		m_editSearch.SetSel(0,-1);
 		m_treeSelected.Invalidate();
+		UpdateSelectedUsers();
 	}else if (pItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT)
 	{
 		// contact info
@@ -1092,6 +1119,7 @@ void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 		m_editSearch.SetWindowText(pItemInfo->m_sAccount.c_str());
 		m_editSearch.SetSel(0,-1);
 		m_treeSelected.Invalidate();
+		UpdateSelectedUsers();
 	}
 }
 
@@ -1173,9 +1201,10 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 			{
 				CRect rect;
 				m_treeDepartment.GetItemRect(item, &rect, TRUE);
-				//rect.right = rect.left+const_left_width;
-				rect.right = m_treeDepartment.GetHSize();
-				m_btnTrackAdd0.MovePoint(rect.right-const_btn_width, rect.top);
+				const int nTop = rect.top;
+				m_treeDepartment.GetClientRect(&rect);
+				const int nRight = rect.right;
+				m_btnTrackAdd0.MovePoint(nRight-const_btn_width, nTop);
 				m_btnTrackAdd0.ShowWindow(SW_SHOW);
 				m_btnTrackAdd0.Invalidate();
 			}else
@@ -1195,8 +1224,10 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 			{
 				CRect rect;
 				m_treeEnterprise.GetItemRect(item, &rect, TRUE);
-				rect.right = m_treeEnterprise.GetHSize();
-				m_btnTrackAdd1.MovePoint(rect.right-const_btn_width, rect.top);
+				const int nTop = rect.top;
+				m_treeEnterprise.GetClientRect(&rect);
+				const int nRight = rect.right;
+				m_btnTrackAdd1.MovePoint(nRight-const_btn_width, nTop);
 				m_btnTrackAdd1.ShowWindow(SW_SHOW);
 				m_btnTrackAdd1.Invalidate();
 			}else
@@ -1216,8 +1247,10 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 			{
 				CRect rect;
 				m_treeContacts.GetItemRect(item, &rect, TRUE);
-				rect.right = m_treeContacts.GetHSize();
-				m_btnTrackAdd2.MovePoint(rect.right-const_btn_width, rect.top);
+				const int nTop = rect.top;
+				m_treeContacts.GetClientRect(&rect);
+				const int nRight = rect.right;
+				m_btnTrackAdd2.MovePoint(nRight-const_btn_width, nTop);
 				m_btnTrackAdd2.ShowWindow(SW_SHOW);
 				m_btnTrackAdd2.Invalidate();
 			}else
@@ -1238,8 +1271,10 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		{
 			CRect rect;
 			m_treeSearch.GetItemRect(item, &rect, TRUE);
-			rect.right = m_treeSearch.GetHSize();
-			m_btnTrackAdd3.MovePoint(rect.right-const_btn_width, rect.top);
+			const int nTop = rect.top;
+			m_treeSearch.GetClientRect(&rect);
+			const int nRight = rect.right;
+			m_btnTrackAdd3.MovePoint(nRight-const_btn_width, nTop);
 			m_btnTrackAdd3.ShowWindow(SW_SHOW);
 			m_btnTrackAdd3.Invalidate();
 		}
@@ -1247,8 +1282,10 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 	{
 		CRect rect;
 		m_treeSelected.GetItemRect(item, &rect, TRUE);
-		rect.right = m_treeSelected.GetHSize();
-		m_btnTrackDelete.MovePoint(rect.right-const_btn_width, rect.top);
+		const int nTop = rect.top;
+		m_treeSelected.GetClientRect(&rect);
+		const int nRight = rect.right;
+		m_btnTrackDelete.MovePoint(nRight-const_btn_width, nTop);
 		m_btnTrackDelete.ShowWindow(SW_SHOW);
 		m_btnTrackDelete.Invalidate();
 	}
@@ -1444,6 +1481,7 @@ void CDlgSelectUser::OnOK()
 	if (!sAddAccount.IsEmpty())
 	{
 		m_pSelectedTreeItem.insert((LPCTSTR)sAddAccount,0,false);
+		UpdateSelectedUsers();
 	}
 	__super::OnOK();
 }

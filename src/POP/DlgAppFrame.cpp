@@ -994,7 +994,7 @@ void CDlgAppFrame::AddAppUrl(bool bSaveBrowseTitle, const std::string& sAppUrl, 
 		const int nWidthOffset = m_rectNewWeb.right-rect.Width();
 		if (nWidthOffset>0)
 		{
-			this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_ADJUST_WIDTH,(WPARAM)this->GetSafeHwnd(),(LPARAM)nWidthOffset);
+			//this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_ADJUST_WIDTH,(WPARAM)this->GetSafeHwnd(),(LPARAM)nWidthOffset);
 		}
 		this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_COUNT,(WPARAM)this->GetSafeHwnd(),(LPARAM)m_pList.size(false));
 	}else
@@ -1121,20 +1121,31 @@ void CDlgAppFrame::MoveSize(int cx, int cy)
 	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
 	{
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
-		if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
-		{
-			CRect rectFuncButton;
-			rectFuncButton.left = 2;
-			rectFuncButton.right = rectFuncButton.left + const_func_button_size;
+		CRect rectFuncButton;
+		rectFuncButton.left = 2;
+		rectFuncButton.right = rectFuncButton.left + const_func_button_size;
 #ifdef USES_NEW_UI_1220
-			rectFuncButton.top = 3 + i*(const_func_button_size+const_func_button_intever);
+		rectFuncButton.top = 3 + i*(const_func_button_size+const_func_button_intever);
 #else
-			rectFuncButton.top = const_frame_height + 2 + i*(const_func_button_size+const_func_button_intever);
+		rectFuncButton.top = const_frame_height + 2 + i*(const_func_button_size+const_func_button_intever);
 #endif
-			rectFuncButton.bottom = rectFuncButton.top + const_func_button_size;
-			pFuncButtonInfo->m_btn.MoveWindow(&rectFuncButton);
-			pFuncButtonInfo->m_btn.ShowWindow(m_bShowedToolbar?SW_SHOW:SW_HIDE);
-		}
+		rectFuncButton.bottom = rectFuncButton.top + const_func_button_size;
+		pFuncButtonInfo->MoveWindow(&rectFuncButton);
+		pFuncButtonInfo->ShowWindow(m_bShowedToolbar?true:false);
+//		if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
+//		{
+//			CRect rectFuncButton;
+//			rectFuncButton.left = 2;
+//			rectFuncButton.right = rectFuncButton.left + const_func_button_size;
+//#ifdef USES_NEW_UI_1220
+//			rectFuncButton.top = 3 + i*(const_func_button_size+const_func_button_intever);
+//#else
+//			rectFuncButton.top = const_frame_height + 2 + i*(const_func_button_size+const_func_button_intever);
+//#endif
+//			rectFuncButton.bottom = rectFuncButton.top + const_func_button_size;
+//			pFuncButtonInfo->m_btn.MoveWindow(&rectFuncButton);
+//			pFuncButtonInfo->m_btn.ShowWindow(m_bShowedToolbar?SW_SHOW:SW_HIDE);
+//		}
 	}
 	if (m_bShowedToolbar)
 		MoveWindowSize(cx, cy);
@@ -1683,6 +1694,42 @@ int CDlgAppFrame::GetOffsetIndexByHwnd(HWND hHwnd) const
 	}
 	return -1;
 }
+void CDlgAppFrame::ClearUnreadMsg(mycp::bigint nSubId)
+{
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->ClearUnreadMsg();
+			return;
+		}
+	}
+}
+void CDlgAppFrame::AddUnreadMsg(mycp::bigint nSubId)
+{
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->AddUnreadMsg();
+			return;
+		}
+	}
+}
+void CDlgAppFrame::SetUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount)
+{
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount);
+			return;
+		}
+	}
+}
 
 void CDlgAppFrame::RefreshAppWnd(void)
 {
@@ -1974,6 +2021,13 @@ void CDlgAppFrame::OnMainFrameFunc(UINT nID)
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[nIndex];
 		const EB_SubscribeFuncInfo& pSubscribeFuncInfo = pFuncButtonInfo->GetFuncInfo();
 		theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"","",NULL);
+		if (pFuncButtonInfo->ClearUnreadMsg()>0)
+		{
+			char* lpszSubId = new char[24];
+			sprintf(lpszSubId,"%lld",pSubscribeFuncInfo.m_nSubscribeId);
+			theApp.GetMainWnd()->PostMessage(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, (WPARAM)lpszSubId,0);
+			//theApp.GetMainWnd()->PostMessage(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, LOINT64(pSubscribeFuncInfo.m_nSubscribeId), HIINT64(pSubscribeFuncInfo.m_nSubscribeId));
+		}
 	}
 }
 

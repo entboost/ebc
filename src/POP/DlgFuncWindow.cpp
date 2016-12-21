@@ -485,9 +485,16 @@ void CDlgFuncWindow::OnSize(UINT nType, int cx, int cy)
 void CDlgFuncWindow::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
-	if (m_bClosePrompt &&				// 配置关闭提示
+	if (m_nBrowserType==EB_BROWSER_TYPE_CEF && m_pCefBrowser.IsInDownloadFile())
+	{
+		if (CDlgMessageBox::EbDoModal(this,_T("关闭窗口"),_T("正在下载文件，关闭窗口会清空下载任务：\r\n确定关闭当前窗口，并清空下载任务吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
+		{
+			return;
+		}
+	}
+	else if (m_bClosePrompt &&				// 配置关闭提示
 		!m_bBroadcastMsg &&				// 广播信息不提示
-		CDlgMessageBox::EbDoModal(this,_T("关闭窗口"),_T("关闭确认：\r\n确定关闭当前应用窗口吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
+		CDlgMessageBox::EbDoModal(this,_T("关闭窗口"),_T("关闭确认：\r\n确定关闭当前窗口吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
 	{
 		return;
 	}

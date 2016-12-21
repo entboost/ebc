@@ -532,7 +532,9 @@
 #define IDC_BTN_4                       1117
 #define IDC_BUTTON_FINDDOWN             1117
 #define IDC_STATIC_RESULT               1118
+#define IDC_BTN_5                       1118
 #define IDC_BUTTON_SWITCH_RIGHT         1119
+#define IDC_BTN_6                       1119
 #define IDC_EDIT_USER_INPUT             1120
 #define IDC_STATIC_GROUP_NAME           6553
 #define ID_CONTACT_32771                32771

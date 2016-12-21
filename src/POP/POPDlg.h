@@ -345,6 +345,7 @@ protected:
 	LRESULT OnMessageLogonSuccess(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageLogonTimeout(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageLogonError(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageAccountInfoChange(WPARAM wParam, LPARAM lParam);
 
 	LRESULT OnMessageSInfoResponse(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageUserStateChange(WPARAM wParam, LPARAM lParam);
@@ -434,6 +435,7 @@ protected:
 	//void abc(void){};
 	void ShowSearchResult(void);
 	// 生成的消息映射函数
+	void SetWindowTextAndTrayInfo(bool bFirstTrayIcon);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
@@ -505,6 +507,9 @@ protected:
 	afx_msg void OnBnClickedButtonSwitchToolbar2();
 	LRESULT OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam);
+	void AddSubUnreadMsg(mycp::bigint nSubId, bool bSendToAppFrame);
+	void SetSubUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount, bool bSendToAppFrame);
+	LRESULT OnMsgClearSubIdUnReadmsg(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedButtonGoback();
 	afx_msg void OnBnClickedButtonGoforward();

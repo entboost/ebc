@@ -175,8 +175,9 @@ CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 
 {
 #ifdef _DEBUG
-	int aa1 = abc(2);
-	//int aa2 = abc(2);
+	//int aa1 = abc(2);
+	//int aa2 = abc(3);
+	//int aa3 = abc(4);
 #endif
 	//m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	//m_bTimerToSwitchOnUIStyleTypeOffice = false;
@@ -262,6 +263,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_WM_LOGON_SUCCESS, OnMessageLogonSuccess)
 	ON_MESSAGE(EB_WM_LOGON_TIMEOUT, OnMessageLogonTimeout)
 	ON_MESSAGE(EB_WM_LOGON_ERROR, OnMessageLogonError)
+	ON_MESSAGE(EB_WM_ACCOUNT_INFO_CHANGE, OnMessageAccountInfoChange)
 	//ON_MESSAGE(CR_WM_ENTER_ROOM, OnMessageEnterRoom)
 	//ON_MESSAGE(CR_WM_EXIT_ROOM, OnMessageExitRoom)
 	ON_MESSAGE(CR_WM_USER_ENTER_ROOM, OnMessageUserEnterRoom)
@@ -415,6 +417,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_BN_CLICKED(IDC_BUTTON_SWITCH_TOOLBAR2, &CPOPDlg::OnBnClickedButtonSwitchToolbar2)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
 	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
+	ON_MESSAGE(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, OnMsgClearSubIdUnReadmsg)
 	ON_NOTIFY(NM_CLICK, IDC_TREE_SEARCH, &CPOPDlg::OnNMClickTreeSearch)
 	ON_BN_CLICKED(IDC_BUTTON_GOBACK, &CPOPDlg::OnBnClickedButtonGoback)
 	ON_BN_CLICKED(IDC_BUTTON_GOFORWARD, &CPOPDlg::OnBnClickedButtonGoforward)
@@ -511,6 +514,44 @@ void CPOPDlg::SetCtrlColor(void)
 
 }
 
+void CPOPDlg::SetWindowTextAndTrayInfo(bool bFirstTrayIcon)
+{
+#ifdef USES_EBCOM_TEST
+	EB_USER_LINE_STATE nOutLineState = (EB_USER_LINE_STATE)theEBClientCore->EB_LineState;
+	const CEBString sUserName = theEBClientCore->EB_UserName.GetBSTR();
+	const CEBString sSettingEnterprise = theEBSetting->Enterprise.GetBSTR();
+#else
+	EB_USER_LINE_STATE nOutLineState = theEBAppClient.EB_GetLineState();
+	const CEBString sUserName = theEBAppClient.EB_GetUserName();
+	const CEBString sSettingEnterprise = theSetting.GetEnterprise();
+#endif
+	CString sWindowText;
+	if (theApp.IsLogonVisitor())
+		sWindowText.Format(_T("游客-%s"),sUserName.c_str());
+	else if (!theApp.GetProductName().IsEmpty())
+		sWindowText.Format(_T("%s-%s(%s)"),theApp.GetProductName(),sUserName.c_str(),theApp.GetLogonAccount());
+	else
+		sWindowText.Format(_T("%s-%s(%s)"),sSettingEnterprise.c_str(),sUserName.c_str(),theApp.GetLogonAccount());
+	this->SetWindowText(sWindowText);
+
+	// 系统托盘
+	CString sTrayText;
+	if (theApp.IsLogonVisitor())
+		sTrayText.Format(_T("游客-%s-%s"), sUserName.c_str(),GetLineStateText(nOutLineState));
+	else
+		sTrayText.Format(_T("%s(%s)-%s"), sUserName.c_str(),theApp.GetLogonAccount(),GetLineStateText(nOutLineState));
+	m_trayIconData.cbSize = sizeof(NOTIFYICONDATA);
+	m_trayIconData.hIcon = m_hIcon;
+	m_trayIconData.hWnd = this->GetSafeHwnd();
+	m_trayIconData.uCallbackMessage = WM_TRAYICON_NOTIFICATION;
+	m_trayIconData.uFlags = NIF_TIP|NIF_MESSAGE|NIF_ICON;
+	m_trayIconData.uID = 120;
+	lstrcpy(m_trayIconData.szTip, sTrayText);
+	if (bFirstTrayIcon)
+		Shell_NotifyIcon(NIM_ADD, &m_trayIconData);
+	else
+		Shell_NotifyIcon(NIM_MODIFY, &m_trayIconData);
+}
 BOOL CPOPDlg::OnInitDialog()
 {
 	CEbDialogBase::OnInitDialog();
@@ -856,21 +897,23 @@ BOOL CPOPDlg::OnInitDialog()
 	//theBtnImage.LoadResource(IDB_BITMAP_BTN_6821);
 	//theBtnImage.Cut(3, pBtnBitmap);
 	//m_btnCallUser.SetSkin(pBtnBitmap[0], pBtnBitmap[2], pBtnBitmap[1]);
-#ifdef USES_EBCOM_TEST
-	const CEBString sUserName = theEBClientCore->EB_UserName.GetBSTR();
-	const CEBString sSettingEnterprise = theEBSetting->Enterprise.GetBSTR();
-#else
-	const CEBString sUserName = theEBAppClient.EB_GetUserName();
-	const CEBString sSettingEnterprise = theSetting.GetEnterprise();
-#endif
-	CString sWindowText;
-	if (theApp.IsLogonVisitor())
-		sWindowText.Format(_T("游客-%s"),sUserName.c_str());
-	else if (!theApp.GetProductName().IsEmpty())
-		sWindowText.Format(_T("%s-%s(%s)"),theApp.GetProductName(),sUserName.c_str(),theApp.GetLogonAccount());
-	else
-		sWindowText.Format(_T("%s-%s(%s)"),sSettingEnterprise.c_str(),sUserName.c_str(),theApp.GetLogonAccount());
-	this->SetWindowText(sWindowText);
+	SetWindowTextAndTrayInfo(true);
+//#ifdef USES_EBCOM_TEST
+//	const CEBString sUserName = theEBClientCore->EB_UserName.GetBSTR();
+//	const CEBString sSettingEnterprise = theEBSetting->Enterprise.GetBSTR();
+//#else
+//	const CEBString sUserName = theEBAppClient.EB_GetUserName();
+//	const CEBString sSettingEnterprise = theSetting.GetEnterprise();
+//#endif
+//	CString sWindowText;
+//	if (theApp.IsLogonVisitor())
+//		sWindowText.Format(_T("游客-%s"),sUserName.c_str());
+//	else if (!theApp.GetProductName().IsEmpty())
+//		sWindowText.Format(_T("%s-%s(%s)"),theApp.GetProductName(),sUserName.c_str(),theApp.GetLogonAccount());
+//	else
+//		sWindowText.Format(_T("%s-%s(%s)"),sSettingEnterprise.c_str(),sUserName.c_str(),theApp.GetLogonAccount());
+//	this->SetWindowText(sWindowText);
+
 	const int nScreenWidth = theApp.GetScreenWidth();
 	const int nScreenHeight = theApp.GetScreenHeight();
 #ifdef USES_SUPPORT_UI_STYLE
@@ -909,21 +952,21 @@ BOOL CPOPDlg::OnInitDialog()
 	m_btnMySession.SetNorTextColor(RGB(255,0,128)); 
 	m_btnMySession.SetPreTextColor(RGB(255,0,128)); 
 
-	// 系统托盘
 	SetTimer(TIMERID_SHOW_EMOTION,12*1000,NULL);
-	CString sTrayText;
-	if (theApp.IsLogonVisitor())
-		sTrayText.Format(_T("游客-%s-%s"), sUserName.c_str(),GetLineStateText(nOutLineState));
-	else
-		sTrayText.Format(_T("%s(%s)-%s"), sUserName.c_str(),theApp.GetLogonAccount(),GetLineStateText(nOutLineState));
-	m_trayIconData.cbSize = sizeof(NOTIFYICONDATA);
-	m_trayIconData.hIcon = m_hIcon;
-	m_trayIconData.hWnd = this->GetSafeHwnd();
-	m_trayIconData.uCallbackMessage = WM_TRAYICON_NOTIFICATION;
-	m_trayIconData.uFlags = NIF_TIP|NIF_MESSAGE|NIF_ICON;
-	m_trayIconData.uID = 120;
-	lstrcpy(m_trayIconData.szTip, sTrayText);
-	Shell_NotifyIcon(NIM_ADD, &m_trayIconData);
+	//// 系统托盘
+	//CString sTrayText;
+	//if (theApp.IsLogonVisitor())
+	//	sTrayText.Format(_T("游客-%s-%s"), sUserName.c_str(),GetLineStateText(nOutLineState));
+	//else
+	//	sTrayText.Format(_T("%s(%s)-%s"), sUserName.c_str(),theApp.GetLogonAccount(),GetLineStateText(nOutLineState));
+	//m_trayIconData.cbSize = sizeof(NOTIFYICONDATA);
+	//m_trayIconData.hIcon = m_hIcon;
+	//m_trayIconData.hWnd = this->GetSafeHwnd();
+	//m_trayIconData.uCallbackMessage = WM_TRAYICON_NOTIFICATION;
+	//m_trayIconData.uFlags = NIF_TIP|NIF_MESSAGE|NIF_ICON;
+	//m_trayIconData.uID = 120;
+	//lstrcpy(m_trayIconData.szTip, sTrayText);
+	//Shell_NotifyIcon(NIM_ADD, &m_trayIconData);
 
 	//
 	SetDlgChildFont(theDefaultDialogFontSize,theFontFace.c_str());
@@ -965,7 +1008,7 @@ void CPOPDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
 		CString sText;
-		sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2016"),theSetting.GetVersion().c_str());
+		sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2017"),theSetting.GetVersion().c_str());
 		CDlgMessageBox::EbMessageBox(AfxGetMainWnd(),"关于恩布互联 Entboost.com",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
 		//CAboutDlg dlgAbout;
 		//dlgAbout.DoModal();
@@ -1305,6 +1348,7 @@ LRESULT CPOPDlg::OnMessageBroadcastMsg(WPARAM wParam, LPARAM lParam)
 				CString sMsgTip;
 				sMsgTip.Format(_T("新邮件:%s<%s> %s:\n%s"),sFromName.c_str(),sFromMail.c_str(),sMailDate.c_str(),sSubject.c_str());
 				m_pDlgMsgTip->AddEmailMsgTip(nMailContentId, nEmailSubId, sMsgTip, sParam.c_str());
+				AddSubUnreadMsg(nEmailSubId,true);
 			}
 			return 0;
 		}break;
@@ -1316,6 +1360,7 @@ LRESULT CPOPDlg::OnMessageBroadcastMsg(WPARAM wParam, LPARAM lParam)
 				CString sMsgTip;
 				sMsgTip.Format(_T("你一共有 %s 封未读邮件！\n点击查看！"),sMsgContent.c_str());
 				m_pDlgMsgTip->AddEmailMsgTip(0, nEmailSubId, sMsgTip, "");
+				SetSubUnreadMsg(nEmailSubId,atoi(sMsgContent.c_str()),true);
 			}
 			return 0;
 		}break;
@@ -1334,12 +1379,26 @@ LRESULT CPOPDlg::OnMessageBroadcastMsg(WPARAM wParam, LPARAM lParam)
 			const eb::bigint nId = eb_atoi64(pList[0].c_str());			// id->planid,taskid,...
 			const eb::bigint nSubId = eb_atoi64(pList[1].c_str());		// subid
 			const CEBString sParam = pList.size()>=3?pList[2]:"";
-			if (m_pDlgMsgTip!=NULL && m_pDlgMsgTip->GetSafeHwnd()!=NULL)
+			if (!sMsgName.empty() && m_pDlgMsgTip!=NULL && m_pDlgMsgTip->GetSafeHwnd()!=NULL)
 			{
 				//CString sMsgTip;
 				//sMsgTip.Format(_T("新消息:%s<%s> %s:\n%s"),sFromName.c_str(),sFromMail.c_str(),sMailDate.c_str(),sSubject.c_str());
 				m_pDlgMsgTip->AddSubMsgTip(nId, nSubId, sMsgName.c_str(), sParam.c_str(), nMsgId);
 			}
+			AddSubUnreadMsg(nSubId,true);
+			return 0;
+		}break;
+	case EB_BROADCAST_SUB_TYPE_SUBID_UNREAD_MSG:
+		{
+			std::vector<tstring> pList;
+			if (libEbc::ParseString(sMsgContent.c_str(),",",pList)<2)
+			{
+				theEBAppClient.EB_AckMsg(nMsgId,5);	// * 删除无用数据
+				return 0;
+			}
+			const eb::bigint nSubId = eb_atoi64(pList[0].c_str());		// subid
+			const size_t nUnreadMsg = atoi(pList[1].c_str());					// unread msg
+			SetSubUnreadMsg(nSubId,nUnreadMsg,true);
 			return 0;
 		}break;
 	default:
@@ -1485,6 +1544,9 @@ LRESULT CPOPDlg::OnMessageStateCode(WPARAM wParam, LPARAM lParam)
 	{
 	case EB_STATE_OK:
 		break;
+	case EB_STATE_RES_NOT_EXIST:
+		CDlgMessageBox::EbMessageBox(this,"",_T("资源（文件）不存在：\r\n已经被删除！"),CDlgMessageBox::IMAGE_WARNING,5);
+		break;
 	case EB_STATE_MAX_UG_ERROR:
 		CDlgMessageBox::EbMessageBox(this,"",_T("超过最大联系人分组数量：\r\n请检查后重试！"),CDlgMessageBox::IMAGE_WARNING,5);
 		break;
@@ -1612,6 +1674,33 @@ LRESULT CPOPDlg::OnMessageLogonError(WPARAM wParam, LPARAM lParam)
 		CDlgMessageBox::EbDoModal(this,"登录失败",sText,CDlgMessageBox::IMAGE_WARNING,true);
 		OnLogout();
 	}
+	return 0;
+}
+LRESULT CPOPDlg::OnMessageAccountInfoChange(WPARAM wParam, LPARAM lParam)
+{
+	//const EB_AccountInfo* pAccountInfo = (const EB_AccountInfo*)wParam;
+	//const CString sAccountName = pAccountInfo->GetUserName().c_str();
+	SetWindowTextAndTrayInfo(false);
+	// 刷新主界面显示
+	RECT rect;
+#ifdef USES_SUPPORT_UI_STYLE
+	const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+	if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
+	{
+		rect.left = UISTYLE_CHAT_POS_LINESTATE_LEFT+28;
+		rect.top = UISTYLE_CHAT_POS_LINESTATE_TOP-3;
+	}
+	else
+#endif
+	{
+		rect.left = POS_LINESTATE_LEFT+28;
+		rect.top = POS_LINESTATE_TOP-3;
+	}
+	rect.right = rect.left + 200;
+	rect.bottom = rect.top + 25;
+	this->InvalidateRect(&rect);
+	//this->Invalidate();	// 刷新界面显示；
+
 	return 0;
 }
 
@@ -1805,10 +1894,53 @@ LRESULT CPOPDlg::OnMessageUserNotify(WPARAM wParam, LPARAM lParam)
 	}
 	const eb::bigint sCallId = pNotifyInfo->GetCallId();
 	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
-	if (pDlgDialog.get()!=NULL)
+	if (pDlgDialog.get()==NULL) return 1;
+	CString sFirstMsg;
+	pDlgDialog->OnUserNotify(pNotifyInfo,&sFirstMsg);
+	if (pNotifyInfo->m_nNotifyType==2 && !pDlgDialog->IsWindowVisible())	// 2=群共享文件通知
 	{
-		pDlgDialog->OnUserNotify(pNotifyInfo);
+		//CString sSoundFile;
+		//sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
+		//sndPlaySound(sSoundFile, SND_ASYNC);
+
+#ifdef USES_NEW_UI_1220
+		bool bRet = false;
+#ifdef USES_SUPPORT_UI_STYLE
+		const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+		if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT && m_pDlgFrameList!=NULL)
+		{
+			bRet = m_pDlgFrameList->AddUnreadMsg(sCallId,0);
+		}else if (!theApp.GetHideMainFrame())
+#else
+		if (!theApp.GetHideMainFrame())
+#endif	// USES_SUPPORT_UI_STYLE
+		{
+			const bool bRet = CFrameWndInfoProxy::AddUnreadMsg(sCallId, 0);
+			if (bRet && this->IsWindowVisible())
+			{
+				::FlashWindow(this->GetSafeHwnd(), TRUE);
+				return 0;
+			}
+		}else if (m_pDlgFrameList!=NULL)
+		{
+			bRet = m_pDlgFrameList->AddUnreadMsg(sCallId,0);
+		}
+#else
+		bRet = m_pDlgFrameList==NULL?false:m_pDlgFrameList->AddUnreadMsg(sCallId,nMsgId);
+#endif
+		if (bRet && m_pDlgFrameList!=NULL && m_pDlgFrameList->IsWindowVisible())
+		{
+			::FlashWindow(m_pDlgFrameList->GetSafeHwnd(), TRUE);
+			return 0;
+		}
+		//m_btnMySession.SetWindowText(_T("！"));
+		if (m_pDlgMsgTip!=NULL && m_pDlgMsgTip->GetSafeHwnd()!=NULL)
+		{
+			m_pDlgMsgTip->AddMsgTip(pDlgDialog->GetGroupId(),pNotifyInfo->m_nFromAccount,sFirstMsg);
+		}
+
 	}
+
 #endif
 	return 0;
 }
@@ -2000,8 +2132,10 @@ LRESULT CPOPDlg::OnMessageMsgReceipt(WPARAM wParam, LPARAM lParam)
 //#else
 	const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)wParam;
 	if (pCrMsgInfo==NULL) return 1;
-	const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
+	//const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
 	const eb::bigint sCallId = pCrMsgInfo->GetCallId();
+	const int nAckType = (int)lParam;	// 0:成功 4:撤回消息
+
 	//const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
 	//const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
 
@@ -2015,10 +2149,11 @@ LRESULT CPOPDlg::OnMessageMsgReceipt(WPARAM wParam, LPARAM lParam)
 	{
 		const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
 		const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
-		theApp.UpdateMsgReceiptData(nMsgId, nFromUserId);
+		if (pCrMsgInfo->GetStateCode()==EB_STATE_OK)
+			theApp.UpdateMsgReceiptData(nMsgId, nFromUserId, nAckType);
 		return 1;
 	}
-	pDlgDialog->OnMsgReceipt(pCrMsgInfo, nState);
+	pDlgDialog->OnMsgReceipt(pCrMsgInfo, nAckType);
 
 //#endif
 	return 0;
@@ -2088,7 +2223,7 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 	switch (nState)
 	{
 	case EB_STATE_FILE_ALREADY_EXIST:
-		return 0;
+		//return 0;	// 不能返回，后面处理
 	case EB_STATE_OK:
 	case EB_STATE_WAITING_PROCESS:	// ** 等待处理
 		break;
@@ -2097,8 +2232,13 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 		return 1;
 	case EB_STATE_EXCESS_QUOTA_ERROR:
 	case EB_STATE_FILE_BIG_LONG:
-		CDlgMessageBox::EbMessageBox(this,"","文件大小超出系统最大配额：\r\n请发送更小文件！",CDlgMessageBox::IMAGE_WARNING,5);
-		return 1;
+		{
+			if (theApp.IsLicenseType())
+				CDlgMessageBox::EbMessageBox(this,"","当前文件大小超出系统最大配额：\r\n请发送更小文件，或联系公司客服！",CDlgMessageBox::IMAGE_WARNING,5);
+			else
+				CDlgMessageBox::EbMessageBox(this,"","免费用户，不支持发送大文件：\r\n请发送更小文件，或联系公司客服！",CDlgMessageBox::IMAGE_WARNING,5);
+			return 1;
+		}
 	case EB_STATE_TIMEOUT_ERROR:
 		CDlgMessageBox::EbMessageBox(this,"","文件发送超时：\r\n请重新发送！",CDlgMessageBox::IMAGE_WARNING,5);
 		return 1;
@@ -2113,7 +2253,8 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
-	if (sResId>0)
+	if (sResId>0 && sCallId==0)
+	//if (sResId>0 && nState!=EB_STATE_FILE_ALREADY_EXIST)
 	{
 		ShowDlgFileManager();
 		m_pDlgFileManager->OnSendingFile(pCrFileInfo);
@@ -2190,7 +2331,8 @@ LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
-	if (sResId>0)
+	if (sResId>0 && sCallId==0)
+	//if (sResId>0)
 	{
 		if (m_pDlgFileManager!=NULL && (pCrFileInfo->m_sReceiveAccount==0 || pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId()))
 		{
@@ -2226,7 +2368,7 @@ LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 			{
 				const eb::bigint nFromUserId = pCrFileInfo->m_sReceiveAccount;
 				const eb::bigint nMsgId = pCrFileInfo->m_nMsgId;
-				theApp.UpdateMsgReceiptData(nMsgId, nFromUserId);
+				theApp.UpdateMsgReceiptData(nMsgId, nFromUserId, 0);
 			}
 		}
 	}
@@ -2277,7 +2419,8 @@ LRESULT CPOPDlg::OnMessageCancelFile(WPARAM wParam, LPARAM lParam)
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
 	const eb::bigint nReceiveAccount = pCrFileInfo->m_sReceiveAccount;
 	//const eb::bigint nSendToUid = pCrFileInfo->m_sSendTo;
-	if (sResId>0)
+	if (sResId>0 && sCallId==0)
+	//if (sResId>0)
 	{
 		if (m_pDlgFileManager!=NULL && nReceiveAccount==0)
 			m_pDlgFileManager->DeleteDlgTranFile(pCrFileInfo->m_nMsgId);
@@ -2400,7 +2543,8 @@ LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
 	const CCrFileInfo * pCrFileInfo = (const CCrFileInfo*)wParam;
 	if (pCrFileInfo==NULL) return -1;
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
-	if (sResId>0)
+	if (sResId>0 && pCrFileInfo->GetCallId()==0)
+	//if (sResId>0 && (!pCrFileInfo->m_bOffFile || sResId==pCrFileInfo->m_nMsgId))
 	{
 		ShowDlgFileManager();
 		m_pDlgFileManager->OnReceivingFile(pCrFileInfo);
@@ -2422,6 +2566,7 @@ LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
 	CString sFirstMsg;
 	pDlgDialog->OnReceivingFile(pCrFileInfo,&sFirstMsg);
 #endif
+	//if (sResId>0) return 0;
 
 	if (!pDlgDialog->IsWindowVisible())
 	{
@@ -2524,7 +2669,8 @@ LRESULT CPOPDlg::OnMessageReceivedFile(WPARAM wParam, LPARAM lParam)
 	if (pCrFileInfo==NULL) return 1;
 	const eb::bigint sCallId = pCrFileInfo->GetCallId();
 	const eb::bigint sResId = pCrFileInfo->m_sResId;
-	if (sResId>0)
+	if (sResId>0 && pCrFileInfo->GetCallId()==0)
+	//if (sResId>0)
 	{
 		const bool bIsHttpDownloadFile = sResId==pCrFileInfo->m_nMsgId?true:false;
 		if (m_pDlgFileManager!=NULL)
@@ -2537,12 +2683,13 @@ LRESULT CPOPDlg::OnMessageReceivedFile(WPARAM wParam, LPARAM lParam)
 		}
 		if (bIsHttpDownloadFile)
 		{
-			const tstring sFromName;
+			tstring sInFileName(pCrFileInfo->m_sFileName);
+			theApp.m_pBoUsers->escape_string_in(sInFileName);
 			CString sSql;
 			sSql.Format(_T("INSERT INTO msg_record_t(msg_id,from_uid,from_name,to_uid,msg_type,msg_text) ")\
-				_T("VALUES(%lld,%lld,'%s',%lld,%d,'%s')"),
-				pCrFileInfo->m_nMsgId,pCrFileInfo->m_sSendFrom,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),
-				pCrFileInfo->m_sSendTo,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				_T("VALUES(%lld,%lld,'',%lld,%d,'%s')"),
+				pCrFileInfo->m_nMsgId,pCrFileInfo->m_sSendFrom,
+				pCrFileInfo->m_sSendTo,MRT_FILE,libEbc::ACP2UTF8(sInFileName.c_str()).c_str());
 			theApp.m_pBoUsers->execute(sSql);
 			delete pCrFileInfo;
 			if (m_pDlgFileManager->IsWindowVisible() && m_pDlgFileManager->IsEmpty())
@@ -2602,7 +2749,8 @@ LRESULT CPOPDlg::OnMessageFilePercent(WPARAM wParam, LPARAM lParam)
 	if (pChatRoomFilePercent==NULL) return 1;
 	const eb::bigint sCallId = pChatRoomFilePercent->GetCallId();
 	const eb::bigint sResId = pChatRoomFilePercent->m_sResId;
-	if (sResId>0)
+	if (sResId>0 && sCallId==0)
+	//if (sResId>0)
 	{
 		if (m_pDlgFileManager!=NULL)
 			m_pDlgFileManager->SetFilePercent(pChatRoomFilePercent);
@@ -4577,10 +4725,12 @@ LRESULT CPOPDlg::OnMessageExitGroup(WPARAM wParam, LPARAM lParam)
 			m_pDlgFrameList->OnRemoveGroup(pGroupInfo->m_sGroupCode);
 #endif
 
-		CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
-		if (pDlgDialog.get()!=NULL)
-		{
-		}
+		GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
+		//CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
+		//if (pDlgDialog.get()!=NULL)
+		//{
+		//	pDlgDialog->UserExitRoom(pMemberInfo->m_nMemberUserId,true);
+		//}
 		if (m_pDlgMyEnterprise != NULL)
 			m_pDlgMyEnterprise->DeleteEmployeeInfo(pGroupInfo,pMemberInfo->m_sMemberCode);
 		if (m_pDlgMyGroup)
@@ -5143,8 +5293,12 @@ LRESULT CPOPDlg::OnMessageMemberEditError(WPARAM wParam, LPARAM lParam)
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("邀请成员成功：\r\n等待对方通过验证！"),CDlgMessageBox::IMAGE_INFORMATION,5);
 		break;
 	case EB_STATE_NOT_AUTH_ERROR:
-		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有权限：\r\n请联系管理员！"),CDlgMessageBox::IMAGE_ERROR,5);
-		break;
+		{
+			if (libEbc::IsFullNumber(pMemberInfo->m_sMemberAccount.c_str(),pMemberInfo->m_sMemberAccount.size()))
+				CDlgMessageBox::EbMessageBox(this,_T(""),_T("不支持全数字帐号注册：\r\n请更换帐号后重试！"),CDlgMessageBox::IMAGE_ERROR,5);
+			else
+				CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有权限：\r\n请联系管理员！"),CDlgMessageBox::IMAGE_ERROR,5);
+		}break;
 	case EB_STATE_ACCOUNT_ALREADY_EXIST:
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("帐号已经存在：\r\n请重新输入！"),CDlgMessageBox::IMAGE_ERROR,5);
 		break;
@@ -6294,16 +6448,27 @@ void CPOPDlg::MoveSize(int cx, int cy)
 	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
 	{
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
-		if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
-		{
-			CRect rectFuncButton;
-			rectFuncButton.left = nBorderLeft+4 + i*(const_func_button_size+const_func_button_intever);
-			rectFuncButton.right = rectFuncButton.left + const_func_button_size;
-			rectFuncButton.bottom = cy-2;
-			rectFuncButton.top = rectFuncButton.bottom-const_func_button_size;
-			pFuncButtonInfo->m_btn.MoveWindow(&rectFuncButton);
+		CRect rectFuncButton;
+#ifdef USES_NEW_UI_1220
+		rectFuncButton.left = nBorderLeft+2 + i*(const_func_button_size+const_func_button_intever);
+#else
+		rectFuncButton.left = nBorderLeft+4 + i*(const_func_button_size+const_func_button_intever);
+#endif
+		rectFuncButton.right = rectFuncButton.left + const_func_button_size;
+		rectFuncButton.bottom = cy-2;
+		rectFuncButton.top = rectFuncButton.bottom-const_func_button_size;
+		if (pFuncButtonInfo->MoveWindow(&rectFuncButton))
 			x = rectFuncButton.right+const_func_button_intever;
-		}
+		//if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
+		//{
+		//	CRect rectFuncButton;
+		//	rectFuncButton.left = nBorderLeft+4 + i*(const_func_button_size+const_func_button_intever);
+		//	rectFuncButton.right = rectFuncButton.left + const_func_button_size;
+		//	rectFuncButton.bottom = cy-2;
+		//	rectFuncButton.top = rectFuncButton.bottom-const_func_button_size;
+		//	pFuncButtonInfo->m_btn.MoveWindow(&rectFuncButton);
+		//	x = rectFuncButton.right+const_func_button_intever;
+		//}
 	}
 	if (m_btnNewApp.GetSafeHwnd()!=NULL)
 	{
@@ -6694,55 +6859,6 @@ void CPOPDlg::DrawInfo(void)
 			//graphics.SetSmoothingMode(SmoothingModeNone);	// 取消消除锯齿
 			graphics.DrawLine(&penBg,polygon[1].X,polygon[1].Y,polygon[1].X+1,polygon[1].Y);
 		}
-
-		//{
-		//	//graphics.SetSmoothingMode(SmoothingModeAntiAlias);	// 消除锯齿
-		//	Gdiplus::Color colorBg;
-		//	colorBg.SetFromCOLORREF(theApp.GetMainColor());
-		//	Gdiplus::Pen penBg(colorBg);
-		//	Gdiplus::SolidBrush brushBg(colorBg);
-		//	Gdiplus::Point polygon[5];
-		//	// 上左
-		//	polygon[0].X = m_rectHead.left;			// 左
-		//	polygon[0].Y = m_rectHead.top;
-		//	polygon[1].X = m_rectHead.left+1;		// 右
-		//	polygon[1].Y = m_rectHead.top;
-		//	polygon[2].X = m_rectHead.left;			// 下
-		//	polygon[2].Y = m_rectHead.top+1;
-		//	graphics.DrawPolygon(&penBg,polygon,3);
-		//	graphics.FillPolygon(&brushBg,polygon,3);
-		//	// 上右
-		//	polygon[0].X = m_rectHead.right-2;	// 左
-		//	polygon[0].Y = m_rectHead.top;
-		//	polygon[1].X = m_rectHead.right;	// 右
-		//	polygon[1].Y = m_rectHead.top;
-		//	polygon[2].X = m_rectHead.right;	// 下
-		//	polygon[2].Y = m_rectHead.top+2;
-		//	//polygon[3].X = m_rectHead.right-4;	// 左
-		//	//polygon[3].Y = m_rectHead.top;
-		//	//polygon[4].X = m_rectHead.right;		// 下
-		//	//polygon[4].Y = m_rectHead.top+4;
-		//	graphics.DrawPolygon(&penBg,polygon,3);
-		//	graphics.FillPolygon(&brushBg,polygon,3);
-		//	// 下左
-		//	polygon[0].X = m_rectHead.left;			// 左
-		//	polygon[0].Y = m_rectHead.bottom;
-		//	polygon[1].X = m_rectHead.left+2;		// 右
-		//	polygon[1].Y = m_rectHead.bottom;
-		//	polygon[2].X = m_rectHead.left;			// 上
-		//	polygon[2].Y = m_rectHead.bottom-2;
-		//	graphics.DrawPolygon(&penBg,polygon,3);
-		//	graphics.FillPolygon(&brushBg,polygon,3);
-		//	// 下右
-		//	polygon[0].X = m_rectHead.right-2;	// 左
-		//	polygon[0].Y = m_rectHead.bottom;
-		//	polygon[1].X = m_rectHead.right;	// 右
-		//	polygon[1].Y = m_rectHead.bottom;
-		//	polygon[2].X = m_rectHead.right;	// 上
-		//	polygon[2].Y = m_rectHead.bottom-2;
-		//	graphics.DrawPolygon(&penBg,polygon,3);
-		//	graphics.FillPolygon(&brushBg,polygon,3);
-		//}
 
 		// 写字
 #ifdef USES_NEW_UI_160111
@@ -7248,8 +7364,10 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 			KillTimer(TIMERID_LOAD_LOCAL_UNREAD_MSG);
 			std::vector<eb::bigint> pGroupIdList;
 			std::vector<eb::bigint> pFromUserIdList;
+			CString sSql;
+			sSql.Format(_T("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE from_uid<>%lld (read_flag&1)=0 LIMIT 30"),theApp.GetLogonUserId());
 			int nCookie = 0;
-			theApp.m_pBoUsers->select("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE (read_flag&1)=0 LIMIT 30", nCookie);
+			theApp.m_pBoUsers->select(sSql, nCookie);
 			cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 			while (pRecord.get()!=NULL)
 			{
@@ -8008,7 +8126,8 @@ bool CPOPDlg::AddSubscribeFuncInfo(const EB_SubscribeFuncInfo & pSubscribeFuncIn
 		m_pMainFuncButtonList.push_back(pFuncButton);
 		if (GetCallFrameShowed())
 		{
-			pFuncButton->m_btn.ShowWindow(SW_HIDE);
+			pFuncButton->ShowWindow(false);
+			//pFuncButton->m_btn.ShowWindow(SW_HIDE);
 		}
 
 		if (m_btnNewApp.GetSafeHwnd()!=NULL)
@@ -9798,6 +9917,19 @@ void CPOPDlg::OnMainFrameFunc(UINT nID)
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[nIndex];
 		const EB_SubscribeFuncInfo& pSubscribeFuncInfo = pFuncButtonInfo->GetFuncInfo();
 		theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"","",NULL);
+		if (pFuncButtonInfo->ClearUnreadMsg()>0)
+		{
+#ifdef USES_FRAMELIST_APPFRAME
+			CDlgAppFrame * pDlgAppFrame = NewAppFrame(false);
+#else
+			//NewAppFrame();
+			CDlgAppFrame * pDlgAppFrame = m_pDlgAppFrame;
+#endif
+			if (pDlgAppFrame!=NULL)
+			{
+				pDlgAppFrame->ClearUnreadMsg(pSubscribeFuncInfo.m_nSubscribeId);
+			}
+		}
 	}
 }
 #ifdef USES_FRAMELIST_APPFRAME
@@ -11158,10 +11290,11 @@ LRESULT CPOPDlg::OnMessageReturnMainFrame(WPARAM wParam, LPARAM lParam)
 	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
 	{
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
-		if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
-		{
-			pFuncButtonInfo->m_btn.ShowWindow(SW_SHOW);
-		}
+		pFuncButtonInfo->ShowWindow(true);
+		//if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
+		//{
+		//	pFuncButtonInfo->m_btn.ShowWindow(SW_SHOW);
+		//}
 	}
 	if (m_btnNewApp.GetSafeHwnd()!=NULL)
 	{
@@ -11214,10 +11347,11 @@ void CPOPDlg::SwitchFrameWnd(void)
 			for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
 			{
 				const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
-				if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
-				{
-					pFuncButtonInfo->m_btn.ShowWindow(SW_HIDE);
-				}
+				pFuncButtonInfo->ShowWindow(false);
+				//if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
+				//{
+				//	pFuncButtonInfo->m_btn.ShowWindow(SW_HIDE);
+				//}
 			}
 			if (m_btnNewApp.GetSafeHwnd()!=NULL)
 			{
@@ -11309,10 +11443,11 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
 	{
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
-		if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
-		{
-			pFuncButtonInfo->m_btn.ShowWindow(SW_SHOW);
-		}
+		pFuncButtonInfo->ShowWindow(true);
+		//if (pFuncButtonInfo->m_btn.GetSafeHwnd()!=NULL)
+		//{
+		//	pFuncButtonInfo->m_btn.ShowWindow(SW_SHOW);
+		//}
 	}
 	if (m_btnNewApp.GetSafeHwnd()!=NULL)
 	{
@@ -11393,6 +11528,92 @@ LRESULT CPOPDlg::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
 {
 	if (this->m_pPanelSearch!=NULL)
 		this->m_pPanelSearch->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,wParam,lParam);
+	return 0;
+}
+
+void CPOPDlg::AddSubUnreadMsg(mycp::bigint nSubId, bool bSendToAppFrame)
+{
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->AddUnreadMsg();
+			break;
+		}
+	}
+
+	if (bSendToAppFrame)
+	{
+#ifdef USES_FRAMELIST_APPFRAME
+		CDlgAppFrame * pDlgAppFrame = NewAppFrame(false);
+#else
+		//NewAppFrame();
+		CDlgAppFrame * pDlgAppFrame = m_pDlgAppFrame;
+#endif
+		if (pDlgAppFrame!=NULL)
+		{
+			pDlgAppFrame->AddUnreadMsg(nSubId);
+		}
+	}
+}
+
+void CPOPDlg::SetSubUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount, bool bSendToAppFrame)
+{
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount);
+			break;
+		}
+	}
+	if (bSendToAppFrame)
+	{
+#ifdef USES_FRAMELIST_APPFRAME
+		CDlgAppFrame * pDlgAppFrame = NewAppFrame(false);
+#else
+		//NewAppFrame();
+		CDlgAppFrame * pDlgAppFrame = m_pDlgAppFrame;
+#endif
+		if (pDlgAppFrame!=NULL)
+		{
+			pDlgAppFrame->SetUnreadMsg(nSubId, nUnreadMsgCount);
+		}
+	}
+}
+
+LRESULT CPOPDlg::OnMsgClearSubIdUnReadmsg(WPARAM wParam, LPARAM lParam)
+{
+	char* lpszSubId = (char*)wParam;
+	if (lpszSubId==NULL) return 0;
+	const mycp::bigint nSubId = cgc_atoi64(lpszSubId);
+	const bool bSendToAppFrame = lParam==1?true:false;
+	//const mycp::bigint nSubId = MAKEINT64(wParam,lParam);
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
+		{
+			pFuncButtonInfo->ClearUnreadMsg();
+			break;
+		}
+	}
+	if (bSendToAppFrame)
+	{
+#ifdef USES_FRAMELIST_APPFRAME
+		CDlgAppFrame * pDlgAppFrame = NewAppFrame(false);
+#else
+		//NewAppFrame();
+		CDlgAppFrame * pDlgAppFrame = m_pDlgAppFrame;
+#endif
+		if (pDlgAppFrame!=NULL)
+		{
+			pDlgAppFrame->ClearUnreadMsg(nSubId);
+		}
+	}
+	delete[] lpszSubId;
 	return 0;
 }
 void CPOPDlg::OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult)

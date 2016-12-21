@@ -2,6 +2,11 @@
 
 
 // CDlgSetting dialog
+/*
+ * 连接设置类
+ * 用于登录界面，点击“连接设置”按钮，弹出设置“服务器地址”窗口。
+ * 
+*//////////////////////////////////////////////////////
 
 class CDlgSetting : public CEbDialogBase
 {

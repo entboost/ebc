@@ -45,6 +45,9 @@ protected:
 	CLockMap<eb::bigint,CTreeItemInfo::pointer> m_pEntItemInfo;	// ent_code->
 	CLockMap<eb::bigint,CTreeItemInfo::pointer> m_pDepItemInfo;	// dep_code->
 	CLockMap<eb::bigint,CTreeItemInfo::pointer> m_pEmpItemInfo;	// emp_code->
+	CLockMap<eb::bigint,CTreeItemInfo::pointer> m_pUpdateGroupCountList;	// group_id->
+	CTreeItemInfo::pointer m_pUpdateEntItemInfo;
+	CLockMap<eb::bigint,bool> m_pUpdateParentGroupCountList;	// group_id->
 
 	//CLockMap<std::string, HTREEITEM> m_pDepTreeItem;		// dep_code->
 	//CLockMap<const EB_MemberInfo*, HTREEITEM> m_pEmpTreeItem;
@@ -55,12 +58,13 @@ protected:
 	HTREEITEM m_hCurrentHotItem;
 
 	//CTreeItemInfo::pointer GetDepItemInfo(HTREEITEM hItem) const;
-	void SetGroupCount(HTREEITEM hGroupItem, eb::bigint sGroupCode);
+	void SetGroupCount(const CTreeItemInfo::pointer& pGroupItem, eb::bigint sGroupCode, bool bFromMemberInfo);
 #ifdef USES_EBCOM_TEST
-	void SetGroupCount(HTREEITEM hGroupItem, IEB_GroupInfo* pGroupInfo);
+	void SetGroupCount(const CTreeItemInfo::pointer& pGroupItem, IEB_GroupInfo* pGroupInfo);
 #else
-	void SetGroupCount(HTREEITEM hGroupItem, const EB_GroupInfo* pGroupInfo);
+	void SetGroupCount(const CTreeItemInfo::pointer& pGroupItem, const EB_GroupInfo* pGroupInfo, bool bFromMemberInfo);
 #endif
+	void UpdateParentGroupCount(eb::bigint nParentGroupCode);
 
 	//static int CALLBACK TreeCmpFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 

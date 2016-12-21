@@ -47,6 +47,7 @@ public:
 	virtual void onLogonError(const EB_AccountInfo& pAccountInfo,EB_STATE_CODE nState) {}
 	virtual void onOnlineAnother(void) {}	// 在其他地方登录
 	virtual void onLogout(void) {}
+	virtual void onAccountInfoChange(const EB_AccountInfo& pAccountInfo) {}
 
 	virtual void onEditInfoResponse(EB_STATE_CODE nState, int nFlag) {}								// 个人资料修改返回
 	virtual void onUserStateChange(const EB_MemberInfo* pMemberInfo, bool bIsOwnerMember) {}		// 修改在线状态
@@ -170,6 +171,8 @@ typedef enum EB_WINDOW_MESSAGE_TYPE
 
 	, EB_WM_ONLINE_ANOTHER
 	, EB_WM_LOGOUT
+	// const EB_AccountInfo* pAccountInfo = (const EB_AccountInfo*)wp;
+	, EB_WM_ACCOUNT_INFO_CHANGE
 
 	/*==========================================================
 	会话

@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CDlgDialog, CEbDialogBase)
 	ON_MESSAGE(EB_MSG_EBSC, OnMessageEBSC)
 	ON_MESSAGE(EB_MSG_EBSC_OK, OnMessageEBSCOK)
 	ON_MESSAGE(EB_MSG_VIEW_MSG_RECORD, OnMessageMsgRecord)
+	ON_MESSAGE(EB_COMMAND_VIEW_GROUP_SHARE, OnMessageGroupShare)
 	ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_ADJUST_WIDTH, OnMessageAdjustWidth)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MAX, OnFrameWndMax)
@@ -895,12 +896,12 @@ void CDlgDialog::OnSize(UINT nType, int cx, int cy)
 //		m_pDlgUserList->OnEnterUser(sLogonAccount.c_str());
 //	}
 //}
-void CDlgDialog::OnUserNotify(const CCrNotifyInfo* pNotifyInfo)
+void CDlgDialog::OnUserNotify(const CCrNotifyInfo* pNotifyInfo,CString* pOutFirstMsg)
 {
 	//this->m_pDlgChatRight->OnEnterUser(pAccountInfo->m_sAccount, pAccountInfo->m_sFromInfo.c_str(),bSort);
 	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
-		m_pDlgChatInput->OnUserNotify(pNotifyInfo);
+		m_pDlgChatInput->OnUserNotify(pNotifyInfo,pOutFirstMsg);
 	}
 }
 
@@ -991,11 +992,15 @@ void CDlgDialog::OnSendRich(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState)
 		m_pDlgChatInput->OnSendRich(pCrMsgInfo,nState,NULL,NULL);
 	}
 }
-void CDlgDialog::OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState)
+void CDlgDialog::OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,int nAckType)
 {
 	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
-		m_pDlgChatInput->OnMsgReceipt(pCrMsgInfo, nState);
+		m_pDlgChatInput->OnMsgReceipt(pCrMsgInfo, nAckType);
+	}
+	if (m_pDlgChatRight.get() != NULL && m_pDlgChatRight->GetSafeHwnd())
+	{
+		m_pDlgChatRight->OnMsgReceipt(pCrMsgInfo, nAckType);
 	}
 }
 #endif
@@ -1020,18 +1025,26 @@ void CDlgDialog::OnSendingFile(IEB_ChatFileInfo* pCrFileInfo)
 #else
 void CDlgDialog::OnSendingFile(const CCrFileInfo * pCrFileInfo)
 {
-	if (pCrFileInfo->m_nMsgId>0 && pCrFileInfo->GetStateCode()!=EB_STATE_WAITING_PROCESS && m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	if (pCrFileInfo->GetParam()==0 && pCrFileInfo->m_nMsgId>0 && pCrFileInfo->GetStateCode()==EB_STATE_OK && m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
 		if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
 		{
 			//if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
 			{
+				tstring sInFromName;
+				if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0)
+					sInFromName = theEBAppClient.EB_GetUserName();
+				else
+					theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,theApp.GetLogonUserId(),sInFromName);
+				theApp.m_pBoUsers->escape_string_in(sInFromName);
+				tstring sInFileName(pCrFileInfo->m_sFileName);
+				theApp.m_pBoUsers->escape_string_in(sInFileName);
 				const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
 				CString sSql;
-				sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
-					_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s')"),
-					pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
-					sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,from_name,to_uid,private,msg_type,msg_text) ")\
+					_T("VALUES(%lld,%lld,%lld,'%s',%lld,%d,%d,'%s')"),
+					pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,libEbc::ACP2UTF8(sInFromName.c_str()).c_str(),
+					sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(sInFileName.c_str()).c_str());
 				theApp.m_pBoUsers->execute(sSql);
 			}
 		}
@@ -1088,20 +1101,43 @@ void CDlgDialog::OnSentFile(IEB_ChatFileInfo* pCrFileInfo)
 bool CDlgDialog::OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState)
 {
 	bool ret = false;
-	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	if (pCrFileInfo->GetParam()==0 && m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
 		if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
 		{
-			if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
+			//if (pCrFileInfo->m_sReceiveAccount==theEBAppClient.EB_GetLogonUserId())
 			{
 				CString sSql;
 				if (nState==EB_STATE_FILE_ALREADY_EXIST)
 				{
-					const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
-					sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,to_uid,private,msg_type,msg_text) ")\
-						_T("VALUES(%lld,%lld,%lld,%lld,%d,%d,'%s')"),
-						pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,
-						sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+					// ** 保存本地数据库
+					if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
+					{
+						CString sMsgText;
+						sMsgText.Format(_T("%lld,%lld"),pCrFileInfo->m_sResId,pCrFileInfo->m_nFileSize);
+						tstring sInMemberName;
+						theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,sInMemberName);
+						theApp.m_pBoUsers->escape_string_in(sInMemberName);
+						const tstring sFileName = libEbc::GetFileName(pCrFileInfo->m_sFileName);
+						tstring sInFileName(sFileName);
+						theApp.m_pBoUsers->escape_string_in(sInFileName);
+						sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,from_name,to_uid,private,msg_type,msg_name,msg_text,read_flag) ")\
+							_T("VALUES(%lld,%lld,%lld,'%s',%lld,%d,%d,'%s','%s',%d)"),
+							pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,libEbc::ACP2UTF8(sInMemberName.c_str()).c_str(),
+							pCrFileInfo->m_sSendTo,pCrFileInfo->m_bPrivate?1:0,MRT_RESOURCE,libEbc::ACP2UTF8(sInFileName.c_str()).c_str(),sMsgText,(int)EBC_READ_FLAG_SENT);
+					}else
+					{
+						tstring sInFromName(theEBAppClient.EB_GetUserName());
+						theApp.m_pBoUsers->escape_string_in(sInFromName);
+						tstring sInFileName(pCrFileInfo->m_sFileName);
+						theApp.m_pBoUsers->escape_string_in(sInFileName);
+						const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pFromAccountInfo.GetUserId();
+						//const eb::bigint sSaveDbToAccount = m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0?m_pEbCallInfo->m_pFromAccountInfo.GetUserId():pCrFileInfo->m_sSendTo;
+						sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,from_name,to_uid,private,msg_type,msg_text) ")\
+							_T("VALUES(%lld,%lld,%lld,'%s',%lld,%d,%d,'%s')"),
+							pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,libEbc::ACP2UTF8(sInFromName.c_str()).c_str(),
+							sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(sInFileName.c_str()).c_str());
+					}
 				}else
 				{
 					sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_SENT,pCrFileInfo->m_nMsgId,EBC_READ_FLAG_SENT);
@@ -1172,7 +1208,7 @@ void CDlgDialog::OnCancelFile(const CCrFileInfo * pCrFileInfo, bool bChangeP2PSe
 	{
 		m_pDlgChatRight->DeleteDlgTranFile(pCrFileInfo->m_nMsgId);
 	}
-	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd() && pCrFileInfo->GetParam()==0)//m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0)
 	{
 		if (!bChangeP2PSending)
 		{
@@ -1247,46 +1283,62 @@ void CDlgDialog::OnReceivingFile(IEB_ChatFileInfo* pCrFileInfo,CString* sOutFirs
 #else
 void CDlgDialog::OnReceivingFile(const CCrFileInfo * pCrFileInfo,CString* sOutFirstMsg)
 {
-	const eb::bigint sSendFrom = pCrFileInfo->m_sSendFrom;
-	if (m_pDlgChatRight.get() != NULL && m_pDlgChatRight->GetSafeHwnd())
+	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd() && pCrFileInfo->GetParam()==0)
 	{
-		const tstring sFileName = libEbc::GetFileName(pCrFileInfo->m_sFileName);
-		CString sWindowText;
-		if (m_pEbCallInfo->m_bOffLineUser || pCrFileInfo->m_bOffFile)
-		//if (m_pEbCallInfo->m_pCallInfo->m_bOffLineCall)
-		//if (m_bReceiveOffLineMsg)
+		m_pDlgChatInput->OnReceivingFile(m_pEbCallInfo->m_bOffLineUser, pCrFileInfo, sOutFirstMsg);
+	}
+	if (m_pDlgChatRight.get() != NULL && m_pDlgChatRight->GetSafeHwnd())// && m_pEbCallInfo->m_pCallInfo.m_sGroupCode==0)
+	{
+		if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0 && pCrFileInfo->m_sResId>0 && pCrFileInfo->m_sSendFrom>0 && pCrFileInfo->m_sSendFrom!=theApp.GetLogonUserId())
 		{
-			if (this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
-			{
-				CEBString sMemberName;
-				theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,sSendFrom,sMemberName);
-				sWindowText.Format(_T("%s 发送离线文件：%s"),sMemberName.c_str(),sFileName.c_str());
-			}else
-				sWindowText.Format(_T("对方发送离线文件：%s"),sFileName.c_str());
-			m_pDlgChatInput->AddLineString(pCrFileInfo->m_nMsgId,sWindowText);
-		}else
-		{
-			if (this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
-			{
-				CEBString sMemberName;
-				theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,sSendFrom,sMemberName);
-				sWindowText.Format(_T("%s 发送文件：%s"),sMemberName.c_str(),sFileName.c_str());
-			}else
-				sWindowText.Format(_T("对方发送文件：%s"),sFileName.c_str());
-			m_pDlgChatInput->AddLineString(pCrFileInfo->m_nMsgId,sWindowText);
-		}
-		if (sOutFirstMsg!=NULL)
-		{
-			const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
-			if (bIsDepDialog)
-				sOutFirstMsg->Format(_T("<font color=\"#6c6c6c\">%s</font><br/><a href=\"ebim-call-group://%lld\">%s</a>"),libEbc::ACP2UTF8(sWindowText).c_str(),m_pEbCallInfo->m_pCallInfo.m_sGroupCode,libEbc::ACP2UTF8("接收文件").c_str());
-			else
-				sOutFirstMsg->Format(_T("<font color=\"#6c6c6c\">%s</font><br/><a href=\"ebim-call-account://%lld\">%s</a>"),libEbc::ACP2UTF8(sWindowText).c_str(),m_pEbCallInfo->m_pCallInfo.GetFromUserId(),libEbc::ACP2UTF8("接收文件").c_str());
+			// ** 对方发送群共享文件，在线消息不处理
+			return;
 		}
 		m_pDlgChatRight->OnReceivingFile(pCrFileInfo);
 		if (this->IsWindowVisible())
 			::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
 	}
+
+	//const eb::bigint sSendFrom = pCrFileInfo->m_sSendFrom;
+	//if (m_pDlgChatRight.get() != NULL && m_pDlgChatRight->GetSafeHwnd())
+	//{
+	//	const tstring sFileName = libEbc::GetFileName(pCrFileInfo->m_sFileName);
+	//	CString sWindowText;
+	//	if (m_pEbCallInfo->m_bOffLineUser || pCrFileInfo->m_bOffFile)
+	//	//if (m_pEbCallInfo->m_pCallInfo->m_bOffLineCall)
+	//	//if (m_bReceiveOffLineMsg)
+	//	{
+	//		if (this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
+	//		{
+	//			CEBString sMemberName;
+	//			theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,sSendFrom,sMemberName);
+	//			sWindowText.Format(_T("%s 上传群共享文件：%s"),sMemberName.c_str(),sFileName.c_str());
+	//		}else
+	//			sWindowText.Format(_T("对方发送离线文件：%s"),sFileName.c_str());
+	//		m_pDlgChatInput->AddLineString(pCrFileInfo->m_nMsgId,sWindowText);
+	//	}else
+	//	{
+	//		if (this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
+	//		{
+	//			CEBString sMemberName;
+	//			theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,sSendFrom,sMemberName);
+	//			sWindowText.Format(_T("%s 发送文件：%s"),sMemberName.c_str(),sFileName.c_str());
+	//		}else
+	//			sWindowText.Format(_T("对方发送文件：%s"),sFileName.c_str());
+	//		m_pDlgChatInput->AddLineString(pCrFileInfo->m_nMsgId,sWindowText);
+	//	}
+	//	if (sOutFirstMsg!=NULL)
+	//	{
+	//		const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
+	//		if (bIsDepDialog)
+	//			sOutFirstMsg->Format(_T("<font color=\"#6c6c6c\">%s</font><br/><a href=\"ebim-call-group://%lld\">%s</a>"),libEbc::ACP2UTF8(sWindowText).c_str(),m_pEbCallInfo->m_pCallInfo.m_sGroupCode,libEbc::ACP2UTF8("接收文件").c_str());
+	//		else
+	//			sOutFirstMsg->Format(_T("<font color=\"#6c6c6c\">%s</font><br/><a href=\"ebim-call-account://%lld\">%s</a>"),libEbc::ACP2UTF8(sWindowText).c_str(),m_pEbCallInfo->m_pCallInfo.GetFromUserId(),libEbc::ACP2UTF8("接收文件").c_str());
+	//	}
+	//	m_pDlgChatRight->OnReceivingFile(pCrFileInfo);
+	//	if (this->IsWindowVisible())
+	//		::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
+	//}
 }
 #endif
 
@@ -1329,11 +1381,11 @@ void CDlgDialog::OnReceivedFile(IEB_ChatFileInfo* pCrFileInfo)
 #else
 void CDlgDialog::OnReceivedFile(const CCrFileInfo * pCrFileInfo)
 {
-	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())// && pCrFileInfo->GetParam()==0)
 	{
 		m_pDlgChatInput->OnReceivedFile(pCrFileInfo);
 
-		if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
+		if (pCrFileInfo->GetParam()==0 && theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
 		{
 			tstring sFromName;
 			eb::bigint sSaveDbToAccount = pCrFileInfo->m_sSendTo;
@@ -1345,11 +1397,14 @@ void CDlgDialog::OnReceivedFile(const CCrFileInfo * pCrFileInfo)
 			{
 				theEBAppClient.EB_GetMemberNameByUserId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,sFromName);
 			}
+			theApp.m_pBoUsers->escape_string_in(sFromName);
+			tstring sInFileName(pCrFileInfo->m_sFileName);
+			theApp.m_pBoUsers->escape_string_in(sInFileName);
 			CString sSql;
 			sSql.Format(_T("INSERT INTO msg_record_t(msg_id,dep_code,from_uid,from_name,to_uid,private,msg_type,msg_text) ")\
 				_T("VALUES(%lld,%lld,%lld,'%s',%lld,%d,%d,'%s')"),
 				pCrFileInfo->m_nMsgId,m_pEbCallInfo->m_pCallInfo.m_sGroupCode,pCrFileInfo->m_sSendFrom,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),
-				sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(pCrFileInfo->m_sFileName.c_str()).c_str());
+				sSaveDbToAccount,pCrFileInfo->m_bPrivate?1:0,MRT_FILE,libEbc::ACP2UTF8(sInFileName.c_str()).c_str());
 			theApp.m_pBoUsers->execute(sSql);
 		}
 	}
@@ -2966,6 +3021,11 @@ LRESULT CDlgDialog::OnMessageMsgRecord(WPARAM wParam, LPARAM lParam)
 //		pDlgMsgRecord->LoadDepartmentMsgRecord(sId,sName);
 //	//pDlgMsgRecord->SetForegroundWindow();
 //	return 0;
+}
+LRESULT CDlgDialog::OnMessageGroupShare(WPARAM wParam, LPARAM lParam)
+{
+	OnBnClickedButtonGroupShare();
+	return 0;
 }
 
 LRESULT CDlgDialog::OnMessageExitChat(WPARAM wParam, LPARAM lParam)

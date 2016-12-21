@@ -208,9 +208,10 @@ void CDlgUserList::OnUserEmpInfo(IEB_MemberInfo* pMemberInfo, bool bSort)
 		m_treeUsers.Sort(TVI_ROOT, CPOPApp::TreeCmpFunc);
 }
 #else
-void CDlgUserList::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
+int CDlgUserList::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 {
-	if (pMemberInfo==NULL) return;
+	if (pMemberInfo==NULL) return -1;
+	int nResult = 0;
 	CTreeItemInfo::pointer pTreeItemInfo;
 	CString sText;
 	if (pMemberInfo->m_sJobTitle.empty())
@@ -219,6 +220,7 @@ void CDlgUserList::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 		sText.Format(_T("%s-%s"),pMemberInfo->m_sUserName.c_str(),pMemberInfo->m_sJobTitle.c_str());
 	if (!m_pUserItem.find(pMemberInfo->m_nMemberUserId,pTreeItemInfo))
 	{
+		nResult = 1;
 		HTREEITEM hItem = m_treeUsers.InsertItem(sText);
 		pTreeItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hItem);
 		m_treeUsers.SetItemData(hItem,(DWORD)pTreeItemInfo.get());
@@ -246,6 +248,7 @@ void CDlgUserList::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 
 	if (bSort)
 		m_treeUsers.Sort(TVI_ROOT, CPOPApp::TreeCmpFunc);
+	return nResult;
 }
 #endif
 

@@ -140,6 +140,17 @@ namespace mycp {
 		, MODULE_PROTOCOL_SOTP_CLIENT_SERVICE	= 0x8
 	}MODULE_PROTOCOL;
 
+	typedef enum Module_Init_Type
+	{
+		MODULE_INIT_TYPE_NORMAL
+		, MODULE_INIT_TYPE_AUTO_UPDATE
+	}MODULE_INIT_TYPE;
+	typedef enum Module_Free_Type
+	{
+		MODULE_FREE_TYPE_NORMAL
+		, MODULE_FREE_TYPE_AUTO_UPDATE
+	}MODULE_FREE_TYPE;
+
 	// LogLevel
 	typedef enum LogLevel
 	{

@@ -357,12 +357,12 @@ public:
 	/******
 	功能：判断是否有编辑（新建）群组（部门）云盘资源权限
 	====================================================================*/
-	bool EB_CanEditGroupRes(eb::bigint nGroupId) const;
+	bool EB_CanEditGroupRes(eb::bigint nGroupId, eb::bigint nResourceId) const;
 
 	/******
 	功能：判断是否有删除群组（部门）云盘资源权限
 	====================================================================*/
-	bool EB_CanDeleteGroupRes(eb::bigint nGroupId) const;
+	bool EB_CanDeleteGroupRes(eb::bigint nGroupId, eb::bigint nResourceId) const;
 
 	/* 在线云盘管理 ***********************************************************************/
 	/****
@@ -571,6 +571,13 @@ public:
 	参数：bPrivate 悄悄话功能 true:以私聊方式发给指定用户，会话其他人看不到 false:会话其他成员也可以看到
 	====================================================================*/
 	int EB_SendRich(eb::bigint nCallId,const EB_ChatRoomRichMsg* pRichMsg,eb::bigint nToUserId=0,bool bPrivate=false);
+	int EB_SendMapPos(eb::bigint nCallId,const char* sMapPosData,eb::bigint nToUserId=0,bool bPrivate=false);
+	int EB_SendUserData(eb::bigint nCallId,const char* sUserData,unsigned long nDataSize,eb::bigint nToUserId=0,bool bPrivate=false);
+
+	/****
+	功能：请求撤回消息（2分钟内有效），不支持P2P点对点文件消息
+	====================================================================*/
+	int EB_RequestWithdawMsg(eb::bigint nCallId,eb::bigint nMsgId);
 
 	/****
 	功能：发送文件
@@ -792,13 +799,16 @@ public:
 
 	/****
 	功能：获取群组（部门）成员数量
+	参数：nGetType 0=按照系统配置是否统计子部门数量；1=只统计当前部门数量；2=统计子部门数量
 	====================================================================*/
-	int EB_GetGroupMemberSize(eb::bigint nGroupId) const;
+	int EB_GetGroupMemberSize(eb::bigint nGroupId, int nGetType) const;
+	bool EB_GetGroupMemberSize(eb::bigint nGroupId, int nGetType, int& pOutMemberSize, int& pOutOnlineSize) const;
 
 	/****
 	功能：获取群组（部门）在线成员数量
+	参数：nGetType 0=按照系统配置是否统计子部门数量；1=只统计当前部门数量；2=统计子部门数量
 	====================================================================*/
-	int EB_GetGroupOnlineSize(eb::bigint nGroupId) const;
+	int EB_GetGroupOnlineSize(eb::bigint nGroupId, int nGetType) const;
 
 	/****
 	功能：判断是否是我的群组（部门）
@@ -853,6 +863,12 @@ public:
 	功能：获取群组（部门）成员在线状态
 	====================================================================*/
 	bool EB_GetMemberLineState(eb::bigint nMemberId,EB_USER_LINE_STATE& pOutLineState) const;
+
+	/****
+	功能：获取群组（部门）头像文件
+	====================================================================*/
+	bool EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,int& pOutFileSize);
+	bool EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,int& pOutFileSize);
 
 	/****
 	功能：获取我的群组（部门）成员信息

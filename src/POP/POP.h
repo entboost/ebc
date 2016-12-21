@@ -49,6 +49,7 @@ typedef enum MSG_RECORD_TYPE
 	, MRT_JPG
 	, MRT_FILE
 	, MRT_WAV
+	, MRT_RESOURCE
 	, MRT_MAP_POS	= 10
 	, MRT_USER_DATA
 };
@@ -128,7 +129,7 @@ public:
 	//void ShowAutoOpenSubscribeFunc(int nCmdShow);
 	void ShowHideAutoOpenSubscribeFunc(bool bShow);
 	bool IsEnterpriseuserUser(void);
-	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId);
+	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType);
 
 	//CDlgVideoConference::pointer GetDlgVideoConference(const CEBCCallInfo::pointer& pEbCallInfo,bool bBuildNew = true);
 	int m_nSendType;
@@ -233,6 +234,8 @@ public:
 	bool GetSaveConversationServer(void) const {return m_bSaveConversationServer;}
 	bool GetAuthContact(void) const {return m_bAuthContact;}
 	eb::bigint GetDeployId(void) const {return m_nDeployId;}
+	int GetLicenseType(void) const {return m_nLicenstType;}
+	bool IsLicenseType(void) const {return (m_nLicenstType==1||m_nLicenstType==2)?true:false;}
 	eb::bigint GetGroupMsgSugId(void);
 	eb::bigint GetFindAppSugId(void);
 	eb::bigint GetAutoOpenSubId(void) const {return m_nAutoOpenSubId;}
@@ -245,6 +248,7 @@ public:
 	bool GetDisableRD(void) const {return m_bDisableRemoteDesktop;}
 	bool GetDisableAccountEdit(void) const {return m_bDisableAccountEdit;}
 	bool GetDisableMsgReceipt(void) const {return m_bDisableMsgReceipt;}
+	bool GetStatSubGroupMember(void) const {return m_bStatSubGroupMember;}
 	void SetEnterpriseCreateUserId(eb::bigint nUserId) {m_nEnterpriseCreateUserId = nUserId;}
 	eb::bigint GetEnterpriseCreateUserId(void) const {return m_nEnterpriseCreateUserId;}
 	bool IsEnterpriseCreateUserId(eb::bigint nUserId) {return (nUserId>0 && nUserId==m_nEnterpriseCreateUserId)?true:false;}
@@ -312,6 +316,7 @@ private:
 	bool m_bSaveConversationServer;
 	bool m_bAuthContact;
 	eb::bigint m_nDeployId;
+	int m_nLicenstType;	// 许可类型；0=未授权；1=终身授权；2=时间授权
 	eb::bigint m_nGroupMsgSubId;
 	eb::bigint m_nFindAppSubId;
 	eb::bigint m_nAutoOpenSubId;
@@ -328,6 +333,7 @@ private:
 	EB_BROWSER_TYPE m_nDefaultBrowserType;
 	EB_UI_STYLE_TYPE m_nDefaultUIStyleType;
 	bool m_bDisableMsgReceipt;
+	bool m_bStatSubGroupMember;
 
 	bool m_bIeException;
 	bool m_bAdaptIeVersion;

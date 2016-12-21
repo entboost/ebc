@@ -26,10 +26,12 @@ namespace mycp {
 // CGC_Module_Init(): Before the module start to load this mothod.
 // extern "C" bool CGC_API CGC_Module_Init(void) {}
 typedef bool (FAR *FPCGC_Module_Init)(void);
+typedef bool (FAR *FPCGC_Module_Init2)(MODULE_INIT_TYPE nInitType);
 
 // Before the module exit to load this mothod.
 // extern "C" void CGC_API CGC_Module_Free(void) {}
 typedef void (FAR *FPCGC_Module_Free)(void);
+typedef void (FAR *FPCGC_Module_Free2)(MODULE_FREE_TYPE nFreeType);
 
 // CGC_Session_Open
 // extern "C" bool CGC_API CGC_Session_Open(const cgcSession::pointer& pHandler) {}

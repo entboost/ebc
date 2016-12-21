@@ -447,6 +447,7 @@ CPOPApp::CPOPApp()
 	m_bSaveConversationServer = true;
 	m_bAuthContact = false;
 	m_nDeployId = 0;
+	m_nLicenstType = 0;
 	m_nGroupMsgSubId = 0;
 	m_nFindAppSubId = 0;
 	m_nAutoOpenSubId = 0;
@@ -460,6 +461,7 @@ CPOPApp::CPOPApp()
 	m_bDisableAccountEdit = false;
 	m_nEnterpriseCreateUserId = 0;
 	m_bDisableMsgReceipt = false;
+	m_bStatSubGroupMember = false;
 
 #ifdef USES_LIBCEF
 	m_nDefaultBrowserType = EB_BROWSER_TYPE_CEF;
@@ -1093,6 +1095,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_bSaveConversationServer = pDlgLogin.GetSaveConversationServer();
 	this->m_bAuthContact = pDlgLogin.GetAuthContact();
 	this->m_nDeployId = pDlgLogin.GetDeployId();
+	this->m_nLicenstType = pDlgLogin.GetLicenseType();
 	//this->m_nGroupMsgSubId = pDlgLogin.GetGroupMsgSugId();
 	this->m_nAutoOpenSubId = pDlgLogin.GetAutoOpenSubId();
 	this->m_bAutoHideMainFrame = pDlgLogin.GetAutoHideMainFrame();
@@ -1109,6 +1112,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_bDisableAccountEdit = pDlgLogin.GetDisableAccountEdit();
 	this->m_nDefaultBrowserType = pDlgLogin.GetDefaultBrowserType();
 	this->m_bDisableMsgReceipt = pDlgLogin.GetDisableMsgReceipt();
+	this->m_bStatSubGroupMember = pDlgLogin.GetStatSubGroupMember();
 
 	this->m_bIeException = pDlgLogin.GetIeException();
 	
@@ -3145,12 +3149,17 @@ bool CPOPApp::IsEnterpriseuserUser(void)
 #endif
 }
 
-void CPOPApp::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId)
+void CPOPApp::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType)
 {
+	// nAckType=0 对方收到消息
+	// nAckType=4 请求撤回消息
 	if (m_pBoUsers.get()!=NULL)
 	{
 		CString sSql;
-		sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
+		if (nAckType==4)
+			sSql.Format(_T("UPDATE msg_record_t SET msg_name='',msg_text='',read_flag=read_flag|%d WHERE msg_id=%lld AND from_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_WITHDRAW,nMsgId,nFromUserId,EBC_READ_FLAG_WITHDRAW);
+		else
+			sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
 		m_pBoUsers->execute(sSql);
 	}
 }
@@ -3664,7 +3673,7 @@ void CPOPApp::LogMessage(const char * format,...)
 void CPOPApp::OnAbout()
 {
 	CString sText;
-	sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2016"),theSetting.GetVersion().c_str());
+	sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2017"),theSetting.GetVersion().c_str());
 	CDlgMessageBox::EbMessageBox(AfxGetMainWnd(),"关于恩布互联 Entboost.com",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
 	//if (m_dlgAbout==NULL)
 	//{

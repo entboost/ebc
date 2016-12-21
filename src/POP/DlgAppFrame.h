@@ -137,6 +137,9 @@ public:
 	void OnLogonSuccess(void);
 	void OnOffline(int nServerState);
 	int GetOffsetIndexByHwnd(HWND hHwnd) const;
+	void ClearUnreadMsg(mycp::bigint nSubId);
+	void AddUnreadMsg(mycp::bigint nSubId);
+	void SetUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount);
 
 // Dialog Data
 	enum { IDD = IDD_DLG_APPFRAME };

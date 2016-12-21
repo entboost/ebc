@@ -79,18 +79,19 @@ public:
 	void SelectedEmp(eb::bigint nUserId);
 
 	//void AddMessage(OUT_TYPE nOutType, const CString & sText, BOOL bAddTimestamp = FALSE);
-	void OnUserNotify(const CCrNotifyInfo* pNotifyInfo);
+	void OnUserNotify(const CCrNotifyInfo* pNotifyInfo,CString* pOutFirstMsg);
 	void OnUserEnter(eb::bigint sFromAccount, const tstring& sFromInfo);
 	void OnUserExit(eb::bigint sFromAccount);
+	void OnReceivingFile(bool bOffLineUser, const CCrFileInfo * pCrFileInfo, CString* sOutFirstMsg);
 #ifdef USES_EBCOM_TEST
 	void OnReceiveRich(IEB_ChatRichInfo* pCrMsgInfo, CString* sOutFirstMsg);
 	void OnSendRich(IEB_ChatRichInfo* pCrMsgInfo,EB_STATE_CODE nState,CString* sOutFirstMsg);
 #else
 	void OnReceiveRich(const CCrRichInfo* pCrMsgInfo,CString* sOutFirstMsg1, CString* sOutFirstMsg2);
 	void OnSendRich(const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nState,CString* sOutFirstMsg1,CString* sOutFirstMsg2);
-	void OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nState);
+	void OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType);
 #endif
-	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, EB_STATE_CODE nState);
+	void UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType, EB_STATE_CODE nState);
 	void OnAlertingCall(void);
 
 	//void ReceiveMsg(CChatMsgInfo::pointer pChatMsgInfo);
@@ -132,6 +133,7 @@ protected:
 	virtual void Fire_onItemMoveLeave(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 
 	virtual tstring GetSelectString(void) const;
+	virtual void OnDeleteMsg(mycp::bigint nMsgId);
 	virtual void OnSelectedImageInfo(const CEBImageDrawInfo& pSelectedImageInfo);
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -166,7 +168,7 @@ protected:
 	void ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CString* sOutFirstMsg1=NULL,CString* sOutFirstMsg2=NULL,EB_STATE_CODE nState=EB_STATE_OK);
 #endif
 	//int GetTimeLength(const char* lpszWavFilePath);
-	void WriteFileHICON(const char* lpszFilePath);
+	void WriteFileHICON(const char* lpszFilePath,long nCtrlType=EB_MR_CTRL_TYPE_LCLICK_OPEN);
 	void DoResize(UINT nID,int delta);
 
 	bool m_bLastReceiveMsg;

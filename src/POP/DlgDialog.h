@@ -80,12 +80,12 @@ public:
 	void VideoEnd(IEB_VideoInfo* pVideoInfo,IEB_UserVideoInfo* pUserVideoInfo);
 	void OnUserEmpInfo(IEB_MemberInfo* pMemberInfo);
 #else
-	void OnUserNotify(const CCrNotifyInfo* pNotifyInfo);
+	void OnUserNotify(const CCrNotifyInfo* pNotifyInfo,CString* pOutFirstMsg=NULL);
 	void OnUserEnterRoom(const CCrAccountInfo* pAccountInfo,bool bSort);
 	void OnUserExitRoom(const CCrAccountInfo* pAccountInfo);
 	void OnReceiveRich(const CCrRichInfo * pCrMsgInfo,CString* sOutFirstMsg1,CString* sOutFirstMsg2);
 	void OnSendRich(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState);
-	void OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,EB_STATE_CODE nState);
+	void OnMsgReceipt(const CCrRichInfo * pCrMsgInfo,int nAckType);
 	void OnSendingFile(const CCrFileInfo * pCrFileInfo);
 	bool OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState);
 	void OnCancelFile(const CCrFileInfo * pCrFileInfo, bool bChangeP2PSending);
@@ -181,6 +181,7 @@ protected:
 	LRESULT OnMessageEBSC(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageEBSCOK(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMsgRecord(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageGroupShare(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageAdjustWidth(WPARAM wParam, LPARAM lParam);
 	LRESULT OnFrameWndMax(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam);

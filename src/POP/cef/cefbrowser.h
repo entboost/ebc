@@ -64,6 +64,7 @@ public:
 		return ret;
 	}
 	bool IsCreated(void) const {return g_handler.get()!=NULL?true:false;}
+	bool IsInDownloadFile(void) const {return (g_handler.get()==NULL||g_handler->m_pFileDownloadList.empty())?false:true;}
 	void CloseAllBrowsers(bool force_close) { if (g_handler.get()!=NULL) { g_handler->CloseAllBrowsers(force_close);}}
 	void Destroy(void) { if (g_handler.get()!=NULL) { g_handler->CloseAllBrowsers(true);g_handler->SetHandler(NULL); g_handler=NULL;}}
 	CefWindowHandle GetSafeHwnd(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser() ? g_handler->GetBrowser()->GetHost()->GetWindowHandle():NULL;}

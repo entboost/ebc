@@ -444,6 +444,9 @@ void CDlgMsgTip::CallItem(HTREEITEM hItem)
 		if (theApp.OpenSubscribeFuncWindow(m_pEmailSubscribeFuncInfo,"", pTreeItemInfo->m_sName, NULL))
 		{
 			DelEmailMsgTip(pTreeItemInfo->m_sId);
+			char* lpszSubId = new char[24];
+			sprintf(lpszSubId,"%lld",m_pEmailSubscribeFuncInfo.m_nSubscribeId);
+			theApp.GetMainWnd()->PostMessage(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, (WPARAM)lpszSubId,1);
 		}
 	}else if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_GROUP || pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_CONTACT)
 	{
@@ -491,6 +494,9 @@ void CDlgMsgTip::CallItem(HTREEITEM hItem)
 		if (theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"", pTreeItemInfo->m_sName, NULL))
 		{
 			DelEmailMsgTip(pTreeItemInfo->m_sId);
+			char* lpszSubId = new char[24];
+			sprintf(lpszSubId,"%lld",pSubscribeFuncInfo.m_nSubscribeId);
+			theApp.GetMainWnd()->PostMessage(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, (WPARAM)lpszSubId,1);
 		}
 	}
 }
@@ -520,7 +526,6 @@ LRESULT CDlgMsgTip::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		{
 			CRect rectItem;
 			m_pTreeMessage.GetItemRect(item, &rectItem, TRUE);
-
 			const int nTop = rectItem.top;
 			m_pTreeMessage.GetClientRect(&rectItem);
 			const int nRight = rectItem.right;

@@ -47,7 +47,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm130"
+				AdditionalOptions="-Zm148"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;CGC_SMART_STRING_USES_BSTR"
@@ -218,7 +218,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm122"
+				AdditionalOptions="-Zm148"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".\"

@@ -34,6 +34,7 @@ CTraButton::CTraButton()
 	m_crClosePicPre = 0;
 	m_crClosePicDis = 0;
 	m_nClosePicWidth = 1;
+	m_nClosePicOffset = 2;
 	m_nDrawToolButtonPic = 0;
 	m_crToolButtonPicNor = 0;
 	m_crToolButtonPicHot = 0;
@@ -533,10 +534,14 @@ void CTraButton::DrawBK(HDC dc, CImage* img, TRA_BTNSTATE btnstate)
 
 		HPEN hPenNew = CreatePen(PS_SOLID,m_nClosePicWidth,crPanel);
 		HPEN hPenOld = (HPEN)SelectObject(dc,hPenNew);
-		::MoveToEx(dc,rc.left+2,rc.top+2,NULL);
-		::LineTo(dc,rc.right-m_nClosePicWidth-1,rc.bottom-m_nClosePicWidth-1);
-		::MoveToEx(dc,rc.right-m_nClosePicWidth-1,rc.top+2,NULL);
-		::LineTo(dc,rc.left+2,rc.bottom-m_nClosePicWidth-1);
+		::MoveToEx(dc,rc.left+m_nClosePicOffset,rc.top+m_nClosePicOffset,NULL);
+		::LineTo(dc,rc.right-m_nClosePicWidth-(m_nClosePicOffset-1),rc.bottom-m_nClosePicWidth-(m_nClosePicOffset-1));
+		::MoveToEx(dc,rc.right-m_nClosePicWidth-(m_nClosePicOffset-1),rc.top+m_nClosePicOffset,NULL);
+		::LineTo(dc,rc.left+m_nClosePicOffset,rc.bottom-m_nClosePicWidth-(m_nClosePicOffset-1));
+		//::MoveToEx(dc,rc.left+2,rc.top+2,NULL);
+		//::LineTo(dc,rc.right-m_nClosePicWidth-1,rc.bottom-m_nClosePicWidth-1);
+		//::MoveToEx(dc,rc.right-m_nClosePicWidth-1,rc.top+2,NULL);
+		//::LineTo(dc,rc.left+2,rc.bottom-m_nClosePicWidth-1);
 		SelectObject(dc,hPenOld);
 		DeleteObject(hPenNew);
 
@@ -569,6 +574,10 @@ void CTraButton::DrawBK(HDC dc, CImage* img, TRA_BTNSTATE btnstate)
 		case 10:	// Ô²µã
 			{
 				Gdiplus::Graphics graphics(dc);
+				if (m_nToolButtonPicWidth1==0)
+					m_nToolButtonPicWidth1 = rc.Width()/2;
+				if (m_nToolButtonPicWidth2==0)
+					m_nToolButtonPicWidth2 = rc.Height()/2;
 
 				Gdiplus::Rect rectRound;
 				rectRound.X = max(0,rc.Width()/2-m_nToolButtonPicWidth1-1);
@@ -577,7 +586,9 @@ void CTraButton::DrawBK(HDC dc, CImage* img, TRA_BTNSTATE btnstate)
 				rectRound.Height = m_nToolButtonPicWidth2*2;
 				graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);//¿¹¾â³Ý   
 				// »­Ô²
-				Gdiplus::SolidBrush brush2(Gdiplus::Color(255, GetRValue(crPanel), GetGValue(crPanel), GetBValue(crPanel)));  
+				//Gdiplus::Pen pen2(Gdiplus::Color(255, GetRValue(crPanel), GetGValue(crPanel), GetBValue(crPanel)));  
+				//graphics.DrawEllipse(&pen2,rectRound);
+				Gdiplus::SolidBrush brush2(Gdiplus::Color(255, GetRValue(crPanel), GetGValue(crPanel), GetBValue(crPanel)));
 				graphics.FillEllipse(&brush2,rectRound);
 
 /*
@@ -1163,7 +1174,7 @@ void CTraButton::SetDrawPanel(bool bDrawPanel, COLORREF crNor, COLORREF crHot, C
 	m_crPrePanel = crPre==-1?m_crNorPanel:crPre;
 	m_crDisPanel = crDis==-1?m_crNorPanel:crDis;
 }
-void CTraButton::SetDrawClosePic(bool bDrawClose, COLORREF crNor, COLORREF crHot, COLORREF crPre, COLORREF crDis, int nWidth)
+void CTraButton::SetDrawClosePic(bool bDrawClose, COLORREF crNor, COLORREF crHot, COLORREF crPre, COLORREF crDis, int nWidth, int nOffset)
 {
 	m_bDrawClosePic = bDrawClose;
 	m_crClosePicNor = crNor;
@@ -1171,6 +1182,7 @@ void CTraButton::SetDrawClosePic(bool bDrawClose, COLORREF crNor, COLORREF crHot
 	m_crClosePicPre = crPre==-1?m_crClosePicNor:crPre;
 	m_crClosePicDis = crDis==-1?m_crClosePicNor:crDis;
 	m_nClosePicWidth = nWidth;
+	m_nClosePicOffset = nOffset;
 }
 void CTraButton::SetDrawToolButtonPic(int nButtonType, COLORREF crNor, COLORREF crHot, COLORREF crPre, COLORREF crDis, int nWidth1, int nWidth2)
 {

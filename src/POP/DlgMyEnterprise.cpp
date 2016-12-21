@@ -9,8 +9,11 @@
 #include "DlgMemberInfo.h"
 #include "DlgViewContactInfo.h"
 
-#define TIMERID_EDIT_MEMBERINFO 100
-#define TIMERID_CHECK_ITEM_HOT		202
+#define TIMERID_EDIT_MEMBERINFO							100
+#define TIMERID_CHECK_ITEM_HOT							202
+#define TIMERID_UPDATE_ENTERPRISE_COUNT			203
+#define TIMERID_UPDATE_GROUP_COUNT					204
+#define TIMERID_UPDATE_PARENT_GROUP_COUNT		205
 
 // CDlgMyEnterprise dialog
 
@@ -218,17 +221,19 @@ void CDlgMyEnterprise::OnImportEntData()
 //	return NullTreeItemInfo;
 //}
 
-void CDlgMyEnterprise::SetGroupCount(HTREEITEM hGroupItem, eb::bigint sGroupCode)
+void CDlgMyEnterprise::SetGroupCount(const CTreeItemInfo::pointer& pGroupItem, eb::bigint sGroupCode, bool bFromMemberInfo)
 {
-	if (hGroupItem != NULL &&sGroupCode>0)
+	if (pGroupItem.get()!=NULL && pGroupItem->m_hItem!=NULL &&sGroupCode>0)
 	{
 #ifdef USES_EBCOM_TEST
 		CComPtr<IEB_GroupInfo> pGroupInfo = theEBClientCore->EB_GetGroupInfo(sGroupCode);
-		SetGroupCount(hGroupItem, pGroupInfo);
+		SetGroupCount(pGroupItem, pGroupInfo);
 #else
 		EB_GroupInfo pGroupInfo;
 		if (theEBAppClient.EB_GetGroupInfo(sGroupCode,&pGroupInfo))
-			SetGroupCount(hGroupItem, &pGroupInfo);
+		{
+			SetGroupCount(pGroupItem, &pGroupInfo, bFromMemberInfo);
+		}
 #endif
 	}
 }
@@ -248,7 +253,8 @@ void CDlgMyEnterprise::SetGroupCount(HTREEITEM hGroupItem, IEB_GroupInfo* pGroup
 			sText.Format(_T("%s [%d/%d]"), pEntItemInfo->m_sName.c_str(),nEnterpriseOnlineSize,nEnterpriseMemberSize);
 			m_treeEnterprise.SetItemText(pEntItemInfo->m_hItem, sText);
 		}
-		const int nMemberSize = pGroupInfo->EmpCount;//theEBClientCore->EB_GetGroupMemberSize(pGroupInfo->GroupCode);
+		const int nMemberSize = theEBClientCore->EB_GetGroupMemberSize(pGroupInfo->GroupCode);
+		//const int nMemberSize = pGroupInfo->EmpCount;//theEBClientCore->EB_GetGroupMemberSize(pGroupInfo->GroupCode);
 		const int nOnlineSize = theEBClientCore->EB_GetGroupOnlineSize(pGroupInfo->GroupCode);
 		CString sText;
 		if (nOnlineSize>=0 && nMemberSize>0)
@@ -261,33 +267,116 @@ void CDlgMyEnterprise::SetGroupCount(HTREEITEM hGroupItem, IEB_GroupInfo* pGroup
 	}
 }
 #else
-void CDlgMyEnterprise::SetGroupCount(HTREEITEM hGroupItem, const EB_GroupInfo* pGroupInfo)
+void CDlgMyEnterprise::SetGroupCount(const CTreeItemInfo::pointer& pGroupItem, const EB_GroupInfo* pGroupInfo, bool bFromMemberInfo)
 {
-	if (hGroupItem != NULL && pGroupInfo != NULL)
+	if (pGroupItem.get()!=NULL && pGroupItem->m_hItem!=NULL && pGroupInfo != NULL)
 	{
 		CTreeItemInfo::pointer pEntItemInfo;
 		if (m_pEntItemInfo.find(pGroupInfo->m_sEnterpriseCode,pEntItemInfo))
 		{
-			int nEnterpriseMemberSize = 0;
-			int nEnterpriseOnlineSize = 0;
-			theEBAppClient.EB_GetEnterpriseMemberSize(pGroupInfo->m_sEnterpriseCode,nEnterpriseMemberSize,nEnterpriseOnlineSize);
-			CString sText;
-			sText.Format(_T("%s [%d/%d]"), pEntItemInfo->m_sName.c_str(),nEnterpriseOnlineSize,nEnterpriseMemberSize);
-			m_treeEnterprise.SetItemText(pEntItemInfo->m_hItem, sText);
+			KillTimer(TIMERID_UPDATE_ENTERPRISE_COUNT);
+			m_pUpdateEntItemInfo = pEntItemInfo;
+			SetTimer(TIMERID_UPDATE_ENTERPRISE_COUNT,1000,NULL);
+			//int nEnterpriseMemberSize = 0;
+			//int nEnterpriseOnlineSize = 0;
+			//theEBAppClient.EB_GetEnterpriseMemberSize(pGroupInfo->m_sEnterpriseCode,nEnterpriseMemberSize,nEnterpriseOnlineSize);
+			//CString sText;
+			//sText.Format(_T("%s [%d/%d]"), pEntItemInfo->m_sName.c_str(),nEnterpriseOnlineSize,nEnterpriseMemberSize);
+			//m_treeEnterprise.SetItemText(pEntItemInfo->m_hItem, sText);
 		}
-		const int nMemberSize = pGroupInfo->m_nEmpCount;//theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode);
-		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode);
-		CString sText;
-		if (nOnlineSize>=0 && nMemberSize>0)
-			sText.Format(_T("%s [%d/%d]"), pGroupInfo->m_sGroupName.c_str(),nOnlineSize,nMemberSize);
-		else if (nMemberSize>0)
-			sText.Format(_T("%s [%d]"), pGroupInfo->m_sGroupName.c_str(),nMemberSize);
-		else
-			sText.Format(_T("%s"), pGroupInfo->m_sGroupName.c_str());
-		m_treeEnterprise.SetItemText(hGroupItem, sText);
+		if (pGroupItem->m_nCount1==-1 || !theApp.GetStatSubGroupMember())
+		{
+			// 统计当前部门人数
+			int nMemberSize = 0;
+			int nOnlineSize = 0;
+			theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode,1,nMemberSize,nOnlineSize);
+			if (nMemberSize==pGroupItem->m_nCount1 && nOnlineSize==pGroupItem->m_nCount2)
+			{
+				return;
+			}
+			pGroupItem->m_nCount1 = nMemberSize;
+			pGroupItem->m_nCount2 = nOnlineSize;
+			CString sText;
+			if (nOnlineSize>=0 && nMemberSize>0)
+				sText.Format(_T("%s [%d/%d]"), pGroupInfo->m_sGroupName.c_str(),nOnlineSize,nMemberSize);
+			else if (nMemberSize>0)
+				sText.Format(_T("%s [%d]"), pGroupInfo->m_sGroupName.c_str(),nMemberSize);
+			else
+				sText.Format(_T("%s"), pGroupInfo->m_sGroupName.c_str());
+			m_treeEnterprise.SetItemText(pGroupItem->m_hItem, sText);
+		}
+		if (theApp.GetStatSubGroupMember())
+		{
+			// 统计包含子部门人数
+			m_pUpdateGroupCountList.insert(pGroupItem->m_sGroupCode, pGroupItem, false);
+			KillTimer(TIMERID_UPDATE_GROUP_COUNT);
+			SetTimer(TIMERID_UPDATE_GROUP_COUNT,1500,NULL);
+		}
+		//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode,0);
+		//if (nMemberSize==pGroupItem->m_nCount1 && !bFromMemberInfo)
+		//	return;
+		////const int nMemberSize = pGroupInfo->m_nEmpCount;//theEBAppClient.EB_GetGroupMemberSize(pGroupInfo->m_sGroupCode);
+		//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode,0);
+		//if (nMemberSize==pGroupItem->m_nCount1 && nOnlineSize==pGroupItem->m_nCount2)
+		//{
+		//	return;
+		//}
+		//const bool bUpdateParentCountNow = pGroupItem->m_nCount1==-1?false:true;
+		//pGroupItem->m_nCount1 = nMemberSize;
+		//pGroupItem->m_nCount2 = nOnlineSize;
+		//CString sText;
+		//if (nOnlineSize>=0 && nMemberSize>0)
+		//	sText.Format(_T("%s [%d/%d]"), pGroupInfo->m_sGroupName.c_str(),nOnlineSize,nMemberSize);
+		//else if (nMemberSize>0)
+		//	sText.Format(_T("%s [%d]"), pGroupInfo->m_sGroupName.c_str(),nMemberSize);
+		//else
+		//	sText.Format(_T("%s"), pGroupInfo->m_sGroupName.c_str());
+		//m_treeEnterprise.SetItemText(pGroupItem->m_hItem, sText);
+		//if (pGroupInfo->m_sParentCode>0 && theApp.GetStatSubGroupMember())
+		//{
+		//	if (bUpdateParentCountNow)
+		//	{
+		//		//m_pUpdateParentGroupCountList.remove(pGroupInfo->m_sParentCode);
+		//		//UpdateParentGroupCount(pGroupInfo->m_sParentCode);
+		//	//}else
+		//	//{
+		//	//	m_pUpdateParentGroupCountList.insert(pGroupInfo->m_sParentCode,true,false);
+		//	//	KillTimer(TIMERID_UPDATE_PARENT_GROUP_COUNT);
+		//	//	SetTimer(TIMERID_UPDATE_PARENT_GROUP_COUNT,1000,NULL);
+		//	}
+		//}
 	}
 }
 #endif
+void CDlgMyEnterprise::UpdateParentGroupCount(eb::bigint nParentGroupCode)
+{
+	if (nParentGroupCode==0 || !theApp.GetStatSubGroupMember()) return;
+	CTreeItemInfo::pointer pTreeItemInfo;
+	if (m_pDepItemInfo.find(nParentGroupCode,pTreeItemInfo))
+	{
+		int nMemberSize = 0;
+		int nOnlineSize = 0;
+		theEBAppClient.EB_GetGroupMemberSize(nParentGroupCode,0,nMemberSize,nOnlineSize);
+		//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(nParentGroupCode,0);
+		//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(nParentGroupCode,0);
+		if (nMemberSize==pTreeItemInfo->m_nCount1 && nOnlineSize==pTreeItemInfo->m_nCount2)
+		{
+			return;
+		}
+		pTreeItemInfo->m_nCount1 = nMemberSize;
+		pTreeItemInfo->m_nCount2 = nOnlineSize;
+		const CEBString& sGroupName = pTreeItemInfo->m_sName;
+		CString sText;
+		if (nOnlineSize>=0 && nMemberSize>0)
+			sText.Format(_T("%s [%d/%d]"), sGroupName.c_str(),nOnlineSize,nMemberSize);
+		else if (nMemberSize>0)
+			sText.Format(_T("%s [%d]"), sGroupName.c_str(),nMemberSize);
+		else
+			sText.Format(_T("%s"), sGroupName.c_str());
+		m_treeEnterprise.SetItemText(pTreeItemInfo->m_hItem, sText);
+		UpdateParentGroupCount(pTreeItemInfo->m_sParentId);
+	}
+}
 
 void CDlgMyEnterprise::OnDepartment1New()
 {
@@ -919,9 +1008,11 @@ void CDlgMyEnterprise::DepartmentInfo(const EB_GroupInfo* pGroupInfo)
 		}
 		hParentItem = pParentItemInfo->m_hItem;
 	}
+	//bool bUpdateParentGroupCount = true;
 	CTreeItemInfo::pointer pTreeItemInfo;
 	if (!m_pDepItemInfo.find(pGroupInfo->m_sGroupCode,pTreeItemInfo))
 	{
+		//bUpdateParentGroupCount = false;
 		HTREEITEM hItem = m_treeEnterprise.InsertItem(pGroupInfo->m_sGroupName.c_str(), hParentItem);
 		pTreeItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_GROUP,hItem);
 		pTreeItemInfo->m_sEnterpriseCode = pGroupInfo->m_sEnterpriseCode;
@@ -930,6 +1021,8 @@ void CDlgMyEnterprise::DepartmentInfo(const EB_GroupInfo* pGroupInfo)
 		pTreeItemInfo->m_nSubType = pGroupInfo->m_nGroupType;
 		pTreeItemInfo->m_dwItemData = 0;
 		pTreeItemInfo->m_nBigId = pGroupInfo->m_nMyEmpId;
+		pTreeItemInfo->m_nCount1 = -1;	// for member-size
+		pTreeItemInfo->m_nCount2 = -1;	// for online-size
 		m_pDepItemInfo.insert(pGroupInfo->m_sGroupCode,pTreeItemInfo);
 		m_treeEnterprise.SetItemData(hItem,(DWORD)pTreeItemInfo.get());
 	}
@@ -938,7 +1031,7 @@ void CDlgMyEnterprise::DepartmentInfo(const EB_GroupInfo* pGroupInfo)
 	pTreeItemInfo->m_nSubType = pGroupInfo->m_nGroupType;
 	m_treeEnterprise.Sort(hParentItem,CPOPApp::TreeCmpFunc);
 	//m_treeEnterprise.Expand(pEntItemInfo->m_hItem, TVE_EXPAND);
-	SetGroupCount(pTreeItemInfo->m_hItem, pGroupInfo);
+	SetGroupCount(pTreeItemInfo, pGroupInfo, false);
 }
 #endif
 
@@ -1027,7 +1120,7 @@ void CDlgMyEnterprise::EmployeeInfo(IEB_MemberInfo* pEBEmployeeInfo, bool bChang
 		m_treeEnterprise.Sort(pDepItemInfo->m_hItem,CPOPApp::TreeCmpFunc);
 	}
 	if (bChangeLineState)
-		SetGroupCount(pDepItemInfo->m_hItem, sGroupCode);
+		SetGroupCount(pDepItemInfo, sGroupCode);
 	// **不需要选择
 	//if (bNew)
 	//{
@@ -1104,7 +1197,7 @@ void CDlgMyEnterprise::EmployeeInfo(const EB_MemberInfo* pMemberInfo, bool bChan
 		pEmpItemInfo->m_nSubType = 0;
 
 	if (bChangeLineState)
-		SetGroupCount(pDepItemInfo->m_hItem, pMemberInfo->m_sGroupCode);
+		SetGroupCount(pDepItemInfo, pMemberInfo->m_sGroupCode,true);
 	// **不需要选择
 	//if (bNew)
 	//{
@@ -1126,7 +1219,7 @@ void CDlgMyEnterprise::DeleteEmployeeInfo(IEB_GroupInfo* pGroupInfo, eb::bigint 
 	if (m_pEmpItemInfo.find(sMemberCode, pEmpItemInfo, true))
 	{
 		m_treeEnterprise.DeleteItem(pEmpItemInfo->m_hItem);
-		SetGroupCount(pDepItemInfo->m_hItem, pGroupInfo);
+		SetGroupCount(pDepItemInfo, pGroupInfo);
 	}
 }
 #else
@@ -1141,7 +1234,7 @@ void CDlgMyEnterprise::DeleteEmployeeInfo(const EB_GroupInfo* pGroupInfo, eb::bi
 	if (m_pEmpItemInfo.find(nMemberCode, pEmpItemInfo, true))
 	{
 		m_treeEnterprise.DeleteItem(pEmpItemInfo->m_hItem);
-		SetGroupCount(pDepItemInfo->m_hItem, pGroupInfo);
+		SetGroupCount(pDepItemInfo, pGroupInfo, true);
 	}
 }
 #endif
@@ -1171,18 +1264,11 @@ void CDlgMyEnterprise::OnNMRClickTreeEnterprise(NMHDR *pNMHDR, LRESULT *pResult)
 		(pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP && bIsMyGroup))
 	{
 		bNeedSeparator = false;
-		//if (bIsMyGroup)
-		//{
-		//	bNeedSeparator = true;
-		//	m_menu2.InsertODMenu(-1,_T("打开会话(&C)"),MF_BYPOSITION,EB_COMMAND_CALL_USER,IDB_BITMAP_MENU_CALL);
-		//}
 		if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP && bIsMyGroup)
+		//if (bIsMyGroup)
 		{
-			//if (bNeedSeparator)
-			//	m_menu2.AppendMenu(MF_SEPARATOR);
 			bNeedSeparator = true;
-			m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
-			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,_T("群共享"));
+			m_menu2.InsertODMenu(-1,_T("打开会话(&C)"),MF_BYPOSITION,EB_COMMAND_CALL_USER,IDB_BITMAP_MENU_CALL);
 		}
 		// 判断聊天记录
 		CString sSql;
@@ -1204,6 +1290,14 @@ void CDlgMyEnterprise::OnNMRClickTreeEnterprise(NMHDR *pNMHDR, LRESULT *pResult)
 			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_MSG_VIEW_MSG_RECORD,_T("聊天记录"));
 			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_DELETE_MSG_RECORD,_T("清空聊天记录"));
 			bNeedSeparator = true;
+		}
+		if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP && bIsMyGroup)
+		{
+			//if (bNeedSeparator)
+			//	m_menu2.AppendMenu(MF_SEPARATOR);
+			bNeedSeparator = true;
+			m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
+			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,_T("群共享"));
 		}
 	}
 	if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER)
@@ -1886,6 +1980,83 @@ void CDlgMyEnterprise::OnTimer(UINT_PTR nIDEvent)
 		if (m_hCurrentHotItem!=NULL && m_hCurrentHotItem==m_treeEnterprise.GetTrackItem())
 		{
 			this->PostMessage(WM_ITEM_TRACK_HOT,(WPARAM)m_treeEnterprise.GetTrackItem(),(LPARAM)&m_treeEnterprise);
+		}
+	}else if (TIMERID_UPDATE_PARENT_GROUP_COUNT==nIDEvent)
+	{
+		KillTimer(nIDEvent);
+		BoostWriteLock wtlock(m_pUpdateParentGroupCountList.mutex());
+		CLockMap<eb::bigint,bool>::iterator pIter = m_pUpdateParentGroupCountList.begin();
+		if (pIter!=m_pUpdateParentGroupCountList.end())
+		{
+			const mycp::bigint nGroupId = pIter->first;
+			m_pUpdateParentGroupCountList.erase(pIter);
+			wtlock.unlock();
+			UpdateParentGroupCount(nGroupId);
+		}
+		if (!m_pUpdateParentGroupCountList.empty(false))
+		{
+			SetTimer(TIMERID_UPDATE_PARENT_GROUP_COUNT,100,NULL);
+		}
+	}else if (nIDEvent==TIMERID_UPDATE_GROUP_COUNT)
+	{
+		KillTimer(nIDEvent);
+		{
+			BoostWriteLock wtlock(m_pUpdateGroupCountList.mutex());
+			CLockMap<eb::bigint,CTreeItemInfo::pointer>::iterator pIter = m_pUpdateGroupCountList.begin();
+			if (pIter!=m_pUpdateGroupCountList.end())
+			{
+				const mycp::bigint nGroupId = pIter->first;
+				const CTreeItemInfo::pointer pGroupItem = pIter->second;
+				m_pUpdateGroupCountList.erase(pIter);
+				wtlock.unlock();
+				int nMemberSize = 0;
+				int nOnlineSize = 0;
+				theEBAppClient.EB_GetGroupMemberSize(nGroupId,0,nMemberSize,nOnlineSize);
+				if (nMemberSize!=pGroupItem->m_nCount1 || nOnlineSize!=pGroupItem->m_nCount2)
+				{
+					//const bool bUpdateParentCountNow = pGroupItem->m_nCount1==-1?false:true;
+					pGroupItem->m_nCount1 = nMemberSize;
+					pGroupItem->m_nCount2 = nOnlineSize;
+					CString sText;
+					if (nOnlineSize>=0 && nMemberSize>0)
+						sText.Format(_T("%s [%d/%d]"), pGroupItem->m_sName.c_str(),nOnlineSize,nMemberSize);
+					else if (nMemberSize>0)
+						sText.Format(_T("%s [%d]"), pGroupItem->m_sName.c_str(),nMemberSize);
+					else
+						sText.Format(_T("%s"), pGroupItem->m_sName.c_str());
+					m_treeEnterprise.SetItemText(pGroupItem->m_hItem, sText);
+					if (pGroupItem->m_sParentId>0 && theApp.GetStatSubGroupMember())
+					{
+						//if (bUpdateParentCountNow)
+						//{
+						//	m_pUpdateParentGroupCountList.remove(pGroupItem->m_sParentId);
+						//	UpdateParentGroupCount(pGroupItem->m_sParentId);
+						//}else
+						{
+							m_pUpdateParentGroupCountList.insert(pGroupItem->m_sParentId,true,false);
+							KillTimer(TIMERID_UPDATE_PARENT_GROUP_COUNT);
+							SetTimer(TIMERID_UPDATE_PARENT_GROUP_COUNT,1000,NULL);
+						}
+					}
+				}
+			}
+		}
+		if (!m_pUpdateGroupCountList.empty(false))
+		{
+			SetTimer(TIMERID_UPDATE_GROUP_COUNT,10,NULL);
+		}
+	}else if (nIDEvent==TIMERID_UPDATE_ENTERPRISE_COUNT)
+	{
+		KillTimer(TIMERID_UPDATE_ENTERPRISE_COUNT);
+		if (m_pUpdateEntItemInfo.get()!=NULL)
+		{
+			int nEnterpriseMemberSize = 0;
+			int nEnterpriseOnlineSize = 0;
+			theEBAppClient.EB_GetEnterpriseMemberSize(m_pUpdateEntItemInfo->m_sEnterpriseCode,nEnterpriseMemberSize,nEnterpriseOnlineSize);
+			CString sText;
+			sText.Format(_T("%s [%d/%d]"), m_pUpdateEntItemInfo->m_sName.c_str(),nEnterpriseOnlineSize,nEnterpriseMemberSize);
+			m_treeEnterprise.SetItemText(m_pUpdateEntItemInfo->m_hItem, sText);
+			m_pUpdateEntItemInfo.reset();
 		}
 	}
 	__super::OnTimer(nIDEvent);

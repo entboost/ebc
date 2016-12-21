@@ -6,9 +6,9 @@
 #include "PanelVideos.h"
 //#include "Core/MediaDevice.h"
 
-#define MAKEINT64(a, b)    ((INT64)(((DWORD)(((INT64)(a)) & 0xffffffff)) | ((INT64)((DWORD)(((INT64)(b)) & 0xffffffff))) << 32))
-#define LOINT64(l)         ((DWORD)(((INT64)(l)) & 0xffffffff))
-#define HIINT64(l)         ((DWORD)((((INT64)(l)) >> 32) & 0xffffffff))
+//#define MAKEINT64(a, b)    ((INT64)(((DWORD)(((INT64)(a)) & 0xffffffff)) | ((INT64)((DWORD)(((INT64)(b)) & 0xffffffff))) << 32))
+//#define LOINT64(l)         ((DWORD)(((INT64)(l)) & 0xffffffff))
+//#define HIINT64(l)         ((DWORD)((((INT64)(l)) >> 32) & 0xffffffff))
 
 #define TIMER_ID_DO_VIDEO_CONNECTE		111
 #define TIMER_ID_DO_VIDEO_DISCONNECTE	112

@@ -32,6 +32,7 @@ public:
 	CDlgMsgRecord(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDlgMsgRecord();
 
+	EB_CallInfo m_pCallInfo;
 	void SetChildMode(bool bChildMode = true) {m_bChildMode = bChildMode;}
 	void SetCtrlColor(bool bInvalidate = true);
 	void LoadAccountMsgRecord(eb::bigint sAccount, const tstring& sName);
@@ -40,6 +41,7 @@ public:
 	void NotifyMoveOrResizeStarted(void);
 	//void RefreshWeb(void);
 	void OnMove(void);
+	void OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType);
 
 // Dialog Data
 	enum { IDD = IDD_DLG_MSGRECORD, IDD_CHILD = IDD_DLG_MSGRECORD_CHILD };
@@ -57,7 +59,7 @@ protected:
 	CLockMap<eb::bigint,int> m_pMsgIdOffsetList;
 	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromname,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag);
 	void LoadMsgRecord(const CString& sSql);
-	void WriteFileHICON(const char* lpszFilePath);
+	void WriteFileHICON(const char* lpszFilePath,long nCtrlType=EB_MR_CTRL_TYPE_LCLICK_OPEN);
 
 	CPanelFind* m_pPanelFind;
 	CPanelText * m_pPanelStatus;
@@ -106,6 +108,7 @@ protected:
 	virtual void Fire_onItemMoveLeave(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 
 	virtual tstring GetSelectString(void) const;
+	virtual void OnDeleteMsg(mycp::bigint nMsgId);
 
 	HWND m_hCurrentSelect;
 	void Update(void);

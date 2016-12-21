@@ -36,6 +36,15 @@ public:
 	virtual bool callService(int function, const cgcValueInfo::pointer& inParam = cgcNullValueInfo, cgcValueInfo::pointer outParam = cgcNullValueInfo) {return false;}
 	virtual bool callService(const tstring& function, const cgcValueInfo::pointer& inParam = cgcNullValueInfo, cgcValueInfo::pointer outParam = cgcNullValueInfo) {return false;}
 };
+//#define USES_SERVICE_RELEASE_CALLBACK
+#ifdef USES_SERVICE_RELEASE_CALLBACK
+class cgcServiceInterface;
+class cgcServiceReleaseCallback
+{
+public:
+	virtual void onServiceRelease(const cgcServiceInterface* pServiceInterface) = 0;
+};
+#endif
 
 class cgcServiceInterface
 	: public cgcServiceCall
@@ -54,17 +63,32 @@ public:
 	void clearCallback(void) {m_callback1 = (cgcServiceInterface*)0; m_callback2.reset();}
 	void setCallback1(cgcServiceCall * callback) {m_callback1 = callback;}
 	void setCallback2(cgcServiceCall::pointer callback) {m_callback2 = callback;}
-
+#ifdef USES_SERVICE_RELEASE_CALLBACK
+	void setReleaseCallback(cgcServiceReleaseCallback* callback) {m_pReleaseCallback = callback;}
+#endif
 	cgcServiceInterface(void)
 		: m_bServiceInited(false), m_callback1((cgcServiceInterface*)0)
+#ifdef USES_SERVICE_RELEASE_CALLBACK
+		: m_pReleaseCallback(NULL)
+#endif
 	{
 		m_serviceInfo = CGC_VALUEINFO((int)0);
 	}
+#ifdef USES_SERVICE_RELEASE_CALLBACK
+	virtual ~cgcServiceInterface(void)
+	{
+		if (m_pReleaseCallback!=NULL)
+			m_pReleaseCallback->onServiceRelease(this);
+	}
+#endif
 protected:
 	bool m_bServiceInited;
 	cgcValueInfo::pointer m_serviceInfo;
 	cgcServiceCall * m_callback1;			// default m_callback1
 	cgcServiceCall::pointer m_callback2;	// or m_callback2
+#ifdef USES_SERVICE_RELEASE_CALLBACK
+	cgcServiceReleaseCallback* m_pReleaseCallback;
+#endif
 };
 
 const cgcServiceInterface::pointer cgcNullServiceInterface;

@@ -48,6 +48,7 @@ CDlgOAuth::CDlgOAuth(CWnd* pParent /*=NULL*/)
 	m_nSaveConversations = 3;
 	m_bAuthContact = false;
 	m_nDeployId = 0;
+	m_nLicenstType = 0;
 	//m_nGroupMsgSubId = 0;
 	m_nAutoOpenSubId = 0;
 	m_bAutoHideMainFrame = false;
@@ -60,6 +61,7 @@ CDlgOAuth::CDlgOAuth(CWnd* pParent /*=NULL*/)
 	m_bDisableAccountEdit = false;
 	m_nDefaultBrowserType = EB_BROWSER_TYPE_CEF;
 	m_bDisableMsgReceipt = false;
+	m_bStatSubGroupMember = true;
 
 	m_nWaitCloseIndex = 0;
 	m_bDocumentComplete = false;
@@ -408,6 +410,9 @@ LRESULT CDlgOAuth::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 		m_nDeployId = eb_atoi64((const char*)pDeployId);
 		theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_DEPLOY_ID,pDeployId);
 	}
+	unsigned long nLicenseType = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_LICENSE_TYPE,&nLicenseType);
+	m_nLicenstType = nLicenseType;
 	//unsigned long pGroupMsgSubId = 0;
 	//theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_GROUP_MSG_SUBID,&pGroupMsgSubId);
 	//if (pGroupMsgSubId!=NULL && strlen((const char*)pGroupMsgSubId)>0)
@@ -452,6 +457,9 @@ LRESULT CDlgOAuth::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long nDisableMsgReceipt = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_MSG_RECEIPT,&nDisableMsgReceipt);
 	m_bDisableMsgReceipt = nDisableMsgReceipt==1?true:false;
+	unsigned long nStatSubGroupMember = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_STAT_SUB_GROUP_MEMBER,&nStatSubGroupMember);
+	m_bStatSubGroupMember = nStatSubGroupMember==1?true:false;
 
 #endif
 	return 0;

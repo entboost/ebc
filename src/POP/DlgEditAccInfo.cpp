@@ -61,6 +61,14 @@ void CDlgEditAccInfo::CheckData(void)
 		theEBAppClient.EB_GetAreaInfo(0,1);
 #endif
 	}
+	// 更新用户帐号
+#ifdef USES_EBCOM_TEST
+	const CEBString sUserName = theEBClientCore->EB_UserName.GetBSTR();
+#else
+	const CEBString sUserName = theEBAppClient.EB_GetUserName();;
+#endif
+	m_pMyAccountInfo.SetUserName(sUserName);
+	this->GetDlgItem(IDC_EDIT_USERNAME)->SetWindowText(m_pMyAccountInfo.GetUserName().c_str());
 }
 
 void CDlgEditAccInfo::SetCtrlColor(void)

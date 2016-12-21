@@ -123,10 +123,10 @@ void CDlgMemberInfo::OnBnClickedOk()
 			//nPhone = eb_atoi64(sAccount.c_str());
 		}else
 		{
-			// 错误格式；
-			this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
-			CDlgMessageBox::EbMessageBox(this,"","帐号格式错误：\r\n请重新输入正确邮箱地址或手机号码！",CDlgMessageBox::IMAGE_WARNING,5);
-			return;
+			//// 错误格式；
+			//this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
+			//CDlgMessageBox::EbMessageBox(this,"","帐号格式错误：\r\n请重新输入正确邮箱地址或手机号码！",CDlgMessageBox::IMAGE_WARNING,5);
+			//return;
 		}
 	}
 	if (m_sUserName.IsEmpty())

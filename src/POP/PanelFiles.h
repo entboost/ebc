@@ -18,6 +18,7 @@ public:
 	CPanelFiles(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CPanelFiles();
 
+	//EB_CallInfo m_pCallInfo;
 	void ExitChat(bool bHangup);
 
 #ifdef USES_EBCOM_TEST

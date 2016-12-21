@@ -102,7 +102,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
     LTEXT           "eblogin, Version 2.2.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2013-2016",IDC_STATIC,42,26,114,8
+    LTEXT           "Copyright (C) 2013-2017",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
@@ -183,8 +183,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,0,323
- PRODUCTVERSION 2,2,0,323
+ FILEVERSION 2,2,0,331
+ PRODUCTVERSION 2,2,0,331
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -201,12 +201,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
             VALUE "FileDescription", "恩布互联客户端登录验证程序"
-            VALUE "FileVersion", "2, 2, 0, 323"
+            VALUE "FileVersion", "2, 2, 0, 331"
             VALUE "InternalName", "eblogin.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "eblogin.exe"
             VALUE "ProductName", "恩布互联客户端登录验证程序"
-            VALUE "ProductVersion", "2, 2, 0, 323"
+            VALUE "ProductVersion", "2, 2, 0, 331"
         END
     END
     BLOCK "VarFileInfo"

@@ -27,7 +27,7 @@ public:
 	void OnUserEmpInfo(IEB_MemberInfo* pMemberInfo, bool bSort);
 #else
 	void ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo);
-	void OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort);
+	int OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort);
 #endif
 	void LineStateChange(eb::bigint nUserId, EB_USER_LINE_STATE bLineState);
 	void OnExitUser(eb::bigint nUserId,bool bExitDep);

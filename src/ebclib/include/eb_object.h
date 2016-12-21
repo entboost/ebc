@@ -168,6 +168,7 @@ public:
 	//CEBString m_sCreator;
 	eb::bigint m_nCreateUserId;
 	CEBString m_sTime;
+	CEBString m_sDeleteTime;
 	unsigned int m_nDownloads;
 	eb::bigint m_nSize;
 	EB_RESOURCE_SHARE_TYPE m_nShare;
@@ -219,6 +220,7 @@ public:
 		//m_sCreator = pObj.m_sCreator;
 		m_nCreateUserId = pObj.m_nCreateUserId;
 		m_sTime = pObj.m_sTime;
+		m_sDeleteTime = pObj.m_sDeleteTime;
 		m_nDownloads = pObj.m_nDownloads;
 		m_nSize = pObj.m_nSize;
 		m_nShare = pObj.m_nShare;
@@ -504,6 +506,7 @@ public:
 	eb::bigint	m_nMemberUserId;
 	eb::bigint	m_sMemberCode;
 	//CEBString	m_sMemberCode;
+	CEBString	m_sAccountName;
 	CEBString	m_sName;
 	CEBString	m_sPhone;
 	CEBString	m_sTel;
@@ -553,6 +556,7 @@ public:
 			m_nAccountType = pECardInfo->m_nAccountType;
 			m_nMemberUserId = pECardInfo->m_nMemberUserId;
 			m_sMemberCode = pECardInfo->m_sMemberCode;
+			m_sAccountName = pECardInfo->m_sAccountName;
 			m_sName = pECardInfo->m_sName;
 			m_sPhone = pECardInfo->m_sPhone;
 			m_sTel = pECardInfo->m_sTel;
@@ -580,6 +584,7 @@ public:
 			m_nAccountType = (EB_ACCOUNT_TYPE)pECardInfo->AccountType;
 			m_nMemberUserId = pECardInfo->MemberUserId;
 			m_sMemberCode = pECardInfo->MemberCode;
+			m_sAccountName = pECardInfo->AccountName.GetBSTR();
 			m_sName = pECardInfo->Name.GetBSTR();
 			m_sPhone = pECardInfo->Phone.GetBSTR();
 			m_sTel = pECardInfo->Tel.GetBSTR();

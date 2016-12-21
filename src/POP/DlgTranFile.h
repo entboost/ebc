@@ -33,6 +33,7 @@ public:
 	bool m_bIsSendingFile;					// default false;
 	//eb::bigint m_sResourceId;
 	CCrFileInfo m_pCrFileInfo;
+	//EB_CallInfo m_pCallInfo;
 // Dialog Data
 	enum { IDD = IDD_DLG_TRANFILE };
 

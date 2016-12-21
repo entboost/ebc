@@ -120,9 +120,9 @@ private:
 const int escape_in_size = 1;
 const mycp::tstring escape_in[] = {"''"};
 const mycp::tstring escape_out[] = {"'"};
-const int escape_old_out_size = 2;	// ?ºÊ»›æ…∞Ê±æ
-const mycp::tstring escape_old_in[] = {"&lsquo;","&pge0;"};
-const mycp::tstring escape_old_out[] = {"'","\\"};
+//const int escape_old_out_size = 2;	// ?ºÊ»›æ…∞Ê±æ
+//const mycp::tstring escape_old_in[] = {"&lsquo;","&pge0;"};
+//const mycp::tstring escape_old_out[] = {"'","\\"};
 
 //const int escape_size = 2;
 //const mycp::tstring escape_in[] = {"&lsquo;","&mse0;"};
@@ -179,8 +179,8 @@ public:
 	}
 	static void escape_string_out(mycp::tstring & str)
 	{
-		for (int i=0; i<escape_old_out_size; i++)
-			replace(str, escape_old_in[i], escape_old_out[i]);
+		//for (int i=0; i<escape_old_out_size; i++)
+		//	replace(str, escape_old_in[i], escape_old_out[i]);
 	}
 
 	// UTF-8

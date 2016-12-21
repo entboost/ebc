@@ -22,6 +22,12 @@ using namespace entboost;
 //
 CString GetLineStateText(EB_USER_LINE_STATE nLineState);
 
+/*
+ * eblogin.exe 恩布客户端登录验证程序
+ * APP 应用类
+ * 
+*//////////////////////////////////////////////////////
+
 class CebloginApp : public CWinAppEx
 {
 public:

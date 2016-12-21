@@ -369,8 +369,11 @@ BOOL CDlgChatRight::OnInitDialog()
 		m_pTabList.add(pTabInfo);
 	}else
 	{
-		const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode);
-		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(m_pCallInfo.m_sGroupCode);
+		int nMemberSize = 0;
+		int nOnlineSize = 0;
+		theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode,1,nMemberSize,nOnlineSize);
+		//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode,1);
+		//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(m_pCallInfo.m_sGroupCode,1);
 		CString sWindowText;
 		if (nOnlineSize>=0)
 			sWindowText.Format(_T("群成员(%d/%d)"),nOnlineSize,nMemberSize);
@@ -458,6 +461,7 @@ BOOL CDlgChatRight::OnInitDialog()
 
 	m_pPanFiles = new CPanelFiles(this);
 	m_pPanFiles->SetCircle(false);
+	//m_pPanFiles->m_pCallInfo = m_pCallInfo;
 	//m_pPanFiles->m_pChatRoom = m_pChatRoom;
 	m_pPanFiles->Create(CPanelFiles::IDD, this);
 	m_pPanFiles->ShowWindow(SW_HIDE);
@@ -612,6 +616,7 @@ void CDlgChatRight::OnExitUser(eb::bigint nUserId, bool bExitDep)
 	if (m_pDlgUserList != NULL && m_pDlgUserList->GetSafeHwnd() != NULL)
 	{
 		m_pDlgUserList->OnExitUser(nUserId,bExitDep);
+		UpdateGroupUsers();
 		//int nUserSize = m_pChatRoom->GetUserSize();
 		//if (nUserSize < 2)
 		//	m_pDlgUserList->ShowWindow(SW_HIDE);
@@ -622,6 +627,7 @@ void CDlgChatRight::OnEnterUser(eb::bigint nUserId, const char* sFromInfo, bool 
 	if (m_pDlgUserList != NULL && m_pDlgUserList->GetSafeHwnd() != NULL)
 	{
 		m_pDlgUserList->OnEnterUser(nUserId,bSort);
+		UpdateGroupUsers();
 		//int nUserSize = m_pChatRoom->GetUserSize();
 		//if (nUserSize > 2)
 		//	m_pDlgUserList->ShowWindow(SW_SHOW);
@@ -646,10 +652,17 @@ void CDlgChatRight::LineStateChange(eb::bigint nUserId, EB_USER_LINE_STATE bLine
 {
 	if (m_pDlgUserList!=NULL)
 		m_pDlgUserList->LineStateChange(nUserId, bLineState);
+	UpdateGroupUsers();
+}
+void CDlgChatRight::UpdateGroupUsers(void)
+{
 	if (m_pCallInfo.m_sGroupCode>0)
 	{
-		const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode);
-		const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(m_pCallInfo.m_sGroupCode);
+		int nMemberSize = 0;
+		int nOnlineSize = 0;
+		theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode,1,nMemberSize,nOnlineSize);
+		//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(m_pCallInfo.m_sGroupCode,1);
+		//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(m_pCallInfo.m_sGroupCode,1);
 		CString sWindowText;
 		if (nOnlineSize>=0)
 			sWindowText.Format(_T("群成员(%d/%d)"),nOnlineSize,nMemberSize);
@@ -798,7 +811,7 @@ void CDlgChatRight::ExitChat(bool bHangup)
 #ifdef USES_EBCOM_TEST
 void CDlgChatRight::OnUserEmpInfo(IEB_MemberInfo* pMemberInfo)
 {
-	if (m_pDlgUserList)
+	if (m_pDlgUserList!=NULL)
 	{
 		m_pDlgUserList->OnUserEmpInfo(pMemberInfo);
 	}
@@ -806,9 +819,12 @@ void CDlgChatRight::OnUserEmpInfo(IEB_MemberInfo* pMemberInfo)
 #else
 void CDlgChatRight::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 {
-	if (m_pDlgUserList)
+	if (m_pDlgUserList!=NULL)
 	{
-		m_pDlgUserList->OnUserEmpInfo(pMemberInfo,bSort);
+		if (m_pDlgUserList->OnUserEmpInfo(pMemberInfo,bSort)==1)
+		{
+			UpdateGroupUsers();
+		}
 	}
 }
 #endif
@@ -1099,6 +1115,11 @@ void CDlgChatRight::SetFilePercent(const CChatRoomFilePercent * pChatRoomFilePer
 	}
 }
 #endif
+void CDlgChatRight::OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType)
+{
+	if (m_pMsgRecord!=NULL)
+		m_pMsgRecord->OnMsgReceipt(pCrMsgInfo, nAckType);
+}
 void CDlgChatRight::OnResourceMove(const EB_ResourceInfo& pResourceInfo,eb::bigint nOldParentResId)
 {
 	if (m_pResourceMgr!=NULL)
@@ -1779,19 +1800,19 @@ void CDlgChatRight::CheckMousePos(void)
 //}
 void CDlgChatRight::CheckAndSendAdjustWidth(void)
 {
-	const int nNeedWidth = GetNeedWidth();
-	CRect rect;
-	this->GetWindowRect(&rect);
-	const int nWidthOffset = nNeedWidth-rect.Width();
-	if (nWidthOffset!=0 && this->GetSafeHwnd()!=NULL)
-	{
-		if (rect.left>0 && rect.right>0)	// 上个窗口最小化为负数，不处理
-		{
-			rect.right += nWidthOffset;
-			this->MoveWindow(&rect);
-		}
-		this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_ADJUST_WIDTH,(WPARAM)this->GetSafeHwnd(),(LPARAM)nWidthOffset);
-	}
+	//const int nNeedWidth = GetNeedWidth();
+	//CRect rect;
+	//this->GetWindowRect(&rect);
+	//const int nWidthOffset = nNeedWidth-rect.Width();
+	//if (nWidthOffset!=0 && this->GetSafeHwnd()!=NULL)
+	//{
+	//	if (rect.left>0 && rect.right>0)	// 上个窗口最小化为负数，不处理
+	//	{
+	//		rect.right += nWidthOffset;
+	//		this->MoveWindow(&rect);
+	//	}
+	//	this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_ADJUST_WIDTH,(WPARAM)this->GetSafeHwnd(),(LPARAM)nWidthOffset);
+	//}
 }
 void CDlgChatRight::ChangeTabPos(void)
 {
@@ -1878,6 +1899,7 @@ LRESULT CDlgChatRight::OnMessageMsgRecord(WPARAM wParam, LPARAM lParam)
 	if (m_pMsgRecord==NULL)
 	{
 		m_pMsgRecord = new CDlgMsgRecord(this);
+		m_pMsgRecord->m_pCallInfo = m_pCallInfo;
 		m_pMsgRecord->SetChildMode(true);
 		m_pMsgRecord->SetCircle(false);
 		//m_pMsgRecord->Create(CDlgMsgRecord::IDD, this);	// **界面会卡

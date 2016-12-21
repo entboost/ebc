@@ -14,6 +14,10 @@ CDlgToolbar::CDlgToolbar(CWnd* pParent /*=NULL*/)
 	: CEbDialogBase(CDlgToolbar::IDD, pParent)
 {
 	m_nDataType = EB_MR_CTRL_DATA_TYPE_URL;
+	m_nMsgId = 0;
+	m_nMsgFromUserId = 0;
+	m_nMsgType = MRT_UNKNOWN;
+	m_nMsgReadFlag = 0;
 	m_nButtonCount = 0;
 	m_hMsgWnd = NULL;
 	m_pCallback = NULL;
@@ -31,6 +35,8 @@ void CDlgToolbar::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_2, m_btnOpen2);
 	DDX_Control(pDX, IDC_BTN_3, m_btnOpen3);
 	DDX_Control(pDX, IDC_BTN_4, m_btnOpen4);
+	DDX_Control(pDX, IDC_BTN_5, m_btnOpen5);
+	DDX_Control(pDX, IDC_BTN_6, m_btnOpen6);
 }
 
 
@@ -43,6 +49,8 @@ BEGIN_MESSAGE_MAP(CDlgToolbar, CEbDialogBase)
 	ON_BN_CLICKED(IDC_BTN_2, &CDlgToolbar::OnBnClickedBtn2)
 	ON_BN_CLICKED(IDC_BTN_3, &CDlgToolbar::OnBnClickedBtn3)
 	ON_BN_CLICKED(IDC_BTN_4, &CDlgToolbar::OnBnClickedBtn4)
+	ON_BN_CLICKED(IDC_BTN_5, &CDlgToolbar::OnBnClickedBtn5)
+	ON_BN_CLICKED(IDC_BTN_6, &CDlgToolbar::OnBnClickedBtn6)
 END_MESSAGE_MAP()
 
 void CDlgToolbar::SetCtrlColor(bool bInvalidate)
@@ -60,19 +68,64 @@ void CDlgToolbar::SetCtrlColor(bool bInvalidate)
 	m_btnOpen3.SetPreTextColor(theApp.GetPreColor());
 	m_btnOpen4.SetHotTextColor(theApp.GetMainColor());
 	m_btnOpen4.SetPreTextColor(theApp.GetPreColor());
+	m_btnOpen5.SetHotTextColor(theApp.GetMainColor());
+	m_btnOpen5.SetPreTextColor(theApp.GetPreColor());
+	m_btnOpen6.SetHotTextColor(theApp.GetMainColor());
+	m_btnOpen6.SetPreTextColor(theApp.GetPreColor());
 
 	if (bInvalidate)
 		this->Invalidate();
 }
-int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::string& sString, bool& pOutChangeData)
+int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::string& sString, mycp::bigint nMsgId, bool& pOutChangeData)
 {
-	pOutChangeData = m_nDataType != nDataType || m_sMoveEnterString != sString;
-	if (!pOutChangeData) return 4;
+	pOutChangeData = m_nDataType != nDataType || m_sMoveEnterString != sString || m_nMsgId!=nMsgId;
+	if (!pOutChangeData) return m_nButtonCount;	// 4;
 	m_nDataType = nDataType;
 	m_sMoveEnterString = sString;
+	m_nMsgId = nMsgId;
+	m_nMsgFromUserId = 0;
+	m_nMsgType = MRT_UNKNOWN;
+	m_nMsgReadFlag = 0;
+	if (m_nMsgId>0)
+	{
+		CString sSql;
+		sSql.Format(_T("select from_uid,read_flag,msg_type FROM msg_record_t WHERE msg_id=%lld LIMIT 1"),m_nMsgId);
+		int nCookie = 0;
+		const mycp::bigint nRet = theApp.m_pBoUsers->select(sSql, nCookie);
+		cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->last(nCookie);
+		if (pRecord.get()!=NULL)
+		{
+			m_nMsgFromUserId = pRecord->getVector()[0]->getBigIntValue();
+			m_nMsgReadFlag = pRecord->getVector()[1]->getIntValue();
+			m_nMsgType = (MSG_RECORD_TYPE)pRecord->getVector()[2]->getIntValue();
+			theApp.m_pBoUsers->reset(nCookie);
+		}
+	}
 	m_nButtonCount = 4;
 	switch (m_nDataType)
 	{
+	//case EB_MR_CTRL_DATA_TYPE_DELETE_MSGID:
+	//	{
+	//		m_nButtonCount = 1;
+	//		m_btnOpen1.SetWindowText(_T("删除"));
+	//		m_btnOpen1.SetToolTipText(_T("删除本地聊天消息"));
+	//		m_btnOpen1.ShowWindow(SW_SHOW);
+	//		m_btnOpen2.ShowWindow(SW_HIDE);
+	//		m_btnOpen3.ShowWindow(SW_HIDE);
+	//		m_btnOpen4.ShowWindow(SW_HIDE);
+	//	}break;
+	//case EB_MR_CTRL_DATA_TYPE_SEND_MSGID:
+	//	{
+	//		m_nButtonCount = 2;
+	//		m_btnOpen1.SetWindowText(_T("删除"));
+	//		m_btnOpen1.SetToolTipText(_T("删除本地聊天消息"));
+	//		m_btnOpen2.SetWindowText(_T("撤回"));
+	//		m_btnOpen2.SetToolTipText(_T("撤回消息"));
+	//		m_btnOpen1.ShowWindow(SW_SHOW);
+	//		m_btnOpen2.ShowWindow(SW_SHOW);
+	//		m_btnOpen3.ShowWindow(SW_HIDE);
+	//		m_btnOpen4.ShowWindow(SW_HIDE);
+	//	}break;
 	case EB_MR_CTRL_DATA_TYPE_URL:
 		{
 			if (!theApp.GetHideMainFrame()) 
@@ -178,14 +231,39 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 	default:
 		break;
 	}
+	if (m_nMsgId>0)
+	{
+		m_nButtonCount += 1;
+		m_btnOpen5.SetWindowText(_T("删除"));
+		m_btnOpen5.SetToolTipText(_T("删除本地聊天消息"));
+		m_btnOpen5.ShowWindow(SW_SHOW);
+		if (m_nMsgFromUserId==theApp.GetLogonUserId() && m_nMsgType!=MRT_RESOURCE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0 && m_pCallInfo.GetCallId()>0)
+		{
+			m_nButtonCount += 1;
+			m_btnOpen6.SetWindowText(_T("撤回"));
+			m_btnOpen6.SetToolTipText(_T("撤回消息"));
+			m_btnOpen6.ShowWindow(SW_SHOW);
+		}else
+		{
+			m_btnOpen6.ShowWindow(SW_HIDE);
+		}
+	}else
+	{
+		m_btnOpen5.ShowWindow(SW_HIDE);
+		m_btnOpen6.ShowWindow(SW_HIDE);
+	}
 	m_btnOpen1.Invalidate();
 	m_btnOpen2.Invalidate();
 	m_btnOpen3.Invalidate();
 	m_btnOpen4.Invalidate();
+	m_btnOpen5.Invalidate();
+	m_btnOpen6.Invalidate();
 	theApp.InvalidateParentRect(&m_btnOpen1);
 	theApp.InvalidateParentRect(&m_btnOpen2);
 	theApp.InvalidateParentRect(&m_btnOpen3);
 	theApp.InvalidateParentRect(&m_btnOpen4);
+	theApp.InvalidateParentRect(&m_btnOpen5);
+	theApp.InvalidateParentRect(&m_btnOpen6);
 	return m_nButtonCount;
 }
 void CDlgToolbar::SetMsgHwnd(HWND hWnd, CToolbarCallback* pCallback)
@@ -236,6 +314,16 @@ BOOL CDlgToolbar::OnInitDialog()
 	m_btnOpen4.SetTextHotMove(true);
 	m_btnOpen4.SetDrawPanelRgn(false);
 	m_btnOpen4.SetNorTextColor(theDefaultFlatBlackTextColor);
+	m_btnOpen5.ShowWindow(SW_SHOW);
+	m_btnOpen5.SetAutoSize(false);
+	m_btnOpen5.SetTextHotMove(true);
+	m_btnOpen5.SetDrawPanelRgn(false);
+	m_btnOpen5.SetNorTextColor(theDefaultFlatBlackTextColor);
+	m_btnOpen6.ShowWindow(SW_SHOW);
+	m_btnOpen6.SetAutoSize(false);
+	m_btnOpen6.SetTextHotMove(true);
+	m_btnOpen6.SetDrawPanelRgn(false);
+	m_btnOpen6.SetNorTextColor(theDefaultFlatBlackTextColor);
 
 	SetCtrlColor(false);
 
@@ -330,6 +418,15 @@ void CDlgToolbar::OnSize(UINT nType, int cx, int cy)
 	const int const_btn_interval = 1;
 	switch (m_nDataType)
 	{
+	//case EB_MR_CTRL_DATA_TYPE_DELETE_MSGID:
+	//	m_btnOpen1.MovePoint(x,y,const_btn_width2,const_btn_height);
+	//	break;
+	//case EB_MR_CTRL_DATA_TYPE_SEND_MSGID:
+	//	{
+	//		m_btnOpen1.MovePoint(x,y,const_btn_width2,const_btn_height);
+	//		x += (const_btn_width2+const_btn_interval);
+	//		m_btnOpen2.MovePoint(x,y,const_btn_width2,const_btn_height);
+	//	}break;
 	case EB_MR_CTRL_DATA_TYPE_SELECT_STRING:
 		{
 			const size_t nChatCopyFuncSize = theApp.m_pChatCopySubscribeFuncList.size();
@@ -367,6 +464,17 @@ void CDlgToolbar::OnSize(UINT nType, int cx, int cy)
 			m_btnOpen4.MovePoint(x,y,const_btn_width2,const_btn_height);
 		}break;
 	}
+
+	if (m_nMsgId>0)
+	{
+		x += (const_btn_width1+const_btn_interval);
+		m_btnOpen5.MovePoint(x,y,const_btn_width2,const_btn_height);
+		if (m_nMsgFromUserId==theApp.GetLogonUserId() && m_nMsgType!=MRT_RESOURCE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0 && m_pCallInfo.GetCallId()>0)
+		{
+			x += (const_btn_width1+const_btn_interval);
+			m_btnOpen6.MovePoint(x,y,const_btn_width2,const_btn_height);
+		}
+	}
 }
 
 void CDlgToolbar::OnBnClickedBtn1()
@@ -376,6 +484,13 @@ void CDlgToolbar::OnBnClickedBtn1()
 
 	switch (m_nDataType)
 	{
+	//case EB_MR_CTRL_DATA_TYPE_DELETE_MSGID:
+	//case EB_MR_CTRL_DATA_TYPE_SEND_MSGID:
+	//	{
+	//		// 删除本地聊天消息
+	//		const mycp::bigint nMsgId = cgc_atoi64(m_sMoveEnterString.c_str());
+
+	//	}break;
 	case EB_MR_CTRL_DATA_TYPE_SELECT_STRING:
 		{
 			const tstring sSelectString(m_pCallback->GetSelectString());
@@ -485,6 +600,17 @@ void CDlgToolbar::OnBnClickedBtn2()
 		return;
 	switch (m_nDataType)
 	{
+	//case EB_MR_CTRL_DATA_TYPE_DELETE_MSGID:
+	//	{
+	//		// disable
+	//	}break;
+	//case EB_MR_CTRL_DATA_TYPE_SEND_MSGID:
+	//	{
+	//		// 请求撤回消息
+	//		const mycp::bigint nMsgId = cgc_atoi64(m_sMoveEnterString.c_str());
+	//		if (nMsgId==0 || this->m_pCallInfo.GetCallId()==0) break;
+	//		theEBAppClient.EB_RequestWithdawMsg(m_pCallInfo.GetCallId(), nMsgId);
+	//	}break;
 	case EB_MR_CTRL_DATA_TYPE_SELECT_STRING:
 		{
 			const tstring sSelectString(m_pCallback->GetSelectString());
@@ -757,4 +883,29 @@ void CDlgToolbar::OnBnClickedBtn4()
 		break;
 	}
 	this->GetDlgItem(IDC_BUTTON_NULL)->SetFocus();
+}
+void CDlgToolbar::OnBnClickedBtn5()
+{
+	if (m_nMsgId>0)
+	{
+		HideReset();
+		// 删除本地聊天消息
+		if (m_pCallback!=NULL)
+		{
+			if (CDlgMessageBox::EbDoModal(this,"删除聊天消息","确定删除当前聊天消息吗？",CDlgMessageBox::IMAGE_QUESTION)==IDOK)
+			{
+				m_pCallback->OnDeleteMsg(m_nMsgId);
+			}
+		}
+	}
+}
+
+void CDlgToolbar::OnBnClickedBtn6()
+{
+	if (m_nMsgId==0) return;
+	if (m_nMsgFromUserId==theApp.GetLogonUserId() && m_nMsgType!=MRT_RESOURCE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0 && m_pCallInfo.GetCallId()>0)
+	{
+		HideReset();
+		theEBAppClient.EB_RequestWithdawMsg(m_pCallInfo.GetCallId(), m_nMsgId);
+	}
 }

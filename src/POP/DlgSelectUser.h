@@ -71,7 +71,7 @@ protected:
 	CHoverEdit m_editSearch;
 
 	void DrawInfo(void);
-
+	void UpdateSelectedUsers(void);
 	int GetLocalMemberSize(eb::bigint nGroupId) const;
 
 #ifdef USES_EBCOM_TEST

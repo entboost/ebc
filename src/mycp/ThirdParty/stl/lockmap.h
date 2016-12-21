@@ -141,7 +141,80 @@ public:
 		}
 		return false;
 	}
-
+	bool remove(const K& k, const T& t, bool is_lock, T* pOutOld=NULL)
+	{
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			typename std::map<K, T>::iterator iter = std::map<K, T>::find(k);
+			if (iter != std::map<K, T, P>::end())
+			{
+				if (pOutOld!=NULL)
+					*pOutOld = iter->second;
+				if (iter->second==t)
+				{
+					std::map<K, T, P>::erase(iter);
+					return true;
+				}
+			}
+		}else
+		{
+			typename std::map<K, T>::iterator iter = std::map<K, T>::find(k);
+			if (iter != std::map<K, T, P>::end())
+			{
+				if (pOutOld!=NULL)
+					*pOutOld = iter->second;
+				if (iter->second==t)
+				{
+					std::map<K, T, P>::erase(iter);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	size_t removet(const T& t, bool is_lock = true)
+	{
+		size_t result = 0;
+		bool bContinue = true;
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			while (bContinue)
+			{
+				bContinue = false;
+				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+				for (; iter!=std::map<K, T, P>::end(); iter++)
+				{
+					if (iter->second==t)
+					{
+						result++;
+						bContinue = true;
+						std::map<K, T, P>::erase(iter);
+						break;
+					}
+				}
+			}
+		}else
+		{
+			while (bContinue)
+			{
+				bContinue = false;
+				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+				for (; iter!=std::map<K, T, P>::end(); iter++)
+				{
+					if (iter->second==t)
+					{
+						result++;
+						bContinue = true;
+						std::map<K, T, P>::erase(iter);
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
 	void clear(bool is_lock = true)
 	{
 		if (is_lock)
@@ -240,7 +313,8 @@ public:
 	typedef std::pair<K, T> Pair;
 	typedef typename std::multimap<K, T>::iterator IT;
 	typedef typename std::multimap<K, T>::const_iterator CIT;
-	typedef typename std::pair<CIT, CIT> Range;
+	typedef typename std::pair<CIT, CIT> ConstRange;
+	typedef typename std::pair<IT, IT> Range;
 
 protected:
 	boost::shared_mutex m_mutex; 
@@ -267,6 +341,19 @@ public:
 			std::multimap<K, T>::insert(Pair(k, t));
 		}
 	}
+	//bool insert(const K& k, const T& t,bool bInsertForce,T* pOutOld, bool is_lock = true)
+	//{
+	//	if (is_lock)
+	//	{
+	//		BoostWriteLock wtlock(m_mutex);
+	//		IT iter = std::multimap<K, T>::find(k);
+	//		if (iter != std::multimap<K, T>::end())
+	//		{
+	//		}
+	//	}else
+	//	{
+	//	}
+	//}
 	bool find(const K& k, T & out, bool erase)
 	{
 		if (erase)
@@ -293,7 +380,7 @@ public:
 		if (erase)
 		{
 			BoostWriteLock wtlock(m_mutex);
-			Range range = std::multimap<K, T>::equal_range(k);
+			ConstRange range = std::multimap<K, T>::equal_range(k);
 			for(CIT iter=range.first; iter!=range.second; ++iter)
 			{
 				result = true;
@@ -304,7 +391,7 @@ public:
 		}else
 		{
 			BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
-			Range range = std::multimap<K, T>::equal_range(k);
+			ConstRange range = std::multimap<K, T>::equal_range(k);
 			for(CIT iter=range.first; iter!=range.second; ++iter)
 			{
 				result = true;
@@ -326,7 +413,7 @@ public:
 	{
 		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
 		bool result = false;
-		Range range = std::multimap<K, T>::equal_range(k);
+		ConstRange range = std::multimap<K, T>::equal_range(k);
 		for(CIT iter=range.first; iter!=range.second; ++iter)
 		{
 			result = true;
@@ -337,11 +424,24 @@ public:
 	size_t sizek(const K& k) const
 	{
 		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
+		return std::multimap<K, T>::count(k);
+		//size_t result = 0;
+		//ConstRange range = std::multimap<K, T>::equal_range(k);
+		//for(CIT iter=range.first; iter!=range.second; ++iter)
+		//{
+		//	result++;
+		//}
+		//return result;
+	}
+	size_t sizet(const T& t) const
+	{
 		size_t result = 0;
-		Range range = std::multimap<K, T>::equal_range(k);
-		for(CIT iter=range.first; iter!=range.second; ++iter)
+		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
+		CIT iter = std::multimap<K, T>::begin();
+		for (; iter!=std::multimap<K, T>::end(); iter++)
 		{
-			result++;
+			if (iter->second==t)
+				result++;
 		}
 		return result;
 	}
@@ -358,7 +458,46 @@ public:
 			return iter != std::multimap<K, T>::end();
 		}
 	}
-
+	bool exist(const K& k, const T& t, bool is_lock = true) const
+	{
+		if (is_lock)
+		{
+			BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
+			ConstRange range = std::multimap<K, T>::equal_range(k);
+			for(CIT iter=range.first; iter!=range.second; ++iter)
+			{
+				if (iter->second==t) return true;
+			}
+		}else
+		{
+			ConstRange range = std::multimap<K, T>::equal_range(k);
+			for(CIT iter=range.first; iter!=range.second; ++iter)
+			{
+				if (iter->second==t) return true;
+			}
+		}
+		return false;
+	}
+	bool existt(const T& t, bool is_lock = true) const
+	{
+		if (is_lock)
+		{
+			BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
+			CIT iter = std::multimap<K, T>::begin();
+			for (; iter!=std::multimap<K, T>::end(); iter++)
+			{
+				if (iter->second==t) return true;
+			}
+		}else
+		{
+			CIT iter = std::multimap<K, T>::begin();
+			for (; iter!=std::multimap<K, T>::end(); iter++)
+			{
+				if (iter->second==t) return true;
+			}
+		}
+		return false;
+	}
 	void remove(const K& k, bool is_lock = true)
 	{
 		if (is_lock)
@@ -370,7 +509,76 @@ public:
 			std::multimap<K, T>::erase(k);
 		}
 	}
-
+	bool remove(const K& k, const T& t, bool is_lock)
+	{
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			Range range = std::multimap<K, T>::equal_range(k);
+			for(IT iter=range.first; iter!=range.second; ++iter)
+			{
+				if (iter->second==t)
+				{
+					std::multimap<K, T>::erase(iter);
+					return true;
+				}
+			}
+		}else
+		{
+			Range range = std::multimap<K, T>::equal_range(k);
+			for(IT iter=range.first; iter!=range.second; ++iter)
+			{
+				if (iter->second==t)
+				{
+					std::multimap<K, T>::erase(iter);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	size_t removet(const T& t, bool is_lock)
+	{
+		size_t result = 0;
+		bool bContinue = true;
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			while (bContinue)
+			{
+				bContinue = false;
+				IT iter = std::multimap<K, T>::begin();
+				for (; iter!=std::multimap<K, T>::end(); iter++)
+				{
+					if (iter->second==t)
+					{
+						result++;
+						std::multimap<K, T>::erase(iter);
+						bContinue = true;
+						break;
+					}
+				}
+			}
+		}else
+		{
+			while (bContinue)
+			{
+				bContinue = false;
+				IT iter = std::multimap<K, T>::begin();
+				for (; iter!=std::multimap<K, T>::end(); iter++)
+				{
+					if (iter->second==t)
+					{
+						result++;
+						std::multimap<K, T>::erase(iter);
+						bContinue = true;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
 	void clear(bool is_lock = true)
 	{
 		if (is_lock)

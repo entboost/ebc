@@ -383,6 +383,13 @@ void CDlgRegister::OnRegResponse(EB_STATE_CODE nState,eb::bigint nUserId)
 	this->GetDlgItem(IDOK)->EnableWindow(TRUE);
 	switch(nState)
 	{
+	case EB_STATE_NOT_AUTH_ERROR:
+		{
+			if (libEbc::IsFullNumber(m_sAccount,m_sAccount.GetLength()))
+				CDlgMessageBox::EbMessageBox(this,"","不支持全数字帐号注册：\r\n请更换帐号后重试！",CDlgMessageBox::IMAGE_WARNING,5);
+			else
+				CDlgMessageBox::EbMessageBox(this,"","没有权限：\r\n请联系公司客服，或退出后重试！",CDlgMessageBox::IMAGE_WARNING,5);
+		}break;
 	case EB_STATE_CONTENT_BIG_LENGTH:
 		CDlgMessageBox::EbMessageBox(this,"","字段内容超过最大长度：\r\n请重新输入！",CDlgMessageBox::IMAGE_WARNING,5);
 		break;
@@ -541,10 +548,10 @@ void CDlgRegister::OnBnClickedOk()
 			nPhone = cgc_atoi64(sAccount.c_str());
 		}else
 		{
-			// 错误格式；
-			this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
-			CDlgMessageBox::EbMessageBox(this,"","不支持全数字帐号：\r\n请重新输入！",CDlgMessageBox::IMAGE_WARNING,5);
-			return;
+			//// 错误格式；
+			//this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
+			//CDlgMessageBox::EbMessageBox(this,"","不支持全数字帐号：\r\n请重新输入！",CDlgMessageBox::IMAGE_WARNING,5);
+			//return;
 		}
 	}
 

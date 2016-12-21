@@ -30,6 +30,7 @@ public:
 	bool GetSaveConversationServer(void) const {return (m_nSaveConversations&2)==2;}
 	bool GetAuthContact(void) const {return m_bAuthContact;}
 	eb::bigint GetDeployId(void) const {return m_nDeployId;}
+	int GetLicenseType(void) const {return m_nLicenstType;}
 	//eb::bigint GetGroupMsgSugId(void) const {return m_nGroupMsgSubId;}
 	eb::bigint GetAutoOpenSubId(void) const {return m_nAutoOpenSubId;}
 	bool GetAutoHideMainFrame(void) const {return m_bAutoHideMainFrame;}
@@ -43,6 +44,7 @@ public:
 	bool GetDisableAccountEdit(void) const {return m_bDisableAccountEdit;}
 	EB_BROWSER_TYPE GetDefaultBrowserType(void) const {return m_nDefaultBrowserType;}
 	bool GetDisableMsgReceipt(void) const {return m_bDisableMsgReceipt;}
+	bool GetStatSubGroupMember(void) const {return m_bStatSubGroupMember;}
 	bool GetIeException(void) const {return m_bIeException;}
 
 // Dialog Data
@@ -56,6 +58,7 @@ protected:
 	int m_nSaveConversations;
 	bool m_bAuthContact;
 	eb::bigint m_nDeployId;
+	int m_nLicenstType;	// 许可类型；0=未授权；1=终身授权；2=时间授权
 	//eb::bigint m_nGroupMsgSubId;
 	eb::bigint m_nAutoOpenSubId;
 	bool m_bAutoHideMainFrame;
@@ -69,6 +72,7 @@ protected:
 	bool m_bDisableAccountEdit;
 	EB_BROWSER_TYPE m_nDefaultBrowserType;
 	bool m_bDisableMsgReceipt;
+	bool m_bStatSubGroupMember;
 	bool m_bIeException;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 

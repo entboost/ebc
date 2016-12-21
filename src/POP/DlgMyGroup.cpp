@@ -413,7 +413,7 @@ void CDlgMyGroup::MyDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 		SetMemberInfo(pDepItemInfo->m_hItem, &pMemberInfo);
 	}
 	const int nMemberSize = pGroupInfo->m_nEmpCount;
-	const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode);
+	const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pGroupInfo->m_sGroupCode,1);
 	if (nOnlineSize>=0)
 		sText.Format(_T("%s [%d/%d]"), pGroupInfo->m_sGroupName.c_str(),nOnlineSize,nMemberSize);
 	else
@@ -498,8 +498,11 @@ void CDlgMyGroup::MyDepMemberInfo(const EB_MemberInfo* pMemberInfo, bool bChange
 		CEBString sGroupName;
 		if (theEBAppClient.EB_GetGroupName(pMemberInfo->m_sGroupCode,sGroupName))
 		{
-			const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(pMemberInfo->m_sGroupCode);
-			const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pMemberInfo->m_sGroupCode);
+			int nMemberSize = 0;
+			int nOnlineSize = 0;
+			theEBAppClient.EB_GetGroupMemberSize(pMemberInfo->m_sGroupCode,1,nMemberSize,nOnlineSize);
+			//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(pMemberInfo->m_sGroupCode,1);
+			//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(pMemberInfo->m_sGroupCode,1);
 			CString sText;
 			if (nOnlineSize>=0)
 				sText.Format(_T("%s [%d/%d]"), sGroupName.c_str(),nOnlineSize,nMemberSize);
@@ -568,8 +571,11 @@ void CDlgMyGroup::DeleteEmployeeInfo(const EB_GroupInfo* pGroupInfo, eb::bigint 
 		//CEBString sGroupName;
 		//if (theEBAppClient.EB_GetGroupName(nGroupCode,sGroupName))
 		{
-			const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(nGroupCode);
-			const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(nGroupCode);
+			int nMemberSize = 0;
+			int nOnlineSize = 0;
+			theEBAppClient.EB_GetGroupMemberSize(nGroupCode,1,nMemberSize,nOnlineSize);
+			//const int nMemberSize = theEBAppClient.EB_GetGroupMemberSize(nGroupCode,1);
+			//const int nOnlineSize = theEBAppClient.EB_GetGroupOnlineSize(nGroupCode,1);
 			CString sText;
 			sText.Format(_T("%s [%d/%d]"), pGroupInfo->m_sGroupName.c_str(),nOnlineSize,nMemberSize);
 			m_treeDepartment.SetItemText(pDepItemInfo->m_hItem, sText);
@@ -826,14 +832,15 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 		}else
 		{
 			// 选择别人
+			m_menu2.AppendMenu(MF_SEPARATOR);
 			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_CALL_USER,_T("打开会话"));
+			m_menu2.InsertODMenu(-1,_T("打开会话(&C)"),MF_BYPOSITION,EB_COMMAND_CALL_USER,IDB_BITMAP_MENU_CALL);
 			// 判断聊天记录
 			CString sSql;
 			sSql.Format(_T("select msg_type FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) LIMIT 1"),
 						   pTreeItemInfo->m_nUserId,pTreeItemInfo->m_nUserId);
 			if (theApp.m_pBoUsers->select(sSql)>0)
 			{
-				m_menu2.AppendMenu(MF_SEPARATOR);
 				m_menu2.InsertODMenu(-1,_T("聊天记录"),MF_BYPOSITION,EB_MSG_VIEW_MSG_RECORD,IDB_BITMAP_MENU_MSG);
 				//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_DELETE_MSG_RECORD,_T("清空聊天记录"));
 			}
@@ -914,11 +921,10 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 		nFuncLocation = EB_FUNC_LOCATION_RIGHT_CLICK_MENU_GROUP;
 		theApp.m_nSelectGroupId = pTreeItemInfo->m_sGroupCode;
 		m_menu2.AppendMenu(MF_SEPARATOR);
-		//m_menu2.InsertODMenu(-1,_T("打开会话(&C)"),MF_BYPOSITION,EB_COMMAND_CALL_USER,IDB_BITMAP_MENU_CALL);
 		CString sText;
 		//sText.Format(_T("%s共享"),GetGroupTypeText((EB_GROUP_TYPE)nGroupType));
 		//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,sText);
-		m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
+		m_menu2.InsertODMenu(-1,_T("打开会话(&C)"),MF_BYPOSITION,EB_COMMAND_CALL_USER,IDB_BITMAP_MENU_CALL);
 		//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,_T("群共享"));IDB_BITMAP_MENU_SHARE
 		CString sSql;
 		sSql.Format(_T("select msg_type FROM msg_record_t WHERE dep_code=%lld LIMIT 1"),pTreeItemInfo->m_sGroupCode);
@@ -926,6 +932,7 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 		{
 			m_menu2.InsertODMenu(-1,_T("聊天记录"),MF_BYPOSITION,EB_MSG_VIEW_MSG_RECORD,IDB_BITMAP_MENU_MSG);
 		}
+		m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
 		bool bNeedSeparator = true;
 		if (theEBAppClient.EB_IsGroupAdminLevel(pTreeItemInfo->m_sGroupCode))
 		{
@@ -1502,7 +1509,7 @@ void CDlgMyGroup::OnDepartmentDelete()
 		// 不是部门创建者，不能删除
 		return;
 	}else if (pGroupInfo->GroupType == EB_GROUP_TYPE_DEPARTMENT				// 企业部门
-		&& theEBClientCore->EB_GetGroupMemberSize(pDepItemInfo->m_sGroupCode)>0)				// 不为空，不能删除
+		&& theEBClientCore->EB_GetGroupMemberSize(pDepItemInfo->m_sGroupCode,1)>0)				// 不为空，不能删除
 	{
 		return;
 	}
@@ -1529,7 +1536,7 @@ void CDlgMyGroup::OnDepartmentDelete()
 		// 不是部门创建者，不能删除
 		return;
 	}else if (pGroupInfo.m_nGroupType == EB_GROUP_TYPE_DEPARTMENT			// 企业部门
-		&& theEBAppClient.EB_GetGroupMemberSize(pDepItemInfo->m_sGroupCode)>0)								// 不为空，不能删除
+		&& theEBAppClient.EB_GetGroupMemberSize(pDepItemInfo->m_sGroupCode,1)>0)								// 不为空，不能删除
 	{
 		return;
 	}
