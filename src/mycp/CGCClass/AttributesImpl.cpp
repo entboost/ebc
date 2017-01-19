@@ -29,6 +29,32 @@ AttributesImpl::~AttributesImpl(void)
 	clearAllAtrributes();
 	cleanAllPropertys();
 }
+const AttributesImpl& AttributesImpl::operator = (const AttributesImpl& p)
+{
+	m_mapIntBigIntPointer = p.GetIntBigIntPointer();
+	////m_mapIntStringPointer.
+	//if (p.GetIntBigIntPointer()!=NULL)
+	//{
+	//	if (m_mapIntBigIntPointer==NULL)
+	//		m_mapIntBigIntPointer = new CBigIntObjectMap<int>;
+	//	m_mapIntBigIntPointer-operator = (p.GetIntBigIntPointer());
+	//}
+	return *this;
+}
+const AttributesImpl& AttributesImpl::operator = (const AttributesImpl* p)
+{
+	if (p!=NULL)
+		return this->operator =(*p);
+	return *this;
+}
+#ifdef USES_OBJECT_COPYNEW
+cgcAttributes::pointer AttributesImpl::copyNew(void)
+{
+	cgcAttributes::pointer result = cgcAttributes::pointer(new AttributesImpl());
+	((AttributesImpl*)result.get())->operator =(*this);
+	return result;
+}
+#endif
 void AttributesImpl::setProperty(const tstring& key, const cgcValueInfo::pointer& value, bool clear)
 {
 	m_strPropertys.insert(key, value, clear);
@@ -153,9 +179,9 @@ bool AttributesImpl::getIPropertys(std::vector<cgcKeyValue::pointer>& outValues)
 }
 bool AttributesImpl::getBPropertys(std::vector<cgcKeyValue::pointer>& outValues) const
 {
-	AUTO_CONST_RLOCK(m_bigintPropertys);
-	CLockMultiMap<bigint, cgcValueInfo::pointer>::const_iterator iter;
-	for (iter=m_bigintPropertys.begin(); iter!=m_bigintPropertys.end(); iter++)
+	BoostReadLock rdLock(const_cast<boost::shared_mutex&>(m_bigintPropertys.mutex()));
+	CLockMultiMap<bigint, cgcValueInfo::pointer>::const_iterator iter = m_bigintPropertys.begin();
+	for (; iter!=m_bigintPropertys.end(); iter++)
 	{
 		char buffer[24];
 #ifdef WIN32
@@ -165,7 +191,8 @@ bool AttributesImpl::getBPropertys(std::vector<cgcKeyValue::pointer>& outValues)
 #endif
 		 outValues.push_back(CGC_KEYVALUE(buffer, iter->second));
 	}
-	return !m_bigintPropertys.empty();
+	return !outValues.empty();
+	//return !m_bigintPropertys.empty();
 }
 
 bool AttributesImpl::getPPropertys(std::vector<cgcKeyValue::pointer>& outValues) const
@@ -204,25 +231,40 @@ void AttributesImpl::delProperty(const tstring& key)
 {
 	m_strPropertys.remove(key);
 }
-
 void AttributesImpl::delProperty(int key)
 {
 	m_intPropertys.remove(key);
 }
 void AttributesImpl::delProperty(bigint key)
 {
-	m_bigintPropertys.remove(key);
+		m_bigintPropertys.remove(key);
 }
 void AttributesImpl::delProperty(void* key)
 {
 	m_pointerPropertys.remove(key);
 }
 
+bool AttributesImpl::delProperty(const tstring& key, const cgcValueInfo::pointer& pValue)
+{
+	return m_strPropertys.remove(key, pValue, true);
+}
+bool AttributesImpl::delProperty(int key, const cgcValueInfo::pointer& pValue)
+{
+	return m_intPropertys.remove(key, pValue, true);
+}
+bool AttributesImpl::delProperty(bigint key, const cgcValueInfo::pointer& pValue)
+{
+	return m_bigintPropertys.remove(key, pValue, true);
+}
+bool AttributesImpl::delProperty(void* key, const cgcValueInfo::pointer& pValue)
+{
+	return m_pointerPropertys.remove(key, pValue, true);
+}
+
 void AttributesImpl::cleanSPropertys(void)
 {
 	m_strPropertys.clear();
 }
-
 void AttributesImpl::cleanIPropertys(void)
 {
 	m_intPropertys.clear();
@@ -545,13 +587,30 @@ bool AttributesImpl::existAttribute(int attributeName, const tstring & key) cons
 	}
 	return false;
 }
-
+bool AttributesImpl::existAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject) const
+{
+	StringObjectMapPointer stringMapPointer;
+	if (m_mapIntStringPointer.find(attributeName, stringMapPointer))
+	{
+		return stringMapPointer->exist(key,pObject,true);
+	}
+	return false;
+}
 bool AttributesImpl::existAttribute(int attributeName, int key) const
 {
 	LongObjectMapPointer longMapPointer;
 	if (m_mapIntLongPointer.find(attributeName, longMapPointer))
 	{
 		return longMapPointer->exist(key);
+	}
+	return false;
+}
+bool AttributesImpl::existAttribute(int attributeName, int key, const cgcObject::pointer& pObject) const
+{
+	LongObjectMapPointer longMapPointer;
+	if (m_mapIntLongPointer.find(attributeName, longMapPointer))
+	{
+		return longMapPointer->exist(key,pObject,true);
 	}
 	return false;
 }
@@ -564,7 +623,15 @@ bool AttributesImpl::existAttribute(int attributeName, bigint key) const
 	}
 	return false;
 }
-
+bool AttributesImpl::existAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject) const
+{
+	BigIntObjectMapPointer longMapPointer;
+	if (m_mapIntBigIntPointer.find(attributeName, longMapPointer))
+	{
+		return longMapPointer->exist(key,pObject,true);
+	}
+	return false;
+}
 bool AttributesImpl::existAttribute(int attributeName, void* key) const
 {
 	VoidObjectMapPointer voidMapPointer;
@@ -574,7 +641,15 @@ bool AttributesImpl::existAttribute(int attributeName, void* key) const
 	}
 	return false;
 }
-
+bool AttributesImpl::existAttribute(int attributeName, void* key, const cgcObject::pointer& pObject) const
+{
+	VoidObjectMapPointer voidMapPointer;
+	if (m_mapIntVoidPointer.find(attributeName, voidMapPointer))
+	{
+		return voidMapPointer->exist(key,pObject,true);
+	}
+	return false;
+}
 bool AttributesImpl::existAttribute(const tstring & attributeName, const tstring & key) const
 {
 	StringObjectMapPointer stringMapPointer;
@@ -584,7 +659,15 @@ bool AttributesImpl::existAttribute(const tstring & attributeName, const tstring
 	}
 	return false;
 }
-
+bool AttributesImpl::existAttribute(const tstring & attributeName, const tstring & key,const cgcObject::pointer& pObject) const
+{
+	StringObjectMapPointer stringMapPointer;
+	if (m_mapStrStringPointer.find(attributeName, stringMapPointer))
+	{
+		return stringMapPointer->exist(key,pObject,true);
+	}
+	return false;
+}
 bool AttributesImpl::existAttribute(const tstring & attributeName, int key) const
 {
 	LongObjectMapPointer longMapPointer;
@@ -594,13 +677,30 @@ bool AttributesImpl::existAttribute(const tstring & attributeName, int key) cons
 	}
 	return false;
 }
-
+bool AttributesImpl::existAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject) const
+{
+	LongObjectMapPointer longMapPointer;
+	if (m_mapStrLongPointer.find(attributeName, longMapPointer))
+	{
+		return longMapPointer->exist(key,pObject,true);
+	}
+	return false;
+}
 bool AttributesImpl::existAttribute(const tstring & attributeName, void* key) const
 {
 	VoidObjectMapPointer voidMapPointer;
 	if (m_mapStrVoidPointer.find(attributeName, voidMapPointer))
 	{
 		return voidMapPointer->exist(key);
+	}
+	return false;
+}
+bool AttributesImpl::existAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject) const
+{
+	VoidObjectMapPointer voidMapPointer;
+	if (m_mapStrVoidPointer.find(attributeName, voidMapPointer))
+	{
+		return voidMapPointer->exist(key,pObject,true);
 	}
 	return false;
 }
@@ -621,7 +721,6 @@ cgcObject::pointer AttributesImpl::removeAttribute(int attributeName, const tstr
 	}
 	return result;
 }
-
 cgcObject::pointer AttributesImpl::removeAttribute(int attributeName, int key, bool deleteIfEmpty)
 {
 	cgcObject::pointer result;
@@ -723,6 +822,46 @@ cgcObject::pointer AttributesImpl::removeAttribute(const tstring & attributeName
 	return result;
 }
 
+bool AttributesImpl::removeAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject)
+{
+	StringObjectMapPointer stringMapPointer = getStringAttributes(attributeName, false);
+	return (stringMapPointer.get() != NULL)?stringMapPointer->remove(key, pObject, true):false;
+}
+bool AttributesImpl::removeAttribute(int attributeName, int key, const cgcObject::pointer& pObject)
+{
+	LongObjectMapPointer longMapPointer = getLongAttributes(attributeName, false);
+	return (longMapPointer.get() != NULL)?longMapPointer->remove(key, pObject, true):false;
+}
+bool AttributesImpl::removeAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject)
+{
+	BigIntObjectMapPointer longMapPointer = getBigIntAttributes(attributeName, false);
+	return (longMapPointer.get() != NULL)?longMapPointer->remove(key, pObject, true):false;
+}
+
+bool AttributesImpl::removeAttribute(int attributeName, void* key, const cgcObject::pointer& pObject)
+{
+	VoidObjectMapPointer voidMapPointer = getVoidAttributes(attributeName, false);
+	return (voidMapPointer.get() != NULL)?voidMapPointer->remove(key, pObject, true):false;
+}
+
+bool AttributesImpl::removeAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject)
+{
+	StringObjectMapPointer stringMapPointer = getStringAttributes(attributeName, false);
+	return (stringMapPointer.get() != NULL)?stringMapPointer->remove(key, pObject, true):false;
+}
+
+bool AttributesImpl::removeAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject)
+{
+	LongObjectMapPointer longMapPointer = getLongAttributes(attributeName, false);
+	return (longMapPointer.get() != NULL)?longMapPointer->remove(key, pObject, true):false;
+}
+
+bool AttributesImpl::removeAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject)
+{
+	VoidObjectMapPointer voidMapPointer = getVoidAttributes(attributeName, false);
+	return (voidMapPointer.get() != NULL)?voidMapPointer->remove(key, pObject, true):false;
+}
+
 void AttributesImpl::clearStringAtrributes(int attributeName)
 {
 	m_mapIntStringPointer.remove(attributeName);
@@ -769,15 +908,329 @@ void AttributesImpl::clearVoidAtrributes(const tstring & attributeName)
 //	m_mapStrLongPointer.clear();
 //}
 
-void AttributesImpl::clearAllAtrributes(void)
+ObjectListPointer	AttributesImpl::getListAttributes(int attributeName, bool newIfNotExist)
 {
-	m_mapIntStringPointer.clear();
-	m_mapIntLongPointer.clear();
-	m_mapIntBigIntPointer.clear();
-	m_mapIntVoidPointer.clear();
-	m_mapStrStringPointer.clear();
-	m_mapStrLongPointer.clear();
-	m_mapStrVoidPointer.clear();
+	ObjectListPointer result;
+	if (!m_pIntListPointer.find(attributeName,result))
+	{
+		if (newIfNotExist)
+		{
+			result = ObjectListPointer(new CLockList<cgcObject::pointer>);
+			ObjectListPointer pTemp;
+			m_pIntListPointer.insert(attributeName,result,false,&pTemp);
+			if (pTemp.get()!=NULL)
+				result = pTemp;
+		}
+	}
+	return result;
+}
+ObjectListPointer	AttributesImpl::getListAttributes(bigint attributeName, bool newIfNotExist)
+{
+	ObjectListPointer result;
+	if (!m_pBigIntListPointer.find(attributeName,result))
+	{
+		if (newIfNotExist)
+		{
+			result = ObjectListPointer(new CLockList<cgcObject::pointer>);
+			ObjectListPointer pTemp;
+			m_pBigIntListPointer.insert(attributeName,result,false,&pTemp);
+			if (pTemp.get()!=NULL)
+				result = pTemp;
+		}
+	}
+	return result;
+}
+ObjectListPointer	AttributesImpl::getListAttributes(const tstring & attributeName, bool newIfNotExist)
+{
+	ObjectListPointer result;
+	if (!m_pStringListPointer.find(attributeName,result))
+	{
+		if (newIfNotExist)
+		{
+			result = ObjectListPointer(new CLockList<cgcObject::pointer>);
+			ObjectListPointer pTemp;
+			m_pStringListPointer.insert(attributeName,result,false,&pTemp);
+			if (pTemp.get()!=NULL)
+				result = pTemp;
+		}
+	}
+	return result;
+}
+ObjectListPointer	AttributesImpl::getListAttributes(void* attributeName, bool newIfNotExist)
+{
+	ObjectListPointer result;
+	if (!m_pVoidListPointer.find(attributeName,result))
+	{
+		if (newIfNotExist)
+		{
+			result = ObjectListPointer(new CLockList<cgcObject::pointer>);
+			ObjectListPointer pTemp;
+			m_pVoidListPointer.insert(attributeName,result,false,&pTemp);
+			if (pTemp.get()!=NULL)
+				result = pTemp;
+		}
+	}
+	return result;
+}
+
+void AttributesImpl::addListAttribute(int attributeName, const cgcObject::pointer& pObject, bool is_lock)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->add(pObject, is_lock);
+}
+void AttributesImpl::addListAttribute(bigint attributeName, const cgcObject::pointer& pObject, bool is_lock)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->add(pObject, is_lock);
+}
+void AttributesImpl::addListAttribute(const tstring& attributeName, const cgcObject::pointer& pObject, bool is_lock)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->add(pObject, is_lock);
+}
+void AttributesImpl::addListAttribute(void* attributeName, const cgcObject::pointer& pObject, bool is_lock)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->add(pObject, is_lock);
+}
+
+cgcObject::pointer AttributesImpl::getBackAttribute(int attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->back(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getBackAttribute(bigint attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->back(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getBackAttribute(const tstring& attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->back(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getBackAttribute(void* attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->back(result, is_pop);
+	}
+	return result;
+}
+
+void AttributesImpl::setFrontAttribute(int attributeName, const cgcObject::pointer& pObject)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->pushfront(pObject);
+}
+void AttributesImpl::setFrontAttribute(bigint attributeName, const cgcObject::pointer& pObject)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->pushfront(pObject);
+}
+void AttributesImpl::setFrontAttribute(const tstring& attributeName, const cgcObject::pointer& pObject)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->pushfront(pObject);
+}
+void AttributesImpl::setFrontAttribute(void* attributeName, const cgcObject::pointer& pObject)
+{
+	ObjectListPointer pObjectLists = getListAttributes(attributeName, true);
+	BOOST_ASSERT (pObjectLists.get() != NULL);
+	pObjectLists->pushfront(pObject);
+}
+
+cgcObject::pointer AttributesImpl::getFrontListAttribute(int attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->front(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getFrontListAttribute(bigint attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->front(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getFrontListAttribute(const tstring& attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->front(result, is_pop);
+	}
+	return result;
+}
+cgcObject::pointer AttributesImpl::getFrontListAttribute(void* attributeName, bool is_pop)
+{
+	cgcObject::pointer result;
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		pObjectLists->front(result, is_pop);
+	}
+	return result;
+}
+
+bool AttributesImpl::isListAttributeEmtpy(int attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->empty();
+	}
+	return true;
+}
+bool AttributesImpl::isListAttributeEmtpy(bigint attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->empty();
+	}
+	return true;
+}
+bool AttributesImpl::isListAttributeEmtpy(const tstring& attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->empty();
+	}
+	return true;
+}
+bool AttributesImpl::isListAttributeEmtpy(void* attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->empty();
+	}
+	return true;
+}
+
+size_t AttributesImpl::getListAttributeSize(int attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->size();
+	}
+	return 0;
+}
+size_t AttributesImpl::getListAttributeSize(bigint attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->size();
+	}
+	return 0;
+}
+size_t AttributesImpl::getListAttributeSize(const tstring& attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->size();
+	}
+	return 0;
+}
+size_t AttributesImpl::getListAttributeSize(void* attributeName) const
+{
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->size();
+	}
+	return 0;
+}
+
+void AttributesImpl::clearListAttribute(int attributeName, bool is_lock)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists, true))
+	{
+		pObjectLists->clear(is_lock);
+	}
+}
+void AttributesImpl::clearListAttribute(bigint attributeName, bool is_lock)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists, true))
+	{
+		pObjectLists->clear(is_lock);
+	}
+}
+void AttributesImpl::clearListAttribute(const tstring& attributeName, bool is_lock)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists, true))
+	{
+		pObjectLists->clear(is_lock);
+	}
+}
+void AttributesImpl::clearListAttribute(void* attributeName, bool is_lock)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists, true))
+	{
+		pObjectLists->clear(is_lock);
+	}
+}
+
+void AttributesImpl::clearAllAtrributes(int nClearType)
+{
+	if ((nClearType&0x1)==0x1)
+	{
+		m_mapIntStringPointer.clear();
+		m_mapIntLongPointer.clear();
+		m_mapIntBigIntPointer.clear();
+		m_mapIntVoidPointer.clear();
+		m_mapStrStringPointer.clear();
+		m_mapStrLongPointer.clear();
+		m_mapStrVoidPointer.clear();
+	}
+	if ((nClearType&0x2)==0x2)
+	{
+		m_pIntListPointer.clear();
+		m_pBigIntListPointer.clear();
+		m_pStringListPointer.clear();
+		m_pVoidListPointer.clear();
+	}
 }
 
 } // namespace mycp

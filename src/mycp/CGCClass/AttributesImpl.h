@@ -36,6 +36,11 @@ private:
 	CLongObjectMap<tstring>		m_mapStrLongPointer;
 	CVoidObjectMap<tstring>		m_mapStrVoidPointer;
 
+	CListObjectMap<int>				m_pIntListPointer;
+	CListObjectMap<bigint>		m_pBigIntListPointer;
+	CListObjectMap<tstring>		m_pStringListPointer;
+	CListObjectMap<void*>			m_pVoidListPointer;
+
 	//CLockMultiMap<tstring, tstring> m_strStrPropertys;
 	//CLockMultiMap<tstring, int>		m_strIntPropertys;
 	//CLockMultiMap<int, tstring>		m_intStrPropertys;
@@ -49,8 +54,15 @@ private:
 public:
 	AttributesImpl(void);
 	virtual ~AttributesImpl(void);
+	const AttributesImpl& operator = (const AttributesImpl& p);
+	const AttributesImpl& operator = (const AttributesImpl* p);
+#ifdef USES_OBJECT_COPYNEW
+	cgcAttributes::pointer copyNew(void);
+#endif
 
 public:
+	const CBigIntObjectMap<int>&	GetIntBigIntPointer(void) const {return m_mapIntBigIntPointer;}
+
 	// attribute
 	virtual void setProperty(const tstring& key, const cgcValueInfo::pointer& value, bool clear = true);
 	virtual void setProperty(int key, const cgcValueInfo::pointer& value, bool clear = true);
@@ -90,6 +102,11 @@ public:
 	virtual void delProperty(bigint key);
 	virtual void delProperty(void* key);
 
+	virtual bool delProperty(const tstring& key, const cgcValueInfo::pointer& pValue);
+	virtual bool delProperty(int key, const cgcValueInfo::pointer& pValue);
+	virtual bool delProperty(bigint key, const cgcValueInfo::pointer& pValue);
+	virtual bool delProperty(void* key, const cgcValueInfo::pointer& pValue);
+
 	virtual void cleanSPropertys(void);
 	virtual void cleanIPropertys(void);
 	virtual void cleanBPropertys(void);
@@ -111,7 +128,7 @@ public:
 	virtual cgcObject::pointer setAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject,bool force = true);
 	virtual cgcObject::pointer setAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject,bool force = true);
 	virtual cgcObject::pointer setAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject,bool force = true);
-	
+
 	//virtual int setValue(int key, const tstring& value);
 	//virtual int setValue(int key, void* value);
 
@@ -124,12 +141,19 @@ public:
 	virtual cgcObject::pointer getAttribute(const tstring & attributeName, void* key) const;
 
 	virtual bool existAttribute(int attributeName, const tstring & key) const;
+	virtual bool existAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(int attributeName, int key) const;
+	virtual bool existAttribute(int attributeName, int key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(int attributeName, bigint key) const;
+	virtual bool existAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(int attributeName, void* key) const;
+	virtual bool existAttribute(int attributeName, void* key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(const tstring & attributeName, const tstring & key) const;
+	virtual bool existAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(const tstring & attributeName, int key) const;
+	virtual bool existAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject) const;
 	virtual bool existAttribute(const tstring & attributeName, void* key) const;
+	virtual bool existAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject) const;
 
 	virtual cgcObject::pointer removeAttribute(int attributeName, const tstring & key, bool deleteIfEmpty);
 	virtual cgcObject::pointer removeAttribute(int attributeName, int key, bool deleteIfEmpty);
@@ -139,6 +163,14 @@ public:
 	virtual cgcObject::pointer removeAttribute(const tstring & attributeName, int key, bool deleteIfEmpty);
 	virtual cgcObject::pointer removeAttribute(const tstring & attributeName, void* key, bool deleteIfEmpty);
 
+	virtual bool removeAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(int attributeName, int key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(int attributeName, void* key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject);
+	virtual bool removeAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject);
+
 	virtual void clearStringAtrributes(int attributeName);
 	virtual void clearLongAtrributes(int attributeName);
 	virtual void clearBigIntAtrributes(int attributeName);
@@ -147,10 +179,52 @@ public:
 	virtual void clearLongAtrributes(const tstring & attributeName);
 	virtual void clearVoidAtrributes(const tstring & attributeName);
 
+	// list
+	virtual ObjectListPointer	getListAttributes(int attributeName, bool newIfNotExist);
+	virtual ObjectListPointer	getListAttributes(bigint attributeName, bool newIfNotExist);
+	virtual ObjectListPointer	getListAttributes(const tstring & attributeName, bool newIfNotExist);
+	virtual ObjectListPointer	getListAttributes(void* attributeName, bool newIfNotExist);
+
+	virtual void addListAttribute(int attributeName, const cgcObject::pointer& pObject, bool is_lock = true);
+	virtual void addListAttribute(bigint attributeName, const cgcObject::pointer& pObject, bool is_lock = true);
+	virtual void addListAttribute(const tstring& attributeName, const cgcObject::pointer& pObject, bool is_lock = true);
+	virtual void addListAttribute(void* attributeName, const cgcObject::pointer& pObject, bool is_lock = true);
+
+	virtual cgcObject::pointer getBackAttribute(int attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getBackAttribute(bigint attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getBackAttribute(const tstring& attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getBackAttribute(void* attributeName, bool is_pop=true);
+
+	virtual void setFrontAttribute(int attributeName, const cgcObject::pointer& pObject);
+	virtual void setFrontAttribute(bigint attributeName, const cgcObject::pointer& pObject);
+	virtual void setFrontAttribute(const tstring& attributeName, const cgcObject::pointer& pObject);
+	virtual void setFrontAttribute(void* attributeName, const cgcObject::pointer& pObject);
+
+	virtual cgcObject::pointer getFrontListAttribute(int attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getFrontListAttribute(bigint attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getFrontListAttribute(const tstring& attributeName, bool is_pop=true);
+	virtual cgcObject::pointer getFrontListAttribute(void* attributeName, bool is_pop=true);
+
+	virtual bool isListAttributeEmtpy(int attributeName) const;
+	virtual bool isListAttributeEmtpy(bigint attributeName) const;
+	virtual bool isListAttributeEmtpy(const tstring& attributeName) const;
+	virtual bool isListAttributeEmtpy(void* attributeName) const;
+
+	virtual size_t getListAttributeSize(int attributeName) const;
+	virtual size_t getListAttributeSize(bigint attributeName) const;
+	virtual size_t getListAttributeSize(const tstring& attributeName) const;
+	virtual size_t getListAttributeSize(void* attributeName) const;
+
+	virtual void clearListAttribute(int attributeName, bool is_lock = true);
+	virtual void clearListAttribute(bigint attributeName, bool is_lock = true);
+	virtual void clearListAttribute(const tstring& attributeName, bool is_lock = true);
+	virtual void clearListAttribute(void* attributeName, bool is_lock = true);
+
 	//virtual void clearAllStringAtrributes(void);
 	//virtual void clearAllLongAtrributes(void);
 
-	virtual void clearAllAtrributes(void);
+	// nClearType: 0x1=clear map only; 0x2= clear list only; 0x3=clear map & list
+	virtual void clearAllAtrributes(int nClearType=0x3);
 };
 
 } // namespace mycp

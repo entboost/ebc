@@ -1416,6 +1416,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DlgRequestAddContact.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DlgResourceMgr.cpp"
 				>
 			</File>
@@ -1775,6 +1779,10 @@
 			</File>
 			<File
 				RelativePath=".\DlgRemoteDesktop.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgRequestAddContact.h"
 				>
 			</File>
 			<File
@@ -2149,6 +2157,10 @@
 			</File>
 			<File
 				RelativePath=".\res\skin\btnselmyvideo.png"
+				>
+			</File>
+			<File
+				RelativePath=".\res\skin\btnsendecard.png"
 				>
 			</File>
 			<File

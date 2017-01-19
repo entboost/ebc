@@ -23,7 +23,7 @@ public:
 	bool GetFirstInRect(void) const {return m_bFirstInRect;}
 	void HideReset(void);
 	void SetCheckLeave(void);
-	void SetMoveEnter(void);
+	void SetMoveEnter(bool bShowNow = false);
 	void SetMoveLeave(void);
 #ifdef USES_EBCOM_TEST
 	void SetEnterpriseInfo(IEB_EnterpriseInfo* pEnterpriseInfo);
@@ -36,6 +36,7 @@ public:
 	void SetEmployeeInfo(const EB_MemberInfo* pMemberInfo,const EB_GroupInfo* pGroupInfo);
 	void SetContactInfo(const EB_ContactInfo* pContactInfo);
 #endif
+	void SetCtrlColor(void);
 
 // Dialog Data
 	enum { IDD = IDD_DLG_VIEW_CONTACTINFO };
@@ -51,6 +52,8 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CLabelEx m_staLabel1;
+	CTraButton m_btnSendMsg;
+	CTraButton m_btnRequestAddContact;
 
 	void DrawInfo(void);
 
@@ -60,4 +63,6 @@ protected:
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnBnClickedButtonSendMsg();
+	afx_msg void OnBnClickedButtonRequestAddContact();
 };

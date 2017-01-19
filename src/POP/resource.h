@@ -213,6 +213,8 @@
 #define IDD_PAN_SEARCH1                 269
 #define IDD_PAN_SEARCH_RESULT           269
 #define IDI_ICON_BROWSER_CHROME         270
+#define IDD_DLG_MEMBER_INFO1            270
+#define IDD_DLG_REQUEST_ADD_CONTACT     270
 #define IDI_ICON_BROWSER_IE             271
 #define IDB_BITMAP_BROWSER_CHROME       272
 #define IDB_BITMAP_BROWSER_IE           273
@@ -239,6 +241,7 @@
 #define IDB_PNG_BTN_FILE_MGR_UISTYLE    297
 #define IDB_PNG_BTN_FILE_MGR_UISTYLE1   297
 #define IDB_PNG_ENTBOOST42              299
+#define IDB_PNG_BTN_SEND_ECARD          300
 #define IDC_BUTTON_CALLUSER             1001
 #define IDC_STATIC_SAVEPWD              1001
 #define IDC_STATIC_LINE_CONVERSATION    1001
@@ -332,12 +335,10 @@
 #define IDC_TREE_CONTACT                1038
 #define IDC_EDIT_CONTACT_EMAIL          1039
 #define IDC_TREE_SELECTED               1039
-#define IDC_EDIT_CONTACT_ADDRESS        1040
 #define IDC_TREE_SEARCH_RESULT          1040
 #define IDC_TREE_SEARCH                 1040
 #define IDC_EDIT_CONTACT_DESCRIPTION    1041
 #define IDC_EDIT_CONTACT                1041
-#define IDC_EDIT_CONTACT_ACCOUNT        1041
 #define IDC_COMBO_CONTACT               1042
 #define IDC_EDIT_ENT_NAME               1042
 #define IDC_EDIT_FAX                    1043
@@ -536,6 +537,13 @@
 #define IDC_BUTTON_SWITCH_RIGHT         1119
 #define IDC_BTN_6                       1119
 #define IDC_EDIT_USER_INPUT             1120
+#define IDC_BTN_7                       1120
+#define IDC_BTN_8                       1121
+#define IDC_BUTTON_SEND_MSG             1121
+#define IDC_BUTTON_SEND_MSG2            1122
+#define IDC_BUTTON_REQUEST_ADD_CONTACT  1122
+#define IDC_EDIT_CONTACT_ADDRESS        1123
+#define IDC_EDIT_CONTACT_ACCOUNT        1124
 #define IDC_STATIC_GROUP_NAME           6553
 #define ID_CONTACT_32771                32771
 #define ID_CONTACT_32773                32773
@@ -576,9 +584,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        300
+#define _APS_NEXT_RESOURCE_VALUE        301
 #define _APS_NEXT_COMMAND_VALUE         32802
-#define _APS_NEXT_CONTROL_VALUE         1121
+#define _APS_NEXT_CONTROL_VALUE         1122
 #define _APS_NEXT_SYMED_VALUE           113
 #endif
 #endif

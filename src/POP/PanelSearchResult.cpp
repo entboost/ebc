@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CPanelSearchResult, CEbDialogBase)
 	ON_WM_TIMER()
 	ON_WM_PAINT()
 	ON_WM_DESTROY()
+	ON_MESSAGE(EB_COMMAND_NEW_CONTACT, OnMsgNewContact)
 	ON_MESSAGE(WM_ITEM_DOUBLE_CLICK, OnTreeItemDoubleClick)
 	ON_MESSAGE(WM_ITEM_TRACK_HOT, OnTreeItemTrackHot)
 	ON_NOTIFY(NM_CLICK, IDC_TREE_SEARCH, &CPanelSearchResult::OnNMClickTreeSearch)
@@ -65,6 +66,12 @@ BOOL CPanelSearchResult::OnInitDialog()
 	m_btnSearchTrackCall.SetAutoSize(false);
 	m_btnSearchTrackCall.Load(IDB_PNG_HOT_CALL);
 	m_btnSearchTrackCall.SetToolTipText(_T("打开会话"));
+
+	m_btnAddContact.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSearch, 0xffff);
+	m_btnAddContact.SetAutoSize(false);
+	m_btnAddContact.Load(IDB_PNG_HOT_CALL);
+	m_btnAddContact.SetToolTipText(_T("添加到我的联系人"));
+	m_btnAddContact.ShowWindow(SW_HIDE);	// **暂时不支持
 
 	m_treeSearch.SetItemHeight(40);
 	m_treeSearch.SetIconSize(32,32);
@@ -190,13 +197,16 @@ void CPanelSearchResult::InsertUrlItem(const tstring& sTitle, const tstring& sUr
 		//ScrollTreeSearchToTop();
 	}
 }
-void CPanelSearchResult::FocusTree(void)
+void CPanelSearchResult::FocusTree(bool bMoveNext)
 {
 	this->SetFocus();
 	m_treeSearch.SetFocus();
-	if (m_treeSearch.GetSelectedItem()!=0 && m_treeSearch.GetParentItem(m_treeSearch.GetSelectedItem())==0)
+	if (m_treeSearch.GetSelectedItem()!=0)
 	{
-		m_treeSearch.Expand(m_treeSearch.GetSelectedItem(),TVE_EXPAND);
+		if (m_treeSearch.GetParentItem(m_treeSearch.GetSelectedItem())==0)
+			m_treeSearch.Expand(m_treeSearch.GetSelectedItem(),TVE_EXPAND);
+		else if (bMoveNext)
+			m_treeSearch.SelectItem(m_treeSearch.GetNextItem(m_treeSearch.GetSelectedItem(),TVGN_NEXT));
 	}
 }
 
@@ -336,6 +346,9 @@ BOOL CPanelSearchResult::PreTranslateMessage(MSG* pMsg)
 		if (m_pParentMsg!=NULL)
 			m_pParentMsg->PostMessage(EB_COMMAND_SEARCH_SET_FOCUS_SEL,1,0);
 		SetTimer(TIMERID_CALL_SEARCH_TRACK,1,NULL);
+	}else if (pMsg->message == WM_LBUTTONUP && pMsg->hwnd == m_btnAddContact.GetSafeHwnd())
+	{
+		this->PostMessage(EB_COMMAND_NEW_CONTACT,(WPARAM)m_treeSearch.GetTrackItem(),0);
 	}else if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN && pMsg->hwnd == m_treeSearch.GetSafeHwnd())
 	{
 		SetTimer(TIMERID_CALL_SEARCH_SELECTED,1,NULL);
@@ -658,7 +671,7 @@ LRESULT CPanelSearchResult::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 				GetCursorPos(&pos);
 
 				const int const_dlg_width = 380;
-				const int const_dlg_height = 188;
+				const int const_dlg_height = 220;
 				CRect rect;
 				this->GetWindowRect(&rect);
 				CRect rectViewContactInfo;
@@ -762,10 +775,67 @@ void CPanelSearchResult::OnDestroy()
 	__super::OnDestroy();
 	m_btnSearchTrackDel.DestroyWindow();
 	m_btnSearchTrackCall.DestroyWindow();
+	m_btnAddContact.DestroyWindow();
 	if (m_pViewContactInfo!=0)
 	{
 		m_pViewContactInfo->DestroyWindow();
 		delete m_pViewContactInfo;
 		m_pViewContactInfo = NULL;
 	}
+}
+
+LRESULT CPanelSearchResult::OnMsgNewContact(WPARAM wp, LPARAM lp)
+{
+	//HTREEITEM hItem = (HTREEITEM)wp;
+	//const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeSearch.GetItemData(hItem);
+	//if (pTreeItemInfo == NULL) return false;
+	//if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && pTreeItemInfo->m_nUserId>0 && pTreeItemInfo->m_sMemberCode>0)
+	//{
+	//	if (theEBAppClient.EB_IsMyContactAccount2(pTreeItemInfo->m_nUserId))
+	//	{
+	//		return 0;	// 已经是我的联系人
+	//	}
+	//	EB_MemberInfo pMemberInfo;
+	//	if (!theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,pTreeItemInfo->m_sMemberCode))
+	//	{
+	//		return 0;
+	//	}
+
+	//	EB_ContactInfo pContactInfo;
+	//	theEBAppClient.EB_GetContactInfo2(pMemberInfo.m_nMemberUserId,&pContactInfo);
+	//	pContactInfo.m_nContactUserId = pMemberInfo.m_nMemberUserId;
+	//	pContactInfo.m_sContact = pMemberInfo.m_sMemberAccount;
+
+	//	CDlgContactInfo pDlgContactInfo(this);
+	//	pDlgContactInfo.m_sContact = pContactInfo.m_sContact.c_str();
+	//	pDlgContactInfo.m_sName = pMemberInfo.m_sUserName.c_str();
+	//	pDlgContactInfo.m_nUGId = pContactInfo.m_nUGId;
+	//	pDlgContactInfo.m_sPhone = pMemberInfo.m_sCellPhone.c_str();
+	//	//pDlgContactInfo.m_sCompany = pCallRecordInfo->m_sCompany.c_str();
+	//	pDlgContactInfo.m_sJobTitle = pMemberInfo.m_sJobTitle.c_str();
+	//	//pDlgContactInfo.m_sUrl = pMemberInfo.m_s.m_sUrl.c_str();
+	//	pDlgContactInfo.m_sTel = pMemberInfo.m_sWorkPhone.c_str();
+	//	pDlgContactInfo.m_sFax = pMemberInfo.m_sFax.c_str();
+	//	pDlgContactInfo.m_sEmail = pMemberInfo.m_sEmail.c_str();
+	//	pDlgContactInfo.m_sAddress = pMemberInfo.m_sAddress.c_str();
+	//	pDlgContactInfo.m_sDescription = pMemberInfo.m_sDescription.c_str();
+	//	if (pDlgContactInfo.DoModal() == IDOK)
+	//	{
+	//		pContactInfo.m_sContact = (LPCTSTR)pDlgContactInfo.m_sContact;
+	//		pContactInfo.m_nUGId = pDlgContactInfo.m_nUGId;
+	//		pContactInfo.m_sName = (LPCTSTR)pDlgContactInfo.m_sName;
+	//		pContactInfo.m_sPhone = (LPCTSTR)pDlgContactInfo.m_sPhone;
+	//		pContactInfo.m_sCompany = (LPCTSTR)pDlgContactInfo.m_sCompany;
+	//		pContactInfo.m_sJobTitle = (LPCTSTR)pDlgContactInfo.m_sJobTitle;
+	//		pContactInfo.m_sUrl = (LPCTSTR)pDlgContactInfo.m_sUrl;
+	//		pContactInfo.m_sTel = (LPCTSTR)pDlgContactInfo.m_sTel;
+	//		pContactInfo.m_sFax = (LPCTSTR)pDlgContactInfo.m_sFax;
+	//		pContactInfo.m_sEmail = (LPCTSTR)pDlgContactInfo.m_sEmail;
+	//		pContactInfo.m_sAddress = (LPCTSTR)pDlgContactInfo.m_sAddress;
+	//		pContactInfo.m_sDescription = (LPCTSTR)pDlgContactInfo.m_sDescription;
+	//		theEBAppClient.EB_EditContact(&pContactInfo);
+	//	}
+	//}
+
+	return 0;
 }

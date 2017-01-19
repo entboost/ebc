@@ -90,6 +90,16 @@ void CPanelFiles::MoveSize(int cx, int cy)
 	}
 }
 
+void CPanelFiles::SetCtrlColor(void)
+{
+	BoostReadLock rdlock(m_pTranFiles.mutex());
+	CLockMap<eb::bigint, CDlgTranFile::pointer>::const_iterator pIter = m_pTranFiles.begin();
+	for (; pIter!=m_pTranFiles.end(); pIter++)
+	{
+		CDlgTranFile::pointer pDlgTranFile = pIter->second;
+		pDlgTranFile->SetCtrlColor();
+	}
+}
 void CPanelFiles::ExitChat(bool bHangup)
 {
 	while (!m_pTranFiles.empty())

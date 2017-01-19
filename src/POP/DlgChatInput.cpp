@@ -55,6 +55,7 @@ CDlgChatInput::CDlgChatInput(CWnd* pParent /*=NULL*/)
 
 CDlgChatInput::~CDlgChatInput()
 {
+	m_pCardInfoList.clear();
 }
 
 void CDlgChatInput::DoDataExchange(CDataExchange* pDX)
@@ -104,6 +105,9 @@ END_MESSAGE_MAP()
 
 void CDlgChatInput::SetCtrlColor(bool bInvalidate)
 {
+	if (m_pDlgViewContact.GetSafeHwnd()!=NULL)
+		m_pDlgViewContact.SetCtrlColor();
+
 	//if (m_pMrFrameInterface!=NULL)
 	//	m_pMrFrameInterface->SetBackgroundColor(theApp.GetBgColor1());
 	//m_richInput.SetBackgroundColor(FALSE,theApp.GetBgColor1());
@@ -1731,13 +1735,25 @@ void CDlgChatInput::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUser
 {
 	// nAckType=0 收到消息回执
 	// nAckType=4 请求撤回消息
+	// nAckType=6 请求“个人收藏”消息
+	// nAckType=7 请求“群收藏”消息
 	// *** read_flag=1 已经读；
 	// *** read_flag=2 对方接收回执
 	if (nState==EB_STATE_OK)
 		theApp.UpdateMsgReceiptData(nMsgId, nFromUserId, nAckType);
 	if (m_pMrFrameInterface!=NULL)
 	{
-		if (nAckType==4)
+		if (nAckType==6 ||	// 个人收藏
+			nAckType==7)			// 群收藏
+		{
+			if (nState==EB_STATE_OK)
+				CDlgMessageBox::EbMessageBox(this,"",_T("消息收藏成功！"),CDlgMessageBox::IMAGE_INFORMATION,3);
+			else if (nState==EB_STATE_NOT_AUTH_ERROR)
+				CDlgMessageBox::EbMessageBox(this,"",_T("没有操作权限：\r\n消息收藏失败！"),CDlgMessageBox::IMAGE_WARNING,3);
+			else
+				CDlgMessageBox::EbMessageBox(this,"",_T("消息不存在或者已经被删除：\r\n消息收藏失败！"),CDlgMessageBox::IMAGE_WARNING,3);
+		}
+		else if (nAckType==4)
 		{
 			if (nState==EB_STATE_OK)
 			{
@@ -1757,7 +1773,8 @@ void CDlgChatInput::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUser
 			else if (m_pCallInfo.m_sGroupCode==0)
 			{
 				AddLineString(0,_T("对方撤回了一条消息！"),1);
-			}else
+			}
+			else
 			{
 				tstring sMemberUserName;
 				theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,nFromUserId,sMemberUserName);
@@ -1765,7 +1782,8 @@ void CDlgChatInput::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUser
 				sText.Format(_T("%s 撤回了一条消息！"),sMemberUserName.c_str());
 				AddLineString(0,sText,1);
 			}
-		}else
+		}
+		else if (nAckType==0)	// ?
 		{
 			const long nReceiptFlag = EBC_CONTRON_RECEIPT_FLAG_TRUE|EBC_CONTRON_RECEIPT_FLAG_SHOW;
 			m_pMrFrameInterface->SetMsgReceiptFlag(nMsgId, nReceiptFlag);
@@ -2359,7 +2377,9 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 		}else if (pMsgItem->GetType() == EB_ChatRoomMsgItem::MIT_OBJECT)
 		{
 			CString sObjectFileName;
-			EB_RICH_SUB_TYPE nSubType = (EB_RICH_SUB_TYPE)pCrMsgInfo->m_pRichMsg->GetSubType();
+			tstring sObjectSaveData;	// ** to save msg_text
+			const EB_RICH_SUB_TYPE nSubType = (EB_RICH_SUB_TYPE)pCrMsgInfo->m_pRichMsg->GetSubType();
+			bool bIsFile = true;
 			MSG_RECORD_TYPE nRecordType = MRT_JPG;
 			if (bReceive || nState==EB_STATE_FORWARD_MSG)
 			{
@@ -2367,6 +2387,7 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				static_index++;
 				if (nSubType == EB_RICH_SUB_TYPE_JPG)
 				{
+					nRecordType = MRT_JPG;
 					sObjectFileName.Format(_T("%s\\%x%02x%02x.jpg"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
 				}else if (nSubType==EB_RICH_SUB_TYPE_AUDIO)	// wav格式
 				{
@@ -2374,8 +2395,15 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 					sObjectFileName.Format(_T("%s\\%x%02x%02x.wav"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
 				}else if (nSubType==EB_RICH_SUB_TYPE_MAP_POS)	// 地图位置
 				{
+					bIsFile = false;
 					nRecordType = MRT_MAP_POS;
-					sObjectFileName = pMsgItem->GetData();
+					//sObjectFileName = pMsgItem->GetData();
+				}else if (nSubType==EB_RICH_SUB_TYPE_CARD_INFO)	// 名片数据
+				{
+					bIsFile = false;
+					nRecordType = MRT_CARD_INFO;
+					//sObjectFileName = pMsgItem->GetData();
+					sObjectSaveData = libEbc::UTF82ACP(pMsgItem->GetData());
 				}else if (nSubType==EB_RICH_SUB_TYPE_USER_DATA)	// 用户自定义数据
 				{
 					nRecordType = MRT_USER_DATA;
@@ -2386,7 +2414,8 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 					nRecordType = MRT_FILE;
 					sObjectFileName.Format(_T("%s\\%x%02x%02x"), theApp.GetUserImagePath(), (int)time(0),rand()%0xff,(static_index)%0xff);
 				}
-				if (nRecordType != MRT_MAP_POS)
+				if (bIsFile)
+				//if (nRecordType != MRT_MAP_POS)
 				{
 					const char * lpObjectData = pMsgItem->GetData();
 					DWORD dwDataSize = pMsgItem->GetSize();
@@ -2404,7 +2433,11 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 					nRecordType = MRT_WAV;
 				else if (nSubType == EB_RICH_SUB_TYPE_MAP_POS)		// ??
 					nRecordType = MRT_MAP_POS;
-				else if (nSubType == EB_RICH_SUB_TYPE_USER_DATA)	// ??
+				else if (nSubType == EB_RICH_SUB_TYPE_CARD_INFO)		// 名片信息
+				{
+					nRecordType = MRT_CARD_INFO;
+					sObjectSaveData = libEbc::UTF82ACP(pMsgItem->GetData());
+				}else if (nSubType == EB_RICH_SUB_TYPE_USER_DATA)	// ??
 					nRecordType = MRT_USER_DATA;
 			}
 			if (nSubType == EB_RICH_SUB_TYPE_JPG)
@@ -2453,6 +2486,38 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				if (sOutFirstMsg2!=NULL && sOutFirstMsg2->GetLength()<const_max_length)
 				{
 					sOutFirstMsg2->Append(_T("[地图位置]"));
+				}
+			}else if (nSubType==EB_RICH_SUB_TYPE_CARD_INFO)	// 名片信息
+			{
+				// *** 这里要解析并显示名片信息
+				int nCardType = 0;
+				tstring sCardData;
+				theEBAppClient.EB_ParseCardInfo(sObjectSaveData,nCardType,sCardData);
+				EB_ECardInfo pUserECard;
+				if (nCardType==1 && theEBAppClient.EB_GetUserECardByFromInfo(sCardData,&pUserECard))
+				{
+					// ** 用户名片（个人名片）
+					m_pCardInfoList.insert(pRichMsg->GetMsgId(),sObjectSaveData,false);
+					const tstring sFilePath = theApp.GetUserHeadFilePath(pUserECard.m_nMemberUserId,"");
+					CString sTemp;
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,sFilePath.c_str());
+					m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,48,48);
+					m_pMrFrameInterface->WriteSpace(1);
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,pUserECard.m_sAccountName.c_str());
+					m_pMrFrameInterface->WriteString((LPCTSTR)sTemp,bReceive?theDefaultChatTextColor2:theDefaultChatTextColor1);
+					m_pMrFrameInterface->WriteSpace(15);
+					m_pMrFrameInterface->WriteLine();
+					m_pMrFrameInterface->WritePic(2,0,-5,0,1,theDefaultFlatLine2Color,0,0);	// **画水平线条
+					m_pMrFrameInterface->WriteString(L"个人名片",theDefaultChatSystemColor);
+
+					if (sOutFirstMsg2!=NULL && sOutFirstMsg2->GetLength()<const_max_length)
+					{
+						sTemp.Format(_T("%s[个人名片]"),pUserECard.m_sAccountName.c_str());
+						sOutFirstMsg2->Append(sTemp);
+					}
+				}else if (sOutFirstMsg2!=NULL && sOutFirstMsg2->GetLength()<const_max_length)
+				{
+					sOutFirstMsg2->Append(_T("[名片信息]"));
 				}
 			}else if (nSubType==EB_RICH_SUB_TYPE_USER_DATA)	// 用户自定义数据
 			{
@@ -2507,10 +2572,11 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 			}
 			if (theApp.GetSaveConversationLocal() && !theEBAppClient.EB_IsLogonVisitor())
 			{
-				sSql.Format(_T("INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,read_flag) ")\
-					_T("VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s',%d)"),
+				CSqliteCdbc::escape_string_in(sObjectSaveData);
+				sSql.Format(_T("INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag) ")\
+					_T("VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s',%d)"),
 					sDBMsgTimeField,sDBMsgTimeValue,pRichMsg->GetMsgId(),this->m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendFrom,libEbc::ACP2UTF8(sInFromName.c_str()).c_str(),
-					sSaveDbToAccount,libEbc::ACP2UTF8(sInToName.c_str()).c_str(),pCrMsgInfo->m_bPrivate?1:0,nRecordType,libEbc::ACP2UTF8(sObjectFileName).c_str(),nReadFlag);
+					sSaveDbToAccount,libEbc::ACP2UTF8(sInToName.c_str()).c_str(),pCrMsgInfo->m_bPrivate?1:0,nRecordType,libEbc::ACP2UTF8(sObjectFileName).c_str(),libEbc::ACP2UTF8(sObjectSaveData.c_str()).c_str(),nReadFlag);
 				theApp.m_pBoUsers->execute(sSql);
 			}
 		}
@@ -2525,7 +2591,7 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 	}else if (EB_STATE_NOT_MEMBER_ERROR==nState && m_pCallInfo.m_sGroupCode>0)
 	{
 		AddLineString(0,_T("没有其他群组成员，发送失败！"),1);
-	}else if (nState!=EB_STATE_OK)
+	}else if (nState!=EB_STATE_OK && nState!=EB_STATE_FORWARD_MSG)
 	{
 		CString sTemp;
 		sTemp.Format(_T("发送失败，请重试！（CODE=%d）"),(int)nState);
@@ -3510,6 +3576,30 @@ void CDlgChatInput::LoadMsgRecord(void)
 		case MRT_MAP_POS:	// 地图位置
 			{
 			}break;
+		case MRT_CARD_INFO:	// 名片信息
+			{
+				// *** 这里要解析并显示名片信息
+				int nCardType = 0;
+				tstring sCardData;
+				theEBAppClient.EB_ParseCardInfo(sMsgText,nCardType,sCardData);
+				EB_ECardInfo pUserECard;
+				if (nCardType==1 && theEBAppClient.EB_GetUserECardByFromInfo(sCardData,&pUserECard))
+				{
+					// ** 用户名片（个人名片）
+					m_pCardInfoList.insert(sMsgId,sMsgText,false);
+					const tstring sFilePath = theApp.GetUserHeadFilePath(pUserECard.m_nMemberUserId,"");
+					CString sTemp;
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,sFilePath.c_str());
+					m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,48,48);
+					m_pMrFrameInterface->WriteSpace(1);
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,pUserECard.m_sAccountName.c_str());
+					m_pMrFrameInterface->WriteString((LPCTSTR)sTemp,bReceive?theDefaultChatTextColor2:theDefaultChatTextColor1);
+					m_pMrFrameInterface->WriteSpace(15);
+					m_pMrFrameInterface->WriteLine();
+					m_pMrFrameInterface->WritePic(2,0,-5,0,1,theDefaultFlatLine2Color,0,0);	// **画水平线条
+					m_pMrFrameInterface->WriteString(L"个人名片",theDefaultChatSystemColor);
+				}
+			}break;
 		case MRT_USER_DATA:	// 用户自定义数据
 			{
 			}break;
@@ -4001,6 +4091,10 @@ void CDlgChatInput::Fire_onItemLBtnClick(LONG nLineId, LONG nItemId, ULONG nItem
 {
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
+		{
+			ProcessUserECard(nSelectMsgId, 0, true);
+		}break;
 	case EB_MR_CTRL_DATA_TYPE_READ_FLAG:
 		{
 			//if (m_pMrFrameInterface!=NULL)
@@ -4065,6 +4159,63 @@ void CDlgChatInput::Fire_onItemLBtnDblClick(LONG nLineId, LONG nItemId, ULONG nI
 		break;
 	}
 }
+void CDlgChatInput::ProcessUserECard(mycp::bigint nSelectMsgId, ULONG nParam, bool bShowNow)
+{
+	if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
+		m_pDlgToolbar.HideReset();
+	tstring sCardInfo;
+	if (!m_pCardInfoList.find(nSelectMsgId,sCardInfo))
+		return;//break;
+	if (m_pDlgViewContact.GetSafeHwnd()==NULL)
+	{
+		m_pDlgViewContact.Create(CDlgViewContactInfo::IDD,this);
+	}
+	int nCardType = 0;
+	tstring sCardData;
+	theEBAppClient.EB_ParseCardInfo(sCardInfo,nCardType,sCardData);
+	EB_ECardInfo pUserECard;
+	if (nCardType==1 && theEBAppClient.EB_GetUserECardByFromInfo(sCardData,&pUserECard))
+	{
+		EB_MemberInfo pMemberInfo;
+		EB_GroupInfo pGroupInfo;
+		if (pUserECard.m_sMemberCode>0 && theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,&pGroupInfo,pUserECard.m_sMemberCode))
+			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
+		else if (pUserECard.m_nMemberUserId>0 && theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,&pGroupInfo,pUserECard.m_nMemberUserId))
+			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
+		else
+		{
+			EB_ContactInfo pContactInfo;
+			pContactInfo.m_nContactUserId = pUserECard.m_nMemberUserId;
+			pContactInfo.m_sName = pUserECard.m_sAccountName;
+			//pContactInfo.m_sDescription = pUserECard.m_sName;
+			pContactInfo.m_sCompany = pUserECard.m_sEnterprise;
+			pContactInfo.m_sGroupName = pUserECard.m_sGroupName;
+			pContactInfo.m_sJobTitle = pUserECard.m_sTitle;
+			pContactInfo.m_sPhone = pUserECard.m_sPhone;
+			pContactInfo.m_sTel = pUserECard.m_sTel;
+			pContactInfo.m_sEmail = pUserECard.m_sEmail;
+			pContactInfo.m_sAddress = pUserECard.m_sAddress;
+			//if ((m_pContactInfo.m_nContactType&EB_CONTACT_TYPE_MAIL)==EB_CONTACT_TYPE_MAIL)
+
+			m_pDlgViewContact.SetContactInfo(&pContactInfo);
+		}
+		const int const_dlg_width = 380;
+		const int const_dlg_height = 220;
+		CPoint pos;
+		if (nParam==0)
+			::GetCursorPos(&pos);
+		else
+		{
+			pos.x = LOWORD(nParam);
+			pos.y = HIWORD(nParam);
+		}
+		const int x = pos.x+15 + (pos.x%15);
+		const int y = pos.y-35 - (pos.y%35);
+		m_pDlgViewContact.MoveWindow(x,y,const_dlg_width,const_dlg_height);
+		m_pDlgViewContact.SetCircle();
+		m_pDlgViewContact.SetMoveEnter(bShowNow);
+	}
+}
 void CDlgChatInput::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId, ULONG nParam)
 {
 	//m_nMoveEnterMsgId = nSelectMsgId;
@@ -4073,13 +4224,17 @@ void CDlgChatInput::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
+		{
+			ProcessUserECard(nSelectMsgId, nParam, false);
+		}break;
 	case EB_MR_CTRL_DATA_TYPE_UID:
 		{
+			if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
+				m_pDlgToolbar.HideReset();
 			const eb::bigint nUserId = eb_atoi64(sParamString.c_str());
 			if (m_pCallInfo.m_sGroupCode==0 || nUserId==0)
 				break;
-			if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
-				m_pDlgToolbar.HideReset();
 
 			if (m_pDlgViewContact.GetSafeHwnd()==NULL)
 			{
@@ -4094,7 +4249,7 @@ void CDlgChatInput::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 				break;
 			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
 			const int const_dlg_width = 380;
-			const int const_dlg_height = 188;
+			const int const_dlg_height = 220;
 			CPoint pos;
 			pos.x = LOWORD(nParam);
 			pos.y = HIWORD(nParam);
@@ -4133,11 +4288,11 @@ void CDlgChatInput::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 				//::GetCursorPos(&pos);
 				int x = pos.x-35 - (pos.x%35);
 				const int y = pos.y+10 + (pos.y%10);
-				const int nToolBarWidth = 56*nCount+11;
+				const int nToolBarWidth = 55*nCount+7;
 				const int nScreenWidth = theApp.GetScreenWidth();
 				if (x+nToolBarWidth>nScreenWidth)
 					x = nScreenWidth-nToolBarWidth;
-				m_pDlgToolbar.MoveWindow(x,y,nToolBarWidth,36);
+				m_pDlgToolbar.MoveWindow(x,y,nToolBarWidth,31);
 				m_pDlgToolbar.ShowWindow(SW_SHOW);
 			}
 		}break;
@@ -4150,6 +4305,7 @@ void CDlgChatInput::Fire_onItemMoveLeave(LONG nLineId, LONG nItemId, ULONG nItem
 {
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
 	case EB_MR_CTRL_DATA_TYPE_UID:
 		{
 			if (m_pDlgViewContact.GetSafeHwnd()!=NULL)// && m_pDlgViewContact.IsWindowVisible())

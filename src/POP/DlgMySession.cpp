@@ -5,6 +5,7 @@
 #include "POP.h"
 #include "DlgMySession.h"
 #include "DlgViewContactInfo.h"
+#include "DlgRequestAddContact.h"
 
 #define TIMERID_LOAD_CALL_RECORD	200
 #define TIMERID_CHECK_ITEM_HOT		202
@@ -55,6 +56,9 @@ END_MESSAGE_MAP()
 // CDlgMySession message handlers
 void CDlgMySession::SetCtrlColor(void)
 {
+	if (m_pViewContactInfo!=NULL && m_pViewContactInfo->GetSafeHwnd()!=NULL)
+		m_pViewContactInfo->SetCtrlColor();
+
 	//if (theApp.GetColorFlat())
 	//	m_treeSession.SetBkGradients(theApp.GetFlatBgColor(),theApp.GetFlatBgColor());
 	//else
@@ -73,7 +77,10 @@ BOOL CDlgMySession::OnInitDialog()
 	m_btnAddContact.SetAutoSize(false);
 	m_btnAddContact.SetAutoFocus(true);
 	m_btnAddContact.Load(IDB_PNG_HOT_NEW);
-	m_btnAddContact.SetToolTipText(_T("添加到我的联系人"));
+	//if (theApp.GetAuthContact())
+	//	m_btnAddContact.SetToolTipText(_T("点击申请添加好友"));
+	//else
+	//	m_btnAddContact.SetToolTipText(_T("添加到我的联系人"));
 	m_btnCallTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSession, 0xffff);
 	m_btnCallTrack.SetAutoSize(false);
 	m_btnCallTrack.SetAutoFocus(true);
@@ -541,7 +548,7 @@ LRESULT CDlgMySession::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (bPtInHeadRect)
 		{
 			const int const_dlg_width = 380;
-			const int const_dlg_height = 188;
+			const int const_dlg_height = 220;
 			CRect rect;
 			this->GetWindowRect(&rect);
 			CRect rectViewContactInfo;
@@ -789,6 +796,14 @@ LRESULT CDlgMySession::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		m_btnCallTrack.Invalidate();
 		if (bAddMyContact)
 		{
+			if (!is_visitor_uid(pCallRecordInfo->m_nFromUserId) && theApp.GetAuthContact() &&
+				(pCallRecordInfo->m_nFromUserId>0 || !pCallRecordInfo->m_sFromAccount.empty()))
+			{
+				m_btnAddContact.SetToolTipText(_T("点击申请添加好友"));
+			}else
+			{
+				m_btnAddContact.SetToolTipText(_T("添加到我的联系人"));
+			}
 			m_btnAddContact.MovePoint(nRight-const_btn_width*2, nTop);
 			m_btnAddContact.ShowWindow(SW_SHOW);
 			m_btnAddContact.Invalidate();
@@ -1135,9 +1150,26 @@ LRESULT CDlgMySession::OnMsgNewContact(WPARAM wp, LPARAM lp)
 	{
 		tstring sAddress;
 		//tstring sContact(pCallRecordInfo->m_sFromAccount);
-		if (pCallRecordInfo->m_nFromType==EB_ACCOUNT_TYPE_VISITOR)
+		if (pCallRecordInfo->m_nFromType==EB_ACCOUNT_TYPE_VISITOR || is_visitor_uid(pCallRecordInfo->m_nFromUserId))
 		{
 			sAddress = pCallRecordInfo->m_sFromName;
+		}else if (theApp.GetAuthContact() && (pCallRecordInfo->m_nFromUserId>0 || !pCallRecordInfo->m_sFromAccount.empty()))
+		{
+			// 验证好友方式
+			CDlgRequestAddContact pDlg;
+			pDlg.m_sHeadFilePath = theApp.GetUserHeadFilePath(pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sFromAccount);
+			CString sText;
+			sText.Format(_T("%s\n%lld\n%s"),pCallRecordInfo->m_sFromName.c_str(),pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sFromAccount.c_str());
+			pDlg.m_sHeadName = (LPCTSTR)sText;
+			if (pDlg.DoModal()==IDOK)
+			{
+				EB_ContactInfo pContactInfo;
+				pContactInfo.m_nContactUserId = pCallRecordInfo->m_nFromUserId;
+				pContactInfo.m_sContact = pCallRecordInfo->m_sFromAccount;
+				pContactInfo.m_sDescription = (LPCTSTR)pDlg.m_sDescription;
+				theEBAppClient.EB_EditContact(&pContactInfo);
+			}
+			return 0;
 		}
 		//if (sContact.empty())
 		//{

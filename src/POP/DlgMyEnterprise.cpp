@@ -71,6 +71,9 @@ END_MESSAGE_MAP()
 // CDlgMyEnterprise message handlers
 void CDlgMyEnterprise::SetCtrlColor(void)
 {
+	if (m_pViewContactInfo!=NULL && m_pViewContactInfo->GetSafeHwnd()!=NULL)
+		m_pViewContactInfo->SetCtrlColor();
+
 	//if (theApp.GetColorFlat())
 	//	m_treeEnterprise.SetBkGradients(theApp.GetFlatBgColor(),theApp.GetFlatBgColor());
 	//else
@@ -1741,7 +1744,7 @@ LRESULT CDlgMyEnterprise::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (rectHead.PtInRect(pos))
 		{
 			const int const_dlg_width = 380;
-			const int const_dlg_height = 188;
+			const int const_dlg_height = 220;
 			CRect rect;
 			this->GetWindowRect(&rect);
 			CRect rectViewContactInfo;

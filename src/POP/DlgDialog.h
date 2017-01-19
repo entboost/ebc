@@ -217,6 +217,7 @@ public:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnRdControlMe(void);
 	afx_msg void OnRdControlDest(void);
+	afx_msg void OnSendUserECard(void);
 	afx_msg void OnSubscribeFunc(UINT nID);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedButtonRd();

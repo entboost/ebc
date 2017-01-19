@@ -337,12 +337,17 @@ void CDlgChatRight::SetCtrlColor(bool bInvalidate)
 	//m_labelRemoteDesktop.SetDrawPanel(true,theApp.GetBgColor1());
 	//m_labelFiles.SetDrawPanel(true,theApp.GetBgColor1());
 
+	if (m_pDlgUserInfo!=NULL && m_pDlgUserInfo->GetSafeHwnd()!=NULL)
+		m_pDlgUserInfo->SetCtrlColor();
 	if (m_pDlgUserList!=NULL && m_pDlgUserList->GetSafeHwnd()!=NULL)
 		m_pDlgUserList->SetCtrlColor(bInvalidate);
 	if (m_pPanRemoteDesktop!=NULL && m_pPanRemoteDesktop->GetSafeHwnd()!=NULL)
 		m_pPanRemoteDesktop->SetCtrlColor(bInvalidate);
 	if (m_pPanVideos!=NULL && m_pPanVideos->GetSafeHwnd()!=NULL)
 		m_pPanVideos->SetCtrlColor(bInvalidate);
+	if (m_pPanFiles!=NULL && m_pPanFiles->GetSafeHwnd()!=NULL)
+		m_pPanFiles->SetCtrlColor();
+	
 	if (bInvalidate)
 		this->Invalidate();
 }

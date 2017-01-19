@@ -450,6 +450,7 @@ CPOPApp::CPOPApp()
 	m_nLicenstType = 0;
 	m_nGroupMsgSubId = 0;
 	m_nFindAppSubId = 0;
+	m_nMyCollectionSubId = 0;
 	m_nAutoOpenSubId = 0;
 	m_bAutoHideMainFrame = false;
 	m_bHideMainFrame = false;
@@ -471,6 +472,7 @@ CPOPApp::CPOPApp()
 	m_nDefaultUIStyleType = EB_UI_STYLE_TYPE_OFFICE;//EB_UI_STYLE_TYPE_CHAT;
 	m_bIeException = false;
 
+	m_imageExBtnSendECard = NULL;
 	m_imageWorkFrame = NULL;
 	m_imageMainFrame = NULL;
 	//m_imageEbIcon = NULL;
@@ -736,7 +738,6 @@ int CPOPApp::GetExistAppCount(void) const
 }
 
 CefRefPtr<ClientApp> theCefApp;
-
 ULONG_PTR theGdiplusToken=0;
 BOOL CPOPApp::InitInstance()
 {
@@ -997,6 +998,7 @@ BOOL CPOPApp::InitInstance()
     m_bmpTreeType9Closed.LoadBitmap(IDB_TREE_TYPE9_CLOSED);
 
 	USES_CONVERSION;
+	libEbc::ImageExFromIDResource(IDB_PNG_BTN_SEND_ECARD,_T("png"),m_imageExBtnSendECard);
 	libEbc::ImageFromIDResource(IDB_PNG_WORKFRAME,_T("png"),m_imageWorkFrame);
 	libEbc::ImageFromIDResource(IDB_PNG_MAINFRAME,_T("png"),m_imageMainFrame);
 	//CString sImagePath = GetAppPath()+_T("\\img\\entboost.ico");
@@ -1806,6 +1808,8 @@ int CPOPApp::ExitInstance()
 	if (m_bmpTreeType9Closed.GetSafeHandle()!=NULL)
 		m_bmpTreeType9Closed.DeleteObject();
 
+	if (m_imageExBtnSendECard)
+		delete m_imageExBtnSendECard;
 	if (m_imageWorkFrame)
 		delete m_imageWorkFrame;
 	if (m_imageMainFrame)
@@ -2708,6 +2712,114 @@ bool CPOPApp::IsLogonVisitor(void) const
 
 }
 
+Image * CPOPApp::GetUserHeadImage(mycp::bigint nUserId,const tstring& sAccount) const
+{
+	CEBString sImagePath;
+	bool bIsMemberAccount = false;
+	EB_USER_LINE_STATE pOutLineState = EB_LINE_STATE_UNKNOWN;
+#ifdef USES_EBCOM_TEST
+	CComPtr<IEB_MemberInfo> pMemberInfo;
+	if (nUserId>0)
+		pMemberInfo = theEBClientCore->EB_GetMemberInfoByUserId2(nUserId);
+	if (pMemberInfo == NULL && !sAccount.empty())
+		pMemberInfo = theEBClientCore->EB_GetMemberInfoByAccount2(sAccount.c_str());
+	if (pMemberInfo != NULL)
+	{
+		bIsMemberAccount = true;
+		pOutLineState = (EB_USER_LINE_STATE)pMemberInfo->LineState;
+		const CEBString sMemberHeadFile = pMemberInfo->HeadResourceFile.GetBSTR();
+		if (PathFileExists(sMemberHeadFile.c_str()))
+		{
+			sImagePath = sMemberHeadFile;
+		}
+	}
+#else
+	EB_MemberInfo pMemberInfo;
+	bool bFind = false;
+	if (nUserId>0)
+		bFind = theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,nUserId);
+	if (!bFind && !sAccount.empty())
+		bFind = theEBAppClient.EB_GetMemberInfoByAccount2(&pMemberInfo,sAccount.c_str());
+	if (bFind)
+	{
+		bIsMemberAccount = true;
+		pOutLineState = pMemberInfo.m_nLineState;
+		if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
+		{
+			sImagePath = pMemberInfo.m_sHeadResourceFile;
+		}
+	}
+#endif
+	Image * pImage = NULL;
+	if (bIsMemberAccount)
+	{
+		if (!sImagePath.empty())
+		{
+			USES_CONVERSION;
+			pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+		}else
+		{
+			pImage = theApp.m_imageDefaultMember->Clone();
+		}
+	}else
+	{
+		pImage = theApp.m_imageDefaultContact->Clone();
+	}
+	return pImage;
+}
+tstring CPOPApp::GetUserHeadFilePath(mycp::bigint nUserId,const tstring& sAccount) const
+{
+	CEBString sImagePath;
+	bool bIsMemberAccount = false;
+	EB_USER_LINE_STATE pOutLineState = EB_LINE_STATE_UNKNOWN;
+#ifdef USES_EBCOM_TEST
+	CComPtr<IEB_MemberInfo> pMemberInfo;
+	if (nUserId>0)
+		pMemberInfo = theEBClientCore->EB_GetMemberInfoByUserId2(nUserId);
+	if (pMemberInfo == NULL && !sAccount.empty())
+		pMemberInfo = theEBClientCore->EB_GetMemberInfoByAccount2(sAccount.c_str());
+	if (pMemberInfo != NULL)
+	{
+		bIsMemberAccount = true;
+		pOutLineState = (EB_USER_LINE_STATE)pMemberInfo->LineState;
+		const CEBString sMemberHeadFile = pMemberInfo->HeadResourceFile.GetBSTR();
+		if (PathFileExists(sMemberHeadFile.c_str()))
+		{
+			sImagePath = sMemberHeadFile;
+		}
+	}
+#else
+	EB_MemberInfo pMemberInfo;
+	bool bFind = false;
+	if (nUserId>0)
+		bFind = theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,nUserId);
+	if (!bFind && !sAccount.empty())
+		bFind = theEBAppClient.EB_GetMemberInfoByAccount2(&pMemberInfo,sAccount.c_str());
+	if (bFind)
+	{
+		bIsMemberAccount = true;
+		pOutLineState = pMemberInfo.m_nLineState;
+		if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
+		{
+			sImagePath = pMemberInfo.m_sHeadResourceFile;
+		}
+	}
+#endif
+	if (bIsMemberAccount)
+	{
+		if (sImagePath.empty())
+		{
+			sImagePath = this->GetAppPath() + _T("/img/defaultmember.png");
+			if (::PathFileExists(sImagePath.c_str()))
+				sImagePath = this->GetAppPath() + _T("/img/defaultcontact.png");
+		}
+	}else
+	{
+		sImagePath = this->GetAppPath() + _T("/img/defaultcontact.png");
+	}
+	return sImagePath;
+}
+
 bool CPOPApp::GetMainFrameShowed(void) const
 {
 	CPOPDlg* pMainDlg = (CPOPDlg*)m_pMainWnd;
@@ -3153,12 +3265,22 @@ void CPOPApp::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, in
 {
 	// nAckType=0 对方收到消息
 	// nAckType=4 请求撤回消息
+	// nAckType=6 请求“个人收藏”消息
+	// nAckType=7 请求“群收藏”消息
 	if (m_pBoUsers.get()!=NULL)
 	{
 		CString sSql;
-		if (nAckType==4)
+		if (nAckType==6)
+		{
+			// 个人收藏
+		}
+		else if (nAckType==7)
+		{
+			// 群收藏
+		}
+		else if (nAckType==4)
 			sSql.Format(_T("UPDATE msg_record_t SET msg_name='',msg_text='',read_flag=read_flag|%d WHERE msg_id=%lld AND from_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_WITHDRAW,nMsgId,nFromUserId,EBC_READ_FLAG_WITHDRAW);
-		else
+		else if (nAckType==0)	// ?
 			sSql.Format(_T("UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0"),EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
 		m_pBoUsers->execute(sSql);
 	}
@@ -3629,6 +3751,31 @@ eb::bigint CPOPApp::GetFindAppSugId(void)
 	}
 	return m_nFindAppSubId;
 }
+eb::bigint CPOPApp::GetMyCollectionSugId(void)
+{
+	//if (theApp.IsLogonVisitor()) return 0;
+	if (m_nMyCollectionSubId==0)
+	{
+#ifdef USES_EBCOM_TEST
+		//unsigned long pMyCollectionSubId = theEBClientCore->EB_GetSystemParameter(EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID);
+		//if (pMyCollectionSubId!=NULL && strlen((const char*)pMyCollectionSubId)>0)
+		//{
+		//	m_nMyCollectionSubId = eb_atoi64((const char*)pMyCollectionSubId);
+		//	theEBClientCore->EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID,pMyCollectionSubId);
+		//}
+#else
+		unsigned long pMyCollectionSubId = 0;
+		theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID,&pMyCollectionSubId);
+		if (pMyCollectionSubId!=NULL && strlen((const char*)pMyCollectionSubId)>0)
+		{
+			m_nMyCollectionSubId = eb_atoi64((const char*)pMyCollectionSubId);
+			theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID,pMyCollectionSubId);
+		}
+#endif
+	}
+	return m_nMyCollectionSubId;
+}
+
 #define MAX_LOG_SIZE 1024
 void CPOPApp::LogMessage(const char * format,...)
 {

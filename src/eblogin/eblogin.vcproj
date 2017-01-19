@@ -1665,6 +1665,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Tools\ImageEx.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tools\ImageEx.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Tools\LabelEx.cpp"
 				>
 			</File>

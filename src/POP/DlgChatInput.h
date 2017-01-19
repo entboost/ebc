@@ -112,6 +112,7 @@ protected:
 	EB_CallInfo m_pCallInfo;
 	EB_AccountInfo m_pFromAccountInfo;
 	CLockMap<entboost::cr::bigint,bool> m_pPrevReceivedFileMsgIdList;	// *用于实现发送文件，二条日志，只打印一条
+	CLockMap<mycp::bigint,tstring> m_pCardInfoList;
 	//entboost::cr::bigint m_nPrevReceivedFileMsgId;	// *用于实现发送文件，二条日志，只打印一条
 	//CDlgEmotionSelect* m_pDlgEmotionSelect;
 	//bool m_bMustInviteUser;	// 如果是离线，第一次发送信息必须邀请用户进会话
@@ -129,6 +130,7 @@ protected:
 	virtual void Fire_onContextMenuSelect(ULONG nItemData, const CEBString& sSelectString,LONGLONG nSelectMsgId);
 	virtual void Fire_onItemLBtnClick(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 	virtual void Fire_onItemLBtnDblClick(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
+	void ProcessUserECard(mycp::bigint nMsgId, ULONG nParam, bool bShowNow);
 	virtual void Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId,ULONG nParam);
 	virtual void Fire_onItemMoveLeave(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 

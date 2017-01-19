@@ -62,6 +62,7 @@ public:
 	static void GradientFillRect( CDC *pDC, CRect &rect, COLORREF col_from, COLORREF col_to, bool vert_grad );
 	static int GetScreenWidth(void);
 	static int GetScreenHeight(void);
+	static bool GetInLButtonDown(void);
 
 	void SetTransparentType(UINT nTransType = TT_STATIC|TT_DLG) {m_nTransType = nTransType;}
 	void SetBgColor(COLORREF colorBg);

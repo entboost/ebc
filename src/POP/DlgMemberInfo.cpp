@@ -206,15 +206,19 @@ BOOL CDlgMemberInfo::OnInitDialog()
 	m_editAddress.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editDescription.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 
+	m_btnChangeHead.SetTextHotMove(false);
 	m_btnChangeHead.SetToolTipText(_T("更换显示头像"));
 	m_btnChangeHead.SetNorTextColor(RGB(0,128,255));
-	m_btnChangeHead.SetHotTextColor(RGB(0,128,255));
-	m_btnChangeHead.SetPreTextColor(RGB(0,128,255));
+	m_btnChangeHead.SetHotTextColor(RGB(255,255,255));
+	m_btnChangeHead.SetPreTextColor(RGB(255,255,255));
+	m_btnChangeHead.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnDefaultEmp.SetToolTipText(_T("默认名片用于聊天窗口显示电子名片"));
+	m_btnDefaultEmp.SetTextHotMove(false);
 	m_btnDefaultEmp.SetNorTextColor(RGB(0,128,255));
-	m_btnDefaultEmp.SetHotTextColor(RGB(0,128,255));
-	m_btnDefaultEmp.SetPreTextColor(RGB(0,128,255));
+	m_btnDefaultEmp.SetHotTextColor(RGB(255,255,255));
+	m_btnDefaultEmp.SetPreTextColor(RGB(255,255,255));
 	m_btnDefaultEmp.SetWindowText(_T("设为默认名片"));
+	m_btnDefaultEmp.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
 	if (m_sMemberCode>0)
 	{
 #ifdef USES_EBCOM_TEST
@@ -360,7 +364,7 @@ BOOL CDlgMemberInfo::OnInitDialog()
 	const int const_y_interval	= 35;
 	this->GetDlgItem(IDC_EDIT_ACCOUNT)->MoveWindow(123,const_y1,const_edit_width1,const_edit_height);
 	this->GetDlgItem(IDC_EDIT_DEPNAME)->MoveWindow(123,const_y1+const_edit_height+2,const_edit_width1,const_edit_height);
-	m_btnChangeHead.MoveWindow(123,const_y1+(const_edit_height+2)*2,80,32);
+	m_btnChangeHead.MoveWindow(123,const_y1+(const_edit_height+2)*2+5,60,22);
 
 	int nX = const_x1;
 	int nY = const_y2;
@@ -588,7 +592,7 @@ void CDlgMemberInfo::OnSize(UINT nType, int cx, int cy)
 	//x -= (const_btn_width+10);						// 按钮间隔
 	//m_btnOk.MovePoint(x,const_btn_y,const_btn_width,const_btn_height);
 	x = 20;
-	m_btnDefaultEmp.MovePoint(x,const_btn_y,100,theDefaultBtnHeight);
+	m_btnDefaultEmp.MovePoint(x,const_btn_y,80,22);
 }
 
 void CDlgMemberInfo::OnBnClickedButtonClose()

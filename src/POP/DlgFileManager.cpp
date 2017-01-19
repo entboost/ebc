@@ -71,6 +71,9 @@ void CDlgFileManager::SetCtrlColor(bool bInvalidate)
 	m_btnMax.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnClose.SetDrawPanel(true,theApp.GetMainColor(),theDefaultBtnCloseColor,theDefaultBtnCloseColor);
 
+	if (m_pPanFiles!=NULL && m_pPanFiles->GetSafeHwnd()!=NULL)
+		m_pPanFiles->SetCtrlColor();
+
 	//m_btnRefresh.SetNorTextColor(RGB(0,128,255));
 	//m_btnRefresh.SetHotTextColor(RGB(0,128,255));
 	//m_btnRefresh.SetNorTextColor(theApp.GetHotColor2());
@@ -107,13 +110,17 @@ BOOL CDlgFileManager::OnInitDialog()
 
 	m_btnTraning.SetAutoSize(false);
 	m_btnTraning.SetTextHotMove(false);
+	m_btnTraning.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_btnTraning.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_btnTraned.SetAutoSize(false);
 	m_btnTraned.SetTextHotMove(false);
+	m_btnTraned.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_btnTraned.SetPreTextColor(theDefaultBtnWhiteColor);
 	//m_btnTraned.Load(IDB_PNG_TAB_75X30);
 
 	m_btnRefresh.SetTextHotMove(false);
+	m_btnRefresh.SetHotTextColor(theDefaultBtnWhiteColor);
+	m_btnRefresh.SetPreTextColor(theDefaultBtnWhiteColor);
 
 	// IDB_PNG_HOT_DELETE
 	// IDB_PNG_HOT_OPENFILE
@@ -136,8 +143,6 @@ BOOL CDlgFileManager::OnInitDialog()
 	//m_btnHotDelete.SetAutoFocus(true);
 
 	m_editSearch.SetPromptText(_T("ËÑË÷ÎÄ¼þ"));
-	//m_btnRefresh.SetHotTextColor(theDefaultBtnWhiteColor);
-	//m_btnRefresh.SetPreTextColor(theDefaultBtnWhiteColor);
 
 	m_treeTraned.SetCallback((CTreeCallback*)&theApp);
 	m_treeTraned.SetBkMode(VividTree::BK_MODE_GRADIENT);
@@ -196,21 +201,22 @@ void CDlgFileManager::OnSize(UINT nType, int cx, int cy)
 		m_btnMin.MoveWindow(btnx, 1,const_minbtn_width,const_minbtn_height);
 
 	const int const_left_intever	= 1;
-	const int const_tab_width = 60;
+	const int const_tab_width1 = 60;
+	const int const_tab_width2 = 36;
 	const int const_tab_height = 22;
 
 	int x = 10;//const_left_intever+5;
 	int y = 50;	// 42
-	m_btnTraning.MovePoint(x, y,const_tab_width,const_tab_height);
-	x += const_tab_width+5;
-	m_btnTraned.MovePoint(x, y,const_tab_width,const_tab_height);
+	m_btnTraning.MovePoint(x, y,const_tab_width1,const_tab_height);
+	x += const_tab_width1+5;
+	m_btnTraned.MovePoint(x, y,const_tab_width1,const_tab_height);
 	if (m_editSearch.GetSafeHwnd())
 	{
-		x += const_tab_width+5;
+		x += const_tab_width1+5;
 		m_editSearch.MoveWindow(x,y,120,22);
 	}
-	x = cx-const_tab_width-const_left_intever-5;
-	m_btnRefresh.MovePoint(x,y,const_tab_width,const_tab_height);
+	x = cx-const_tab_width2-const_left_intever-5;
+	m_btnRefresh.MovePoint(x,y,const_tab_width2,const_tab_height);
 	y = 80;
 	//y += 30;
 	CRect rect(const_left_intever,y,cx-const_left_intever,cy-20);

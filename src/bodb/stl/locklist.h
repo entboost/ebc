@@ -34,16 +34,33 @@ public:
 	const boost::shared_mutex & mutex(void) const {return m_mutex;}
 	//boost::mutex & mutex(void) {return m_mutex;}
 	//const boost::mutex & mutex(void) const {return m_mutex;}
+	const CLockList<T>& operator = (const CLockList<T>& pList)
+	{
+		BoostWriteLock wtlock(m_mutex);
+		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(pList.mutex()));
+		typename CLockList<T>::const_iterator pIter = pList.begin();
+		for (; pIter!=pList.end(); pIter++)
+		{
+			std::list<T>::push_back(*pIter);
+		}
+		return *this;
+	}
 
 	void pushfront(const T& t)
 	{
 		BoostWriteLock wtlock(m_mutex);
 		std::list<T>::push_front(t);
 	}
-	void add(const T& t)
+	void add(const T& t, bool is_lock=true)
 	{
-		BoostWriteLock wtlock(m_mutex);
-		std::list<T>::push_back(t);
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			std::list<T>::push_back(t);
+		}else
+		{
+			std::list<T>::push_back(t);
+		}
 	}
 	bool front(T & out, bool is_pop = true)
 	{

@@ -49,6 +49,9 @@ END_MESSAGE_MAP()
 // CDlgMsgTip message handlers
 void CDlgMsgTip::SetCtrlColor(void)
 {
+	m_btnDeleteAll.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	m_btnViewAll.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+
 	m_btnSetting.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnClose.SetDrawPanel(true,theApp.GetMainColor(),theDefaultBtnCloseColor,theDefaultBtnCloseColor);
 	//m_btnDeleteAll.SetNorTextColor(theApp.GetMainColor());
@@ -71,16 +74,18 @@ BOOL CDlgMsgTip::OnInitDialog()
 	m_btnClose.SetDrawToolButtonPic(4,theDefaultBtnWhiteColor,-1,-1,-1,2);
 	m_btnClose.SetDrawPanelRgn(false);
 	m_btnClose.ShowWindow(SW_HIDE);
+	m_btnDeleteAll.SetTextHotMove(false);
 	m_btnDeleteAll.SetAutoSize(false);
 	m_btnDeleteAll.SetWindowText(_T("忽略全部"));
 	m_btnDeleteAll.SetNorTextColor(RGB(0,128,255));
-	m_btnDeleteAll.SetHotTextColor(RGB(0,128,255));
-	m_btnDeleteAll.SetPreTextColor(RGB(0,128,255));
+	m_btnDeleteAll.SetHotTextColor(RGB(255,255,255));
+	m_btnDeleteAll.SetPreTextColor(RGB(255,255,255));
+	m_btnViewAll.SetTextHotMove(false);
 	m_btnViewAll.SetAutoSize(false);
 	m_btnViewAll.SetWindowText(_T("查看全部"));
 	m_btnViewAll.SetNorTextColor(RGB(0,128,255));
-	m_btnViewAll.SetHotTextColor(RGB(0,128,255));
-	m_btnViewAll.SetPreTextColor(RGB(0,128,255));
+	m_btnViewAll.SetHotTextColor(RGB(255,255,255));
+	m_btnViewAll.SetPreTextColor(RGB(255,255,255));
 
 	m_btnDeleteTrack.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_pTreeMessage, 0xffff);
 	m_btnDeleteTrack.SetAutoSize(false);
@@ -215,8 +220,8 @@ void CDlgMsgTip::OnSize(UINT nType, int cx, int cy)
 		m_pTreeMessage.MoveWindow(&rect);
 	}
 
-	const int const_btn_width = 60;
-	const int const_btn_height = 18;
+	const int const_btn_width = 55;
+	const int const_btn_height = 19;
 	m_rectDeleteAll.left = 10;
 	m_rectDeleteAll.right = m_rectDeleteAll.left + const_btn_width;
 	m_rectDeleteAll.top = cy-24;

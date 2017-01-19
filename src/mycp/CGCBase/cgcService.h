@@ -35,6 +35,7 @@ public:
 
 	virtual bool callService(int function, const cgcValueInfo::pointer& inParam = cgcNullValueInfo, cgcValueInfo::pointer outParam = cgcNullValueInfo) {return false;}
 	virtual bool callService(const tstring& function, const cgcValueInfo::pointer& inParam = cgcNullValueInfo, cgcValueInfo::pointer outParam = cgcNullValueInfo) {return false;}
+	virtual cgcObject::pointer copyNew(void) const {return cgcNullObject;}	// ?
 };
 //#define USES_SERVICE_RELEASE_CALLBACK
 #ifdef USES_SERVICE_RELEASE_CALLBACK
@@ -56,6 +57,8 @@ public:
 	virtual bool initService(cgcValueInfo::pointer parameter = cgcNullValueInfo) {m_bServiceInited = true; return true;}
 	virtual void finalService(void) {clearCallback();m_bServiceInited = false;}
 	bool isServiceInited(void) const {return m_bServiceInited;}
+	void setOrgServiceName(const tstring& v) {m_sOrgServiceName = v;}
+	const tstring& getOrgServiceName(void) const {return m_sOrgServiceName;}
 	
 	virtual cgcAttributes::pointer getAttributes(void) const {return cgcNullAttributes;}
 	const cgcValueInfo::pointer& getServiceInfo(void) const {return m_serviceInfo;}
@@ -89,6 +92,7 @@ protected:
 #ifdef USES_SERVICE_RELEASE_CALLBACK
 	cgcServiceReleaseCallback* m_pReleaseCallback;
 #endif
+	tstring m_sOrgServiceName;
 };
 
 const cgcServiceInterface::pointer cgcNullServiceInterface;

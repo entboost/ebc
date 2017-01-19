@@ -34,7 +34,7 @@ public:
 
 protected:
 	tstring m_sManagerAccount;
-	mycp::bigint m_nManagerEmpId;
+	//mycp::bigint m_nManagerEmpId;
 	CDlgSelectUser m_pDlgSelectUser;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CLabelEx m_staManagerName;

@@ -6,6 +6,7 @@
  * 用于在一对一聊天界面，和群聊界面，点击添加用户，选择用户。
  * 
 *//////////////////////////////////////////////////////
+#define USES_SELECTED_ITEM_UID
 
 class CDlgSelectUser : public CEbDialogBase
 	//, public CTreeCallback
@@ -20,8 +21,11 @@ class CDlgSelectUser : public CEbDialogBase
 public:
 	CDlgSelectUser(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDlgSelectUser();
-
-	CLockMap<tstring, eb::bigint> m_pSelectedTreeItem;	// emp_account->emp_code
+#ifdef USES_SELECTED_ITEM_UID
+	CLockMap<tstring, eb::bigint> m_pSelectedUserTreeItem;	// emp_account->emp_uid
+#else
+	CLockMap<tstring, eb::bigint> m_pSelectedTreeItem;			// emp_account->emp_code
+#endif
 
 	void ResetSelected(void);
 	void SetSingleSelect(bool b) {m_bSingleSelect = b;}

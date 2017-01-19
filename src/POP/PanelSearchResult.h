@@ -31,7 +31,7 @@ public:
 	size_t InsertAppItem(const EB_SubscribeFuncInfo& pFuncInfo);
 	void InsertUrlItem(const tstring& sTitle, const tstring& sUrl, const tstring& sLastTime);
 	bool IsEmpty(void) const {return m_treeSearch.GetCount()==0?true:false;}
-	void FocusTree(void);
+	void FocusTree(bool bMoveNext=true);
 	VividTree& GetTreeCtrl(void) {return m_treeSearch;}
 	bool CallSelectedItem(void);
 
@@ -67,10 +67,12 @@ protected:
 	VividTree m_treeSearch;				// itemdata:1=employee;2=contact
 	CTraButton m_btnSearchTrackCall;	// search call
 	CTraButton m_btnSearchTrackDel;		// search del
+	CTraButton m_btnAddContact;
 
 	DECLARE_MESSAGE_MAP()
 	LRESULT OnTreeItemDoubleClick(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);
+	LRESULT OnMsgNewContact(WPARAM wp, LPARAM lp);
 	afx_msg void OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSize(UINT nType, int cx, int cy);

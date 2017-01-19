@@ -93,6 +93,7 @@ BEGIN_MESSAGE_MAP(CDlgDialog, CEbDialogBase)
 	ON_WM_RBUTTONUP()
 	ON_COMMAND(EB_COMMAND_RD_CONTROL_ME, OnRdControlMe)
 	ON_COMMAND(EB_COMMAND_RD_CONTROL_DEST, OnRdControlDest)
+	ON_COMMAND(EB_COMMAND_SEND_USER_ECARD, OnSendUserECard)
 	ON_COMMAND_RANGE(EB_COMMAND_SUBSCRIBE_FUNC,EB_COMMAND_SUBSCRIBE_FUNC+0x20,OnSubscribeFunc)
 	ON_BN_CLICKED(IDC_BUTTON_RD, &CDlgDialog::OnBnClickedButtonRd)
 	ON_WM_LBUTTONDOWN()
@@ -2497,12 +2498,17 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 	{
 		return;
 	}
+	m_pDlgSelectUser.SetSingleSelect(false);
 	m_pDlgSelectUser.SetSeledtedGroupId(-1);
 	//m_pDlgSelectUser.SetSeledtedGroupId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 	m_pDlgSelectUser.ShowWindow(SW_SHOW);
 	for (size_t i=0; i<pExistUserList.size(); i++)
 	{
+#ifdef USES_SELECTED_ITEM_UID
+		m_pDlgSelectUser.m_pSelectedUserTreeItem.insert(pExistUserList[i],0,false);
+#else
 		m_pDlgSelectUser.m_pSelectedTreeItem.insert(pExistUserList[i],0,false);
+#endif
 	}
 	const INT_PTR nResponse = m_pDlgSelectUser.RunModalLoop();
 	m_pDlgSelectUser.ShowWindow(SW_HIDE);
@@ -2512,13 +2518,22 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 		//if (m_pEbCallInfo->m_pCallInfo->m_sGroupCode.empty())
 		//	m_pEbCallInfo->m_pCallInfo->m_sGroupCode = m_pEbCallInfo->m_pCallInfo->GetCallId();	// 自动生成临时群组
 		// ??
+#ifdef USES_SELECTED_ITEM_UID
+		BoostReadLock rdlock(m_pDlgSelectUser.m_pSelectedUserTreeItem.mutex());
+		CLockMap<tstring,eb::bigint>::const_iterator pIter = m_pDlgSelectUser.m_pSelectedUserTreeItem.begin();
+		for (; pIter!=m_pDlgSelectUser.m_pSelectedUserTreeItem.end(); pIter++)
+#else
 		BoostReadLock rdlock(m_pDlgSelectUser.m_pSelectedTreeItem.mutex());
-		//boost::mutex::scoped_lock lock(pDlg.m_pSelectedTreeItem.mutex());
 		CLockMap<tstring,eb::bigint>::const_iterator pIter = m_pDlgSelectUser.m_pSelectedTreeItem.begin();
 		for (; pIter!=m_pDlgSelectUser.m_pSelectedTreeItem.end(); pIter++)
+#endif
 		{
 			const tstring sSelAccount = pIter->first;
+#ifdef USES_SELECTED_ITEM_UID
+			const eb::bigint nToUserId = pIter->second;
+#else
 			const eb::bigint sEmpCode = pIter->second;
+#endif
 			// 判断是否已经存在该会话
 			bool bExistAccount = false;
 			for (size_t i=0; i<pExistUserList.size(); i++)
@@ -2538,6 +2553,11 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 #else
 					theEBAppClient.EB_Call2Group(m_pEbCallInfo->m_pCallInfo.GetCallId(),sSelAccount.c_str());
 #endif
+#ifdef USES_SELECTED_ITEM_UID
+				}else if (nToUserId>0)
+				{
+					theEBAppClient.EB_CallUserId(nToUserId,m_pEbCallInfo->m_pCallInfo.GetCallId());
+#else	// USES_SELECTED_ITEM_UID
 				}else if (sEmpCode>0)
 				{
 #ifdef USES_EBCOM_TEST
@@ -2545,6 +2565,7 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 #else
 					theEBAppClient.EB_CallMember(sEmpCode,m_pEbCallInfo->m_pCallInfo.GetCallId());
 #endif
+#endif	// USES_SELECTED_ITEM_UID
 				}else
 				{
 #ifdef USES_EBCOM_TEST
@@ -2803,10 +2824,40 @@ void CDlgDialog::OnBnClickedButtonChatFunc()
 	if (m_menuFunc.GetSafeHmenu()==NULL)
 	{
 		m_menuFunc.CreatePopupMenu();
+		HGDIOBJ hBitmap = NULL;
+		if (theApp.m_imageExBtnSendECard!=NULL)
+		{
+			const int nWidth = theApp.m_imageExBtnSendECard->GetWidth();
+			const int nHeight = theApp.m_imageExBtnSendECard->GetHeight();
+			if (nWidth>0 && nHeight>0)
+			{
+				if ((nWidth/nHeight)>2)
+				{
+					if (nHeight>const_default_menu_image_size)
+						hBitmap = theApp.m_imageExBtnSendECard->Copy(0,0,const_default_menu_image_size,const_default_menu_image_size);
+					else
+						hBitmap = theApp.m_imageExBtnSendECard->Copy(0,0,nHeight,nHeight);
+				}else
+				{
+					if (nHeight!=const_default_menu_image_size)
+						hBitmap = theApp.m_imageExBtnSendECard->StrctchCopy(0,0,const_default_menu_image_size,const_default_menu_image_size);
+					else
+						hBitmap = theApp.m_imageExBtnSendECard->Copy(0,0,const_default_menu_image_size,const_default_menu_image_size);
+				}
+				if (hBitmap!=NULL)
+				{
+					CBitmap pBitmap;
+					pBitmap.Attach(hBitmap);
+					m_menuFunc.AppendODMenu("发送名片",MF_BYCOMMAND,EB_COMMAND_SEND_USER_ECARD,&pBitmap);
+				}
+			}
+		}
+		if (hBitmap==NULL)
+			m_menuFunc.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SEND_USER_ECARD,"发送名片");
 	}else
 	{
-		while (m_menuFunc.GetMenuItemCount()>0)
-			m_menuFunc.RemoveMenu(0,MF_BYPOSITION);
+		while (m_menuFunc.GetMenuItemCount()>1)
+			m_menuFunc.RemoveMenu(1,MF_BYPOSITION);
 	}
 
 	// 应用功能菜单
@@ -3441,6 +3492,37 @@ void CDlgDialog::OnRdControlDest(void)
 	theEBAppClient.EB_RDRequest(m_pEbCallInfo->m_pCallInfo.GetCallId(), EB_RD_DESKTOP_DEST);
 #endif
 }
+void CDlgDialog::OnSendUserECard(void)
+{
+	if (m_pDlgSelectUser.GetSafeHwnd()==NULL)
+	{
+		m_pDlgSelectUser.Create(CDlgSelectUser::IDD,this);
+	}else if (m_pDlgSelectUser.IsWindowVisible())
+	{
+		return;
+	}
+	m_pDlgSelectUser.SetSingleSelect(true);
+	m_pDlgSelectUser.SetSeledtedGroupId(-1);
+	m_pDlgSelectUser.ShowWindow(SW_SHOW);
+	const INT_PTR nResponse = m_pDlgSelectUser.RunModalLoop();
+	m_pDlgSelectUser.ShowWindow(SW_HIDE);
+	if (nResponse == IDOK)
+	{
+		tstring sSelectAccount;
+		eb::bigint nSelectUserId = 0;
+#ifdef USES_SELECTED_ITEM_UID
+		if (m_pDlgSelectUser.m_pSelectedUserTreeItem.get_begin(&sSelectAccount,&nSelectUserId,true))
+#endif
+		{
+			if (nSelectUserId>0)
+				theEBAppClient.EB_SendUserCard(m_pEbCallInfo->m_pCallInfo.GetCallId(),nSelectUserId);
+			else
+				theEBAppClient.EB_SendUserCard(m_pEbCallInfo->m_pCallInfo.GetCallId(),sSelectAccount);
+		}
+	}
+	m_pDlgSelectUser.ResetSelected();
+}
+
 void CDlgDialog::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default

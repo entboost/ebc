@@ -56,6 +56,7 @@ using namespace Gdiplus;
 #include "Tools/HoverStatic.h"
 #include "Tools/HoverComboBox.h"
 #include "Tools/BitComboBox.h"
+#include "Tools/ImageEx.h"
 #include "../include/ebc_public.h"
 #include "../include/EbDialogBase.h"
 #include "../include/colorconver.h"

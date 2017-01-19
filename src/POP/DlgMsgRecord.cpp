@@ -49,6 +49,7 @@ CDlgMsgRecord::CDlgMsgRecord(CWnd* pParent /*=NULL*/)
 
 CDlgMsgRecord::~CDlgMsgRecord()
 {
+	m_pCardInfoList.clear();
 }
 
 void CDlgMsgRecord::DoDataExchange(CDataExchange* pDX)
@@ -111,6 +112,9 @@ END_EVENTSINK_MAP()
 // CDlgMsgRecord message handlers
 void CDlgMsgRecord::SetCtrlColor(bool bInvalidate)
 {
+	if (m_pDlgViewContact.GetSafeHwnd()!=NULL)
+		m_pDlgViewContact.SetCtrlColor();
+
 	if (m_pPanelFind!=NULL)
 		m_pPanelFind->SetCtrlColor(bInvalidate);
 
@@ -183,7 +187,7 @@ BOOL CDlgMsgRecord::OnInitDialog()
 	CEbDialogBase::OnInitDialog();
 	if (m_bChildMode)
 	{
-		ModifyStyle(0, WS_CLIPSIBLINGS|WS_CLIPCHILDREN);
+		//ModifyStyle(0, WS_CLIPSIBLINGS|WS_CLIPCHILDREN);	// ** add 2017-01-18, by hd
 		ModifyStyle(WS_POPUP, WS_CHILD);
 		this->SetMouseMove(FALSE);
 	}else
@@ -384,6 +388,8 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 						m_pExplorer.Refresh();
 					}
 				}
+				//m_labelLineConversation.Invalidate();
+				//theApp.InvalidateParentRect(&m_labelLineConversation);
 			}
 		}break;
 	case TIMERID_LOAD_MSG_RECORD:
@@ -934,12 +940,12 @@ void CDlgMsgRecord::OnMsgReceipt(const CCrRichInfo* pCrMsgInfo,int nAckType)
 	if (m_pMrFrameInterface!=NULL)
 	{
 		const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
-		const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
-		const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
-		if (nAckType==4)
+		if (nAckType==4)	// *撤回消息
 		{
 			if (nState==EB_STATE_OK)
 			{
+				const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
+				const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
 				// 1: 表示只更新第1行，第0行是标题，不更新；
 				m_pMrFrameInterface->UpdateMsgText(nMsgId,1,"[撤回一条消息]",theDefaultChatSystemColor);
 				m_pMrFrameInterface->SetMsgReceiptFlag(nMsgId, EBC_CONTRON_RECEIPT_FLAG_HIDE);
@@ -1167,6 +1173,31 @@ void CDlgMsgRecord::LoadMsgRecord(const CString& sSql)
 		case MRT_MAP_POS:	// 地图位置
 			{
 				// ???
+			}break;
+		case MRT_CARD_INFO:	// 名片信息
+			{
+				// *** 这里要解析并显示名片信息
+				const bool bReceive = sFromAccount!=theApp.GetLogonUserId();
+				int nCardType = 0;
+				tstring sCardData;
+				theEBAppClient.EB_ParseCardInfo(sMsgText,nCardType,sCardData);
+				EB_ECardInfo pUserECard;
+				if (nCardType==1 && theEBAppClient.EB_GetUserECardByFromInfo(sCardData,&pUserECard))
+				{
+					// ** 用户名片（个人名片）
+					m_pCardInfoList.insert(sMsgId,sMsgText,false);
+					const tstring sFilePath = theApp.GetUserHeadFilePath(pUserECard.m_nMemberUserId,"");
+					CString sTemp;
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,sFilePath.c_str());
+					m_pMrFrameInterface->WriteImage((LPCTSTR)sTemp,48,48);
+					m_pMrFrameInterface->WriteSpace(1);
+					sTemp.Format(_T("#CTRL:%d:%d:#%s"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB|EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB),(int)EB_MR_CTRL_DATA_TYPE_USER_ECARD,pUserECard.m_sAccountName.c_str());
+					m_pMrFrameInterface->WriteString((LPCTSTR)sTemp,bReceive?theDefaultChatTextColor2:theDefaultChatTextColor1);
+					m_pMrFrameInterface->WriteSpace(15);
+					m_pMrFrameInterface->WriteLine();
+					m_pMrFrameInterface->WritePic(2,0,-5,0,1,theDefaultFlatLine2Color,0,0);	// **画水平线条
+					m_pMrFrameInterface->WriteString(L"个人名片",theDefaultChatSystemColor);
+				}
 			}break;
 		case MRT_USER_DATA:	// 用户自定义数据
 			{
@@ -1449,10 +1480,71 @@ void CDlgMsgRecord::Fire_onContextMenuSelect(ULONG nItemData, const CEBString& s
 		theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,libEbc::ACP2UTF8(sSelectString.c_str()),"",NULL);
 	}
 }
+void CDlgMsgRecord::ProcessUserECard(mycp::bigint nSelectMsgId, ULONG nParam, bool bShowNow)
+{
+	if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
+		m_pDlgToolbar.HideReset();
+	tstring sCardInfo;
+	if (!m_pCardInfoList.find(nSelectMsgId,sCardInfo))
+		return;//break;
+	if (m_pDlgViewContact.GetSafeHwnd()==NULL)
+	{
+		m_pDlgViewContact.Create(CDlgViewContactInfo::IDD,this);
+	}
+	int nCardType = 0;
+	tstring sCardData;
+	theEBAppClient.EB_ParseCardInfo(sCardInfo,nCardType,sCardData);
+	EB_ECardInfo pUserECard;
+	if (nCardType==1 && theEBAppClient.EB_GetUserECardByFromInfo(sCardData,&pUserECard))
+	{
+		EB_MemberInfo pMemberInfo;
+		EB_GroupInfo pGroupInfo;
+		if (pUserECard.m_sMemberCode>0 && theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,&pGroupInfo,pUserECard.m_sMemberCode))
+			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
+		else if (pUserECard.m_nMemberUserId>0 && theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,&pGroupInfo,pUserECard.m_nMemberUserId))
+			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
+		else
+		{
+			EB_ContactInfo pContactInfo;
+			pContactInfo.m_nContactUserId = pUserECard.m_nMemberUserId;
+			pContactInfo.m_sName = pUserECard.m_sAccountName;
+			//pContactInfo.m_sDescription = pUserECard.m_sName;
+			pContactInfo.m_sCompany = pUserECard.m_sEnterprise;
+			pContactInfo.m_sGroupName = pUserECard.m_sGroupName;
+			pContactInfo.m_sJobTitle = pUserECard.m_sTitle;
+			pContactInfo.m_sPhone = pUserECard.m_sPhone;
+			pContactInfo.m_sTel = pUserECard.m_sTel;
+			pContactInfo.m_sEmail = pUserECard.m_sEmail;
+			pContactInfo.m_sAddress = pUserECard.m_sAddress;
+			//if ((m_pContactInfo.m_nContactType&EB_CONTACT_TYPE_MAIL)==EB_CONTACT_TYPE_MAIL)
+
+			m_pDlgViewContact.SetContactInfo(&pContactInfo);
+		}
+		const int const_dlg_width = 380;
+		const int const_dlg_height = 220;
+		CPoint pos;
+		if (nParam==0)
+			::GetCursorPos(&pos);
+		else
+		{
+			pos.x = LOWORD(nParam);
+			pos.y = HIWORD(nParam);
+		}
+		const int x = pos.x+15 + (pos.x%15);
+		const int y = pos.y-35 - (pos.y%35);
+		m_pDlgViewContact.MoveWindow(x,y,const_dlg_width,const_dlg_height);
+		m_pDlgViewContact.SetCircle();
+		m_pDlgViewContact.SetMoveEnter(bShowNow);
+	}
+}
 void CDlgMsgRecord::Fire_onItemLBtnClick(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId)
 {
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
+		{
+			ProcessUserECard(nSelectMsgId, 0, true);
+		}break;
 	case EB_MR_CTRL_DATA_TYPE_UID:
 		{
 #ifdef USES_EBCOM_TEST
@@ -1513,13 +1605,17 @@ void CDlgMsgRecord::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
+		{
+			ProcessUserECard(nSelectMsgId, nParam, false);
+		}break;
 	case EB_MR_CTRL_DATA_TYPE_UID:
 		{
+			if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
+				m_pDlgToolbar.HideReset();
 			const eb::bigint nUserId = eb_atoi64(sParamString.c_str());
 			if (m_sGroupCode==0 || nUserId==0)
 				break;
-			if (m_pDlgToolbar.GetSafeHwnd()!=NULL && m_pDlgToolbar.IsWindowVisible())
-				m_pDlgToolbar.HideReset();
 
 			if (m_pDlgViewContact.GetSafeHwnd()==NULL)
 			{
@@ -1534,7 +1630,7 @@ void CDlgMsgRecord::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 				break;
 			m_pDlgViewContact.SetEmployeeInfo(&pMemberInfo,&pGroupInfo);
 			const int const_dlg_width = 380;
-			const int const_dlg_height = 188;
+			const int const_dlg_height = 220;
 			CPoint pos;
 			pos.x = LOWORD(nParam);
 			pos.y = HIWORD(nParam);
@@ -1574,11 +1670,11 @@ void CDlgMsgRecord::Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItem
 				//::GetCursorPos(&pos);
 				int x = pos.x-35 - (pos.x%35);
 				const int y = pos.y+10 + (pos.y%10);
-				const int nToolBarWidth = 56*nCount+11;
+				const int nToolBarWidth = 55*nCount+7;
 				const int nScreenWidth = theApp.GetScreenWidth();
 				if (x+nToolBarWidth>nScreenWidth)
 					x = nScreenWidth-nToolBarWidth;
-				m_pDlgToolbar.MoveWindow(x,y,nToolBarWidth,36);
+				m_pDlgToolbar.MoveWindow(x,y,nToolBarWidth,31);
 				m_pDlgToolbar.ShowWindow(SW_SHOW);
 			}
 		}break;
@@ -1591,6 +1687,7 @@ void CDlgMsgRecord::Fire_onItemMoveLeave(LONG nLineId, LONG nItemId, ULONG nItem
 {
 	switch (nItemData)
 	{
+	case EB_MR_CTRL_DATA_TYPE_USER_ECARD:
 	case EB_MR_CTRL_DATA_TYPE_UID:
 		{
 			if (m_pDlgViewContact.GetSafeHwnd()!=NULL)// && m_pDlgViewContact.IsWindowVisible())
@@ -1671,6 +1768,13 @@ void CDlgMsgRecord::OnStnClickedStaticLineConversation()
 		m_btnMovePrev.ShowWindow(SW_HIDE);
 		m_btnMoveNext.ShowWindow(SW_HIDE);
 		m_btnMoveLast.ShowWindow(SW_HIDE);
+		//m_tDataTime.Invalidate();
+		//theApp.InvalidateParentRect(&m_tDataTime);
+		//theApp.InvalidateParentRect(&m_btnMoveFirst);
+		//theApp.InvalidateParentRect(&m_btnMovePrev);
+		//theApp.InvalidateParentRect(&m_btnMoveNext);
+		//theApp.InvalidateParentRect(&m_btnMoveLast);
+
 		CRect rect;
 		this->GetClientRect(&rect);
 		const int const_interval = 1;

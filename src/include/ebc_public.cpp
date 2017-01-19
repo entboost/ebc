@@ -304,6 +304,82 @@ BOOL ImageFromIDResource(UINT nID, LPCTSTR sTR, Image * & pImg)
     FreeResource(lpRsrc);
     return TRUE;
 }
+BOOL ImageExFromIDResource(UINT nID, LPCTSTR sTR, CImageEx * & pImg)
+{
+	pImg = NULL;
+	//HINSTANCE hInst = GetModuleHandle("test.dll");
+	HINSTANCE hInst = AfxGetResourceHandle();
+    HRSRC hRsrc = ::FindResource (hInst,MAKEINTRESOURCE(nID),sTR); // type
+    if (!hRsrc)
+        return FALSE;
+    // load resource into memory
+    DWORD len = SizeofResource(hInst, hRsrc);
+    BYTE* lpRsrc = (BYTE*)LoadResource(hInst, hRsrc);
+    if (!lpRsrc)
+        return FALSE;
+    // Allocate global memory on which to create stream
+    HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+    BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+    memcpy(pmem,lpRsrc,len);
+    IStream* pstm;
+    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:会自动释放
+	{
+		// load from stream
+		pImg = new CImageEx();
+		if (pImg->Load(pstm)!=S_OK)
+		{
+			delete pImg;
+			pImg = NULL;
+		}
+		// free/release stuff
+		pstm->Release();
+	}else
+	{
+		GlobalUnlock(m_hMem);
+		GlobalFree(m_hMem);
+	}
+	// **不能释放，否则会导致图片灰度化失败；
+    //GlobalUnlock(m_hMem);
+    //GlobalFree(m_hMem);
+    FreeResource(lpRsrc);
+    return TRUE;
+}
+BOOL BitmapFromIDResource(UINT nID, LPCTSTR sTR, Bitmap * & pImg)
+{
+	pImg = NULL;
+	//HINSTANCE hInst = GetModuleHandle("test.dll");
+	HINSTANCE hInst = AfxGetResourceHandle();
+    HRSRC hRsrc = ::FindResource (hInst,MAKEINTRESOURCE(nID),sTR); // type
+    if (!hRsrc)
+        return FALSE;
+    // load resource into memory
+    DWORD len = SizeofResource(hInst, hRsrc);
+    BYTE* lpRsrc = (BYTE*)LoadResource(hInst, hRsrc);
+    if (!lpRsrc)
+        return FALSE;
+    // Allocate global memory on which to create stream
+    HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+    BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+    memcpy(pmem,lpRsrc,len);
+    IStream* pstm;
+    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:会自动释放
+	{
+		// load from stream
+		pImg = Gdiplus::Bitmap::FromStream(pstm,FALSE);
+		// free/release stuff
+		pstm->Release();
+	}else
+	{
+		GlobalUnlock(m_hMem);
+		GlobalFree(m_hMem);
+	}
+	// **不能释放，否则会导致图片灰度化失败；
+    //GlobalUnlock(m_hMem);
+    //GlobalFree(m_hMem);
+    FreeResource(lpRsrc);
+    return TRUE;
+}
+
 // 从内存加载图片，失败返回NULL
 Gdiplus::Image* LoadImageFromMemory(const void* memory, DWORD size)
 {

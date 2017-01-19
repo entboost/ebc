@@ -37,6 +37,8 @@ void CDlgToolbar::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_4, m_btnOpen4);
 	DDX_Control(pDX, IDC_BTN_5, m_btnOpen5);
 	DDX_Control(pDX, IDC_BTN_6, m_btnOpen6);
+	DDX_Control(pDX, IDC_BTN_7, m_btnOpen7);
+	DDX_Control(pDX, IDC_BTN_8, m_btnOpen8);
 }
 
 
@@ -51,6 +53,8 @@ BEGIN_MESSAGE_MAP(CDlgToolbar, CEbDialogBase)
 	ON_BN_CLICKED(IDC_BTN_4, &CDlgToolbar::OnBnClickedBtn4)
 	ON_BN_CLICKED(IDC_BTN_5, &CDlgToolbar::OnBnClickedBtn5)
 	ON_BN_CLICKED(IDC_BTN_6, &CDlgToolbar::OnBnClickedBtn6)
+	ON_BN_CLICKED(IDC_BTN_7, &CDlgToolbar::OnBnClickedBtn7)
+	ON_BN_CLICKED(IDC_BTN_8, &CDlgToolbar::OnBnClickedBtn8)
 END_MESSAGE_MAP()
 
 void CDlgToolbar::SetCtrlColor(bool bInvalidate)
@@ -72,6 +76,10 @@ void CDlgToolbar::SetCtrlColor(bool bInvalidate)
 	m_btnOpen5.SetPreTextColor(theApp.GetPreColor());
 	m_btnOpen6.SetHotTextColor(theApp.GetMainColor());
 	m_btnOpen6.SetPreTextColor(theApp.GetPreColor());
+	m_btnOpen7.SetHotTextColor(theApp.GetMainColor());
+	m_btnOpen7.SetPreTextColor(theApp.GetPreColor());
+	m_btnOpen8.SetHotTextColor(theApp.GetMainColor());
+	m_btnOpen8.SetPreTextColor(theApp.GetPreColor());
 
 	if (bInvalidate)
 		this->Invalidate();
@@ -247,10 +255,33 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 		{
 			m_btnOpen6.ShowWindow(SW_HIDE);
 		}
+		if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+		{
+			m_nButtonCount += 1;
+			m_btnOpen7.SetWindowText(_T("收藏"));
+			m_btnOpen7.SetToolTipText(_T("添加消息到个人收藏"));
+			m_btnOpen7.ShowWindow(SW_SHOW);
+			//if (m_pCallInfo.m_sGroupCode>0)
+			//{
+			//	m_nButtonCount += 1;
+			//	m_btnOpen8.SetWindowText(_T("群收藏"));
+			//	m_btnOpen8.SetToolTipText(_T("添加消息到群收藏"));
+			//	m_btnOpen8.ShowWindow(SW_SHOW);
+			//}else
+			{
+				m_btnOpen8.ShowWindow(SW_HIDE);
+			}
+		}else
+		{
+			m_btnOpen7.ShowWindow(SW_HIDE);
+			m_btnOpen8.ShowWindow(SW_HIDE);
+		}
 	}else
 	{
 		m_btnOpen5.ShowWindow(SW_HIDE);
 		m_btnOpen6.ShowWindow(SW_HIDE);
+		m_btnOpen7.ShowWindow(SW_HIDE);
+		m_btnOpen8.ShowWindow(SW_HIDE);
 	}
 	m_btnOpen1.Invalidate();
 	m_btnOpen2.Invalidate();
@@ -258,12 +289,16 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 	m_btnOpen4.Invalidate();
 	m_btnOpen5.Invalidate();
 	m_btnOpen6.Invalidate();
+	m_btnOpen7.Invalidate();
+	m_btnOpen8.Invalidate();
 	theApp.InvalidateParentRect(&m_btnOpen1);
 	theApp.InvalidateParentRect(&m_btnOpen2);
 	theApp.InvalidateParentRect(&m_btnOpen3);
 	theApp.InvalidateParentRect(&m_btnOpen4);
 	theApp.InvalidateParentRect(&m_btnOpen5);
 	theApp.InvalidateParentRect(&m_btnOpen6);
+	theApp.InvalidateParentRect(&m_btnOpen7);
+	theApp.InvalidateParentRect(&m_btnOpen8);
 	return m_nButtonCount;
 }
 void CDlgToolbar::SetMsgHwnd(HWND hWnd, CToolbarCallback* pCallback)
@@ -319,11 +354,21 @@ BOOL CDlgToolbar::OnInitDialog()
 	m_btnOpen5.SetTextHotMove(true);
 	m_btnOpen5.SetDrawPanelRgn(false);
 	m_btnOpen5.SetNorTextColor(theDefaultFlatBlackTextColor);
-	m_btnOpen6.ShowWindow(SW_SHOW);
+	m_btnOpen6.ShowWindow(SW_HIDE);
 	m_btnOpen6.SetAutoSize(false);
 	m_btnOpen6.SetTextHotMove(true);
 	m_btnOpen6.SetDrawPanelRgn(false);
 	m_btnOpen6.SetNorTextColor(theDefaultFlatBlackTextColor);
+	m_btnOpen7.ShowWindow(SW_HIDE);
+	m_btnOpen7.SetAutoSize(false);
+	m_btnOpen7.SetTextHotMove(true);
+	m_btnOpen7.SetDrawPanelRgn(false);
+	m_btnOpen7.SetNorTextColor(theDefaultFlatBlackTextColor);
+	m_btnOpen8.ShowWindow(SW_HIDE);
+	m_btnOpen8.SetAutoSize(false);
+	m_btnOpen8.SetTextHotMove(true);
+	m_btnOpen8.SetDrawPanelRgn(false);
+	m_btnOpen8.SetNorTextColor(theDefaultFlatBlackTextColor);
 
 	SetCtrlColor(false);
 
@@ -354,8 +399,8 @@ void CDlgToolbar::OnTimer(UINT_PTR nIDEvent)
 
 	CEbDialogBase::OnTimer(nIDEvent);
 }
-const int const_left_interval = 8;
-const int const_top_interval = 8;
+const int const_left_interval = 6;
+const int const_top_interval = 6;
 const int const_btn_width1 = 55;
 const int const_btn_width2 = 55;
 const int const_btn_height = 20;
@@ -415,7 +460,7 @@ void CDlgToolbar::OnSize(UINT nType, int cx, int cy)
 
 	int x = const_left_interval;
 	int y = const_top_interval;
-	const int const_btn_interval = 1;
+	const int const_btn_interval = 0;
 	switch (m_nDataType)
 	{
 	//case EB_MR_CTRL_DATA_TYPE_DELETE_MSGID:
@@ -473,6 +518,16 @@ void CDlgToolbar::OnSize(UINT nType, int cx, int cy)
 		{
 			x += (const_btn_width1+const_btn_interval);
 			m_btnOpen6.MovePoint(x,y,const_btn_width2,const_btn_height);
+		}
+		if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+		{
+			x += (const_btn_width1+const_btn_interval);
+			m_btnOpen7.MovePoint(x,y,const_btn_width2,const_btn_height);
+			//if (m_pCallInfo.m_sGroupCode>0)
+			//{
+			//	x += (const_btn_width1+const_btn_interval);
+			//	m_btnOpen8.MovePoint(x,y,const_btn_width2,const_btn_height);
+			//}
 		}
 	}
 }
@@ -908,4 +963,23 @@ void CDlgToolbar::OnBnClickedBtn6()
 		HideReset();
 		theEBAppClient.EB_RequestWithdawMsg(m_pCallInfo.GetCallId(), m_nMsgId);
 	}
+}
+void CDlgToolbar::OnBnClickedBtn7()
+{
+	if (m_nMsgId==0) return;
+	if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+	{
+		// 个人收藏
+		HideReset();
+		theEBAppClient.EB_RequestCollectMsg(m_pCallInfo.GetCallId(), m_nMsgId, false);
+	}
+}
+void CDlgToolbar::OnBnClickedBtn8()
+{
+	//if (m_nMsgId==0) return;
+	//if (m_pCallInfo.GetCallId()>0 && m_pCallInfo.m_sGroupCode>0)
+	//{
+	//	HideReset();
+	//	theEBAppClient.EB_RequestCollectMsg(m_pCallInfo.GetCallId(), m_nMsgId, true);
+	//}
 }

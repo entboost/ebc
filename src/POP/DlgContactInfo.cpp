@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "POP.h"
 #include "DlgContactInfo.h"
+#include "DlgRequestAddContact.h"
 
 //#define TIMERID_LOAD_CONTACT_LIST 200
 #define TIMERID_LOAD_UGINFO_LIST 201
@@ -28,6 +29,7 @@ CDlgContactInfo::CDlgContactInfo(CWnd* pParent /*=NULL*/)
 	, m_sDescription(_T(""))
 {
 	//m_nContactId = 0;
+	m_nContactType = 0;
 	m_nContactUserId = 0;
 	m_nUGId = 0;
 }
@@ -68,6 +70,7 @@ void CDlgContactInfo::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CONTACT_EMAIL, m_editEmail);
 	DDX_Control(pDX, IDC_EDIT_CONTACT_ADDRESS, m_editAddress);
 	DDX_Control(pDX, IDC_EDIT_DESCRIPTION, m_editDescription);
+	DDX_Control(pDX, IDC_BUTTON_REQUEST_ADD_CONTACT, m_btnRequestAddContact);
 }
 
 
@@ -79,6 +82,7 @@ BEGIN_MESSAGE_MAP(CDlgContactInfo, CEbDialogBase)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CDlgContactInfo::OnBnClickedButtonClose)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_REQUEST_ADD_CONTACT, &CDlgContactInfo::OnBnClickedButtonRequestAddContact)
 END_MESSAGE_MAP()
 
 
@@ -119,6 +123,21 @@ BOOL CDlgContactInfo::OnInitDialog()
 	m_editAddress.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editDescription.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 
+	m_btnRequestAddContact.SetTextHotMove(false);
+	m_btnRequestAddContact.SetNorTextColor(RGB(0,128,255));
+	m_btnRequestAddContact.SetHotTextColor(RGB(255,255,255));
+	m_btnRequestAddContact.SetPreTextColor(RGB(255,255,255));
+	m_btnRequestAddContact.SetWindowText(_T("加为好友"));
+	if (theApp.GetAuthContact() && m_nContactUserId>0 && (m_nContactType&EB_CONTACT_TYPE_AUTH)==0)
+	{
+		m_btnRequestAddContact.ShowWindow(SW_SHOW);
+		m_btnRequestAddContact.SetToolTipText(_T("点击申请添加好友"));
+	}else
+	{
+		m_btnRequestAddContact.ShowWindow(SW_HIDE);
+	}
+	m_btnRequestAddContact.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+
 	//m_comboContact.SetComboBitmap(IDB_COMBO_LEFT, IDB_COMBO_RIGHT, IDB_COMBO_CENTER);
 	//m_comboGroup.SetComboBitmap(IDB_COMBO_LEFT, IDB_COMBO_RIGHT, IDB_COMBO_CENTER);
 	m_comboGroup.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor,theDefaultFlatLine2Color);
@@ -127,10 +146,16 @@ BOOL CDlgContactInfo::OnInitDialog()
 	m_comboGroup.SetNormalPositionColor( RGB(255,255,255),RGB(0,0,0));
 
 	this->SetWindowText(_T("联系人资料"));
+	//if (theApp.GetAuthContact() && !m_sContact.IsEmpty())
 	if (theApp.GetAuthContact())// || !m_sContact.IsEmpty())
-		m_editContact.EnableWindow(FALSE);
-	else
 	{
+		//u.EnableWindow(FALSE);
+		m_editContact.SetReadOnly(TRUE);
+		m_editContact.EnableWindow(TRUE);
+	}else
+	{
+		//m_editContact.CreateEx(WS_EX_CLIENTEDGE,"EDIT","",ES_AUTOHSCROLL|ES_LEFT|WS_CHILD|WS_VISIBLE|WS_BORDER,CRect(0,0,1,1),this,IDC_EDIT_CONTACT_ACCOUNT);
+		//m_editContact.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 		m_editContact.SetPromptText(_T("联系人帐号"));
 		m_editContact.EnableWindow(TRUE);
 	}
@@ -218,7 +243,8 @@ BOOL CDlgContactInfo::OnInitDialog()
 	this->GetDlgItem(IDC_STATIC_DESCRIPTION)->MoveWindow(nX,nY,const_static_width,const_edit_height);
 	nX += const_x_interval;
 	this->GetDlgItem(IDC_EDIT_DESCRIPTION)->MoveWindow(nX,nY,const_edit_width2,70);
-
+	//m_editContact.Invalidate();
+	//theApp.InvalidateParentRect(&m_editContact);
 
 	const int POS_DLG_WIDTH = 612;
 	const int POS_DLG_HEIGHT = 410;
@@ -443,6 +469,8 @@ void CDlgContactInfo::OnSize(UINT nType, int cx, int cy)
 	//m_btnCancel.MovePoint(x,const_btn_y,const_btn_width,const_btn_height);
 	//x -= (const_btn_width+const_btn_intever);
 	//m_btnOk.MovePoint(x,const_btn_y,const_btn_width,const_btn_height);
+	x = 20;
+	m_btnRequestAddContact.MovePoint(x,const_btn_y,60,21);
 }
 
 void CDlgContactInfo::OnBnClickedButtonClose()
@@ -532,4 +560,24 @@ void CDlgContactInfo::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	CEbDialogBase::OnTimer(nIDEvent);
+}
+
+void CDlgContactInfo::OnBnClickedButtonRequestAddContact()
+{
+	if (theApp.GetAuthContact() && m_nContactUserId>0 && (m_nContactType&EB_CONTACT_TYPE_AUTH)==0)
+	{
+		CDlgRequestAddContact pDlg;
+		pDlg.m_sHeadFilePath = theApp.GetUserHeadFilePath(m_nContactUserId,(LPCTSTR)m_sContact);
+		CString sText;
+		sText.Format(_T("%s\n%lld\n%s"),m_sName,m_nContactUserId,m_sContact);
+		pDlg.m_sHeadName = (LPCTSTR)sText;
+		if (pDlg.DoModal()==IDOK)
+		{
+			EB_ContactInfo pContactInfo;
+			pContactInfo.m_nContactUserId = m_nContactUserId;
+			pContactInfo.m_sContact = m_sContact;
+			pContactInfo.m_sDescription = (LPCTSTR)pDlg.m_sDescription;
+			theEBAppClient.EB_EditContact(&pContactInfo);
+		}
+	}
 }

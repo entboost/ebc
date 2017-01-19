@@ -571,6 +571,33 @@ public:
 	参数：bPrivate 悄悄话功能 true:以私聊方式发给指定用户，会话其他人看不到 false:会话其他成员也可以看到
 	====================================================================*/
 	int EB_SendRich(eb::bigint nCallId,const EB_ChatRoomRichMsg* pRichMsg,eb::bigint nToUserId=0,bool bPrivate=false);
+
+	/****
+	功能：发送用户名片
+	参数：sCardUserAccount/nCardUserId 要发送名片用户帐号/用户ID
+	参数：nToUserId 发给会话中指定用户，（用于群组会话中）
+	参数：bPrivate 悄悄话功能 true:以私聊方式发给指定用户，会话其他人看不到 false:会话其他成员也可以看到
+	====================================================================*/
+	int EB_SendUserCard(eb::bigint nCallId,const tstring& sCardUserAccount,eb::bigint nToUserId=0,bool bPrivate=false);
+	int EB_SendUserCard(eb::bigint nCallId,eb::bigint nCardUserId,eb::bigint nToUserId=0,bool bPrivate=false);
+
+	/****
+	功能：解析名片信息
+	参数：[in] sInCardInfoString 要解析名片信息字符串
+	参数：[out] pOutCartType 名片类型；1=用户名片
+	参数：[out] pOutCardData 名片数据；配合 pOutCartType 使用，如果1=用户名片，调用 EB_ParseUserECard 解析用户名片
+	====================================================================*/
+	bool EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCardType,tstring& pOutCardData);
+	
+	/****
+	功能：解析用户电子名片
+	参数：[in] sInUserECardString 要解析用户名片字符串
+	参数：[out] pOutUserECard 用户电子名片类
+	====================================================================*/
+	bool EB_GetUserECardByFromInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard);
+	bool EB_GetUserECardByCardInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard);
+	
+	//int EB_SendCard(eb::bigint nCallId,int nCardType,const char* sCardData,eb::bigint nToUserId=0,bool bPrivate=false);
 	int EB_SendMapPos(eb::bigint nCallId,const char* sMapPosData,eb::bigint nToUserId=0,bool bPrivate=false);
 	int EB_SendUserData(eb::bigint nCallId,const char* sUserData,unsigned long nDataSize,eb::bigint nToUserId=0,bool bPrivate=false);
 
@@ -578,6 +605,13 @@ public:
 	功能：请求撤回消息（2分钟内有效），不支持P2P点对点文件消息
 	====================================================================*/
 	int EB_RequestWithdawMsg(eb::bigint nCallId,eb::bigint nMsgId);
+
+	/****
+	功能：请求收藏消息，不支持已经删除漫游消息
+	参数：nMsgId 收藏消息ID，如果消息已经在漫游消息被删除，收藏失败；
+	参数：bGroupCollection 是否“群收藏”；true=群收藏 false=个人收藏
+	====================================================================*/
+	int EB_RequestCollectMsg(eb::bigint nCallId,eb::bigint nMsgId, bool bGroupCollection);
 
 	/****
 	功能：发送文件
@@ -842,12 +876,15 @@ public:
 	功能：获取群组（部门）成员信息
 	====================================================================*/
 	bool EB_GetMemberInfoByUserId2(EB_MemberInfo* pOutMemberInfo,eb::bigint nMemberUserId) const;
+	bool EB_GetMemberInfoByUserId2(EB_MemberInfo* pOutMemberInfo,EB_GroupInfo* pOutGroupInfo,eb::bigint nMemberUserId) const;
 	bool EB_GetMemberInfoByAccount2(EB_MemberInfo* pOutMemberInfo,const char* sMemberAccount) const;
+	bool EB_GetMemberInfoByAccount2(EB_MemberInfo* pOutMemberInfo,EB_GroupInfo* pOutGroupInfo,const char* sMemberAccount) const;
 
 	/****
 	功能：获取群组（部门）成员信息
 	====================================================================*/
 	bool EB_GetMemberInfoByMemberCode(EB_MemberInfo* pOutMemberInfo,eb::bigint nMemberId) const;
+	bool EB_GetMemberInfoByMemberCode(EB_MemberInfo* pOutMemberInfo,EB_GroupInfo* pOutGroupInfo,eb::bigint nMemberId) const;
 
 	/****
 	功能：获取群组（部门）成员名称
@@ -888,7 +925,9 @@ public:
 	参数：sMemberAccount 成员帐号
 	====================================================================*/
 	bool EB_IsExistMemberByUserId(eb::bigint nGroupId,eb::bigint nMemberUserId) const;
+	bool EB_IsExistMemberByUserId(eb::bigint nMemberUserId) const;
 	bool EB_IsExistMemberByAccount(eb::bigint nGroupId,const char* sMemberAccount) const;
+	bool EB_IsExistMemberByAccount(const char* sMemberAccount) const;
 
 	/****
 	功能：判断是否存在群组（部门）成员

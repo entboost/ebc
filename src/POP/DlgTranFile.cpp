@@ -53,6 +53,15 @@ END_MESSAGE_MAP()
 //const double const_mb_size = 1024*const_kb_size;
 //const double const_gb_size = 1024*const_mb_size;
 
+void CDlgTranFile::SetCtrlColor(void)
+{
+	m_btnSaveas.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	m_btnSave.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	m_btnReject.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	m_btnOffFile.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	m_btnCancel.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+}
+
 BOOL CDlgTranFile::OnInitDialog()
 {
 	CEbDialogBase::OnInitDialog();
@@ -73,36 +82,42 @@ BOOL CDlgTranFile::OnInitDialog()
 		m_btnSave2CloutDrive.ShowWindow(SW_HIDE);
 	}
 
+	m_btnSaveas.SetTextHotMove(false);
 	m_btnSaveas.SetToolTipText(_T("保存文件到指定目录"));
 	m_btnSaveas.SetAutoSize(false);
 	m_btnSaveas.SetNorTextColor(RGB(0,128,255));
-	m_btnSaveas.SetHotTextColor(RGB(0,128,255));
-	m_btnSaveas.SetPreTextColor(RGB(0,128,255));
+	m_btnSaveas.SetHotTextColor(RGB(255,255,255));
+	m_btnSaveas.SetPreTextColor(RGB(255,255,255));
 	//m_btnSaveas.Load(IDB_PNG_58X24);
+	m_btnSave.SetTextHotMove(false);
 	m_btnSave.SetToolTipText(_T("保存文件到默认目录"));
 	m_btnSave.SetAutoSize(false);
 	m_btnSave.SetNorTextColor(RGB(0,128,255));
-	m_btnSave.SetHotTextColor(RGB(0,128,255));
-	m_btnSave.SetPreTextColor(RGB(0,128,255));
+	m_btnSave.SetHotTextColor(RGB(255,255,255));
+	m_btnSave.SetPreTextColor(RGB(255,255,255));
 	//m_btnSave.Load(IDB_PNG_58X24);
+	m_btnReject.SetTextHotMove(false);
 	m_btnReject.SetToolTipText(_T("拒绝接收文件"));
 	m_btnReject.SetAutoSize(false);
 	m_btnReject.SetNorTextColor(RGB(0,128,255));
-	m_btnReject.SetHotTextColor(RGB(0,128,255));
-	m_btnReject.SetPreTextColor(RGB(0,128,255));
+	m_btnReject.SetHotTextColor(RGB(255,255,255));
+	m_btnReject.SetPreTextColor(RGB(255,255,255));
 	//m_btnReject.Load(IDB_PNG_58X24);
+	m_btnOffFile.SetTextHotMove(false);
 	m_btnOffFile.SetToolTipText(_T("发送离线文件"));
 	m_btnOffFile.SetAutoSize(false);
 	m_btnOffFile.SetNorTextColor(RGB(0,128,255));
-	m_btnOffFile.SetHotTextColor(RGB(0,128,255));
-	m_btnOffFile.SetPreTextColor(RGB(0,128,255));
+	m_btnOffFile.SetHotTextColor(RGB(255,255,255));
+	m_btnOffFile.SetPreTextColor(RGB(255,255,255));
 	//m_btnOffFile.Load(IDB_PNG_58X24);
+	m_btnCancel.SetTextHotMove(false);
 	m_btnCancel.SetToolTipText(_T("取消发送文件"));
 	m_btnCancel.SetAutoSize(false);
 	m_btnCancel.SetNorTextColor(RGB(0,128,255));
-	m_btnCancel.SetHotTextColor(RGB(0,128,255));
-	m_btnCancel.SetPreTextColor(RGB(0,128,255));
+	m_btnCancel.SetHotTextColor(RGB(255,255,255));
+	m_btnCancel.SetPreTextColor(RGB(255,255,255));
 	//m_btnCancel.Load(IDB_PNG_58X24);
+	SetCtrlColor();
 
 	const tstring sFileName = libEbc::GetFileName(m_pCrFileInfo.m_sFileName);
 	CString sFileText;
@@ -187,30 +202,31 @@ void CDlgTranFile::OnSize(UINT nType, int cx, int cy)
 	if (GetDlgItem(IDC_STATIC_SHEECHSTATUS)->GetSafeHwnd())
 		this->GetDlgItem(IDC_STATIC_SHEECHSTATUS)->MoveWindow(2, 40, cx-4, 14);
 	const int const_Button_Top		= 40;
-	const int const_Button_Width1	= 35;//m_btnSaveas.GetImgWidth();
-	const int const_Button_Width2	= 60;//m_btnSaveas.GetImgWidth();
-	const int const_Button_Height	= 16;//m_btnSaveas.GetImgHeight();
-	int x = cx-const_Button_Width1;
+	const int const_Button_Width1	= 30;//m_btnSaveas.GetImgWidth();
+	const int const_Button_Width2	= 55;//m_btnSaveas.GetImgWidth();
+	const int const_Button_Height	= 17;//m_btnSaveas.GetImgHeight();
+	const int const_Button_Interval = 2;	// 按钮间隔
+	int x = cx-const_Button_Width1-3;			// 3是最右边间隔
 		
 	if (m_pCrFileInfo.m_sResId>0 || m_bIsSendingFile)
 	{
 		m_btnCancel.MovePoint(x, const_Button_Top, const_Button_Width1,const_Button_Height);
 		if (m_pCrFileInfo.m_sResId==0)
 		{
-			x -= const_Button_Width2;
+			x -= (const_Button_Width2+const_Button_Interval);
 			m_btnOffFile.MovePoint(x, const_Button_Top,const_Button_Width2,const_Button_Height);
 		}
 	}else
 	{
 		m_btnSaveas.MovePoint(x, const_Button_Top,const_Button_Width1,const_Button_Height);
-		x -= const_Button_Width1;
+		x -= (const_Button_Width1+const_Button_Interval);
 		m_btnSave.MovePoint(x, const_Button_Top,const_Button_Width1,const_Button_Height);
-		x -= const_Button_Width1;
+		x -= (const_Button_Width1+const_Button_Interval);
 		m_btnReject.MovePoint(x, const_Button_Top,const_Button_Width1,const_Button_Height);
 	}
 	if (!m_bIsSendingFile && m_pCrFileInfo.m_bOffFile)
 	{
-		x -= const_Button_Width2;
+		x -= (const_Button_Width2+const_Button_Interval);
 		m_btnSave2CloutDrive.MovePoint(x, const_Button_Top,const_Button_Width2,const_Button_Height);
 	}
 }

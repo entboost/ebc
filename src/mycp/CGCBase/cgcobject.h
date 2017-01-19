@@ -22,6 +22,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "../ThirdParty/stl/lockmap.h"
+#include "../ThirdParty/stl/locklist.h"
 #include "cgcSmartString.h"
 
 namespace mycp {
@@ -76,11 +77,20 @@ inline mycp::ubigint ntohll(mycp::ubigint val) {
 //    }
 //}
 //#endif
-
+//#define USES_OBJECT_COPYNEW
 class cgcObject
 {
 public:
 	typedef boost::shared_ptr<cgcObject> pointer;
+#ifdef USES_OBJECT_COPYNEW
+	virtual cgcObject::pointer copyNew(void) const = 0;
+#endif // USES_OBJECT_COPYNEW
+//#ifdef WIN32
+//	//virtual const cgcObject& operator = (const cgcObject* p) = 0;
+//	//virtual const cgcObject& operator = (const cgcObject::pointer& p) {return this->operator =(p.get());}
+//	//virtual const cgcObject& operator = (const cgcObject& p) {return this->operator =(&p);}
+//	//void * operator new(size_t size)
+//#endif
 };
 
 const cgcObject::pointer cgcNullObject;
@@ -97,13 +107,43 @@ public:
 	{
 		CLockMap<K, cgcObject::pointer>::clear();
 	}
+	const CObjectMap<K>& operator =(const CObjectMap<K>& pMap)
+	{
+		CLockMap<K, cgcObject::pointer>::operator = (pMap);
+		return *this;
+	}
+	const CObjectMap<K>& operator =(const CObjectMap<K>* pMap)
+	{
+		CLockMap<K, cgcObject::pointer>::operator = (pMap);
+		return *this;
+	}
+#ifdef USES_OBJECT_COPYNEW
+	const CObjectMap<K>& copyFrom(const CObjectMap<K>& pMap)
+	{
+		BoostWriteLock wtlock(m_mutex);
+		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(pMap.mutex()));
+		CLockMap<K, cgcObject::pointer>::const_iterator pIter = pMap.begin();
+		for (; pIter!=pMap.end(); pIter++)
+		{
+			cgcObject::pointer pNewObject = pIter->second->copyNew();
+			if (pNewObject.get()!=NULL)
+				CLockMap<K, cgcObject::pointer>::insert(pIter->first, pNewObject, true, NULL, false);
+		}
+		return *this;
+	}
+	const CObjectMap<K>& copyFrom(const CObjectMap<K>* pMap)
+	{
+		if (pMap!=NULL)
+			return this->copyFrom(*pMap);
+		return *this;
+	}
+#endif
 };
 
 typedef boost::shared_ptr<CObjectMap<tstring> >			StringObjectMapPointer;
 typedef boost::shared_ptr<CObjectMap<int> >				LongObjectMapPointer;
 typedef boost::shared_ptr<CObjectMap<bigint> >			BigIntObjectMapPointer;
 typedef boost::shared_ptr<CObjectMap<void*> >			VoidObjectMapPointer;
-
 
 template<typename N>
 class CStringObjectMap
@@ -142,6 +182,25 @@ public:
 	{
 		CLockMap<N, BigIntObjectMapPointer>::clear();
 	}
+	const CBigIntObjectMap<N>& operator =(const CBigIntObjectMap<N>& pMap)
+	{
+		BoostWriteLock wtlock(this->mutex());
+		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(pMap.mutex()));
+		typename CBigIntObjectMap<N>::const_iterator pIter = pMap.begin();
+		for (; pIter!=pMap.end(); pIter++)
+		{
+			BigIntObjectMapPointer pMapPointer = BigIntObjectMapPointer(new CObjectMap<bigint>); 
+			pMapPointer->operator = (pIter->second.get());
+			CLockMap<N, BigIntObjectMapPointer>::insert(pIter->first,pMapPointer,true,NULL,false);
+		}
+		return *this;
+	}
+	const CBigIntObjectMap<N>& operator =(const CBigIntObjectMap<N>* pMap)
+	{
+		if (pMap!=NULL)
+			return this->operator = (*pMap);
+		return *this;
+	}
 };
 
 template<typename N>
@@ -156,6 +215,22 @@ public:
 		CLockMap<N, VoidObjectMapPointer>::clear();
 	}
 };
+
+typedef boost::shared_ptr<CLockList<cgcObject::pointer> >			ObjectListPointer;
+
+template<typename N>
+class CListObjectMap
+	: public CLockMap<N, ObjectListPointer>
+{
+public:
+	CListObjectMap(void)
+	{}
+	virtual ~CListObjectMap(void)
+	{
+		CLockMap<N, ObjectListPointer>::clear();
+	}
+};
+
 
 template<typename T> boost::shared_ptr<T> CGC_OBJECT_CAST(boost::shared_ptr<cgcObject> const & r)
 {

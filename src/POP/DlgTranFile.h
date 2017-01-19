@@ -22,6 +22,7 @@ public:
 		return CDlgTranFile::pointer(new CDlgTranFile(pParent));
 	}
 
+	void SetCtrlColor(void);
 	void Cancel(void);
 	void UpdateFileInfo(const CCrFileInfo * pCrFileInfo);
 #ifdef USES_EBCOM_TEST

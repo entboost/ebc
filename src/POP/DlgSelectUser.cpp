@@ -468,6 +468,7 @@ void CDlgSelectUser::onMemberInfo(const EB_MemberInfo* pMemberInfo)
 			HTREEITEM hEmpItem = m_treeEnterprise.InsertItem(sText,pDepItemInfo->m_hItem);
 			pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 			pEmpItemInfo->m_sMemberCode = pMemberInfo->m_sMemberCode;
+			pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 			pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 			pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
@@ -486,6 +487,7 @@ void CDlgSelectUser::onMemberInfo(const EB_MemberInfo* pMemberInfo)
 			HTREEITEM hEmpItem = m_treeDepartment.InsertItem(sText,pDepItemInfo->m_hItem);
 			pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 			pEmpItemInfo->m_sMemberCode = pMemberInfo->m_sMemberCode;
+			pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 			pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 			pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
@@ -610,6 +612,7 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 				HTREEITEM hEmpItem = m_treeEnterprise.InsertItem(sText,pDepItemInfo->m_hItem);
 				pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 				pEmpItemInfo->m_sMemberCode = pMemberInfo->m_sMemberCode;
+				pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 				pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 				pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 				pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
@@ -628,6 +631,7 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 				HTREEITEM hEmpItem = m_treeDepartment.InsertItem(sText,pDepItemInfo->m_hItem);
 				pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 				pEmpItemInfo->m_sMemberCode = pMemberInfo->m_sMemberCode;
+				pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 				pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 				pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 				pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
@@ -640,15 +644,25 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 
 		if (m_nSelectedGroupId==0 || m_nSelectedGroupId==pMemberInfo->m_sGroupCode)
 		{
+#ifdef USES_SELECTED_ITEM_UID
+			eb::bigint nSelectedUserId = 0;
+			if (m_pSelectedUserTreeItem.find(pMemberInfo->m_sMemberAccount,nSelectedUserId))
+#else
 			eb::bigint nSelectedEmpId = 0;
 			if (m_pSelectedTreeItem.find(pMemberInfo->m_sMemberAccount,nSelectedEmpId))
+#endif
 			{
+#ifdef USES_SELECTED_ITEM_UID
+				if (nSelectedUserId==pMemberInfo->m_nMemberUserId)
+#else
 				if (nSelectedEmpId==pMemberInfo->m_sMemberCode)
+#endif
 				{
 					HTREEITEM hEmpItem = m_treeSelected.InsertItem(pMemberInfo->m_sUserName.c_str());
 					CTreeItemInfo::pointer pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 					pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 					pEmpItemInfo->m_sMemberCode = pMemberInfo->m_sMemberCode;
+					pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 					pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 					pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
 					m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
@@ -793,8 +807,13 @@ void CDlgSelectUser::onContactInfo(const EB_ContactInfo* pContactInfo, unsigned 
 
 		if (m_nSelectedGroupId==0)
 		{
+#ifdef USES_SELECTED_ITEM_UID
+			eb::bigint nSelectedUserId = 0;
+			if (m_pSelectedUserTreeItem.find(pContactInfo->m_sContact,nSelectedUserId))
+#else
 			eb::bigint nSelectedEmpId = 0;
 			if (m_pSelectedTreeItem.find(pContactInfo->m_sContact,nSelectedEmpId))
+#endif
 			{
 				//if (nSelectedEmpId==0)
 				{
@@ -803,6 +822,7 @@ void CDlgSelectUser::onContactInfo(const EB_ContactInfo* pContactInfo, unsigned 
 					HTREEITEM hContactItem = m_treeSelected.InsertItem(sText);
 					CTreeItemInfo::pointer pContactItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_CONTACT,hContactItem);
 					pContactItemInfo->m_sAccount = pContactInfo->m_sContact;
+					pContactItemInfo->m_nUserId = pContactInfo->m_nContactUserId;
 					pContactItemInfo->m_sName = pContactInfo->m_sName;
 					m_treeSelected.SetItemData(hContactItem, (DWORD)pContactItemInfo.get());
 					//m_pSelectedTreeItem.insert(pContactInfo->m_sAccount, 0);
@@ -994,7 +1014,11 @@ void CDlgSelectUser::OnBnClickedButtonClose()
 
 void CDlgSelectUser::ResetSelected(void)
 {
+#ifdef USES_SELECTED_ITEM_UID
+	m_pSelectedUserTreeItem.clear();
+#else
 	m_pSelectedTreeItem.clear();
+#endif
 	m_pSelectedItem.clear();
 	if (m_treeSelected.GetSafeHwnd()!=NULL)
 		m_treeSelected.DeleteAllItems();
@@ -1006,7 +1030,11 @@ void CDlgSelectUser::SelectEnterprise(HTREEITEM hSelItem)
 	if (hSelItem != NULL)
 	{
 		const CTreeItemInfo* pDepItemInfo = (const CTreeItemInfo*)m_treeEnterprise.GetItemData(hSelItem);
+#ifdef USES_SELECTED_ITEM_UID
+		if (pDepItemInfo != NULL && pDepItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && !m_pSelectedUserTreeItem.exist(pDepItemInfo->m_sAccount))
+#else
 		if (pDepItemInfo != NULL && pDepItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && !m_pSelectedTreeItem.exist(pDepItemInfo->m_sAccount))
+#endif
 		{
 			if (m_bSingleSelect)
 				ResetSelected();
@@ -1015,10 +1043,15 @@ void CDlgSelectUser::SelectEnterprise(HTREEITEM hSelItem)
 			CTreeItemInfo::pointer pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 			pEmpItemInfo->m_sGroupCode = pDepItemInfo->m_sGroupCode;
 			pEmpItemInfo->m_sMemberCode = pDepItemInfo->m_sMemberCode;
+			pEmpItemInfo->m_nUserId = pDepItemInfo->m_nUserId;
 			pEmpItemInfo->m_sAccount = pDepItemInfo->m_sAccount;
 			pEmpItemInfo->m_sName = pDepItemInfo->m_sName;
 			m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
+#ifdef USES_SELECTED_ITEM_UID
+			m_pSelectedUserTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_nUserId);
+#else
 			m_pSelectedTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_sMemberCode);
+#endif
 			m_pSelectedItem.insert(pEmpItemInfo->m_sAccount,pEmpItemInfo);
 			m_treeSelected.Invalidate();
 			UpdateSelectedUsers();
@@ -1030,7 +1063,11 @@ void CDlgSelectUser::SelectDepartment(HTREEITEM hSelItem)
 	if (hSelItem != NULL)
 	{
 		const CTreeItemInfo* pDepItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+#ifdef USES_SELECTED_ITEM_UID
+		if (pDepItemInfo != NULL && pDepItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && !m_pSelectedUserTreeItem.exist(pDepItemInfo->m_sAccount))
+#else
 		if (pDepItemInfo != NULL && pDepItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && !m_pSelectedTreeItem.exist(pDepItemInfo->m_sAccount))
+#endif
 		{
 			if (m_bSingleSelect)
 				ResetSelected();
@@ -1039,10 +1076,15 @@ void CDlgSelectUser::SelectDepartment(HTREEITEM hSelItem)
 			CTreeItemInfo::pointer pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 			pEmpItemInfo->m_sGroupCode = pDepItemInfo->m_sGroupCode;
 			pEmpItemInfo->m_sMemberCode = pDepItemInfo->m_sMemberCode;
+			pEmpItemInfo->m_nUserId = pDepItemInfo->m_nUserId;
 			pEmpItemInfo->m_sAccount = pDepItemInfo->m_sAccount;
 			pEmpItemInfo->m_sName = pDepItemInfo->m_sName;
 			m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
+#ifdef USES_SELECTED_ITEM_UID
+			m_pSelectedUserTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_nUserId);
+#else
 			m_pSelectedTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_sMemberCode);
+#endif
 			m_pSelectedItem.insert(pEmpItemInfo->m_sAccount,pEmpItemInfo);
 			m_treeSelected.Invalidate();
 			UpdateSelectedUsers();
@@ -1055,7 +1097,11 @@ void CDlgSelectUser::SelectContact(HTREEITEM hSelItem)
 	if (hSelItem != NULL)
 	{
 		const CTreeItemInfo* pConItemInfo = (const CTreeItemInfo*)m_treeContacts.GetItemData(hSelItem);
+#ifdef USES_SELECTED_ITEM_UID
+		if (pConItemInfo != NULL && pConItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT && pConItemInfo->m_nUserId>0 && !m_pSelectedUserTreeItem.exist(pConItemInfo->m_sAccount))
+#else
 		if (pConItemInfo != NULL && pConItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT && pConItemInfo->m_nUserId>0 && !m_pSelectedTreeItem.exist(pConItemInfo->m_sAccount))
+#endif
 		{
 			if (m_bSingleSelect)
 				ResetSelected();
@@ -1065,9 +1111,14 @@ void CDlgSelectUser::SelectContact(HTREEITEM hSelItem)
 			HTREEITEM hContactItem = m_treeSelected.InsertItem(sText);
 			CTreeItemInfo::pointer pContactItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_CONTACT,hContactItem);
 			pContactItemInfo->m_sAccount = pConItemInfo->m_sAccount;
+			pContactItemInfo->m_nUserId = pConItemInfo->m_nUserId;
 			pContactItemInfo->m_sName = pConItemInfo->m_sName;
 			m_treeSelected.SetItemData(hContactItem, (DWORD)pContactItemInfo.get());
+#ifdef USES_SELECTED_ITEM_UID
+			m_pSelectedUserTreeItem.insert(pConItemInfo->m_sAccount, pConItemInfo->m_nUserId);
+#else
 			m_pSelectedTreeItem.insert(pConItemInfo->m_sAccount, 0);
+#endif
 			m_pSelectedItem.insert(pConItemInfo->m_sAccount,pContactItemInfo);
 			m_treeSelected.Invalidate();
 			UpdateSelectedUsers();
@@ -1083,7 +1134,11 @@ void CDlgSelectUser::SelectContact(HTREEITEM hSelItem)
 void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 {
 	const CTreeItemInfo* pItemInfo = (const CTreeItemInfo*)m_treeSearch.GetItemData(hSelItem);
+#ifdef USES_SELECTED_ITEM_UID
+	if (pItemInfo == NULL || pItemInfo->m_nUserId==0 || m_pSelectedUserTreeItem.exist(pItemInfo->m_sAccount)) return;
+#else
 	if (pItemInfo == NULL || pItemInfo->m_nUserId==0 || m_pSelectedTreeItem.exist(pItemInfo->m_sAccount)) return;
+#endif
 	CString sText;
 	sText.Format(_T("%s(%s)"),pItemInfo->m_sName.c_str(),pItemInfo->m_sAccount.c_str());
 	if (pItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER)
@@ -1095,9 +1150,14 @@ void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 		HTREEITEM hEmpItem = m_treeSelected.InsertItem(sText);
 		CTreeItemInfo::pointer pEmpItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_MEMBER,hEmpItem);
 		pEmpItemInfo->m_sAccount = pItemInfo->m_sAccount;
+		pEmpItemInfo->m_nUserId = pItemInfo->m_nUserId;
 		pEmpItemInfo->m_sName = pItemInfo->m_sName;
 		m_treeSelected.SetItemData(hEmpItem,(DWORD)pEmpItemInfo.get());
+#ifdef USES_SELECTED_ITEM_UID
+		m_pSelectedUserTreeItem.insert(pItemInfo->m_sAccount,pItemInfo->m_nUserId);
+#else
 		m_pSelectedTreeItem.insert(pItemInfo->m_sAccount,pItemInfo->m_sMemberCode);
+#endif
 		m_pSelectedItem.insert(pItemInfo->m_sAccount,pEmpItemInfo);
 		m_editSearch.SetWindowText(pItemInfo->m_sAccount.c_str());
 		m_editSearch.SetSel(0,-1);
@@ -1112,9 +1172,14 @@ void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 		HTREEITEM hContactItem = m_treeSelected.InsertItem(sText);
 		CTreeItemInfo::pointer pContactItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_CONTACT,hContactItem);
 		pContactItemInfo->m_sAccount = pItemInfo->m_sAccount;
+		pContactItemInfo->m_nUserId = pItemInfo->m_nUserId;
 		pContactItemInfo->m_sName = pItemInfo->m_sName;
 		m_treeSelected.SetItemData(hContactItem,(DWORD)pContactItemInfo.get());
+#ifdef USES_SELECTED_ITEM_UID
+		m_pSelectedUserTreeItem.insert(pItemInfo->m_sAccount,pItemInfo->m_nUserId);
+#else
 		m_pSelectedTreeItem.insert(pItemInfo->m_sAccount,pItemInfo->m_sMemberCode);
+#endif
 		m_pSelectedItem.insert(pItemInfo->m_sAccount,pContactItemInfo);
 		m_editSearch.SetWindowText(pItemInfo->m_sAccount.c_str());
 		m_editSearch.SetSel(0,-1);
@@ -1130,7 +1195,11 @@ void CDlgSelectUser::DeleteSelected(HTREEITEM hSelItem)
 		const CTreeItemInfo* pTreItemInfo = (const CTreeItemInfo*)m_treeSelected.GetItemData(hSelItem);
 		if (pTreItemInfo == NULL) return;
 		m_treeSelected.DeleteItem(hSelItem);
+#ifdef USES_SELECTED_ITEM_UID
+		m_pSelectedUserTreeItem.remove(pTreItemInfo->m_sAccount);
+#else
 		m_pSelectedTreeItem.remove(pTreItemInfo->m_sAccount);
+#endif
 		m_pSelectedItem.remove(pTreItemInfo->m_sAccount);	// 这个必须放在最后面，否则pTreItemInfo会无效。
 	}
 }
@@ -1197,7 +1266,11 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (m_treeDepartment.GetNextItem(item, TVGN_CHILD)==NULL)
 		{
 			const CTreeItemInfo* pDepItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(item);
+#ifdef USES_SELECTED_ITEM_UID
+			if (pDepItemInfo != NULL && !m_pSelectedUserTreeItem.exist(pDepItemInfo->m_sAccount))
+#else
 			if (pDepItemInfo != NULL && !m_pSelectedTreeItem.exist(pDepItemInfo->m_sAccount))
+#endif
 			{
 				CRect rect;
 				m_treeDepartment.GetItemRect(item, &rect, TRUE);
@@ -1220,7 +1293,11 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (m_treeEnterprise.GetNextItem(item, TVGN_CHILD)==NULL)
 		{
 			const CTreeItemInfo* pDepItemInfo = (const CTreeItemInfo*)m_treeEnterprise.GetItemData(item);
+#ifdef USES_SELECTED_ITEM_UID
+			if (pDepItemInfo != NULL && !m_pSelectedUserTreeItem.exist(pDepItemInfo->m_sAccount))
+#else
 			if (pDepItemInfo != NULL && !m_pSelectedTreeItem.exist(pDepItemInfo->m_sAccount))
+#endif
 			{
 				CRect rect;
 				m_treeEnterprise.GetItemRect(item, &rect, TRUE);
@@ -1243,7 +1320,11 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (m_treeContacts.GetNextItem(item, TVGN_CHILD)==NULL)
 		{
 			const CTreeItemInfo* pConItemInfo = (const CTreeItemInfo*)m_treeContacts.GetItemData(item);
+#ifdef USES_SELECTED_ITEM_UID
+			if (pConItemInfo != NULL && pConItemInfo->m_nUserId>0 && !m_pSelectedUserTreeItem.exist(pConItemInfo->m_sAccount))
+#else
 			if (pConItemInfo != NULL && pConItemInfo->m_nUserId>0 && !m_pSelectedTreeItem.exist(pConItemInfo->m_sAccount))
+#endif
 			{
 				CRect rect;
 				m_treeContacts.GetItemRect(item, &rect, TRUE);
@@ -1264,7 +1345,11 @@ LRESULT CDlgSelectUser::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 	}else if (pOwner == &m_treeSearch)
 	{
 		const CTreeItemInfo* pItemInfo = (const CTreeItemInfo*)m_treeSearch.GetItemData(item);
+#ifdef USES_SELECTED_ITEM_UID
+		if (pItemInfo == NULL || m_pSelectedUserTreeItem.exist(pItemInfo->m_sAccount))
+#else
 		if (pItemInfo == NULL || m_pSelectedTreeItem.exist(pItemInfo->m_sAccount))
+#endif
 		{
 			m_btnTrackAdd3.ShowWindow(SW_HIDE);
 		}else
@@ -1480,7 +1565,11 @@ void CDlgSelectUser::OnOK()
 	m_editSearch.GetWindowText(sAddAccount);
 	if (!sAddAccount.IsEmpty())
 	{
+#ifdef USES_SELECTED_ITEM_UID
+		m_pSelectedUserTreeItem.insert((LPCTSTR)sAddAccount,0,false);
+#else
 		m_pSelectedTreeItem.insert((LPCTSTR)sAddAccount,0,false);
+#endif
 		UpdateSelectedUsers();
 	}
 	__super::OnOK();

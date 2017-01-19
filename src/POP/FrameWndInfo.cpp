@@ -490,6 +490,7 @@ void CFrameWndInfo::ShowHide(bool bShowAndChecked)
 		if (bShowAndChecked)
 		{
 			m_pDialog->SetInputFocus();
+			m_pDialog->RefreshWeb();
 		}
 		//if (bShowAndChecked)
 		//{

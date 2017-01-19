@@ -141,6 +141,7 @@ public:
 	cgcValueInfo(const CLockMap<tstring, cgcValueInfo::pointer> & v, ValueAttribute a = ATTRIBUTE_BOTH);
 	virtual ~cgcValueInfo(void);
 
+	virtual cgcObject::pointer copyNew(void) const;
 	bool operator == (const cgcValueInfo::pointer& compare) const;
 	bool operator != (const cgcValueInfo::pointer& compare) const;
 	bool operator > (const cgcValueInfo::pointer& compare) const;
@@ -310,6 +311,10 @@ inline cgcValueInfo::ValueType cgcValueInfo::cgcGetValueType(const tstring& stri
 	return TYPE_STRING;
 }
 
+inline cgcObject::pointer cgcValueInfo::copyNew(void) const
+{
+	return cgcValueInfo::copy();
+}
 inline bool cgcValueInfo::operator == (const cgcValueInfo::pointer& compare) const
 {
 	if (compare.get() == NULL || m_type != compare->getType()) return false;

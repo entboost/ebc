@@ -58,6 +58,9 @@ END_MESSAGE_MAP()
 // CDlgMyContacts message handlers
 void CDlgMyContacts::SetCtrlColor(void)
 {
+	if (m_pViewContactInfo!=NULL && m_pViewContactInfo->GetSafeHwnd()!=NULL)
+		m_pViewContactInfo->SetCtrlColor();
+
 	//if (theApp.GetColorFlat())
 	//	m_treeContacts.SetBkGradients(theApp.GetFlatBgColor(),theApp.GetFlatBgColor());
 	//else
@@ -742,6 +745,7 @@ void CDlgMyContacts::EditItem(HTREEITEM hItem)
 	if (!theEBAppClient.EB_GetContactInfo1(pContactItemInfo->m_sId,&pContactInfo))
 		return;
 	CDlgContactInfo pDlgContactInfo(this);
+	pDlgContactInfo.m_nContactType = pContactInfo.m_nContactType;
 	pDlgContactInfo.m_nContactUserId = pContactInfo.m_nContactUserId;
 	pDlgContactInfo.m_sContact = pContactInfo.m_sContact.c_str();
 	pDlgContactInfo.m_nUGId = pContactInfo.m_nUGId;
@@ -1309,7 +1313,7 @@ LRESULT CDlgMyContacts::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 						m_pViewContactInfo->Create(CDlgViewContactInfo::IDD,this);
 					}
 					const int const_dlg_width = 380;
-					const int const_dlg_height = 188;
+					const int const_dlg_height = 220;
 					CRect rect;
 					this->GetWindowRect(&rect);
 					CRect rectViewContactInfo;

@@ -37,44 +37,72 @@ public:
 	const boost::shared_mutex & mutex(void) const {return m_mutex;}
 	//boost::mutex & mutex(void) {return m_mutex;}
 	//const boost::mutex & mutex(void) const {return m_mutex;}
+	const CLockMap<K,T,P>& operator =(const CLockMap<K,T,P>& pMap)
+	{
+		BoostWriteLock wtlock(m_mutex);
+		BoostReadLock rdlock(const_cast<boost::shared_mutex&>(pMap.mutex()));
+		typename CLockMap<K,T,P>::const_iterator pIter = pMap.begin();
+		for (; pIter!=pMap.end(); pIter++)
+		{
+			std::map<K, T, P>::insert(Pair(pIter->first, pIter->second));
+		}
+		return *this;
+	}
+	const CLockMap<K,T,P>& operator =(const CLockMap<K,T,P>* pMap)
+	{
+		if (pMap!=NULL)
+			return this->operator =(*pMap);
+		return *this;
+	}
 
 	bool insert(const K& k, const T& t,bool bInsertForce=true,T* pOutOld=NULL, bool is_lock = true)
 	{
+		std::pair< typename std::map<K,T,P>::iterator, bool> ret;
 		if (is_lock)
 		{
 			BoostWriteLock wtlock(m_mutex);
-			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::find(k);
-			if (iter != std::map<K, T, P>::end())
+			if (bInsertForce || pOutOld!=NULL)
 			{
-				if (pOutOld!=NULL)
-					*pOutOld = iter->second;
-				if (bInsertForce)
+				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::find(k);
+				if (iter != std::map<K, T, P>::end())
 				{
-					std::map<K, T, P>::erase(iter);
-				}else
-				{
-					return false;
+					if (pOutOld!=NULL)
+						*pOutOld = iter->second;
+					if (bInsertForce)
+					{
+						iter->second = t;
+						return true;
+						//std::map<K, T, P>::erase(iter);
+					}else
+					{
+						return false;
+					}
 				}
 			}
-			std::map<K, T, P>::insert(Pair(k, t));
+			ret = std::map<K, T, P>::insert(Pair(k, t));
 		}else
 		{
-			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::find(k);
-			if (iter != std::map<K, T, P>::end())
+			if (bInsertForce || pOutOld!=NULL)
 			{
-				if (pOutOld!=NULL)
-					*pOutOld = iter->second;
-				if (bInsertForce)
+				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::find(k);
+				if (iter != std::map<K, T, P>::end())
 				{
-					std::map<K, T, P>::erase(iter);
-				}else
-				{
-					return false;
+					if (pOutOld!=NULL)
+						*pOutOld = iter->second;
+					if (bInsertForce)
+					{
+						iter->second = t;
+						return true;
+						//std::map<K, T, P>::erase(iter);
+					}else
+					{
+						return false;
+					}
 				}
 			}
-			std::map<K, T, P>::insert(Pair(k, t));
+			ret = std::map<K, T, P>::insert(Pair(k, t));
 		}
-		return true;
+		return ret.second;
 	}
 	bool find(const K& k, T & out, bool erase)
 	{
@@ -105,6 +133,33 @@ public:
 		out = iter->second;
 		return true;
 	}
+	// pOutK, pOutT can = NULL
+	bool get_begin(K* pOutK, T* pOutT, bool erase)
+	{
+		if (erase)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			if (iter == std::map<K, T, P>::end())
+				return false;
+			if (pOutK!=NULL)
+				*pOutK = iter->first;
+			if (pOutT!=NULL)
+				*pOutT = iter->second;
+			std::map<K, T, P>::erase(iter);
+		}else
+		{
+			BoostReadLock rdlock(m_mutex);
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			if (iter == std::map<K, T, P>::end())
+				return false;
+			if (pOutK!=NULL)
+				*pOutK = iter->first;
+			if (pOutT!=NULL)
+				*pOutT = iter->second;
+		}
+		return true;
+	}
 	bool exist(const K& k, bool is_lock = true) const
 	{
 		if (is_lock)
@@ -116,6 +171,19 @@ public:
 		{
 			typename std::map<K, T, P>::const_iterator iter = std::map<K, T, P>::find(k);
 			return iter != std::map<K, T>::end();
+		}
+	}
+	bool exist(const K& k, const T& t, bool is_lock) const
+	{
+		if (is_lock)
+		{
+			BoostReadLock rdlock(const_cast<boost::shared_mutex&>(m_mutex));
+			typename std::map<K, T, P>::const_iterator iter = std::map<K, T, P>::find(k);
+			return iter != std::map<K, T>::end() && iter->second==t;
+		}else
+		{
+			typename std::map<K, T, P>::const_iterator iter = std::map<K, T, P>::find(k);
+			return iter != std::map<K, T>::end() && iter->second==t;
 		}
 	}
 
@@ -176,40 +244,135 @@ public:
 	size_t removet(const T& t, bool is_lock = true)
 	{
 		size_t result = 0;
-		bool bContinue = true;
 		if (is_lock)
 		{
 			BoostWriteLock wtlock(m_mutex);
-			while (bContinue)
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); )
 			{
-				bContinue = false;
-				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
-				for (; iter!=std::map<K, T, P>::end(); iter++)
+				if (iter->second==t)
 				{
-					if (iter->second==t)
-					{
-						result++;
-						bContinue = true;
-						std::map<K, T, P>::erase(iter);
-						break;
-					}
+					result++;
+					std::map<K, T, P>::erase(iter++);
+				}else
+				{
+					iter++;
 				}
 			}
 		}else
 		{
-			while (bContinue)
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); )
 			{
-				bContinue = false;
-				typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
-				for (; iter!=std::map<K, T, P>::end(); iter++)
+				if (iter->second==t)
 				{
-					if (iter->second==t)
-					{
-						result++;
-						bContinue = true;
-						std::map<K, T, P>::erase(iter);
-						break;
-					}
+					result++;
+					std::map<K, T, P>::erase(iter++);
+				}else
+				{
+					iter++;
+				}
+			}
+		}
+		return result;
+		//size_t result = 0;
+		//bool bContinue = true;
+		//if (is_lock)
+		//{
+		//	BoostWriteLock wtlock(m_mutex);
+		//	while (bContinue)
+		//	{
+		//		bContinue = false;
+		//		typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+		//		for (; iter!=std::map<K, T, P>::end(); iter++)
+		//		{
+		//			if (iter->second==t)
+		//			{
+		//				result++;
+		//				bContinue = true;
+		//				std::map<K, T, P>::erase(iter);
+		//				break;
+		//			}
+		//		}
+		//	}
+		//}else
+		//{
+		//	while (bContinue)
+		//	{
+		//		bContinue = false;
+		//		typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+		//		for (; iter!=std::map<K, T, P>::end(); iter++)
+		//		{
+		//			if (iter->second==t)
+		//			{
+		//				result++;
+		//				bContinue = true;
+		//				std::map<K, T, P>::erase(iter);
+		//				break;
+		//			}
+		//		}
+		//	}
+		//}
+		//return result;
+	}
+	size_t updatet(const T& ot, const T& nt, bool update_all = true, bool is_lock = true)
+	{
+		size_t result = 0;
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); iter++)
+			{
+				if (iter->second==ot)
+				{
+					result++;
+					iter->second = nt;
+					if (!update_all) break;
+				}
+			}
+		}else
+		{
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); iter++)
+			{
+				if (iter->second==ot)
+				{
+					result++;
+					iter->second = nt;
+					if (!update_all) break;
+				}
+			}
+		}
+		return result;
+	}
+	// *** 使用可以，KEY改变，要注意索引排序问题，一般用在小数据量，对排序无要求场景
+	size_t updatek(const K& ok, const K& nk, bool update_all = true, bool is_lock = true)
+	{
+		size_t result = 0;
+		if (is_lock)
+		{
+			BoostWriteLock wtlock(m_mutex);
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); iter++)
+			{
+				if (iter->first==ok)
+				{
+					result++;
+					const_cast<K&>(iter->first) = nk;
+					if (!update_all) break;
+				}
+			}
+		}else
+		{
+			typename std::map<K, T, P>::iterator iter = std::map<K, T, P>::begin();
+			for (; iter!=std::map<K, T, P>::end(); iter++)
+			{
+				if (iter->first==ok)
+				{
+					result++;
+					const_cast<K&>(iter->first) = nk;
+					if (!update_all) break;
 				}
 			}
 		}

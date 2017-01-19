@@ -46,6 +46,8 @@ protected:
 	CTraButton m_btnOpen4;
 	CTraButton m_btnOpen5;
 	CTraButton m_btnOpen6;
+	CTraButton m_btnOpen7;
+	CTraButton m_btnOpen8;
 
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnInitDialog();
@@ -59,4 +61,6 @@ protected:
 	afx_msg void OnBnClickedBtn4();
 	afx_msg void OnBnClickedBtn5();
 	afx_msg void OnBnClickedBtn6();
+	afx_msg void OnBnClickedBtn7();
+	afx_msg void OnBnClickedBtn8();
 };

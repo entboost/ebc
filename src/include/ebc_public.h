@@ -137,6 +137,7 @@ typedef enum EB_MR_CTRL_DATA_TYPE
 	, EB_MR_CTRL_DATA_TYPE_READ_FLAG
 	, EB_MR_CTRL_DATA_TYPE_DOWNLOAD_RESOURCE
 	, EB_MR_CTRL_DATA_TYPE_OPEN_SHARE
+	, EB_MR_CTRL_DATA_TYPE_USER_ECARD
 	//, EB_MR_CTRL_DATA_TYPE_DELETE_MSGID
 	//, EB_MR_CTRL_DATA_TYPE_SEND_MSGID
 };
@@ -184,6 +185,7 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_MY_SETTING
 	, EB_COMMAND_AUTO_LOGIN
 	, EB_COMMAND_MY_SHARE
+	, EB_COMMAND_MY_COLLECTION
 	, EB_COMMAND_SYS_SETTING
 	, EB_COMMAND_DELETE_ACCOUNT
 	, EB_COMMAND_OPEN_APP_URL
@@ -235,6 +237,7 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_EDIT_CONTACT
 	, EB_COMMAND_DELETE_CONTACT
 	, EB_COMMAND_CALL_USER
+	, EB_COMMAND_SEND_USER_ECARD
 
 	, EB_COMMAND_DELETE_SESSION
 	, EB_COMMAND_CLEAR_SESSION
@@ -435,6 +438,8 @@ namespace libEbc
 	int bmp_2_jpg(const WCHAR * sBmpFile, const WCHAR * sJpgFile, long quality = 100);
 	int bmp_2_png(const WCHAR * sBmpFile, const WCHAR * sJpgFile, long quality = 100);
 	BOOL ImageFromIDResource(UINT nID, LPCTSTR sTR, Image * & pImg);
+	BOOL ImageExFromIDResource(UINT nID, LPCTSTR sTR, CImageEx * & pImg);
+	BOOL BitmapFromIDResource(UINT nID, LPCTSTR sTR, Bitmap * & pImg);
 	Gdiplus::Image* LoadImageFromFile(const TCHAR* file_name);
 	Gdiplus::Bitmap* LoadBitmapFromFile(const TCHAR* file_name);
 	bool ChangeTime(const char* sTimeString, time_t& pOutTime, int* pOutMS = NULL);	// YYYY-mm-dd HH:MM:SS.XXXXX -> time_t

@@ -57,6 +57,7 @@ protected:
 	CTime m_tLastMsgDayTime;
 	bool m_bFindAllMsgId;
 	CLockMap<eb::bigint,int> m_pMsgIdOffsetList;
+	CLockMap<mycp::bigint,tstring> m_pCardInfoList;
 	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromname,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag);
 	void LoadMsgRecord(const CString& sSql);
 	void WriteFileHICON(const char* lpszFilePath,long nCtrlType=EB_MR_CTRL_TYPE_LCLICK_OPEN);
@@ -102,6 +103,7 @@ protected:
 	std::vector<eb::bigint> m_pDeletMsgId;
 	virtual void Fire_onContextMenuDelete(LONGLONG nMsgId,LONG nIndex);
 	virtual void Fire_onContextMenuSelect(ULONG nItemData, const CEBString& sSelectString,LONGLONG nSelectMsgId);
+	void ProcessUserECard(mycp::bigint nSelectMsgId, ULONG nParam, bool bShowNow);
 	virtual void Fire_onItemLBtnClick(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 	//virtual void Fire_onItemLBtnDblClick(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId);
 	virtual void Fire_onItemMoveEnter(LONG nLineId, LONG nItemId, ULONG nItemData, const CEBString& sParamString, LONGLONG nSelectMsgId, ULONG nParam);

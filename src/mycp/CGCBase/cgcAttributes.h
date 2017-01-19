@@ -90,12 +90,18 @@ public:
 	virtual void delProperty(bigint key) = 0;
 	virtual void delProperty(void* key) = 0;
 
+	virtual bool delProperty(const tstring& key, const cgcValueInfo::pointer& pValue) = 0;
+	virtual bool delProperty(int key, const cgcValueInfo::pointer& pValue) = 0;
+	virtual bool delProperty(bigint key, const cgcValueInfo::pointer& pValue) = 0;
+	virtual bool delProperty(void* key, const cgcValueInfo::pointer& pValue) = 0;
+
 	virtual void cleanSPropertys(void) = 0;
 	virtual void cleanIPropertys(void) = 0;
 	virtual void cleanBPropertys(void) = 0;
 	virtual void cleanPPropertys(void) = 0;
 	virtual void cleanAllPropertys(void) = 0;
 
+	// ** map
 	virtual StringObjectMapPointer	getStringAttributes(int attributeName = 1, bool newIfNotExist = true) = 0;
 	virtual LongObjectMapPointer	getLongAttributes(int attributeName = 1, bool newIfNotExist = true) = 0;
 	virtual BigIntObjectMapPointer	getBigIntAttributes(int attributeName = 1, bool newIfNotExist = true) = 0;
@@ -124,12 +130,19 @@ public:
 	virtual cgcObject::pointer getAttribute(const tstring & attributeName, void* key) const = 0;
 
 	virtual bool existAttribute(int attributeName, const tstring & key) const = 0;
+	virtual bool existAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(int attributeName, int key) const = 0;
+	virtual bool existAttribute(int attributeName, int key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(int attributeName, bigint key) const = 0;
+	virtual bool existAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(int attributeName, void* key) const = 0;
+	virtual bool existAttribute(int attributeName, void* key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(const tstring & attributeName, const tstring & key) const = 0;
+	virtual bool existAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(const tstring & attributeName, int key) const = 0;
+	virtual bool existAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject) const = 0;
 	virtual bool existAttribute(const tstring & attributeName, void* key) const = 0;
+	virtual bool existAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject) const = 0;
 
 	virtual cgcObject::pointer removeAttribute(int attributeName, const tstring & key, bool deleteIfEmpty = true) = 0;
 	virtual cgcObject::pointer removeAttribute(int attributeName, int key, bool deleteIfEmpty = true) = 0;
@@ -138,6 +151,14 @@ public:
 	virtual cgcObject::pointer removeAttribute(const tstring & attributeName, const tstring & key, bool deleteIfEmpty = true) = 0;
 	virtual cgcObject::pointer removeAttribute(const tstring & attributeName, int key, bool deleteIfEmpty = true) = 0;
 	virtual cgcObject::pointer removeAttribute(const tstring & attributeName, void* key, bool deleteIfEmpty = true) = 0;
+
+	virtual bool removeAttribute(int attributeName, const tstring & key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(int attributeName, int key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(int attributeName, bigint key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(int attributeName, void* key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(const tstring & attributeName, const tstring & key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(const tstring & attributeName, int key, const cgcObject::pointer& pObject) = 0;
+	virtual bool removeAttribute(const tstring & attributeName, void* key, const cgcObject::pointer& pObject) = 0;
 
 	virtual void clearStringAtrributes(int attributeName) = 0;
 	virtual void clearLongAtrributes(int attributeName) = 0;
@@ -150,7 +171,49 @@ public:
 	//virtual void clearAllStringAtrributes(void) = 0;
 	//virtual void clearAllULongAtrributes(void) = 0;
 
-	virtual void clearAllAtrributes(void) = 0;
+	// ** list
+	virtual ObjectListPointer	getListAttributes(int attributeName, bool newIfNotExist) = 0;
+	virtual ObjectListPointer	getListAttributes(bigint attributeName, bool newIfNotExist) = 0;
+	virtual ObjectListPointer	getListAttributes(const tstring & attributeName, bool newIfNotExist) = 0;
+	virtual ObjectListPointer	getListAttributes(void* attributeName, bool newIfNotExist) = 0;
+
+	virtual void addListAttribute(int attributeName, const cgcObject::pointer& pObject, bool is_lock = true) = 0;
+	virtual void addListAttribute(bigint attributeName, const cgcObject::pointer& pObject, bool is_lock = true) = 0;
+	virtual void addListAttribute(const tstring& attributeName, const cgcObject::pointer& pObject, bool is_lock = true) = 0;
+	virtual void addListAttribute(void* attributeName, const cgcObject::pointer& pObject, bool is_lock = true) = 0;
+
+	virtual cgcObject::pointer getBackAttribute(int attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getBackAttribute(bigint attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getBackAttribute(const tstring& attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getBackAttribute(void* attributeName, bool is_pop=true) = 0;
+
+	virtual void setFrontAttribute(int attributeName, const cgcObject::pointer& pObject) = 0;
+	virtual void setFrontAttribute(bigint attributeName, const cgcObject::pointer& pObject) = 0;
+	virtual void setFrontAttribute(const tstring& attributeName, const cgcObject::pointer& pObject) = 0;
+	virtual void setFrontAttribute(void* attributeName, const cgcObject::pointer& pObject) = 0;
+
+	virtual cgcObject::pointer getFrontListAttribute(int attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getFrontListAttribute(bigint attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getFrontListAttribute(const tstring& attributeName, bool is_pop=true) = 0;
+	virtual cgcObject::pointer getFrontListAttribute(void* attributeName, bool is_pop=true) = 0;
+
+	virtual bool isListAttributeEmtpy(int attributeName) const = 0;
+	virtual bool isListAttributeEmtpy(bigint attributeName) const = 0;
+	virtual bool isListAttributeEmtpy(const tstring& attributeName) const = 0;
+	virtual bool isListAttributeEmtpy(void* attributeName) const = 0;
+
+	virtual size_t getListAttributeSize(int attributeName) const = 0;
+	virtual size_t getListAttributeSize(bigint attributeName) const = 0;
+	virtual size_t getListAttributeSize(const tstring& attributeName) const = 0;
+	virtual size_t getListAttributeSize(void* attributeName) const = 0;
+
+	virtual void clearListAttribute(int attributeName, bool is_lock = true) = 0;
+	virtual void clearListAttribute(bigint attributeName, bool is_lock = true) = 0;
+	virtual void clearListAttribute(const tstring& attributeName, bool is_lock = true) = 0;
+	virtual void clearListAttribute(void* attributeName, bool is_lock = true) = 0;
+
+	// nClearType: 0x1=clear map only; 0x2= clear list only; 0x3=clear map & list
+	virtual void clearAllAtrributes(int nClearType=0x3) = 0;
 
 };
 

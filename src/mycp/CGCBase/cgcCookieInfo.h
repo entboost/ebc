@@ -53,6 +53,12 @@ public:
 		, m_tExpiresTime(0)
 	{
 	}
+
+	virtual cgcObject::pointer copyNew(void) const
+	{
+		return cgcCookieInfo::create(m_sCookieName,m_sCookieValue,m_sCookiePath,m_tExpiresTime);
+	}
+
 };
 
 } // namespace mycp

@@ -51,6 +51,14 @@ public:
 	{
 		return cgcAttachment::pointer(new cgcAttachment());
 	}
+	static cgcAttachment::pointer create(const cgcAttachment* p)
+	{
+		return cgcAttachment::pointer(new cgcAttachment(p));
+	}
+	static cgcAttachment::pointer create(const cgcAttachment::pointer& p)
+	{
+		return cgcAttachment::pointer(new cgcAttachment(p.get()));
+	}
 
 	cgcAttachment(void)
 		: m_name(_T(""))
@@ -60,11 +68,40 @@ public:
 		, m_data(0), m_bufferSize(0)
 	{
 	}
+	cgcAttachment(const cgcAttachment* p)
+		: m_name(_T(""))
+		, m_total(0)
+		, m_index(0)
+		, m_len(0)
+		, m_data(0), m_bufferSize(0)
+	{
+		this->operator = (p);
+	}
 	virtual ~cgcAttachment(void)
 	{
 		clear(true);
 	}
-
+	const cgcAttachment& operator = (const cgcAttachment& p) {return this->operator = (&p);}
+	const cgcAttachment& operator = (const cgcAttachment::pointer& p) {return this->operator = (p.get());}
+	const cgcAttachment& operator = (const cgcAttachment* p)
+	{
+		if (p!=NULL)
+		{
+			m_name = p->m_name;
+			m_total = p->m_total;
+			m_index = p->m_index;
+			setAttach(p->m_data,p->m_len);
+			//m_len = p->m_len;
+			//// m_data
+			//m_bufferSize = p->m_bufferSize;
+			//if (m_bufferSize>0 && p->m_data!=NULL)
+			//{
+			//	m_data = new unsigned char[m_bufferSize];
+			//}
+		}
+		return *this;
+	}
+	cgcAttachment::pointer copyNew(void) const {return cgcAttachment::create(this);}
 public:
 	bool isHasAttach(void) const {return m_data != 0 && m_len > 0;}
 

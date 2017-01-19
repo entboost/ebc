@@ -19,6 +19,7 @@ public:
 	virtual ~CPanelFiles();
 
 	//EB_CallInfo m_pCallInfo;
+	void SetCtrlColor(void);
 	void ExitChat(bool bHangup);
 
 #ifdef USES_EBCOM_TEST

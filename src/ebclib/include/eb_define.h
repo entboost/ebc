@@ -71,6 +71,7 @@ typedef enum EB_SYSTEM_PARAMETER
 	, EB_SYSTEM_PARAMETER_DISABLE_MSG_RECEIPT			// int 0/1
 	, EB_SYSTEM_PARAMETER_LICENSE_TYPE						// int 许可类型；0=未授权；1=终身授权；2=时间授权
 	, EB_SYSTEM_PARAMETER_STAT_SUB_GROUP_MEMBER		// int 是否统计子部门人数 0/1
+	, EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID			// char*
 };
 
 /*==========================================================
@@ -88,9 +89,10 @@ RICH SUB TYPE
 ===========================================================*/
 typedef enum EB_RICH_SUB_TYPE
 {
-	EB_RICH_SUB_TYPE_JPG
-	, EB_RICH_SUB_TYPE_AUDIO			= 11
+	EB_RICH_SUB_TYPE_JPG								// 默认内容（或JPG截图）
+	, EB_RICH_SUB_TYPE_AUDIO			= 11	// 语音消息
 	, EB_RICH_SUB_TYPE_MAP_POS		= 21	// 地图位置
+	, EB_RICH_SUB_TYPE_CARD_INFO				// 名片信息，如用户名片
 	, EB_RICH_SUB_TYPE_USER_DATA	= 200	// 用户自定义数据
 };
 

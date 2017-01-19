@@ -18,6 +18,7 @@ public:
 	virtual ~CDlgContactInfo();
 
 	//eb::bigint m_nContactId;
+	int m_nContactType;
 	eb::bigint m_nContactUserId;
 	CString m_sContact;
 	eb::bigint m_nUGId;
@@ -56,6 +57,7 @@ protected:
 	CTraButton m_btnClose;
 	CTraButton m_btnOk;
 	CTraButton m_btnCancel;
+	CTraButton m_btnRequestAddContact;
 
 //#ifdef USES_EBCOM_TEST
 //	void Data2Ctrl(IEB_ContactInfo* pPopContactInfo);
@@ -72,4 +74,6 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnBnClickedButtonClose();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+public:
+	afx_msg void OnBnClickedButtonRequestAddContact();
 };

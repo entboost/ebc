@@ -50,8 +50,9 @@ typedef enum MSG_RECORD_TYPE
 	, MRT_FILE
 	, MRT_WAV
 	, MRT_RESOURCE
-	, MRT_MAP_POS	= 10
-	, MRT_USER_DATA
+	, MRT_MAP_POS		= 10	// 地图位置
+	, MRT_CARD_INFO				// 名片信息，如用户名片等
+	, MRT_USER_DATA	= 200
 };
 const CEBString const_default_group_name = "默认分组";
 const eb::bigint const_default_group_ugid = 0;
@@ -90,6 +91,7 @@ public:
 	CLockMap<eb::bigint,bool> m_pCancelFileList;
 	CImageList m_pMenuImageList;
 
+	CImageEx * m_imageExBtnSendECard;
 	Gdiplus::Image * m_imageWorkFrame;
 	Gdiplus::Image * m_imageMainFrame;
 	//Gdiplus::Image * m_imageEbIcon;
@@ -110,6 +112,8 @@ public:
 	Gdiplus::Image * m_imageStateBusy;
 	tstring m_sDefaultAppImage;
 
+	Image * GetUserHeadImage(mycp::bigint nUserId,const tstring& sAccount) const;
+	tstring GetUserHeadFilePath(mycp::bigint nUserId,const tstring& sAccount) const;
 	bool GetMainFrameShowed(void) const;
 	bool GetWorkFrameShowed(void) const;
 
@@ -238,6 +242,7 @@ public:
 	bool IsLicenseType(void) const {return (m_nLicenstType==1||m_nLicenstType==2)?true:false;}
 	eb::bigint GetGroupMsgSugId(void);
 	eb::bigint GetFindAppSugId(void);
+	eb::bigint GetMyCollectionSugId(void);
 	eb::bigint GetAutoOpenSubId(void) const {return m_nAutoOpenSubId;}
 	bool GetAutoHideMainFrame(void) const {return m_bAutoHideMainFrame;}
 	bool GetHideMainFrame(void) const {return m_bHideMainFrame;}
@@ -319,6 +324,7 @@ private:
 	int m_nLicenstType;	// 许可类型；0=未授权；1=终身授权；2=时间授权
 	eb::bigint m_nGroupMsgSubId;
 	eb::bigint m_nFindAppSubId;
+	eb::bigint m_nMyCollectionSubId;
 	eb::bigint m_nAutoOpenSubId;
 	CDlgFuncWindow::pointer m_pAutoOpenFuncWindow;
 	bool m_bAutoHideMainFrame;

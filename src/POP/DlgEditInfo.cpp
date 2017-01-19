@@ -73,6 +73,7 @@ void CDlgEditInfo::CheckData(void)
 void CDlgEditInfo::SetCtrlColor(void)
 {
 	m_btnClose.SetDrawPanel(true,theApp.GetMainColor(),theDefaultBtnCloseColor,theDefaultBtnCloseColor);
+	m_btnDefaultEmp.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
 
 	m_btnOk.SetDrawPanel(true,theApp.GetNormalColor(),theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnCancel.SetDrawLine(5,1,0,theDefaultFlatLineColor,theApp.GetNormalColor());
@@ -116,10 +117,11 @@ BOOL CDlgEditInfo::OnInitDialog()
 	m_btnVideo.Load(IDB_PNG_TAB_SETVIDEO);
 	m_btnVideo.SetTextTop(35);
 
+	m_btnDefaultEmp.SetTextHotMove(false);
 	m_btnDefaultEmp.SetToolTipText(_T("显示默认名片信息"));
 	m_btnDefaultEmp.SetNorTextColor(RGB(0,128,255));
-	m_btnDefaultEmp.SetHotTextColor(RGB(0,128,255));
-	m_btnDefaultEmp.SetPreTextColor(RGB(0,128,255));
+	m_btnDefaultEmp.SetHotTextColor(RGB(255,255,255));
+	m_btnDefaultEmp.SetPreTextColor(RGB(255,255,255));
 	m_btnDefaultEmp.SetWindowText(_T("默认名片"));
 	eb::bigint nMyDefaultmemberCode = 0;
 	if (!theEBAppClient.EB_GetMyDefaultMemberCode(nMyDefaultmemberCode) || nMyDefaultmemberCode==0)
@@ -256,7 +258,7 @@ void CDlgEditInfo::OnSize(UINT nType, int cx, int cy)
 	//x -= (const_btn_width+6);						// 按钮间隔
 	//m_btnOk.MovePoint(x, const_btn_y,const_btn_width,const_btn_height);
 	x = 20;
-	m_btnDefaultEmp.MovePoint(x,const_btn_y,60,theDefaultBtnHeight);
+	m_btnDefaultEmp.MovePoint(x,const_btn_y,60,22);
 }
 
 void CDlgEditInfo::OnDestroy()

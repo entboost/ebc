@@ -17,6 +17,7 @@ public:
 	CDlgUserInfo(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDlgUserInfo();
 
+	void SetCtrlColor(void);
 	EB_CallInfo m_pCallInfo;
 	EB_AccountInfo m_pFromAccountInfo;
 
@@ -35,11 +36,12 @@ protected:
 	CEbTranEdit m_editGroup;
 	CEbTranEdit m_editEnterprise;
 	CEbTranEdit m_editAddress;
-	//void DrawInfo(void);
+	CTraButton m_btnRequestAddContact;
+	void DrawInfo(void);
 
 	//void InvalidateParentRect(UINT nID);
 	DECLARE_MESSAGE_MAP()
-	//afx_msg void OnPaint();
+	afx_msg void OnPaint();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
@@ -49,4 +51,5 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnBnClickedButtonRequestAddContact();
 };

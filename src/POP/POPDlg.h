@@ -221,6 +221,7 @@ protected:
 	CNewMenu m_menuState;
 	bool m_bRemoveAppFuncIndex1;	// 主界面
 	bool m_bRemoveAppFuncIndex2;	// 程序图标
+	int m_nMainFrameMyCollectionMenuIndex;
 	int m_nMenuOpenWorkFrameIndex;	// for 经典聊天风格
 	int m_nMenuShowHeadOnlyIndex;		// for 专业办公风格
 	int m_nMenuIconOpenWorkFrameIndex;
@@ -473,6 +474,7 @@ protected:
 	afx_msg void OnMySetting();
 	afx_msg void OnFileManager();
 	afx_msg void OnMyShare();
+	afx_msg void OnMyCollection();
 	void CreateUIStyleMenu(void);
 	afx_msg void OnBnClickedButtonSkin2();
 	afx_msg void OnSkinSelect(UINT nID);
@@ -489,6 +491,7 @@ protected:
 	afx_msg void OnWorkFrame();
 	LRESULT OnMsgWorkFrame(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMyEmployeeInfo(UINT nID);
+	void ClearUnreadMsgBySubId(mycp::bigint nSubscribeId);
 	afx_msg void OnSubscribeFunc(UINT nID);
 	afx_msg void OnMainFrameFunc(UINT nID);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);

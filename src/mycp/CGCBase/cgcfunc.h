@@ -33,6 +33,12 @@ typedef bool (FAR *FPCGC_Module_Init2)(MODULE_INIT_TYPE nInitType);
 typedef void (FAR *FPCGC_Module_Free)(void);
 typedef void (FAR *FPCGC_Module_Free2)(MODULE_FREE_TYPE nFreeType);
 
+// extern "C" void CGC_API CGC_Module_AutoUpdateData(const cgcAttributes::pointer& pOldAttributes) {}
+typedef void (FAR *FPCGC_Module_AutoUpdateData)(const cgcAttributes::pointer& pOldAttributes);
+
+// extern "C" void CGC_API CGC_Module_ResetService(const tstring& sServiceName) {}
+typedef void (FAR *FPCGC_Module_ResetService)(const tstring& sServiceName);
+
 // CGC_Session_Open
 // extern "C" bool CGC_API CGC_Session_Open(const cgcSession::pointer& pHandler) {}
 typedef bool (FAR *FPCGC_Session_Open)(const cgcSession::pointer& pHandler);

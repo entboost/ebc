@@ -195,6 +195,7 @@ CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 	m_pDlgFileManager = NULL;
 	m_bRemoveAppFuncIndex1 = false;
 	m_bRemoveAppFuncIndex2 = false;
+	m_nMainFrameMyCollectionMenuIndex = -1;
 	m_nMenuOpenWorkFrameIndex = -1;
 	m_nMenuShowHeadOnlyIndex = -1;
 	m_nMenuIconOpenWorkFrameIndex = -1;
@@ -387,6 +388,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	//ON_COMMAND(EB_COMMAND_MY_SETTING, &CPOPDlg::OnMySetting)
 	//ON_COMMAND(EB_COMMAND_FILE_MANAGER, &CPOPDlg::OnFileManager)
 	ON_COMMAND(EB_COMMAND_MY_SHARE, &CPOPDlg::OnMyShare)
+	ON_COMMAND(EB_COMMAND_MY_COLLECTION, &CPOPDlg::OnMyCollection)
 	ON_BN_CLICKED(IDC_BUTTON_SKIN2, &CPOPDlg::OnBnClickedButtonSkin2)
 	ON_COMMAND_RANGE(EB_COMMAND_SKIN_SETTING,EB_COMMAND_SKIN_2,&OnSkinSelect)
 	ON_COMMAND(EB_COMMAND_SKIN_FLAT, &OnSkinFlat)
@@ -445,6 +447,9 @@ BOOL CALLBACK MyEnumFonts(CONST LOGFONTW* lplf, CONST TEXTMETRICW *lptm,DWORD dw
 
 void CPOPDlg::SetCtrlColor(void)
 {
+	if (m_pViewContactInfo!=NULL && m_pViewContactInfo->GetSafeHwnd()!=NULL)
+		m_pViewContactInfo->SetCtrlColor();
+
 	m_btnSkin.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnMin.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetPreColor());
 	m_btnMax.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetPreColor());
@@ -1556,6 +1561,9 @@ LRESULT CPOPDlg::OnMessageStateCode(WPARAM wParam, LPARAM lParam)
 	case EB_STATE_OAUTH_FORWARD:
 		CDlgMessageBox::EbMessageBox(this,"",_T("操作成功：\r\n等待对方验证！"),CDlgMessageBox::IMAGE_WARNING,5);
 		break;
+	case EB_STATE_UNAUTH_ERROR:
+		CDlgMessageBox::EbMessageBox(this,"","帐号未通过验证：\r\n请联系公司客服！",CDlgMessageBox::IMAGE_WARNING,5);
+		break;
 	case EB_STATE_ACCOUNT_FREEZE:
 		CDlgMessageBox::EbMessageBox(this,"","帐号已被临时冻结：\r\n请联系公司客服！",CDlgMessageBox::IMAGE_WARNING,5);
 		break;
@@ -1564,6 +1572,9 @@ LRESULT CPOPDlg::OnMessageStateCode(WPARAM wParam, LPARAM lParam)
 		break;
 	case EB_STATE_CONTENT_BIG_LENGTH:
 		CDlgMessageBox::EbMessageBox(this,"","字段内容超过最大长度：\r\n请重新输入！",CDlgMessageBox::IMAGE_WARNING,5);
+		break;
+	case EB_STATE_PARAMETER_ERROR:
+		CDlgMessageBox::EbMessageBox(this,"","参数错误：\r\n请重试或联系公司客服！",CDlgMessageBox::IMAGE_WARNING,5);
 		break;
 	default:
 		{
@@ -2134,7 +2145,7 @@ LRESULT CPOPDlg::OnMessageMsgReceipt(WPARAM wParam, LPARAM lParam)
 	if (pCrMsgInfo==NULL) return 1;
 	//const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
 	const eb::bigint sCallId = pCrMsgInfo->GetCallId();
-	const int nAckType = (int)lParam;	// 0:成功 4:撤回消息
+	const int nAckType = (int)lParam;	// 0:成功 4:撤回消息，6:个人收藏，7:群收藏
 
 	//const eb::bigint nFromUserId = pCrMsgInfo->m_sSendFrom;
 	//const eb::bigint nMsgId = pCrMsgInfo->m_pRichMsg->GetMsgId();
@@ -8310,7 +8321,7 @@ LRESULT CPOPDlg::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 				GetCursorPos(&pos);
 
 				const int const_dlg_width = 380;
-				const int const_dlg_height = 188;
+				const int const_dlg_height = 220;
 				CRect rect;
 				this->GetWindowRect(&rect);
 				CRect rectViewContactInfo;
@@ -8528,9 +8539,12 @@ BOOL CPOPDlg::PreTranslateMessage(MSG* pMsg)
 			if (m_treeSearch.IsWindowVisible() && m_treeSearch.GetCount()>0)
 			{
 				m_treeSearch.SetFocus();
-				if (m_treeSearch.GetSelectedItem()!=0 && m_treeSearch.GetParentItem(m_treeSearch.GetSelectedItem())==0)
+				if (m_treeSearch.GetSelectedItem()!=0)
 				{
-					m_treeSearch.Expand(m_treeSearch.GetSelectedItem(),TVE_EXPAND);
+					if (m_treeSearch.GetParentItem(m_treeSearch.GetSelectedItem())==0)
+						m_treeSearch.Expand(m_treeSearch.GetSelectedItem(),TVE_EXPAND);
+					else
+						m_treeSearch.SelectItem(m_treeSearch.GetNextItem(m_treeSearch.GetSelectedItem(),TVGN_NEXT));
 				}
 			}
 		}else if (pMsg->wParam == VK_RETURN)
@@ -8651,7 +8665,9 @@ LRESULT CPOPDlg::OnIconNotification(WPARAM wParam, LPARAM lParam)
 		}break;
 	case WM_RBUTTONDOWN:
 		{
-			const int const_app_func_index = 5;	// ***修改菜单项，需要修改这个地方
+			int const_app_func_index = 4;	// ***修改菜单项，需要修改这个地方
+			if (!theApp.GetDisableUserCloudDrive())
+				const_app_func_index += 1;
 			if (m_menuTray.GetSafeHmenu()==NULL)
 			{
 				m_menuTray.CreatePopupMenu();
@@ -9616,8 +9632,9 @@ void CPOPDlg::OnLogout()
 void CPOPDlg::OnBnClickedButtonLinestate()
 {
 	const CString sAutoRunAccount = theApp.EBC_GetProfileString(_T("system"),_T("auto-run-account"));
-	const int const_my_ecards_index = 4;						// ***修改菜单项，需要修改这个地方
-	const int const_app_func_index = const_my_ecards_index+1;	// ***修改菜单项，需要修改这个地方
+	const mycp::bigint nMyCollectionSubId = theApp.GetMyCollectionSugId();
+	 int const_my_ecards_index = nMyCollectionSubId==0?4:5;					// ***修改菜单项，需要修改这个地方
+	 int const_app_func_index = const_my_ecards_index+1;						// ***修改菜单项，需要修改这个地方
 	if (m_menuState.GetSafeHmenu()==NULL)
 	{
 		m_menuState.CreatePopupMenu();
@@ -9628,6 +9645,11 @@ void CPOPDlg::OnBnClickedButtonLinestate()
 			m_menuState.InsertODMenu(1,_T("离开"),MF_BYPOSITION,EB_COMMAND_STATE_AWAY,IDB_BITMAP_MENU_AWAY);
 			m_menuState.InsertODMenu(2,_T("忙碌"),MF_BYPOSITION,EB_COMMAND_STATE_BUSY,IDB_BITMAP_MENU_BUSY);
 			m_menuState.AppendMenu(MF_SEPARATOR);
+			if (nMyCollectionSubId>0)
+			{
+				m_menuState.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MY_COLLECTION,_T("个人收藏"));
+				m_nMainFrameMyCollectionMenuIndex = (int)m_menuState.GetMenuItemCount();
+			}
 			if (!sAutoRunAccount.IsEmpty())
 				m_menuState.AppendMenu(MF_BYCOMMAND,EB_COMMAND_AUTO_LOGIN,_T("自动登录"));
 			m_menuState.AppendMenu(MF_SEPARATOR);
@@ -9653,6 +9675,12 @@ void CPOPDlg::OnBnClickedButtonLinestate()
 		m_menuState.AppendMenu(MF_BYCOMMAND,EB_COMMAND_EXIT_APP,_T("退出"));
 	}else
 	{
+		if (m_nMainFrameMyCollectionMenuIndex==-1 && nMyCollectionSubId>0)
+		{
+			m_nMainFrameMyCollectionMenuIndex = const_my_ecards_index-1;
+			m_menuState.InsertMenu(m_nMainFrameMyCollectionMenuIndex,MF_BYPOSITION,EB_COMMAND_MY_COLLECTION,_T("个人收藏"));
+		}
+
 #ifdef USES_SUPPORT_UI_STYLE
 		if (theApp.GetDefaultUIStyleType()==EB_UI_STYLE_TYPE_CHAT)
 		{
@@ -9698,7 +9726,6 @@ void CPOPDlg::OnBnClickedButtonLinestate()
 		m_bRemoveAppFuncIndex1 = false;
 		if (!theApp.IsLogonVisitor())
 			m_menuState.RemoveMenu(const_my_ecards_index,MF_BYPOSITION);
-
 	}
 
 #ifdef USES_SUPPORT_UI_STYLE
@@ -9900,6 +9927,31 @@ void CPOPDlg::OnMyEmployeeInfo(UINT nID)
 #endif
 	}
 }
+void CPOPDlg::ClearUnreadMsgBySubId(mycp::bigint nSubscribeId)
+{
+	if (nSubscribeId==0) return;
+	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
+	{
+		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
+		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubscribeId)
+		{
+			if (pFuncButtonInfo->ClearUnreadMsg()>0)
+			{
+#ifdef USES_FRAMELIST_APPFRAME
+				CDlgAppFrame * pDlgAppFrame = NewAppFrame(false);
+#else
+				//NewAppFrame();
+				CDlgAppFrame * pDlgAppFrame = m_pDlgAppFrame;
+#endif
+				if (pDlgAppFrame!=NULL)
+				{
+					pDlgAppFrame->ClearUnreadMsg(nSubscribeId);
+				}
+			}
+			break;
+		}
+	}
+}
 void CPOPDlg::OnSubscribeFunc(UINT nID)
 {
 	const size_t nIndex = nID-EB_COMMAND_SUBSCRIBE_FUNC;
@@ -9907,6 +9959,7 @@ void CPOPDlg::OnSubscribeFunc(UINT nID)
 	{
 		const EB_SubscribeFuncInfo& pSubscribeFuncInfo = m_pSubscribeFuncList[nIndex];
 		theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"","",NULL);
+		ClearUnreadMsgBySubId(pSubscribeFuncInfo.m_nSubscribeId);
 	}
 }
 void CPOPDlg::OnMainFrameFunc(UINT nID)
@@ -10353,6 +10406,16 @@ void CPOPDlg::OnMyShare()
 	if (!theApp.GetDisableUserCloudDrive() && !theApp.IsLogonVisitor())
 	{
 		theApp.OpenMyShareWindow(this);
+	}
+}
+void CPOPDlg::OnMyCollection()
+{
+	if (!theApp.IsLogonVisitor())
+	{
+		const mycp::bigint nMyCollectionSubId = theApp.GetMyCollectionSugId();
+		EB_SubscribeFuncInfo pSubscribeFuncInfo;
+		if (theEBAppClient.EB_GetSubscribeFuncInfo(nMyCollectionSubId,&pSubscribeFuncInfo))
+			theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"","",NULL);
 	}
 }
 

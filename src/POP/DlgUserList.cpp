@@ -298,6 +298,9 @@ void CDlgUserList::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CDlgUserList::SetCtrlColor(bool bInvalidate)
 {
+	if (m_pViewContactInfo!=NULL && m_pViewContactInfo->GetSafeHwnd()!=NULL)
+		m_pViewContactInfo->SetCtrlColor();
+
 	//m_treeUsers.SetBkGradients(theApp.GetBgColor1(),theApp.GetBgColor1());
 	//if (bInvalidate)
 	//	this->Invalidate();
@@ -697,7 +700,7 @@ LRESULT CDlgUserList::OnTreeItemTrackHot(WPARAM wp, LPARAM lp)
 		if (rectHead.PtInRect(pos))
 		{
 			const int const_dlg_width = 380;
-			const int const_dlg_height = 188;
+			const int const_dlg_height = 220;
 			CRect rect;
 			this->GetWindowRect(&rect);
 			CRect rectViewContactInfo;

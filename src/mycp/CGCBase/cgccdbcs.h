@@ -64,6 +64,19 @@ public:
 		, m_connection(""), m_charset("")
 		, m_nMinSize(3),m_nMaxSize(10)
 	{}
+	virtual cgcObject::pointer copyNew(void) const
+	{
+		cgcCDBCInfo::pointer result = cgcCDBCInfo::pointer(new cgcCDBCInfo(m_name,m_database));
+		result->setHost(this->m_host);
+		result->setAccount(this->m_account);
+		result->setSecure(this->m_secure);
+		result->setConnection(this->m_connection);
+		result->setCharset(this->m_charset);
+		result->setMinSize(this->m_nMinSize);
+		result->setMaxSize(this->m_nMaxSize);
+		return result;		
+	}
+
 protected:
 	tstring m_name;
 	tstring m_database;
@@ -94,6 +107,12 @@ public:
 		: m_name(name), m_cdbcService(cdbcService), m_cdbcInfo(cdbcInfo)
 	{
 		assert (m_cdbcInfo.get() != NULL);
+	}
+	virtual cgcObject::pointer copyNew(void) const
+	{
+		cgcCDBCInfo::pointer pNewCDBCInfo = CGC_OBJECT_CAST<cgcCDBCInfo>(m_cdbcInfo->copyNew());
+		cgcDataSourceInfo::pointer result = cgcDataSourceInfo::pointer(new cgcDataSourceInfo(m_name,m_cdbcService,pNewCDBCInfo));
+		return result;
 	}
 private:
 	tstring m_name;

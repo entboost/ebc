@@ -22,7 +22,7 @@ CDlgGroupInfo::CDlgGroupInfo(CWnd* pParent /*=NULL*/)
 	, m_nDisplayIndex(0)
 	, m_sDescription(_T(""))
 {
-	m_nManagerEmpId = 0;
+	//m_nManagerEmpId = 0;
 }
 
 CDlgGroupInfo::~CDlgGroupInfo()
@@ -76,9 +76,11 @@ BOOL CDlgGroupInfo::OnInitDialog()
 
 	m_staManagerName.SetTextColor(theDefaultButtonColor,theApp.GetMainColor());
 	m_staManagerName.SetAlignText(CLabelEx::Align_Left);
+	m_btnManager.SetTextHotMove(false);
 	m_btnManager.SetNorTextColor(RGB(0,128,255));
-	m_btnManager.SetHotTextColor(RGB(0,128,255));
-	m_btnManager.SetPreTextColor(RGB(0,128,255));
+	m_btnManager.SetHotTextColor(RGB(255,255,255));
+	m_btnManager.SetPreTextColor(RGB(255,255,255));
+	m_btnManager.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
 
 	//m_btnManager.SetTextHotMove(false);
 	//m_btnManager.SetDrawPanel(true,theDefaultFlatBgColor);
@@ -207,12 +209,12 @@ BOOL CDlgGroupInfo::OnInitDialog()
 		if (theEBAppClient.EB_GetMemberInfoByUserId(&pMemberInfo,m_nGroupId,m_nManagerUserId))
 		{
 			m_sManagerAccount = pMemberInfo.m_sMemberAccount;
-			m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+			//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 			m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
 		}else if (theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,m_nManagerUserId))
 		{
 			m_sManagerAccount = pMemberInfo.m_sMemberAccount;
-			m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+			//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 			m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
 		}
 	}else
@@ -221,7 +223,7 @@ BOOL CDlgGroupInfo::OnInitDialog()
 		if (theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,m_nManagerUserId))
 		{
 			m_sManagerAccount = pMemberInfo.m_sMemberAccount;
-			m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+			//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 			m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
 		}
 	}
@@ -412,7 +414,12 @@ void CDlgGroupInfo::OnBnClickedButtonManagerName()
 		return;
 	}
 	m_pDlgSelectUser.SetSeledtedGroupId(m_nGroupId);
+#ifdef USES_SELECTED_ITEM_UID
+	m_pDlgSelectUser.m_pSelectedUserTreeItem.insert(m_sManagerAccount,m_nManagerUserId);
+#else
+	int m_nManagerEmpId = 0;
 	m_pDlgSelectUser.m_pSelectedTreeItem.insert(m_sManagerAccount,m_nManagerEmpId);
+#endif
 	m_pDlgSelectUser.ShowWindow(SW_SHOW);
 
 	const INT_PTR nResponse = m_pDlgSelectUser.RunModalLoop();
@@ -420,13 +427,19 @@ void CDlgGroupInfo::OnBnClickedButtonManagerName()
 	if (nResponse == IDOK)
 	{
 		m_nManagerUserId = 0;
-		m_nManagerEmpId = 0;
+		//m_nManagerEmpId = 0;
+#ifdef USES_SELECTED_ITEM_UID
+		BoostReadLock rdlock(m_pDlgSelectUser.m_pSelectedUserTreeItem.mutex());
+		CLockMap<tstring,eb::bigint>::const_iterator pIter = m_pDlgSelectUser.m_pSelectedUserTreeItem.begin();
+		for (; pIter!=m_pDlgSelectUser.m_pSelectedUserTreeItem.end(); pIter++)
+#else
 		BoostReadLock rdlock(m_pDlgSelectUser.m_pSelectedTreeItem.mutex());
 		CLockMap<tstring,eb::bigint>::const_iterator pIter = m_pDlgSelectUser.m_pSelectedTreeItem.begin();
 		for (; pIter!=m_pDlgSelectUser.m_pSelectedTreeItem.end(); pIter++)
+#endif
 		{
 			m_sManagerAccount = pIter->first;
-			m_nManagerEmpId = pIter->second;
+			//m_nManagerEmpId = pIter->second;
 
 			if (m_nGroupId>0)
 			{
@@ -435,12 +448,12 @@ void CDlgGroupInfo::OnBnClickedButtonManagerName()
 				{
 					m_nManagerUserId = pMemberInfo.m_nMemberUserId;
 					m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
-					m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+					//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 				}else if (theEBAppClient.EB_GetMemberInfoByAccount2(&pMemberInfo,m_sManagerAccount.c_str()))
 				{
 					m_nManagerUserId = pMemberInfo.m_nMemberUserId;
 					m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
-					m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+					//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 				}
 			}else
 			{
@@ -449,7 +462,7 @@ void CDlgGroupInfo::OnBnClickedButtonManagerName()
 				{
 					m_nManagerUserId = pMemberInfo.m_nMemberUserId;
 					m_staManagerName.SetWindowText(pMemberInfo.m_sUserName.c_str());
-					m_nManagerEmpId = pMemberInfo.m_sMemberCode;
+					//m_nManagerEmpId = pMemberInfo.m_sMemberCode;
 				}
 			}
 			break;
