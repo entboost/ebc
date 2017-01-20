@@ -7,7 +7,7 @@
 + Windows：支持XP以上所有版本，支持32位，64位环境； 
 + [恩布网站](http://www.entboost.com)
 
-## entboost, 1.24.1.525 --2017-01-20 [百度云盘下载](http://pan.baidu.com/s/1qXBXUZa)
+## entboost, 1.24.1.525 --2017-01-20 [百度云盘下载](http://pan.baidu.com/s/1mimDQWg)
 + PC端增加收藏消息，发送名片新功能；
 + PC端完善添加好友功能及操作体验；
 + PC端屏幕截图工具，增加支持画实心圆，和实心矩形功能
