@@ -1019,8 +1019,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,24,1,526
- PRODUCTVERSION 1,24,1,526
+ FILEVERSION 1,24,2,529
+ PRODUCTVERSION 1,24,2,529
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1037,12 +1037,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
             VALUE "FileDescription", "恩布互联客户端"
-            VALUE "FileVersion", "1, 24, 1, 526"
+            VALUE "FileVersion", "1, 24, 2, 529"
             VALUE "InternalName", "ebc.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "ebc.exe"
             VALUE "ProductName", "恩布互联客户端"
-            VALUE "ProductVersion", "1, 24, 1, 526"
+            VALUE "ProductVersion", "1, 24, 2, 529"
         END
     END
     BLOCK "VarFileInfo"

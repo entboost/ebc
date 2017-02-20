@@ -255,7 +255,7 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 		{
 			m_btnOpen6.ShowWindow(SW_HIDE);
 		}
-		if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+		if (m_pCallInfo.GetCallId()>0 && IsCanCollectRecordType((MSG_RECORD_TYPE)m_nMsgType) && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
 		{
 			m_nButtonCount += 1;
 			m_btnOpen7.SetWindowText(_T("收藏"));
@@ -519,7 +519,7 @@ void CDlgToolbar::OnSize(UINT nType, int cx, int cy)
 			x += (const_btn_width1+const_btn_interval);
 			m_btnOpen6.MovePoint(x,y,const_btn_width2,const_btn_height);
 		}
-		if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+		if (m_pCallInfo.GetCallId()>0 && IsCanCollectRecordType((MSG_RECORD_TYPE)m_nMsgType) && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
 		{
 			x += (const_btn_width1+const_btn_interval);
 			m_btnOpen7.MovePoint(x,y,const_btn_width2,const_btn_height);
@@ -967,7 +967,7 @@ void CDlgToolbar::OnBnClickedBtn6()
 void CDlgToolbar::OnBnClickedBtn7()
 {
 	if (m_nMsgId==0) return;
-	if (m_pCallInfo.GetCallId()>0 && m_nMsgType!=MRT_FILE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
+	if (m_pCallInfo.GetCallId()>0 && IsCanCollectRecordType((MSG_RECORD_TYPE)m_nMsgType) && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0)
 	{
 		// 个人收藏
 		HideReset();

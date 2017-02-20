@@ -146,10 +146,16 @@ BOOL CDlgResourceMgr::OnInitDialog()
 
 	m_btnNewDir.SetToolTipText(_T("新建根目录"));
 	m_btnNewDir.SetTextHotMove(false);
+	m_btnNewDir.SetHotTextColor(theDefaultBtnWhiteColor);
+	m_btnNewDir.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_btnRefresh.SetToolTipText(_T("刷新"));
 	m_btnRefresh.SetTextHotMove(false);
+	m_btnRefresh.SetHotTextColor(theDefaultBtnWhiteColor);
+	m_btnRefresh.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_btnNewFile.SetToolTipText(_T("上传文件到云盘中"));
 	m_btnNewFile.SetTextHotMove(false);
+	m_btnNewFile.SetHotTextColor(theDefaultBtnWhiteColor);
+	m_btnNewFile.SetPreTextColor(theDefaultBtnWhiteColor);
 	//m_btnNewFile.Load(IDB_PNG_68X27G);
 	m_btnAllRes.ShowWindow(SW_HIDE);
 	m_btnAllFile.ShowWindow(SW_HIDE);

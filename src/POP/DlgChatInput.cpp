@@ -3643,6 +3643,8 @@ void CDlgChatInput::LoadMsgRecord(void)
 
 				CString sText;
 				WriteFileHICON(sFileName.c_str(),0);
+				//sText.Format(_T("#CTRL:0:%d:#%s"),(int)EB_MR_CTRL_DATA_TYPE_FILE,sFileText);
+				//m_pMrFrameInterface->WriteUrl((LPCTSTR)sText, sFileName.c_str(),EB_MR_CTRL_TYPE_MOVE_ENTER_CB|EB_MR_CTRL_TYPE_MOVE_LEAVE_CB,theDefaultChatSystemColor);
 				m_pMrFrameInterface->WriteString((LPCTSTR)sFileText,theDefaultChatSystemColor);
 				m_pMrFrameInterface->WriteSpace(1);
 				sText.Format(_T("#CTRL:%d:%d:%lld,%s#обть"),(int)(EB_MR_CTRL_TYPE_LCLICK_CB),(int)EB_MR_CTRL_DATA_TYPE_DOWNLOAD_RESOURCE,nResourceId,sFileName.c_str());
@@ -4079,6 +4081,7 @@ void CDlgChatInput::Fire_onContextMenuDelete(LONGLONG nMsgId,LONG nIndex)
 		SetTimer(TIMERID_DELETE_SELECT_MSG,10,NULL);
 	}
 }
+
 void CDlgChatInput::Fire_onContextMenuSelect(ULONG nItemData, const CEBString& sSelectString,LONGLONG nSelectMsgId)
 {
 	if (nItemData>=0 && nItemData<theApp.m_pChatMenuSubscribeFuncList.size())

@@ -54,6 +54,8 @@ typedef enum MSG_RECORD_TYPE
 	, MRT_CARD_INFO				// 名片信息，如用户名片等
 	, MRT_USER_DATA	= 200
 };
+inline bool IsCanCollectRecordType(MSG_RECORD_TYPE nType) {return (nType==MRT_FILE || nType==MRT_RESOURCE)?false:true;}
+
 const CEBString const_default_group_name = "默认分组";
 const eb::bigint const_default_group_ugid = 0;
 const int const_default_menu_image_size = 24;
