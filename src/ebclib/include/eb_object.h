@@ -79,6 +79,7 @@ class EB_APMsgInfo
 {
 public:
 	eb::bigint m_sFromAppId;
+	eb::bigint m_sFromUserId;
 	eb::bigint m_nGroupId;
 	eb::bigint m_nUserId;
 	CEBString m_sAccount;
@@ -90,43 +91,48 @@ public:
 	eb::bigint m_nExtData;
 
 	EB_APMsgInfo(void)
-		: m_sFromAppId(0),m_nGroupId(0),m_nUserId(0)
+		: m_sFromAppId(0),m_sFromUserId(0),m_nGroupId(0),m_nUserId(0)
 		, m_nMsgId(0),m_nMsgType(0),m_nExtData(0)
 	{
 	}
 	EB_APMsgInfo(const EB_APMsgInfo* pObj)
-		: m_sFromAppId(0),m_nGroupId(0),m_nUserId(0)
+		: m_sFromAppId(0),m_sFromUserId(0),m_nGroupId(0),m_nUserId(0)
 		, m_nMsgId(0),m_nMsgType(0),m_nExtData(0)
 	{
 		if (pObj!=NULL)
 			EB_APMsgInfo::operator =(*pObj);
 	}
 	EB_APMsgInfo(const EB_APMsgInfo& pObj)
-		: m_sFromAppId(0),m_nGroupId(0),m_nUserId(0)
+		: m_sFromAppId(0),m_sFromUserId(0),m_nGroupId(0),m_nUserId(0)
 		, m_nMsgId(0),m_nMsgType(0)
 	{
 		EB_APMsgInfo::operator =(pObj);
 	}
 #ifdef USES_EBCOM_TEST
 	EB_APMsgInfo(IEB_APMsgInfo* pObj)
-		: m_sFromAppId(0),m_nGroupId(0),m_nUserId(0)
+		: m_sFromAppId(0),m_sFromUserId(0),m_nGroupId(0),m_nUserId(0)
 		, m_nMsgId(0),m_nMsgType(0)
 	{
 		EB_APMsgInfo::operator =(pObj);
 	}
 #endif
-	const EB_APMsgInfo& operator=(const EB_APMsgInfo& pObj)
+	const EB_APMsgInfo& operator=(const EB_APMsgInfo& pObj) {return this->operator =(&pObj);}
+	const EB_APMsgInfo& operator=(const EB_APMsgInfo* pObj)
 	{
-		m_sFromAppId = pObj.m_sFromAppId;
-		m_nGroupId = pObj.m_nGroupId;
-		m_nUserId = pObj.m_nUserId;
-		m_sAccount = pObj.m_sAccount;
-		m_nMsgId = pObj.m_nMsgId;
-		m_nMsgType = pObj.m_nMsgType;
-		m_sMsgName = pObj.m_sMsgName;
-		m_sMsgContent = pObj.m_sMsgContent;
-		m_sMsgTime = pObj.m_sMsgTime;
-		m_nExtData = pObj.m_nExtData;
+		if (pObj!=NULL)
+		{
+			m_sFromAppId = pObj->m_sFromAppId;
+			m_sFromUserId = pObj->m_sFromUserId;
+			m_nGroupId = pObj->m_nGroupId;
+			m_nUserId = pObj->m_nUserId;
+			m_sAccount = pObj->m_sAccount;
+			m_nMsgId = pObj->m_nMsgId;
+			m_nMsgType = pObj->m_nMsgType;
+			m_sMsgName = pObj->m_sMsgName;
+			m_sMsgContent = pObj->m_sMsgContent;
+			m_sMsgTime = pObj->m_sMsgTime;
+			m_nExtData = pObj->m_nExtData;
+		}
 		return *this;
 	}
 #ifdef USES_EBCOM_TEST
@@ -135,6 +141,7 @@ public:
 		if (pObj!=NULL)
 		{
 			m_sFromAppId = pObj->FromAppId;
+			m_sFromUserId = pObj->FromUserId;
 			m_nGroupId = pObj->GroupId;
 			m_nUserId = pObj->UserId;
 			m_sAccount = pObj->Account.GetBSTR();
@@ -520,6 +527,7 @@ public:
 	eb::bigint	m_nUserSignId;
 	eb::bigint	m_nFromIp;
 	eb::bigint	m_nHeadResId;
+	eb::bigint	m_nHeadVer;
 	CEBString	m_sHeadCmServer;
 	CEBString	m_sHeadHttpServer;
 	CEBString	m_sHeadMd5;
@@ -531,7 +539,7 @@ public:
 		, m_sMemberCode(0)
 		, m_sGroupCode(0)
 		, m_nUserSignId(0),m_nFromIp(0)
-		, m_nHeadResId(0)
+		, m_nHeadResId(0),m_nHeadVer(0)
 	{
 	}
 	EB_ECardInfo(const EB_ECardInfo& pECardInfo)
@@ -540,7 +548,7 @@ public:
 		, m_sMemberCode(0)
 		, m_sGroupCode(0)
 		, m_nUserSignId(0),m_nFromIp(0)
-		, m_nHeadResId(0)
+		, m_nHeadResId(0),m_nHeadVer(0)
 	{
 		EB_ECardInfo::operator = (pECardInfo);
 	}
@@ -569,6 +577,7 @@ public:
 			m_nUserSignId = pECardInfo->m_nUserSignId;
 			m_nFromIp = pECardInfo->m_nFromIp;
 			m_nHeadResId = pECardInfo->m_nHeadResId;
+			m_nHeadVer = pECardInfo->m_nHeadVer;
 			m_sHeadCmServer = pECardInfo->m_sHeadCmServer;
 			m_sHeadHttpServer = pECardInfo->m_sHeadHttpServer;
 			m_sHeadMd5 = pECardInfo->m_sHeadMd5;
@@ -597,6 +606,7 @@ public:
 			m_nUserSignId = pECardInfo->UserSignId;
 			m_nFromIp = pECardInfo->FromIp;
 			m_nHeadResId = pECardInfo->HeadResId;
+			m_nHeadVer = pECardInfo->HeadVer;
 			m_sHeadCmServer = pECardInfo->HeadCmServer.GetBSTR();
 			m_sHeadHttpServer = pECardInfo->HeadHttpServer.GetBSTR();
 			m_sHeadMd5 = pECardInfo->HeadMd5.GetBSTR();
@@ -621,6 +631,8 @@ public:
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 		, m_nCSId(0),m_nCSExt(0)
+		, m_nDisplayIndex(0)
+		, m_nForbidMinutes(0)
 	{}
 	EB_MemberInfo(eb::bigint nGroupId, eb::bigint nMemberUserId)
 		: m_sMemberCode(0),m_sGroupCode(nGroupId)
@@ -632,6 +644,8 @@ public:
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 		, m_nCSId(0),m_nCSExt(0)
+		, m_nDisplayIndex(0)
+		, m_nForbidMinutes(0)
 	{}
 	EB_MemberInfo(const EB_MemberInfo* pMemberInfo)
 		: m_sMemberCode(0), m_sGroupCode(0), m_nMemberUserId(0), m_nJobPosition(0)
@@ -641,6 +655,8 @@ public:
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 		, m_nCSId(0),m_nCSExt(0)
+		, m_nDisplayIndex(0)
+		, m_nForbidMinutes(0)
 	{
 		EB_MemberInfo::operator =(pMemberInfo);
 	}
@@ -652,6 +668,8 @@ public:
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 		, m_nCSId(0),m_nCSExt(0)
+		, m_nDisplayIndex(0)
+		, m_nForbidMinutes(0)
 	{
 		EB_MemberInfo::operator =(pMemberInfo);
 	}
@@ -664,6 +682,8 @@ public:
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 		, m_nCSId(0),m_nCSExt(0)
+		, m_nDisplayIndex(0)
+		, m_nForbidMinutes(0)
 	{
 		EB_MemberInfo::operator =(pMemberInfo);
 	}
@@ -696,8 +716,11 @@ public:
 			m_nLineState = pMemberInfo->m_nLineState;
 			m_sHeadResourceId = pMemberInfo->m_sHeadResourceId;
 			m_sHeadResourceFile = pMemberInfo->m_sHeadResourceFile;
+			m_sHeadMd5 = pMemberInfo->m_sHeadMd5;
 			m_nCSId = pMemberInfo->m_nCSId;
 			m_nCSExt = pMemberInfo->m_nCSExt;
+			m_nDisplayIndex = pMemberInfo->m_nDisplayIndex;
+			m_nForbidMinutes = pMemberInfo->m_nForbidMinutes;
 		}
 		return *this;
 	}
@@ -725,8 +748,11 @@ public:
 			m_nLineState = (EB_USER_LINE_STATE)pMemberInfo->LineState;
 			m_sHeadResourceId = pMemberInfo->HeadResourceId;
 			m_sHeadResourceFile = pMemberInfo->HeadResourceFile.GetBSTR();
+			m_sHeadMd5 = pMemberInfo->HeadMd5.GetBSTR();
 			m_nCSId = pMemberInfo->CSId;
 			m_nCSExt = pMemberInfo->CSExt;
+			m_nDisplayIndex = pMemberInfo->DisplayIndex;
+			m_nForbidMinutes = pMemberInfo->ForbidMinutes;
 		}
 		return *this;
 	}
@@ -768,8 +794,11 @@ public:
 	// 
 	eb::bigint m_sHeadResourceId;
 	CEBString m_sHeadResourceFile;
+	CEBString m_sHeadMd5;
 	eb::bigint m_nCSId;
 	int m_nCSExt;
+	int m_nDisplayIndex;
+	int m_nForbidMinutes;
 };
 
 /*==========================================================
@@ -869,16 +898,19 @@ public:
 		: m_sEnterpriseCode(0), m_sGroupCode(0), m_sParentCode(0)
 		, m_nCreateUserId(0),m_nManagerUserId(0),m_nDisplayIndex(0), m_nGroupType(EB_GROUP_TYPE_DEPARTMENT)
 		, m_nMyEmpId(0),m_nEmpCount(0),m_nGroupVer(0)
+		, m_nGroupExtData(0)
 	{}
 	EB_GroupInfo(eb::bigint nEnterpriseId, eb::bigint nGroupId)
 		: m_sEnterpriseCode(nEnterpriseId), m_sGroupCode(nGroupId), m_sParentCode(0)
 		, m_nCreateUserId(0),m_nManagerUserId(0),m_nDisplayIndex(0),m_nGroupType(EB_GROUP_TYPE_DEPARTMENT)
 		, m_nMyEmpId(0),m_nEmpCount(0),m_nGroupVer(0)
+		, m_nGroupExtData(0)
 	{}
 	EB_GroupInfo(const EB_GroupInfo* pGroupInfo)
 		: m_sEnterpriseCode(0), m_sGroupCode(0), m_sParentCode(0)
 		, m_nCreateUserId(0),m_nManagerUserId(0),m_nDisplayIndex(0),m_nGroupType(EB_GROUP_TYPE_DEPARTMENT)
 		, m_nMyEmpId(0),m_nEmpCount(0),m_nGroupVer(0)
+		, m_nGroupExtData(0)
 	{
 		EB_GroupInfo::operator =(pGroupInfo);
 	}
@@ -886,6 +918,7 @@ public:
 		: m_sEnterpriseCode(0), m_sGroupCode(0), m_sParentCode(0)
 		, m_nCreateUserId(0),m_nManagerUserId(0),m_nDisplayIndex(0),m_nGroupType(EB_GROUP_TYPE_DEPARTMENT)
 		, m_nMyEmpId(0),m_nEmpCount(0),m_nGroupVer(0)
+		, m_nGroupExtData(0)
 	{
 		EB_GroupInfo::operator =(pGroupInfo);
 	}
@@ -894,6 +927,7 @@ public:
 		: m_sEnterpriseCode(0), m_sGroupCode(0), m_sParentCode(0)
 		, m_nCreateUserId(0),m_nManagerUserId(0),m_nDisplayIndex(0),m_nGroupType(EB_GROUP_TYPE_DEPARTMENT)
 		, m_nMyEmpId(0),m_nEmpCount(0),m_nGroupVer(0)
+		, m_nGroupExtData(0)
 	{
 		EB_GroupInfo::operator =(pObj);
 	}
@@ -927,6 +961,7 @@ public:
 		m_nMyEmpId = pGroupInfo.m_nMyEmpId;
 		m_nEmpCount = pGroupInfo.m_nEmpCount;
 		m_nGroupVer = pGroupInfo.m_nGroupVer;
+		m_nGroupExtData = pGroupInfo.m_nGroupExtData;
 		return *this;
 	}
 #ifdef USES_EBCOM_TEST
@@ -976,6 +1011,7 @@ public:
 	eb::bigint m_nMyEmpId;
 	int m_nEmpCount;
 	eb::bigint m_nGroupVer;
+	int m_nGroupExtData;
 };
 
 /*==========================================================
@@ -1033,11 +1069,13 @@ public:
 	EB_ContactInfo(void)
 		: EB_UGInfo(),m_nContactId(0),m_nContactUserId(0),m_nContactType(0)
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
+		, m_sHeadResourceId(0)
 	{}
 	EB_ContactInfo(eb::bigint nContactId)
 		: EB_UGInfo(),m_nContactId(nContactId),m_nContactType(0)//,m_sContact(sContact)
 		, m_nContactUserId(0)
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
+		, m_sHeadResourceId(0)
 	{}
 	//EB_ContactInfo(const CEBString& sContact)
 	//	: EB_UGInfo(),m_nContactId(0),m_sContact(sContact)
@@ -1046,6 +1084,7 @@ public:
 	EB_ContactInfo(const EB_ContactInfo* pContactInfo)
 		: EB_UGInfo(),m_nContactId(0),m_nContactUserId(0),m_nContactType(0)
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
+		, m_sHeadResourceId(0)
 	{
 		EB_ContactInfo::operator =(pContactInfo);
 	}
@@ -1075,6 +1114,9 @@ public:
 			m_sUrl = pContactInfo->m_sUrl;
 			m_nContactUserId = pContactInfo->m_nContactUserId;
 			m_nLineState = pContactInfo->m_nLineState;
+			m_sHeadResourceId = pContactInfo->m_sHeadResourceId;
+			m_sHeadResourceFile = pContactInfo->m_sHeadResourceFile;
+			m_sHeadMd5 = pContactInfo->m_sHeadMd5;
 		}
 		return *this;
 	}
@@ -1102,6 +1144,9 @@ public:
 			m_sFax = pContactInfo->Fax.GetBSTR();
 			m_sUrl = pContactInfo->Url.GetBSTR();
 			m_nLineState = (EB_USER_LINE_STATE)pContactInfo->LineState;
+			m_sHeadResourceId = pContactInfo->HeadResourceId;
+			m_sHeadResourceFile = pContactInfo->HeadResourceFile.GetBSTR();
+			m_sHeadMd5 = pContactInfo->HeadMd5.GetBSTR();
 		}
 		return *this;
 	}
@@ -1123,6 +1168,10 @@ public:
 	CEBString m_sFax;
 	CEBString m_sUrl;
 	EB_USER_LINE_STATE m_nLineState;
+
+	eb::bigint m_sHeadResourceId;
+	CEBString m_sHeadResourceFile;
+	CEBString m_sHeadMd5;
 };
 
 

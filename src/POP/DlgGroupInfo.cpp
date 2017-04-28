@@ -127,7 +127,8 @@ BOOL CDlgGroupInfo::OnInitDialog()
 	int nY = const_y;
 	this->GetDlgItem(IDC_STATIC_GROUP_NAME)->MoveWindow(nX,nY,const_static_width,const_edit_height);
 	nX += const_x_interval;
-	if (m_nGroupType == EB_GROUP_TYPE_DEPARTMENT || m_nGroupType == EB_GROUP_TYPE_PROJECT)
+	if (m_nGroupType != EB_GROUP_TYPE_GROUP)
+	//if (m_nGroupType == EB_GROUP_TYPE_DEPARTMENT || m_nGroupType == EB_GROUP_TYPE_PROJECT)
 	{
 		this->GetDlgItem(IDC_EDIT_DEP_NAME)->MoveWindow(nX,nY,const_edit_width1,const_edit_height);
 		nX = const_x2;
@@ -165,7 +166,8 @@ BOOL CDlgGroupInfo::OnInitDialog()
 	nY += const_y_interval;
 	this->GetDlgItem(IDC_STATIC_ADDRESS)->MoveWindow(nX,nY,const_static_width,const_edit_height);
 	nX += const_x_interval;
-	if (m_nGroupType == EB_GROUP_TYPE_DEPARTMENT || m_nGroupType == EB_GROUP_TYPE_PROJECT)
+	if (m_nGroupType != EB_GROUP_TYPE_GROUP)
+	//if (m_nGroupType == EB_GROUP_TYPE_DEPARTMENT || m_nGroupType == EB_GROUP_TYPE_PROJECT)
 	{
 		this->GetDlgItem(IDC_EDIT_ADDRESS)->MoveWindow(nX,nY,const_edit_width1,const_edit_height);
 		nX = const_x2;

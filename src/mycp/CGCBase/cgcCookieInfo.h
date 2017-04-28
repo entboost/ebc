@@ -20,7 +20,9 @@
 #ifndef __cgcCookieInfo_head__
 #define __cgcCookieInfo_head__
 
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4996)
+#endif
 
 #include <vector>
 #include <string.h>

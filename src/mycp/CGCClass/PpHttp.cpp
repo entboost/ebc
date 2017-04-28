@@ -16,9 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
+#ifdef _QT_MAKE_
+#include <cstring>
+#endif
 
 #include "PpHttp.h"
 #include "Base64.h"
@@ -151,7 +154,7 @@ bool CPpHttp::getHeaders(std::vector<cgcKeyValue::pointer>& outHeaders) const
 		CLockMap<tstring,cgcParameter::pointer>::const_iterator pIter = m_pReqHeaders.begin();
 		for (; pIter!=m_pReqHeaders.end(); pIter++)
 		{
-			const cgcParameter::pointer pParameter = pIter->second;
+			const cgcParameter::pointer& pParameter = pIter->second;
 			outHeaders.push_back(CGC_KEYVALUE(pParameter->getName(),CGC_VALUEINFO(pParameter->getStr())));
 		}
 		return m_pReqHeaders.empty(false)?false:true;
@@ -252,7 +255,7 @@ void CPpHttp::newline(void)
 }
 void CPpHttp::reset(void)
 {
-	//m_keepAliveInterval	// ***Õâ¸ö²»ÄÜÖØÉè
+	//m_keepAliveInterval	// ***è¿™ä¸ªä¸èƒ½é‡è®¾
 	m_statusCode = STATUS_CODE_200;
 	m_pResHeaders.clear();
 	//m_sMyCookieSessionId.clear();
@@ -603,7 +606,7 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 		CLockMap<tstring,cgcValueInfo::pointer>::const_iterator pIter = m_pResHeaders.begin();
 		for (;pIter!=m_pResHeaders.end();pIter++)
 		{
-			const tstring sKey(pIter->first);
+			const tstring& sKey = pIter->first;
 			if (!bFindContentEncodingHeader)
 			{
 				tstring sStringTemp(sKey);
@@ -618,7 +621,7 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 				if (sStringTemp=="connection")
 					bFindContentionHeader = true;
 			}
-			const cgcValueInfo::pointer pValue = pIter->second;
+			const cgcValueInfo::pointer& pValue = pIter->second;
 			sprintf(m_pHeaderTemp,"%s: %s\r\n",sKey.c_str(),pValue->getStr().c_str());
 			//sHeaders.append(m_pHeaderTemp);
 			strcpy(m_pHeaderBufferTemp+nHeadSize,m_pHeaderTemp);
@@ -635,13 +638,13 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 		CLockMap<tstring,cgcCookieInfo::pointer>::const_iterator pIter = m_pResCookies.begin();
 		for (;pIter!=m_pResCookies.end();pIter++)
 		{
-			const tstring sKey(pIter->first);
-			const cgcCookieInfo::pointer pCookieInfo = pIter->second;
+			const tstring& sKey = pIter->first;
+			const cgcCookieInfo::pointer& pCookieInfo = pIter->second;
 			//const cgcValueInfo::pointer pValue = pIter->second;
 			sprintf(m_pCookieTemp,"%s=%s; path=%s",sKey.c_str(),pCookieInfo->m_sCookieValue.c_str(),pCookieInfo->m_sCookiePath.c_str());
 			if (pCookieInfo->m_tExpiresTime > 0)
 			{
-				// ÉèÖÃcookie¹ıÆÚÊ±¼ä
+				// è®¾ç½®cookieè¿‡æœŸæ—¶é—´
 				if (sDTTemp.empty())
 				{
 					struct tm *newtime;
@@ -794,9 +797,10 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 		strcpy(m_pHeaderBufferTemp+nHeadSize,m_pHeaderTemp);
 		nHeadSize += strlen(m_pHeaderTemp);
 	}else if (!m_bTransferEncoding && 
-		m_addContentLength && m_bodySize>0)
+		m_addContentLength)
+		//m_addContentLength && m_bodySize>0)
 	{
-		sprintf(m_pHeaderTemp,"Content-Length: %d\r\n",m_bodySize);
+		sprintf(m_pHeaderTemp,"Content-Length: %d\r\n",(int)m_bodySize);
 		strcpy(m_pHeaderBufferTemp+nHeadSize,m_pHeaderTemp);
 		nHeadSize += strlen(m_pHeaderTemp);
 		//sHeaders.append(m_pHeaderTemp);
@@ -804,7 +808,7 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 	strcpy(m_pHeaderBufferTemp+nHeadSize,"\r\n");
 	nHeadSize += 2;
 
-	// Transfer-Encoding: chunked\r\n Ò»Ö±µ±½ÓÊÕ²»ÍêÕû£¬»á¿Õ°×
+	// Transfer-Encoding: chunked\r\n ä¸€ç›´å½“æ¥æ”¶ä¸å®Œæ•´ï¼Œä¼šç©ºç™½
 	// Accept-Ranges: bytes\r\n
 	//sprintf(m_pHeaderBufferTemp, "HTTP/1.1 %s\r\n%sContent-Type: %s\r\n\r\n",
 	//	cgcGetStatusCode(m_statusCode).c_str(), sHeaders.c_str(), m_sResContentType.c_str());
@@ -853,8 +857,8 @@ bool CPpHttp::doParse(const unsigned char * requestData, size_t requestSize,cons
 		const tstring sRange = getHeader(Http_Range, "");
 		if (!sRange.empty())
 		{
-			//Range: bytes=500-      ±íÊ¾¶ÁÈ¡¸ÃÎÄ¼şµÄ500-999×Ö½Ú£¬¹²500×Ö½Ú¡£
-			//Range: bytes=500-599   ±íÊ¾¶ÁÈ¡¸ÃÎÄ¼şµÄ500-599×Ö½Ú£¬¹²100×Ö½Ú¡£
+			//Range: bytes=500-      è¡¨ç¤ºè¯»å–è¯¥æ–‡ä»¶çš„500-999å­—èŠ‚ï¼Œå…±500å­—èŠ‚ã€‚
+			//Range: bytes=500-599   è¡¨ç¤ºè¯»å–è¯¥æ–‡ä»¶çš„500-599å­—èŠ‚ï¼Œå…±100å­—èŠ‚ã€‚
 			std::string::size_type find = sRange.find("bytes=");
 			if (find != std::string::npos)
 			{
@@ -941,15 +945,15 @@ void CPpHttp::GeServletInfo(void)
 		std::string::size_type findServlet2 = 0;
 		if (nfindsize == 6)
 		{
-			// Ö§³Ö°æ±¾ºÅ
-			// ¸ñÊ½1£º/rest.vvv.module.func?
-			// ¸ñÊ½2£º/rest/vvv/module/func?
+			// æ”¯æŒç‰ˆæœ¬å·
+			// æ ¼å¼1ï¼š/rest.vvv.module.func?
+			// æ ¼å¼2ï¼š/rest/vvv/module/func?
 			findServlet2 = findPathOrExt(m_requestURL,nfindsize+1);
 			//findServlet2 = m_requestURL.find(".", nfindsize+1);
 			if (findServlet2 != std::string::npos)
 			{
 				m_restVersion = m_requestURL.substr(nfindsize,findServlet2-nfindsize);
-				nfindsize = findServlet2+1;	// **±ØĞë·ÅºóÃæ
+				nfindsize = findServlet2+1;	// **å¿…é¡»æ”¾åé¢
 			}
 		}
 		findServlet2 = m_requestURL.find("?", nfindsize+1);
@@ -1097,7 +1101,27 @@ inline bool FindHttpHeader(const char * httpRequest, const char ** pOutFind1, co
 }
 
 //#define USES_PRINT_DEBUG
-
+//inline long hstring2int(const char*s) 
+//{  
+//	int i,t;  
+//	long sum=0; 
+//	for(i=0;s[i];i++)  
+//	{   
+//		if(s[i]<='9')
+//			t=s[i]-'0';  
+//		else t=s[i]-'a'+10;
+//		sum=sum*16+t;  
+//	} 
+//	return sum;
+//}
+inline bool FileIsExist(const char* lpszFile)
+{
+	FILE * f = fopen(lpszFile,"r");
+	if (f==NULL)
+		return false;
+	fclose(f);
+	return true;
+}
 bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOutHeader)
 {
 	tstring multipartyBoundary = "";
@@ -1331,7 +1355,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		if (!m_sCurrentParameterData.empty() && m_currentMultiPart->getFileName().empty() && !m_currentMultiPart->getBoundary().empty())
 		//if (!m_sCurrentParameterData.empty() && m_currentMultiPart->getFileName().empty() && m_currentMultiPart->getName().empty() && !m_currentMultiPart->getBoundary().empty())
 		{
-			// ÆÕÍ¨²ÎÊı£¬Ç°ÃæÓĞ´¦ÀíÎ´Íê³ÉÊı¾İ£»
+			// æ™®é€šå‚æ•°ï¼Œå‰é¢æœ‰å¤„ç†æœªå®Œæˆæ•°æ®ï¼›
 			// * by hd 2016-07-23
 			//m_queryString.append(httpRequest);
 			//m_postString.append(httpRequest);
@@ -1364,8 +1388,8 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				m_postString.append(httpRequest);
 				//m_receiveSize += requestSize;
 			}
-		}else if (m_currentMultiPart->getFileName().empty() ||				// ÆÕÍ¨²ÎÊı£¬²»ÊÇÎÄ¼ş
-			requestSize >= m_currentMultiPart->getBoundary().size()+2)		// ÎÄ¼ş
+		}else if (m_currentMultiPart->getFileName().empty() ||				// æ™®é€šå‚æ•°ï¼Œä¸æ˜¯æ–‡ä»¶
+			requestSize >= m_currentMultiPart->getBoundary().size()+2)		// æ–‡ä»¶
 		{
 			if (sotpCompare(httpRequest, m_currentMultiPart->getBoundary().c_str(), leftIndex))
 			{
@@ -1475,7 +1499,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				if (!m_currentMultiPart->getFileName().empty())
 					m_files.push_back(m_currentMultiPart);
 				m_currentMultiPart.reset();
-				return true;	// ÓÉapiÈ¥´¦Àí
+				return true;	// ç”±apiå»å¤„ç†
 			}
 			return false;
 		}
@@ -1544,7 +1568,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				{
 					if (sotpCompare(httpRequest+boundaryFind.size()+leftIndex, "--\r\n", leftIndex))
 					{
-						// ×îºóÍê³É1£»
+						// æœ€åå®Œæˆ1ï¼›
 						//printf("******* final ok1 ************\n");
 						return true;
 					}
@@ -1554,7 +1578,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				}
 			}else if (m_currentMultiPart->getFileName().empty() && !m_currentMultiPart->getName().empty())
 			{
-				// ²»ÊÇÎÄ¼ş²ÎÊı£¬ÆÕÍ¨²ÎÊı£»
+				// ä¸æ˜¯æ–‡ä»¶å‚æ•°ï¼Œæ™®é€šå‚æ•°ï¼›
 //#ifdef USES_PRINT_DEBUG
 //				if (f!=NULL)
 //				{
@@ -1586,7 +1610,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 					//const std::string::size_type nFind = m_sReqContentType.find("application/x-www-form-urlencoded");
 					const bool bUrlDecode = nFind != std::string::npos?true:false;
 
-					// ²éÕÒµ½Ò»¸ö²ÎÊı£»
+					// æŸ¥æ‰¾åˆ°ä¸€ä¸ªå‚æ•°ï¼›
 					tstring p(m_currentMultiPart->getName());
 					if (bUrlDecode && !p.empty())
 						p = URLDecode(p.c_str());
@@ -1628,13 +1652,13 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 					m_currentMultiPart->close();
 					m_currentMultiPart->setParser(cgcNullParserBaseService);
 					m_currentMultiPart.reset();
-					//httpRequest = findSearchEnd;	// ***²»´¦ÀíÏÂÃæ´úÂë£¬ÎªÁË±£³Ö¿É¶ÁĞÔ£»-2ÊÇÇ°Ãæ
+					//httpRequest = findSearchEnd;	// ***ä¸å¤„ç†ä¸‹é¢ä»£ç ï¼Œä¸ºäº†ä¿æŒå¯è¯»æ€§ï¼›-2æ˜¯å‰é¢
 					//continue;
-					// ***Ö±½ÓÊ¹ÓÃÏÂÃæ´úÂë£¬Ğ§ÂÊ¸ü¸ß£»
+					// ***ç›´æ¥ä½¿ç”¨ä¸‹é¢ä»£ç ï¼Œæ•ˆç‡æ›´é«˜ï¼›
 					httpRequest = findSearchEnd+boundaryFind.size();
 					if (sotpCompare(httpRequest, "--\r\n", leftIndex))
 					{
-						// ×îºóÍê³É2£»
+						// æœ€åå®Œæˆ2ï¼›
 						//printf("******* final ok2 ************\n");
 						return true;
 					}
@@ -1644,7 +1668,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				//}else
 				//{
 				//	// 
-				//	findSearchEnd = strstr(httpRequest, "\r\n");	// ÕÒÏÂÒ»ĞĞ
+				//	findSearchEnd = strstr(httpRequest, "\r\n");	// æ‰¾ä¸‹ä¸€è¡Œ
 				//	if (findSearchEnd == NULL) break;
 				//	httpRequest = findSearchEnd+2;
 				//	continue;
@@ -1653,7 +1677,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		}
 
 		pOutHeader = true;
-		short nOffset = 1;	// ´ø¿Õ¸ñ2£¬²»´ø¿Õ¸ñ1
+		short nOffset = 1;	// å¸¦ç©ºæ ¼2ï¼Œä¸å¸¦ç©ºæ ¼1
 		if (!FindHttpHeader(httpRequest,&findSearch,&findSearchEnd,&nOffset)) break;
 		const tstring sParamReal(httpRequest, findSearch-httpRequest);
 		tstring param(sParamReal);
@@ -1678,7 +1702,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		//const tstring sParamReal(sLine.substr(0,findParam));
 		//tstring param(sParamReal);
 		//std::transform(param.begin(), param.end(), param.begin(), ::tolower);
-		//const short nOffset = sLine.c_str()[findParam+1]==' '?2:1;	// ´ø¿Õ¸ñ2£¬²»´ø¿Õ¸ñ1
+		//const short nOffset = sLine.c_str()[findParam+1]==' '?2:1;	// å¸¦ç©ºæ ¼2ï¼Œä¸å¸¦ç©ºæ ¼1
 		//tstring value(sLine.substr(findParam+nOffset));
 
 		//findSearch = strstr(httpRequest, ":");
@@ -1688,7 +1712,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		//const tstring sParamReal(httpRequest, findSearch-httpRequest);
 		//tstring param(sParamReal);
 		//std::transform(param.begin(), param.end(), param.begin(), ::tolower);
-		//const short nOffset = findSearch[1]==' '?2:1;	// ´ø¿Õ¸ñ2£¬²»´ø¿Õ¸ñ1
+		//const short nOffset = findSearch[1]==' '?2:1;	// å¸¦ç©ºæ ¼2ï¼Œä¸å¸¦ç©ºæ ¼1
 		//tstring value(findSearch+nOffset, findSearchEnd-findSearch-nOffset);
 		//if (m_currentMultiPart.get()==NULL && multipartyBoundary.empty())
 		{
@@ -1838,7 +1862,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				{
 					multipartyBoundary = m_currentMultiPart->getBoundary();
 					m_currentMultiPart->setContentType(value);
-					// ²»ÊÇÎÄ¼ş²ÎÊı£¬ÆÕÍ¨²ÎÊı£»
+					// ä¸æ˜¯æ–‡ä»¶å‚æ•°ï¼Œæ™®é€šå‚æ•°ï¼›
 					httpRequest = findSearchEnd+2;
 					//const std::string sTemp(httpRequest,20);
 					//printf("**** 44444444444444444444444,(%s)\n",sTemp.c_str());
@@ -1858,7 +1882,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				m_currentMultiPart->setContentType(value);
 
 				static tstring theTempSavePath;
-				if (theTempSavePath.empty())
+				if (theTempSavePath.empty() || !FileIsExist(theTempSavePath.c_str()))
 				{
 					char tempSavePath[256];
 					//std::string::size_type findpath = theUpload.getTempPath().find("/");
@@ -1942,7 +1966,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				{
 					m_statusCode = STATUS_CODE_413;
 					m_currentMultiPart.reset();
-					return true;	// ÓÉapiÈ¥´¦Àí
+					return true;	// ç”±apiå»å¤„ç†
 				}
 
 				m_currentMultiPart.reset();
@@ -1955,6 +1979,33 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				httpRequest = find;
 				continue;
 			}
+		}else if (param == "transfer-encoding" && value=="chunked")	// Http_ContentLength
+		{
+			// for POST result
+			const char * findContent = strstrl(httpRequest, "\r\n\r\n", requestSize-(httpRequest-httpRequestOld), 4);
+			if (findContent!=NULL)
+				findContent = strstr(findContent+4,"\r\n");
+			if (findContent == NULL)
+			{
+				// ??? error
+				//printf("*** find chunked error\n");
+			}else
+			{
+				// find ok
+				//printf("*** find chunked ok, (%s)\n",findContent);
+				const char * findContentEnd = strstr(findContent,"\r\n0");
+				if (findContentEnd==NULL)
+				{
+					m_postString = findContent;
+				}else
+				{
+					m_postString = std::string(findContent+2,(int)(findContentEnd-findContent-2));
+				}
+				m_queryString = m_postString;
+				m_contentSize = m_queryString.size();
+				//printf("*** m_contentSize=%d,string=(%s)\n",m_contentSize,m_queryString.c_str());
+			}
+
 		}else if (param == "content-length")	// Http_ContentLength
 		{
 			m_contentSize = atoi(value.c_str());
@@ -1973,7 +2024,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 							m_files.push_back(m_currentMultiPart);
 						m_currentMultiPart.reset();
 					}
-					return true;	// ÓÉapiÈ¥´¦Àí£»
+					return true;	// ç”±apiå»å¤„ç†ï¼›
 				}
 
 				//if (multipartyBoundary.empty())
@@ -2068,7 +2119,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 							if (m_contentSize > m_receiveSize)
 							{
 								m_currentMultiPart = CGC_MULTIPART("");
-								// ÏÂÃæ»á·µ»Øfalse
+								// ä¸‹é¢ä¼šè¿”å›false
 							}
 						}
 					}
@@ -2078,7 +2129,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		{
 			while (!value.empty())
 			{
-				// È¥µôÍ·Î²¿Õ¸ñ
+				// å»æ‰å¤´å°¾ç©ºæ ¼
 				value.erase(0,value.find_first_not_of(" "));
 				value.erase(value.find_last_not_of(" ") + 1);
 				std::string::size_type find1 = value.find("=");
@@ -2109,12 +2160,12 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 	}else if (m_currentMultiPart.get() != NULL)
 	//}else if (m_currentMultiPart.get() != NULL && m_currentMultiPart->getBoundary().empty())
 	{
-		// Êı¾İÎ´ÊÕÍêÕû
+		// æ•°æ®æœªæ”¶å®Œæ•´
 		if (httpRequest!=NULL && m_currentMultiPart->getFileName().empty() && !m_currentMultiPart->getBoundary().empty())
 		//if (httpRequest!=NULL && m_currentMultiPart->getFileName().empty() && m_currentMultiPart->getName().empty() && !m_currentMultiPart->getBoundary().empty())
 		{
-			// ÆÕÍ¨²ÎÊı£¬²»ÊÇÎÄ¼ş£¬²¢ÇÒµ±Ç°Î´½âÎöµ½Ãû³Æ£¬ËµÃ÷Ğ­Òé±»½Ø°ü£»
-			// ¼ÇÏÂµ±Ç°²ÎÊıÄÚÈİ£¬ÏÂ´ÎÔÙ½âÎö¶àÒ»´Î£»Ô¤·À½Ø°ü	Èç£ºContent-Disposition: form-data; name="
+			// æ™®é€šå‚æ•°ï¼Œä¸æ˜¯æ–‡ä»¶ï¼Œå¹¶ä¸”å½“å‰æœªè§£æåˆ°åç§°ï¼Œè¯´æ˜åè®®è¢«æˆªåŒ…ï¼›
+			// è®°ä¸‹å½“å‰å‚æ•°å†…å®¹ï¼Œä¸‹æ¬¡å†è§£æå¤šä¸€æ¬¡ï¼›é¢„é˜²æˆªåŒ…	å¦‚ï¼šContent-Disposition: form-data; name="
 			//m_sCurrentParameterData = httpRequest;
 			m_sCurrentParameterData = tstring(httpRequest,requestSize-(httpRequest-httpRequestOld));
 #ifdef USES_PRINT_DEBUG
@@ -2162,7 +2213,7 @@ bool CPpHttp::sotpCompare(const char * pBuffer, const char * pCompare, int & lef
 {
 	int i1 = 0, i2 = 0;
 	leftIndex = 0;
-	// ÅĞ¶ÏÇ°Ãæ¿Õ¸ñ»òÕß¡®TAB¡¯¼ü£»
+	// åˆ¤æ–­å‰é¢ç©ºæ ¼æˆ–è€…â€˜TABâ€™é”®ï¼›
 	while (' ' == pBuffer[leftIndex] || '\t' == pBuffer[leftIndex])
 	{
 		leftIndex++;

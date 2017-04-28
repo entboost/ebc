@@ -99,7 +99,9 @@ BOOL CDlgChangeHead::OnInitDialog()
 	USES_CONVERSION;
 	if (!m_sHeadResourceFile.empty() && PathFileExists(m_sHeadResourceFile.c_str()))
 	{
-		m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sHeadResourceFile.c_str()));
+		m_imageHead1 = libEbc::LoadImageFromFile(m_sHeadResourceFile.c_str());
+		if (m_imageHead1==NULL)
+			m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sHeadResourceFile.c_str()));
 	}
 
 	m_pDlgSelectHead = new CDlgSelectHead(this);
@@ -283,23 +285,29 @@ void CDlgChangeHead::DrawInfo(void)
 
 void CDlgChangeHead::OnBnClickedOk()
 {
-	if (m_sNewHeadFile.empty() || m_sNewHeadFile==m_sHeadResourceFile) return;
+	//if (m_sNewHeadFile.empty() || m_sNewHeadFile==m_sHeadResourceFile) return;
+	if (m_sNewHeadFile.empty()) return;
+	tstring sNewFileMd5;
+	mycp::bigint nNewFileSize = 0;
+	if (!libEbc::GetFileMd5(m_sNewHeadFile.c_str(),nNewFileSize,sNewFileMd5)) return;
+	if (m_sNewHeadFile==m_sHeadResourceFile && sNewFileMd5==m_sHeadResourceMd5) return;
 
-	unsigned int nFileSize = 0;
-	FILE * f = fopen(m_sNewHeadFile.c_str(), "rb");
-	if (f == NULL)
-	{
-		return;
-	}
-#ifdef WIN32
-	_fseeki64(f, 0, SEEK_END);
-	nFileSize = _ftelli64(f);
-#else
-	fseeko(f, 0, SEEK_END);
-	nFileSize = ftello(f);
-#endif
-	fclose(f);
-	if (nFileSize>500*1024)	// 500KB
+//	unsigned int nFileSize = 0;
+//	FILE * f = fopen(m_sNewHeadFile.c_str(), "rb");
+//	if (f == NULL)
+//	{
+//		return;
+//	}
+//#ifdef WIN32
+//	_fseeki64(f, 0, SEEK_END);
+//	nFileSize = _ftelli64(f);
+//#else
+//	fseeko(f, 0, SEEK_END);
+//	nFileSize = ftello(f);
+//#endif
+//	fclose(f);
+//	if (nFileSize>500*1024)	// 500KB
+	if (nNewFileSize>500*1024)	// 500KB
 	{
 		CDlgMessageBox::EbMessageBox(this,"",_T("头像文件超过 500KB：\r\n请选择小于 500KB 图片文件后重试！"),CDlgMessageBox::IMAGE_WARNING,5);
 		return;
@@ -464,8 +472,12 @@ void CDlgChangeHead::OnBnClickedButtonOpenfile()
 			CDlgMessageBox::EbDoModal(this,_T(""),_T("图片转换失败：\r\n请重试！"),CDlgMessageBox::IMAGE_ERROR,true,5);
 			return;
 		}
-		m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sSelectImageFile.c_str()));
-		m_imageHead2 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sNewHeadFile.c_str()));
+		m_imageHead1 = libEbc::LoadImageFromFile(sSelectImageFile.c_str());
+		if (m_imageHead1==NULL)
+			m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sSelectImageFile.c_str()));
+		m_imageHead2 = libEbc::LoadImageFromFile(m_sNewHeadFile.c_str());
+		if (m_imageHead2==NULL)
+			m_imageHead2 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sNewHeadFile.c_str()));
 		this->Invalidate();
 #ifdef _DEBUG
 		//CopyFile(m_sNewHeadFile.c_str(),"d:\\tn\\entboost\\test.jpg",FALSE);
@@ -494,8 +506,12 @@ void CDlgChangeHead::OnBnClickedButtonMyVideo()
 		}
 		if (m_imageHead1)
 			delete m_imageHead1;
-		USES_CONVERSION;
-		m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sNewHeadFile.c_str()));
+		m_imageHead1 = libEbc::LoadImageFromFile(m_sNewHeadFile.c_str());
+		if (m_imageHead1==NULL)
+		{
+			USES_CONVERSION;
+			m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sNewHeadFile.c_str()));
+		}
 		this->Invalidate();
 	}
 }
@@ -554,10 +570,15 @@ void CDlgChangeHead::SetCallback(CImageSelectCallback* pCallback)
 void CDlgChangeHead::SetHeadResorceFile(const tstring& sHeadResourceFile)
 {
 	m_sHeadResourceFile = sHeadResourceFile;
+	m_sHeadResourceMd5.clear();
+	mycp::bigint nFileSize = 0;
+	libEbc::GetFileMd5(m_sHeadResourceFile.c_str(),nFileSize,m_sHeadResourceMd5);
 	if (m_imageHead1!=NULL)
 	{
 		delete m_imageHead1;
 		USES_CONVERSION;
-		m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sHeadResourceFile.c_str()));
+		m_imageHead1 = libEbc::LoadImageFromFile(m_sHeadResourceFile.c_str());
+		if (m_imageHead1==NULL)
+			m_imageHead1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sHeadResourceFile.c_str()));
 	}
 }

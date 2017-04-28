@@ -441,6 +441,7 @@ CPOPApp::CPOPApp()
 	m_pLogDebug = NULL;
 
 	m_nLogonUserId = 0;
+	m_nSystemAccountFlag = 0;
 	m_bLicenseUser = false;
 	m_bSendRegMail = false;
 	m_bSaveConversationLocal = true;
@@ -448,6 +449,7 @@ CPOPApp::CPOPApp()
 	m_bAuthContact = false;
 	m_nDeployId = 0;
 	m_nLicenstType = 0;
+	m_nEBServerVersion = 0;
 	m_nGroupMsgSubId = 0;
 	m_nFindAppSubId = 0;
 	m_nMyCollectionSubId = 0;
@@ -470,6 +472,7 @@ CPOPApp::CPOPApp()
 	m_nDefaultBrowserType = EB_BROWSER_TYPE_IE;
 #endif
 	m_nDefaultUIStyleType = EB_UI_STYLE_TYPE_OFFICE;//EB_UI_STYLE_TYPE_CHAT;
+	m_nMinEBSC = false;
 	m_bIeException = false;
 
 	m_imageExBtnSendECard = NULL;
@@ -491,6 +494,7 @@ CPOPApp::CPOPApp()
 	m_imageDefaultTempGroup = NULL;
 	m_imageStateAway = NULL;
 	m_imageStateBusy = NULL;
+	m_imageStateForbid = NULL;
 
 	m_pDlgEmotionSelect = NULL;
 	//m_iconAway = NULL;
@@ -1052,6 +1056,8 @@ BOOL CPOPApp::InitInstance()
 		libEbc::ImageFromIDResource(IDB_PNG_DEFAULT_TEMPGROUP,_T("png"),m_imageDefaultTempGroup);
 	libEbc::ImageFromIDResource(IDB_PNG_STATE_AWAY,_T("png"),m_imageStateAway);
 	libEbc::ImageFromIDResource(IDB_PNG_STATE_BUSY,_T("png"),m_imageStateBusy);
+	libEbc::ImageFromIDResource(IDB_PNG_STATE_FORBID,_T("png"),m_imageStateForbid);
+	
 
 	//// 实现在登录口，保持单实例。
 	//HANDLE g_hMutex = CreateMutex(NULL,TRUE,_T("__entboost_mutex__"));
@@ -1091,6 +1097,7 @@ BOOL CPOPApp::InitInstance()
 	pDlgLogin.DoModal();
 	this->m_sAccountPrefix = pDlgLogin.GetAccountPrefix();
 	this->m_sProductName = pDlgLogin.GetProductName();
+	this->m_nSystemAccountFlag = pDlgLogin.GetSystemAccountFlag();
 	this->m_bLicenseUser = pDlgLogin.GetLicenseUser();
 	this->m_bSendRegMail = pDlgLogin.GetSendRegMail();
 	this->m_bSaveConversationLocal = pDlgLogin.GetSaveConversationLocal();
@@ -1098,6 +1105,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_bAuthContact = pDlgLogin.GetAuthContact();
 	this->m_nDeployId = pDlgLogin.GetDeployId();
 	this->m_nLicenstType = pDlgLogin.GetLicenseType();
+	this->m_nEBServerVersion = pDlgLogin.GetEBServerVersion();
 	//this->m_nGroupMsgSubId = pDlgLogin.GetGroupMsgSugId();
 	this->m_nAutoOpenSubId = pDlgLogin.GetAutoOpenSubId();
 	this->m_bAutoHideMainFrame = pDlgLogin.GetAutoHideMainFrame();
@@ -1115,6 +1123,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_nDefaultBrowserType = pDlgLogin.GetDefaultBrowserType();
 	this->m_bDisableMsgReceipt = pDlgLogin.GetDisableMsgReceipt();
 	this->m_bStatSubGroupMember = pDlgLogin.GetStatSubGroupMember();
+	this->m_sDefaultUrl = pDlgLogin.GetDefaultUrl();
 
 	this->m_bIeException = pDlgLogin.GetIeException();
 	
@@ -1696,6 +1705,8 @@ BOOL CPOPApp::InitInstance()
 	//	//m_pBoUsers->execsql("ALTER TABLE msg_record_t ADD to_uid BIGINT DEFAULT 0");
 	//}
 
+	m_nMinEBSC = GetPrivateProfileInt(_T("default"),_T("min-ebsc"),0,theApp.GetUserSettingIniFile())==1?true:false;
+
 	if (m_bHideMainFrame)
 	{
 		m_nDefaultUIStyleType = EB_UI_STYLE_TYPE_CHAT;	// *
@@ -1846,6 +1857,11 @@ int CPOPApp::ExitInstance()
 		delete m_imageStateAway;
 	if (m_imageStateBusy)
 		delete m_imageStateBusy;
+	if (m_imageStateForbid!=NULL)
+	{
+		delete m_imageStateForbid;
+		m_imageStateForbid = NULL;
+	}
 
 	m_pCallList.clear();
 	{
@@ -2436,6 +2452,16 @@ void CPOPApp::InvalidateParentRect(const CWnd* pWnd)
 	pWnd->GetParent()->InvalidateRect(&rect);
 }
 
+void CPOPApp::SetMinEBSC(bool newValue)
+{
+	if (m_nMinEBSC != newValue)
+	{
+		m_nMinEBSC = newValue;
+		char lpszBuffer[12];
+		sprintf(lpszBuffer,"%d",(int)(m_nMinEBSC?1:0));
+		WritePrivateProfileString(_T("default"),_T("min-ebsc"),lpszBuffer,theApp.GetUserSettingIniFile());
+	}
+}
 bool CPOPApp::SetDefaultUIStyleType(EB_UI_STYLE_TYPE newValue)
 {
 	if (m_nDefaultUIStyleType != newValue)
@@ -2527,6 +2553,7 @@ void CPOPApp::NewEmployeeInfo(CWnd* pParent,const CTreeItemInfo * pTreeItemInfo)
 		pEditPopMemberInfo.m_sDescription = (LPCTSTR)pDlgMemberInfo.m_sDescription;
 		pEditPopMemberInfo.m_nGender = (EB_GENDER_TYPE)pDlgMemberInfo.m_nGender;
 		pEditPopMemberInfo.m_nBirthday = pDlgMemberInfo.m_nBirthday;
+		pEditPopMemberInfo.m_nDisplayIndex = pDlgMemberInfo.m_nDisplayIndex;
 		theEBAppClient.EB_EditMember(&pEditPopMemberInfo);
 	}
 #endif
@@ -2606,6 +2633,7 @@ void CPOPApp::EditEmployeeInfo(CWnd* pParent,const EB_MemberInfo* pMemberInfo)
 	pDlgMemberInfo.m_sDescription = pMemberInfo->m_sDescription.c_str();
 	pDlgMemberInfo.m_nGender = pMemberInfo->m_nGender;
 	pDlgMemberInfo.m_nBirthday = pMemberInfo->m_nBirthday;
+	pDlgMemberInfo.m_nDisplayIndex = pMemberInfo->m_nDisplayIndex;
 	pDlgMemberInfo.m_pMemberInfo = pMemberInfo;
 	//pDlgMemberInfo.m_sHeadResourceFile = pMemberInfo->m_sHeadResourceFile.c_str();
 	if (pDlgMemberInfo.DoModal() == IDOK)
@@ -2622,6 +2650,7 @@ void CPOPApp::EditEmployeeInfo(CWnd* pParent,const EB_MemberInfo* pMemberInfo)
 		pEditPopMemberInfo.m_sDescription = (LPCTSTR)pDlgMemberInfo.m_sDescription;
 		pEditPopMemberInfo.m_nGender = (EB_GENDER_TYPE)pDlgMemberInfo.m_nGender;
 		pEditPopMemberInfo.m_nBirthday = pDlgMemberInfo.m_nBirthday;
+		pEditPopMemberInfo.m_nDisplayIndex = pDlgMemberInfo.m_nDisplayIndex;
 		//pEditPopMemberInfo.m_sHeadResourceId = pDlgMemberInfo.m_pMemberInfo.m_sHeadResourceId;
 		pEditPopMemberInfo.m_sHeadResourceFile = pDlgMemberInfo.m_pMemberInfo.m_sHeadResourceFile;
 		theEBAppClient.EB_EditMember(&pEditPopMemberInfo);
@@ -2684,6 +2713,7 @@ void CPOPApp::EditGroupInfo(CWnd* pParent, eb::bigint sGroupCode)
 	pDlgGroupInfo.m_sUrl = pGroupInfo.m_sUrl.c_str();
 	pDlgGroupInfo.m_sAddress = pGroupInfo.m_sAddress.c_str();
 	pDlgGroupInfo.m_sDescription = pGroupInfo.m_sDescription.c_str();
+	pDlgGroupInfo.m_nDisplayIndex = pGroupInfo.m_nDisplayIndex;
 	if (pDlgGroupInfo.DoModal() == IDOK)
 	{
 		EB_GroupInfo pEditPopDepartment(pGroupInfo.m_sEnterpriseCode, pGroupInfo.m_sGroupCode);
@@ -2697,6 +2727,7 @@ void CPOPApp::EditGroupInfo(CWnd* pParent, eb::bigint sGroupCode)
 		pEditPopDepartment.m_sUrl = (LPCTSTR)pDlgGroupInfo.m_sUrl;
 		pEditPopDepartment.m_sAddress = (LPCTSTR)pDlgGroupInfo.m_sAddress;
 		pEditPopDepartment.m_sDescription = (LPCTSTR)pDlgGroupInfo.m_sDescription;
+		pEditPopDepartment.m_nDisplayIndex = pDlgGroupInfo.m_nDisplayIndex;
 		theEBAppClient.EB_EditGroup(&pEditPopDepartment);
 	}
 #endif
@@ -2755,8 +2786,12 @@ Image * CPOPApp::GetUserHeadImage(mycp::bigint nUserId,const tstring& sAccount) 
 	{
 		if (!sImagePath.empty())
 		{
-			USES_CONVERSION;
-			pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+			pImage = libEbc::LoadImageFromFile(sImagePath.c_str());
+			if (pImage==NULL)
+			{
+				USES_CONVERSION;
+				pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+			}
 		}else
 		{
 			pImage = theApp.m_imageDefaultMember->Clone();
@@ -2848,53 +2883,82 @@ int CALLBACK CPOPApp::TreeCmpFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamS
 			return pItemInfo1->m_dwItemData>pItemInfo2->m_dwItemData?1:-1;
 	}else if (pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP && pItemInfo2->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP)
 	{
-		// 群（部门）比较，用名称排序
-		if (pItemInfo1->m_nSubType!=pItemInfo2->m_nSubType)
-		{
+		// 群组（部门）排序
+		if (pItemInfo1->m_nSubType!=pItemInfo2->m_nSubType)						// a 先按类型排序
 			return pItemInfo1->m_nSubType>pItemInfo2->m_nSubType?1:-1;
-		}else if (pItemInfo1->m_nIndex==pItemInfo2->m_nIndex)
+		else if (pItemInfo1->m_nIndex!=pItemInfo2->m_nIndex)					// b 再按排序比较
+			return pItemInfo1->m_nIndex<pItemInfo2->m_nIndex?1:-1;	// 排序值高显示在前面
+		else																													// c 最后按名称gbk排序
 			return strcmp(pItemInfo1->m_sName.c_str(), pItemInfo2->m_sName.c_str());
-		else
-			return pItemInfo1->m_nIndex>pItemInfo2->m_nIndex?1:-1;
 	}else if ((pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER && pItemInfo2->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER) ||
 		(pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT && pItemInfo2->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT))
 	{
-		if (pItemInfo1->m_nSubType!=pItemInfo2->m_nSubType)
+		if (pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_MEMBER)
 		{
-			return pItemInfo1->m_nSubType>pItemInfo2->m_nSubType?-1:1;
+			// 员工按照权限类型比较排序
+			if (pItemInfo1->m_nIndex!=pItemInfo2->m_nIndex)								// a 先按排序比较
+			{
+				return pItemInfo1->m_nIndex<pItemInfo2->m_nIndex?1:-1;
+			}else if (pItemInfo1->m_nSubType!=pItemInfo2->m_nSubType)			// b 再按类型排序
+			{
+				return pItemInfo1->m_nSubType>pItemInfo2->m_nSubType?-1:1;
+			}
+		}else
+		{
+			// 联系人，按照有没有UID排序；
+			if (pItemInfo2->m_nUserId>0 && pItemInfo1->m_nUserId==0) return 1; 				// 第2个有UID，对换位置
+			else if (pItemInfo1->m_nUserId>0 && pItemInfo2->m_nUserId==0) return -1;	// 第2个0，不用对换位置
 		}
 
 		// 员工比较，先比较在线状态
-		if (pItemInfo1->m_dwItemData==pItemInfo2->m_dwItemData)
+		if ((pItemInfo1->m_dwItemData==EB_LINE_STATE_ONLINE_NEW && pItemInfo2->m_dwItemData<EB_LINE_STATE_ONLINE_NEW) ||
+			(pItemInfo1->m_dwItemData>=EB_LINE_STATE_BUSY && pItemInfo2->m_dwItemData<EB_LINE_STATE_BUSY))
 		{
-			// 相同在线状态，比较名称
-			return strcmp(pItemInfo1->m_sName.c_str(), pItemInfo2->m_sName.c_str());
-		}else if (pItemInfo1->m_dwItemData==EB_LINE_STATE_ONLINE_NEW)
-		{
-			// 第一个在线，不用换位置
+			// a 第一个在线，第二个其他 不用换位置
+			// b 第一个离开/忙，第二个离线 不用换位置
 			return -1;
-		}else if (pItemInfo2->m_dwItemData==EB_LINE_STATE_ONLINE_NEW)
+		}else if ((pItemInfo2->m_dwItemData==EB_LINE_STATE_ONLINE_NEW && pItemInfo1->m_dwItemData<EB_LINE_STATE_ONLINE_NEW) ||
+			(pItemInfo2->m_dwItemData>=EB_LINE_STATE_BUSY && pItemInfo1->m_dwItemData<EB_LINE_STATE_BUSY))
 		{
-			// 第二个在线，对调位置
-			return 1;
-		}else if (pItemInfo1->m_dwItemData==EB_LINE_STATE_OFFLINE)
-		{
-			// 第一个离线，对调位置
-			return 1;
-		}else if (pItemInfo2->m_dwItemData==EB_LINE_STATE_OFFLINE)
-		{
-			// 第二个离线，不用换位置
-			return -1;
-		}else if (pItemInfo1->m_dwItemData!=EB_LINE_STATE_OFFLINE)
-		{
-			// 第一个不是离线，不用换位置
-			return -1;
-		}else if (pItemInfo2->m_dwItemData!=EB_LINE_STATE_OFFLINE)
-		{
-			// 第二个不是离线，对调位置
+			// a 第2个在线，第1个其他 对调位置
+			// b 第2个离开/忙，第1个离线 对调位置
 			return 1;
 		}
 		return strcmp(pItemInfo1->m_sName.c_str(), pItemInfo2->m_sName.c_str());
+		//if (pItemInfo1->m_dwItemData==pItemInfo2->m_dwItemData)
+		//{
+		//	// 相同在线状态，比较名称
+		//	return strcmp(pItemInfo1->m_sName.c_str(), pItemInfo2->m_sName.c_str());
+		//}else if (pItemInfo1->m_dwItemData==EB_LINE_STATE_ONLINE_NEW && pItemInfo2->m_dwItemData<=EB_LINE_STATE_OFFLINE)
+		//{
+		//	// 第一个在线，第二个离线，不用换位置
+		//	return -1;
+		//}else if (pItemInfo2->m_dwItemData==EB_LINE_STATE_ONLINE_NEW && pItemInfo1->m_dwItemData<=EB_LINE_STATE_OFFLINE)
+		//{
+		//	// 第二个在线，第一个离线，对调位置
+		//	return 1;
+		////}else if (pItemInfo1->m_dwItemData<=EB_LINE_STATE_OFFLINE)
+		//////}else if (pItemInfo1->m_dwItemData==EB_LINE_STATE_OFFLINE)
+		////{
+		////	// 第一个离线，对调位置
+		////	return 1;
+		////}else if (pItemInfo2->m_dwItemData<=EB_LINE_STATE_OFFLINE)
+		//////}else if (pItemInfo2->m_dwItemData==EB_LINE_STATE_OFFLINE)
+		////{
+		////	// 第二个离线，不用换位置
+		////	return -1;
+		////}else if (pItemInfo1->m_dwItemData>EB_LINE_STATE_OFFLINE)
+		//////}else if (pItemInfo1->m_dwItemData!=EB_LINE_STATE_OFFLINE)
+		////{
+		////	// 第一个不是离线，不用换位置
+		////	return -1;
+		////}else if (pItemInfo2->m_dwItemData>EB_LINE_STATE_OFFLINE)
+		//////}else if (pItemInfo2->m_dwItemData!=EB_LINE_STATE_OFFLINE)
+		////{
+		////	// 第二个不是离线，对调位置
+		////	return 1;
+		//}
+		//return strcmp(pItemInfo1->m_sName.c_str(), pItemInfo2->m_sName.c_str());
 	}else if (pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP || pItemInfo1->m_nItemType==CTreeItemInfo::ITEM_TYPE_DIR)
 	{
 		// 第一个是部门（目录），排前面（不用调位置）
@@ -3286,22 +3350,42 @@ void CPOPApp::UpdateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, in
 	}
 }
 
-bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const
+bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,Gdiplus::Image*& pImage3,int& pState) const
 {
-	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
+	CTreeItemInfo * pTreeItemInfo = (CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
 	if (pTreeItemInfo == NULL) return false;
 	if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_SUBINFO)
 	{
+		if (pTreeItemInfo->m_pHeadImage!=NULL)
+		{
+			pImage1 = pTreeItemInfo->m_pHeadImage;
+			return true;
+		}
 		tstring sResFile(pTreeItemInfo->m_sGroupName);
 		if (!PathFileExists(sResFile))
 		{
 			sResFile = m_sDefaultAppImage;
 		}
 		USES_CONVERSION;
-		pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sResFile.c_str()));
+		pTreeItemInfo->m_pHeadImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sResFile.c_str()));
+		pImage1 = pTreeItemInfo->m_pHeadImage;
 		return true;
+		//tstring sResFile(pTreeItemInfo->m_sGroupName);
+		//if (!PathFileExists(sResFile))
+		//{
+		//	sResFile = m_sDefaultAppImage;
+		//}
+		//USES_CONVERSION;
+		//pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sResFile.c_str()));
+		//return true;
 	}else if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_URL)
 	{
+		if (pTreeItemInfo->m_pHeadImage!=NULL)
+		{
+			pImage1 = pTreeItemInfo->m_pHeadImage;
+			return true;
+		}
+
 		CString sDomainName(pTreeItemInfo->m_sAccount.c_str());
 		CString sHttp;
 		int nFind = sDomainName.Find("://");
@@ -3319,19 +3403,27 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 			if (PathFileExists(sFaviconFile))
 			{
 				USES_CONVERSION;
-				pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sFaviconFile));
+				pTreeItemInfo->m_pHeadImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sFaviconFile));
+				pImage1 = pTreeItemInfo->m_pHeadImage;
 				return true;
 			}
 		}
 	}else if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_ENTERPRISE)
 	{
-		pImage1 = m_imageDefaultOrg->Clone();
+		if (pTreeItemInfo->m_pHeadImage==NULL)
+			pTreeItemInfo->m_pHeadImage = m_imageDefaultOrg->Clone();
+		pImage1 = pTreeItemInfo->m_pHeadImage;
 		return true;
 	}
 	else if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP)
 	{
-		if (pTreeItemInfo->m_sId==0)
+		if (pTreeItemInfo->m_sId==0)	// ** 我的部门（群组）显示图标不是跑这里，跑 GetItemDrawOpenClose 获取
 			return false;
+		if (pTreeItemInfo->m_pHeadImage!=NULL)
+		{
+			pImage1 = pTreeItemInfo->m_pHeadImage;
+			return true;
+		}
 		// MsgTip
 		EB_GROUP_TYPE nGroupType = EB_GROUP_TYPE_DEPARTMENT;
 		if (!theEBAppClient.EB_GetGroupType(pTreeItemInfo->m_sGroupCode,nGroupType))
@@ -3339,25 +3431,27 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 		switch(nGroupType)
 		{
 		case EB_GROUP_TYPE_DEPARTMENT:
-			pImage1 = m_imageDefaultDepartment->Clone();
+			pTreeItemInfo->m_pHeadImage = m_imageDefaultDepartment->Clone();
 			break;
 		case EB_GROUP_TYPE_PROJECT:
-			pImage1 = m_imageDefaultProject->Clone();
+			pTreeItemInfo->m_pHeadImage = m_imageDefaultProject->Clone();
 			break;
 		case EB_GROUP_TYPE_GROUP:
-			pImage1 = m_imageDefaultGroup->Clone();
+			pTreeItemInfo->m_pHeadImage = m_imageDefaultGroup->Clone();
 			break;
 		default:
-			pImage1 = m_imageDefaultTempGroup->Clone();
+			pTreeItemInfo->m_pHeadImage = m_imageDefaultTempGroup->Clone();
 			break;
 		}
+		pImage1 = pTreeItemInfo->m_pHeadImage;
 		return true;
 		//return false;
 	}
 	else if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_CONTACT)
 	{
 		CEBString sImagePath;
-		bool bIsMemberAccount = false;
+		bool bFind = false;
+		//bool bIsMemberAccount = false;
 		EB_USER_LINE_STATE pOutLineState = GetAuthContact()?(EB_USER_LINE_STATE)pTreeItemInfo->m_dwItemData:EB_LINE_STATE_ONLINE_NEW;
 #ifdef USES_EBCOM_TEST
 		CComPtr<IEB_MemberInfo> pMemberInfo;
@@ -3378,25 +3472,63 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 			}
 		}
 #else
-		EB_MemberInfo pMemberInfo;
-		bool bFind = false;
-		if (pTreeItemInfo->m_nUserId>0)
-			bFind = theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,pTreeItemInfo->m_nUserId);
-		if (!bFind)
-			bFind = theEBAppClient.EB_GetMemberInfoByAccount2(&pMemberInfo,pTreeItemInfo->m_sAccount.c_str());
-		if (bFind)
+		//bool bFind = false;
+		tstring sHeadMd5;
+		EB_USER_LINE_STATE pLineStateTemp = EB_LINE_STATE_UNKNOWN;
+		if (theEBAppClient.EB_GetContactHeadInfoByContactId(pTreeItemInfo->m_sId, sImagePath, sHeadMd5, pLineStateTemp))
 		{
-			bIsMemberAccount = true;
 			if (GetAuthContact())
-			//if (!GetAuthContact())
-				pOutLineState = pMemberInfo.m_nLineState;
-			if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
 			{
-				sImagePath = pMemberInfo.m_sHeadResourceFile;
+				pOutLineState = pLineStateTemp;
 			}
+			if (PathFileExists(sImagePath.c_str()))
+				bFind = true;
+		}
+		//EB_ContactInfo pContactInfo;
+		//if (theEBAppClient.EB_GetContactInfo1(pTreeItemInfo->m_sId, &pContactInfo))
+		//{
+		//	//if (!GetAuthContact())
+		//	if (GetAuthContact())
+		//	{
+		//		pOutLineState = pContactInfo.m_nLineState;
+		//	}
+		//	if (PathFileExists(pContactInfo.m_sHeadResourceFile.c_str()))
+		//	{
+		//		bFind = true;
+		//		sImagePath = pContactInfo.m_sHeadResourceFile;
+		//	}
+		//}
+		if (!bFind)
+		{
+			if (pTreeItemInfo->m_nUserId>0)
+				bFind = theEBAppClient.EB_GetMemberHeadInfoByUserId(pTreeItemInfo->m_nUserId,sImagePath,sHeadMd5,pLineStateTemp);
+			if (!bFind)
+				bFind = theEBAppClient.EB_GetMemberHeadInfoByAccount(pTreeItemInfo->m_sAccount.c_str(),sImagePath,sHeadMd5,pLineStateTemp);
+			if (bFind)
+			{
+				if (GetAuthContact())
+					pOutLineState = pLineStateTemp;
+			}
+			//EB_MemberInfo pMemberInfo;
+			//if (pTreeItemInfo->m_nUserId>0)
+			//	bFind = theEBAppClient.EB_GetMemberInfoByUserId2(&pMemberInfo,pTreeItemInfo->m_nUserId);
+			//if (!bFind)
+			//	bFind = theEBAppClient.EB_GetMemberInfoByAccount2(&pMemberInfo,pTreeItemInfo->m_sAccount.c_str());
+			//if (bFind)
+			//{
+			//	//bIsMemberAccount = true;
+			//	if (GetAuthContact())
+			//		//if (!GetAuthContact())
+			//		pOutLineState = pMemberInfo.m_nLineState;
+			//	if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
+			//	{
+			//		sImagePath = pMemberInfo.m_sHeadResourceFile;
+			//	}
+			//}
 		}
 #endif
-		if (bIsMemberAccount)
+		if (bFind)
+		//if (bIsMemberAccount)
 		{
 			switch (pOutLineState)
 			{
@@ -3417,19 +3549,40 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 			default:
 				break;
 			}
-			if (!sImagePath.empty())
+			if (!sImagePath.empty() && PathFileExists(sImagePath.c_str()))
 			{
-				USES_CONVERSION;
-				pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+				if (pTreeItemInfo->m_sHeadMd5!=sHeadMd5 || pTreeItemInfo->m_pHeadImage==NULL)
+				{
+					Gdiplus::Image * pUserHead = libEbc::LoadImageFromFile(sImagePath.c_str());
+					if (pUserHead==NULL)
+					{
+						USES_CONVERSION;
+						pUserHead = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+					}
+					pTreeItemInfo->UpdateHead(pUserHead,sHeadMd5);
+					//USES_CONVERSION;
+					//pTreeItemInfo->UpdateHead(new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str())),sHeadMd5);
+				}
 			}else
 			{
-				pImage1 = m_imageDefaultContact->Clone();
-				//sImagePath = (LPCTSTR)this->GetAppPath();
-				//sImagePath.append("\\img\\h02.png");
-				//USES_CONVERSION;
-				//pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
-				////pImage1 = m_imageDefaultMember->Clone();
+				if (!pTreeItemInfo->m_sHeadMd5.empty() || pTreeItemInfo->m_pHeadImage==NULL)
+					pTreeItemInfo->UpdateHead(m_imageDefaultContact->Clone(),"");
 			}
+			pImage1 = pTreeItemInfo->m_pHeadImage;
+
+			//if (!sImagePath.empty() && PathFileExists(sImagePath.c_str()))
+			//{
+			//	USES_CONVERSION;
+			//	pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+			//}else
+			//{
+			//	pImage1 = m_imageDefaultContact->Clone();
+			//	//sImagePath = (LPCTSTR)this->GetAppPath();
+			//	//sImagePath.append("\\img\\h02.png");
+			//	//USES_CONVERSION;
+			//	//pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+			//	////pImage1 = m_imageDefaultMember->Clone();
+			//}
 		}else
 		{
 			//// contact
@@ -3453,7 +3606,10 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 				break;
 			}
 			//pState = 0;	// 非成员，全部用灰色
-			pImage1 = m_imageDefaultContact->Clone();
+			if (!pTreeItemInfo->m_sHeadMd5.empty() || pTreeItemInfo->m_pHeadImage==NULL)
+				pTreeItemInfo->UpdateHead(m_imageDefaultContact->Clone(),"");
+			pImage1 = pTreeItemInfo->m_pHeadImage;
+			//pImage1 = m_imageDefaultContact->Clone();
 		}
 		return true;
 	}
@@ -3474,16 +3630,18 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 			}
 		}
 #else
-		EB_MemberInfo pMemberInfo;
-		if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,pTreeItemInfo->m_sMemberCode))
-		{
-			//sDescription = pMemberInfo.m_sDescription;
-			pOutLineState = pMemberInfo.m_nLineState;
-			if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
-			{
-				sImagePath = pMemberInfo.m_sHeadResourceFile;
-			}
-		}
+		tstring sHeadMd5;
+		theEBAppClient.EB_GetMemberHeadInfoByMemberCode(pTreeItemInfo->m_sMemberCode,sImagePath,sHeadMd5,pOutLineState);
+		//EB_MemberInfo pMemberInfo;
+		//if (theEBAppClient.EB_GetMemberInfoByMemberCode(&pMemberInfo,pTreeItemInfo->m_sMemberCode))
+		//{
+		//	//sDescription = pMemberInfo.m_sDescription;
+		//	pOutLineState = pMemberInfo.m_nLineState;
+		//	if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
+		//	{
+		//		sImagePath = pMemberInfo.m_sHeadResourceFile;
+		//	}
+		//}
 #endif
 		switch (pOutLineState)
 		{
@@ -3504,20 +3662,54 @@ bool CPOPApp::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::I
 		default:
 			break;
 		}
-		if (!sImagePath.empty())
+		if ((pTreeItemInfo->m_nExtData&CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH)!=0)
+			pImage3 = m_imageStateForbid;
+
+		if (!sImagePath.empty() && PathFileExists(sImagePath.c_str()))
 		{
-			USES_CONVERSION;
-			pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+			//if (!sHeadMd5.empty())
+			//{
+			//	mycp::bigint nFileSizeTemp = 0;
+			//	tstring sFileMd5Temp;
+			//	if (libEbc::GetFileMd5(sImagePath.c_str(),nFileSizeTemp,sFileMd5Temp) && sFileMd5Temp!=sHeadMd5)
+			//	{
+			//		sHeadMd5 = sFileMd5Temp;
+			//	}
+			//}
+
+			if (pTreeItemInfo->m_sHeadMd5!=sHeadMd5 || pTreeItemInfo->m_pHeadImage==NULL)
+			{
+				Gdiplus::Image * pUserHead = libEbc::LoadImageFromFile(sImagePath.c_str());
+				if (pUserHead==NULL)
+				{
+					USES_CONVERSION;
+					pUserHead = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+				}
+				pTreeItemInfo->UpdateHead(pUserHead,sHeadMd5);
+				//USES_CONVERSION;
+				//pTreeItemInfo->UpdateHead(new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str())),sHeadMd5);
+			}
 		}else
 		{
-			//sImagePath = (LPCTSTR)this->GetAppPath();
-			//sImagePath.append("\\img\\entlogo.png");
-			//USES_CONVERSION;
-			//pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
-			//libEbc::ImageFromIDResource(IDB_PNG_DEFAULT_MEMBER,_T("PNG"),pImage1);
-			pImage1 = m_imageDefaultMember->Clone();
-			//return libEbc::ImageFromIDResource(IDB_PNG_DEFAULT_MEMBER,_T("png"),pImage1)?true:false;
+			if (!pTreeItemInfo->m_sHeadMd5.empty() || pTreeItemInfo->m_pHeadImage==NULL)
+				pTreeItemInfo->UpdateHead(m_imageDefaultMember->Clone(),"");
 		}
+		pImage1 = pTreeItemInfo->m_pHeadImage;
+
+		//if (!sImagePath.empty() && PathFileExists(sImagePath.c_str()))
+		//{
+		//	USES_CONVERSION;
+		//	pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+		//}else
+		//{
+		//	//sImagePath = (LPCTSTR)this->GetAppPath();
+		//	//sImagePath.append("\\img\\entlogo.png");
+		//	//USES_CONVERSION;
+		//	//pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+		//	//libEbc::ImageFromIDResource(IDB_PNG_DEFAULT_MEMBER,_T("PNG"),pImage1);
+		//	pImage1 = m_imageDefaultMember->Clone();
+		//	//return libEbc::ImageFromIDResource(IDB_PNG_DEFAULT_MEMBER,_T("png"),pImage1)?true:false;
+		//}
 		return true;
 	}
 	return false;
@@ -3564,7 +3756,7 @@ bool CPOPApp::GetItemIcon(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,HICON& pIco
 	return false;
 }
 
-bool CPOPApp::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,CBitmap** pBitmapOpened,CBitmap** pBitmapClosed) const
+bool CPOPApp::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,const CBitmap** pBitmapOpened,const CBitmap** pBitmapClosed) const
 {
 	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
 	if (pTreeItemInfo == NULL) return false;

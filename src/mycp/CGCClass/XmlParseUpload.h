@@ -19,7 +19,7 @@
 // XmlParseUpload.h file here
 #ifndef __XmlParseUpload_h__
 #define __XmlParseUpload_h__
-#ifdef WIN32
+#ifdef _MSC_VER	//WIN32
 #pragma warning(disable:4819)
 #endif
 

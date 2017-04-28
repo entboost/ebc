@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
 
@@ -650,7 +650,7 @@ std::string SotpCallTable2::toSessionResult(SOTP_PROTO_VERSION nVersion,int prot
 		//	sType = _T("ACTIVE");
 		//	break;
 		//case 10:
-		//	sType = _T("OPEN");	// 用于临时打开SESSION
+		//	sType = _T("OPEN");	// 鐢ㄤ簬涓存椂鎵撳紑SESSION
 		//	break;
 		//default:
 		//	sType = _T("UNKNOWN");
@@ -703,7 +703,7 @@ std::string SotpCallTable2::toSessionResult(SOTP_PROTO_VERSION nVersion,int prot
 			sType = _T("ACTIVE");
 			break;
 		case 10:
-			sType = _T("OPEN");	// 用于临时打开SESSION
+			sType = _T("OPEN");	// 鐢ㄤ簬涓存椂鎵撳紑SESSION
 			break;
 		default:
 			sType = _T("UNKNOWN");
@@ -917,7 +917,7 @@ std::string SotpCallTable2::GetParametersString(SOTP_PROTO_VERSION nVersion) con
 	cgcParameterMap::const_iterator pConstIter;
 	for (pConstIter=m_parameters.begin(); pConstIter!=m_parameters.end(); pConstIter++)
 	{
-		cgcParameter::pointer parameter = pConstIter->second;
+		const cgcParameter::pointer& parameter = pConstIter->second;
 #ifdef WIN32
 		cgcValueInfo::ValueType nValueType = parameter->getType();
 #endif

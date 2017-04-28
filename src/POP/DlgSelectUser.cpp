@@ -390,7 +390,7 @@ int CDlgSelectUser::GetLocalMemberSize(eb::bigint nGroupId) const
 	CLockMap<eb::bigint, CTreeItemInfo::pointer>::const_iterator pIter = m_pEntEmpTreeItem.begin();
 	for (;pIter!=m_pEntEmpTreeItem.end(); pIter++)
 	{
-		CTreeItemInfo::pointer pItemInfo = pIter->second;
+		const CTreeItemInfo::pointer& pItemInfo = pIter->second;
 		if (pItemInfo->m_sGroupCode==nGroupId)
 			nResult++;
 	}
@@ -471,12 +471,33 @@ void CDlgSelectUser::onMemberInfo(const EB_MemberInfo* pMemberInfo)
 			pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 			pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 			pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
-			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
-			pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
 			m_pEntEmpTreeItem.insert(pEmpItemInfo->m_sMemberCode,pEmpItemInfo);
 			m_treeEnterprise.SetItemData(hEmpItem,(DWORD)pEmpItemInfo.get());
-			m_treeEnterprise.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
+		}else
+		{
+			m_treeEnterprise.SetItemText(pEmpItemInfo->m_hItem, sText);
 		}
+		pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
+		pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+		pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+		if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+			pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+		else
+			pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+
+		if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 11;
+		else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 10;
+		else if (theEBAppClient.EB_IsGroupManager(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 10;
+		else if (theEBAppClient.EB_IsGroupAdminLevel(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 9;
+		else if (theApp.GetLogonUserId()==pMemberInfo->m_nMemberUserId)
+			pEmpItemInfo->m_nSubType = 1;
+		else
+			pEmpItemInfo->m_nSubType = 0;
+		m_treeEnterprise.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
 	}
 	if (m_pMyDepTreeItem.find(pMemberInfo->m_sGroupCode,pDepItemInfo))
 	{
@@ -490,12 +511,33 @@ void CDlgSelectUser::onMemberInfo(const EB_MemberInfo* pMemberInfo)
 			pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 			pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 			pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
-			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
-			pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
 			m_pMyEmpTreeItem.insert(pEmpItemInfo->m_sMemberCode,pEmpItemInfo);
 			m_treeDepartment.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
-			m_treeDepartment.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
+		}else
+		{
+			m_treeDepartment.SetItemText(pEmpItemInfo->m_hItem, sText);
 		}
+		pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
+		pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+		pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+		if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+			pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+		else
+			pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+
+		if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 11;
+		else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 10;
+		else if (theEBAppClient.EB_IsGroupManager(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 10;
+		else if (theEBAppClient.EB_IsGroupAdminLevel(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+			pEmpItemInfo->m_nSubType = 9;
+		else if (theApp.GetLogonUserId()==pMemberInfo->m_nMemberUserId)
+			pEmpItemInfo->m_nSubType = 1;
+		else
+			pEmpItemInfo->m_nSubType = 0;
+		m_treeDepartment.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
 	}
 
 	//eb::bigint nSelectedEmpId = 0;
@@ -615,12 +657,33 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 				pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 				pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 				pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
-				pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
-				pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
 				m_pEntEmpTreeItem.insert(pEmpItemInfo->m_sMemberCode,pEmpItemInfo);
 				m_treeEnterprise.SetItemData(hEmpItem,(DWORD)pEmpItemInfo.get());
-				m_treeEnterprise.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
+			}else
+			{
+				m_treeEnterprise.SetItemText(pEmpItemInfo->m_hItem,sText);
 			}
+			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
+			pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+			pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+			if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+				pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+			else
+				pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+
+			if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 11;
+			else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 10;
+			else if (theEBAppClient.EB_IsGroupManager(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 10;
+			else if (theEBAppClient.EB_IsGroupAdminLevel(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 9;
+			else if (theApp.GetLogonUserId()==pMemberInfo->m_nMemberUserId)
+				pEmpItemInfo->m_nSubType = 1;
+			else
+				pEmpItemInfo->m_nSubType = 0;
+			m_treeEnterprise.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
 		}
 		if (m_pMyDepTreeItem.find(pMemberInfo->m_sGroupCode,pDepItemInfo))
 		{
@@ -634,12 +697,33 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 				pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 				pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 				pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
-				pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
-				pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
 				m_pMyEmpTreeItem.insert(pEmpItemInfo->m_sMemberCode,pEmpItemInfo);
 				m_treeDepartment.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
-				m_treeDepartment.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
+			}else
+			{
+				m_treeDepartment.SetItemText(pEmpItemInfo->m_hItem,sText);
 			}
+			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
+			pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+			pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+			if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+				pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+			else
+				pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+
+			if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 11;
+			else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 10;
+			else if (theEBAppClient.EB_IsGroupManager(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 10;
+			else if (theEBAppClient.EB_IsGroupAdminLevel(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+				pEmpItemInfo->m_nSubType = 9;
+			else if (theApp.GetLogonUserId()==pMemberInfo->m_nMemberUserId)
+				pEmpItemInfo->m_nSubType = 1;
+			else
+				pEmpItemInfo->m_nSubType = 0;
+			m_treeDepartment.Sort(pDepItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
 		}
 
 		if (m_nSelectedGroupId==0 || m_nSelectedGroupId==pMemberInfo->m_sGroupCode)
@@ -665,6 +749,25 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 					pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 					pEmpItemInfo->m_sAccount = pMemberInfo->m_sMemberAccount;
 					pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
+					//pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+					//if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+					//	pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+					//else
+					//	pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+
+					//if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+					//	pEmpItemInfo->m_nSubType = 11;
+					//else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+					//	pEmpItemInfo->m_nSubType = 10;
+					//else if (theEBAppClient.EB_IsGroupManager(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+					//	pEmpItemInfo->m_nSubType = 10;
+					//else if (theEBAppClient.EB_IsGroupAdminLevel(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
+					//	pEmpItemInfo->m_nSubType = 9;
+					//else if (theApp.GetLogonUserId()==pMemberInfo->m_nMemberUserId)
+					//	pEmpItemInfo->m_nSubType = 1;
+					//else
+					//	pEmpItemInfo->m_nSubType = 0;
+
 					m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
 					//m_pSelectedTreeItem.insert(pMemberInfo->m_sMemberAccount, pMemberInfo->m_sMemberCode);
 					m_pSelectedItem.insert(pMemberInfo->m_sMemberAccount,pEmpItemInfo);
@@ -686,10 +789,11 @@ void CDlgSelectUser::onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_Membe
 			pEmpItemInfo->m_sGroupCode = pMemberInfo->m_sGroupCode;
 			pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
 			pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+			//pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
 			m_treeSearch.SetItemData(hSearchItem,(DWORD)pEmpItemInfo.get());
 			m_pSearchItem1.insert(pMemberInfo->m_sMemberAccount, pEmpItemInfo);
-			m_treeSearch.Sort(TVI_ROOT, CPOPApp::TreeCmpFunc);
 		}
+		m_treeSearch.Sort(TVI_ROOT, CPOPApp::TreeCmpFunc);
 	}
 }
 #endif
@@ -794,6 +898,9 @@ void CDlgSelectUser::onContactInfo(const EB_ContactInfo* pContactInfo, unsigned 
 			m_pContactGroupItem.insert(nUGId, pGroupItemInfo);
 			m_treeContacts.SetItemData(hGroupItem,(DWORD)pGroupItemInfo.get());
 			//m_treeContacts.SortChildren(TVI_ROOT);
+		//}else
+		//{
+		//	m_treeContacts.SetItemText(pGroupItemInfo->m_hItem,sGroupName.c_str());
 		}
 		HTREEITEM hContactItem = m_treeContacts.InsertItem(sText,pGroupItemInfo->m_hItem);
 		CTreeItemInfo::pointer pContactItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_CONTACT,hContactItem);
@@ -1046,6 +1153,7 @@ void CDlgSelectUser::SelectEnterprise(HTREEITEM hSelItem)
 			pEmpItemInfo->m_nUserId = pDepItemInfo->m_nUserId;
 			pEmpItemInfo->m_sAccount = pDepItemInfo->m_sAccount;
 			pEmpItemInfo->m_sName = pDepItemInfo->m_sName;
+			//pEmpItemInfo->m_nIndex = pDepItemInfo->m_nIndex;	// ?
 			m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
 #ifdef USES_SELECTED_ITEM_UID
 			m_pSelectedUserTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_nUserId);
@@ -1079,6 +1187,7 @@ void CDlgSelectUser::SelectDepartment(HTREEITEM hSelItem)
 			pEmpItemInfo->m_nUserId = pDepItemInfo->m_nUserId;
 			pEmpItemInfo->m_sAccount = pDepItemInfo->m_sAccount;
 			pEmpItemInfo->m_sName = pDepItemInfo->m_sName;
+			//pEmpItemInfo->m_nIndex = pDepItemInfo->m_nIndex;	// ?
 			m_treeSelected.SetItemData(hEmpItem, (DWORD)pEmpItemInfo.get());
 #ifdef USES_SELECTED_ITEM_UID
 			m_pSelectedUserTreeItem.insert(pEmpItemInfo->m_sAccount, pEmpItemInfo->m_nUserId);
@@ -1152,6 +1261,7 @@ void CDlgSelectUser::SelectSearch(HTREEITEM hSelItem)
 		pEmpItemInfo->m_sAccount = pItemInfo->m_sAccount;
 		pEmpItemInfo->m_nUserId = pItemInfo->m_nUserId;
 		pEmpItemInfo->m_sName = pItemInfo->m_sName;
+		//pEmpItemInfo->m_nIndex = pItemInfo->m_nIndex;	// ?
 		m_treeSelected.SetItemData(hEmpItem,(DWORD)pEmpItemInfo.get());
 #ifdef USES_SELECTED_ITEM_UID
 		m_pSelectedUserTreeItem.insert(pItemInfo->m_sAccount,pItemInfo->m_nUserId);
@@ -1551,12 +1661,6 @@ void CDlgSelectUser::OnDestroy()
 //		}
 //	}
 //	return false;
-//}
-//bool CDlgSelectUser::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const
-//{
-//	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
-//	if (pTreeItemInfo == NULL) return false;
-//	return pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP || pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_ENTERPRISE;
 //}
 
 void CDlgSelectUser::OnOK()

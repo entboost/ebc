@@ -20,7 +20,9 @@
 #ifndef __mycp_cgcSmartString_head__
 #define __mycp_cgcSmartString_head__
 
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4996)
+#endif
 
 #include <string>
 #include <boost/shared_ptr.hpp>
@@ -54,7 +56,7 @@
 #undef W2A_CP
 #undef A2W_CP_EX
 #undef W2A_CP_EX
-// 强制使用安全版本
+// 寮哄埗浣跨敤瀹夊叏鐗堟湰
 #define USES_CONVERSION	USES_CONVERSION_EX
 #define A2W(lpa)	A2W_EX(lpa, 0)
 #define W2A(lpw)	W2A_EX(lpw, 0)

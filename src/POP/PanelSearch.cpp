@@ -56,6 +56,9 @@ BEGIN_MESSAGE_MAP(CPanelSearch, CEbDialogBase)
 	ON_COMMAND(EB_COMMAND_CLEAR_HISROTY, &OnCmdClearHistory)
 	ON_COMMAND(EB_COMMAND_CHANGE_BROWSER_TYPE, &OnCmdChangeBrowserType)
 	ON_COMMAND(EB_COMMAND_FILE_MANAGER, &OnCmdFileManager)
+	ON_COMMAND(EB_COMMAND_SEARCH_BAIDU, &OnCmdSearchBaidu)
+	ON_COMMAND(EB_COMMAND_SEARCH_SOGOU, &OnCmdSearchSogou)
+	ON_COMMAND(EB_COMMAND_SEARCH_360, &OnCmdSearch360)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
 	ON_MESSAGE(EB_COMMAND_SEARCH_SET_FOCUS_SEL, OnMsgSearchSetFocusSel)
 	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
@@ -190,6 +193,14 @@ void CPanelSearch::OnBnClickedButtonOptions()
 	}
 #endif
 	CNewMenu m_pOptionsMenu;
+	//CNewMenu pSearchMenu;
+	//if (pSearchMenu.GetSafeHmenu()==NULL)
+	//{
+	//	pSearchMenu.CreatePopupMenu();
+	//	pSearchMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SEARCH_BAIDU,_T("°Ù¶ÈËÑË÷(&B)"));
+	//	pSearchMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SEARCH_SOGOU,_T("ËÑ¹·ËÑË÷(&S)"));
+	//	pSearchMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SEARCH_360,_T("360ËÑË÷(&3)"));
+	//}
 
 	if (m_pOptionsMenu.GetSafeHmenu()==NULL)
 	{
@@ -215,6 +226,8 @@ void CPanelSearch::OnBnClickedButtonOptions()
 		//m_pOptionsMenu.ModifyMenu(0,MF_BYPOSITION,EB_COMMAND_CHANGE_BROWSER_TYPE,sChangeBrowserText);
 #endif
 	}
+	//m_pOptionsMenu.AppendMenu(MF_SEPARATOR);
+	//m_pOptionsMenu.AppendMenu(MF_POPUP,(UINT)pSearchMenu.m_hMenu,_T("ËÑË÷"));
 	m_pOptionsMenu.AppendMenu(MF_SEPARATOR);
 	m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_FILE_MANAGER,_T("ÎÄ¼þ´«Êä¹ÜÀí"));
 
@@ -431,6 +444,24 @@ void CPanelSearch::OnCmdClearHistory()
 void CPanelSearch::OnCmdChangeBrowserType()
 {
 	this->GetParent()->PostMessage(EB_COMMAND_CHANGE_BROWSER_TYPE);
+}
+void CPanelSearch::OnCmdSearchBaidu()
+{
+	COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo("https://www.baidu.com","");
+	pOpenAppUrlInfo->m_bSaveBrowseTitle = false;
+	theApp.GetMainWnd()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
+}
+void CPanelSearch::OnCmdSearchSogou()
+{
+	COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo("https://www.sogou.com","");
+	pOpenAppUrlInfo->m_bSaveBrowseTitle = false;
+	theApp.GetMainWnd()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
+}
+void CPanelSearch::OnCmdSearch360()
+{
+	COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo("https://www.so.com","");
+	pOpenAppUrlInfo->m_bSaveBrowseTitle = false;
+	theApp.GetMainWnd()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
 }
 void CPanelSearch::OnCmdFileManager()
 {

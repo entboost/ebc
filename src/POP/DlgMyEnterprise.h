@@ -71,11 +71,6 @@ protected:
 	void CallItem(HTREEITEM hItem);
 	void EditEmployeeInfo(HTREEITEM hItem);
 
-	//bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const;
-	//virtual HICON GetItemIcon(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
-	//virtual int GetItemState(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,HICON& pOutIcon) const;
-	//virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
-
 	LRESULT OnTreeItemSelChanged(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemDblclk(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);
@@ -100,6 +95,14 @@ protected:
 	afx_msg void OnEmployeeEdit();
 	afx_msg void OnMemberDelAdminLevel();
 	afx_msg void OnMemberAddAdminLevel();
+	afx_msg void OnMemberDelForbidSpeech();
+	afx_msg void OnMemberAddForbidSpeech_10();
+	afx_msg void OnMemberAddForbidSpeech_60();
+	afx_msg void OnMemberAddForbidSpeech_720();
+	afx_msg void OnMemberAddForbidSpeech_1440();
+	afx_msg void OnMemberAddForbidSpeech_0();
+	afx_msg void OnMemberDelGroupForbidSpeech();
+	afx_msg void OnMemberAddGroupForbidSpeech();
 	afx_msg void OnCallUser();
 	afx_msg void OnViewMsgRecord();
 	afx_msg void OnDeleteMsgRecord();

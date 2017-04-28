@@ -149,7 +149,6 @@ BOOL CDlgContactInfo::OnInitDialog()
 	//if (theApp.GetAuthContact() && !m_sContact.IsEmpty())
 	if (theApp.GetAuthContact())// || !m_sContact.IsEmpty())
 	{
-		//u.EnableWindow(FALSE);
 		m_editContact.SetReadOnly(TRUE);
 		m_editContact.EnableWindow(TRUE);
 	}else

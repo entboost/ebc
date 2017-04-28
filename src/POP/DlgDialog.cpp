@@ -161,14 +161,16 @@ void CDlgDialog::SetCtrlColor(bool bInvalidate)
 
 Gdiplus::Image* BuildImageFromFile(const WCHAR* sImageFile)
 {
-	Gdiplus::Image * pFromImage = new Gdiplus::Image(sImageFile);
+	USES_CONVERSION;
+	Gdiplus::Image * pFromImage = libEbc::LoadImageFromFile(W2A_ACP(sImageFile));
+	if (pFromImage==NULL)
+		pFromImage = new Gdiplus::Image(sImageFile);
 	const int nImageWidth = pFromImage->GetWidth();
 	const int nImageHeight = pFromImage->GetHeight();
 	// ** 处理图片成正方形显示，解决按钮显示闪问题
 	if (nImageWidth>nImageHeight)
 	{
 		delete pFromImage;
-		USES_CONVERSION;
 		Bitmap* b1 = Bitmap::FromFile(sImageFile);
 		const int x = (nImageWidth-nImageHeight)/2;
 		pFromImage = b1->Clone(x,0,nImageHeight,nImageHeight,PixelFormat24bppRGB);
@@ -176,7 +178,6 @@ Gdiplus::Image* BuildImageFromFile(const WCHAR* sImageFile)
 	}else if (nImageWidth<nImageHeight)
 	{
 		delete pFromImage;
-		USES_CONVERSION;
 		Bitmap* b1 = Bitmap::FromFile(sImageFile);
 		pFromImage = b1->Clone(0,0,nImageWidth,nImageWidth,PixelFormat24bppRGB);
 		delete b1;
@@ -477,6 +478,7 @@ BOOL CDlgDialog::OnInitDialog()
 				if (PathFileExists(pMemberInfo.m_sHeadResourceFile.c_str()))
 				{
 					//sImagePath = pMemberInfo.m_sHeadResourceFile;
+					m_sImageMd5 = pMemberInfo.m_sHeadMd5;
 					m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(pMemberInfo.m_sHeadResourceFile.c_str()));
 					//m_pFromImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(pMemberInfo.m_sHeadResourceFile.c_str()));
 					//const int nImageWidth = m_pFromImage->GetWidth();
@@ -553,9 +555,13 @@ BOOL CDlgDialog::OnInitDialog()
 	if (m_pFromImage == NULL)
 	{
 		if (PathFileExists(m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sHeadResourceFile.c_str()))
+		{
+			m_sImageMd5 = m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sHeadMd5;
 			m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(m_pEbCallInfo->m_pFromAccountInfo.m_pFromCardInfo.m_sHeadResourceFile.c_str()));
-		else
+		}else
+		{
 			m_pFromImage = theApp.m_imageDefaultMember->Clone();
+		}
 	}
 
 //#ifdef USES_EBCOM_TEST
@@ -2108,10 +2114,17 @@ void CDlgDialog::ChangeDepartmentInfo(IEB_GroupInfo* pGroupInfo)
 #else
 void CDlgDialog::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 {
+	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode!=pGroupInfo->m_sGroupCode) return;
+
 	const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
 	USES_CONVERSION;
 	if (bIsDepDialog)
 	{
+		if (m_pDlgChatInput.get()!=NULL && pGroupInfo->m_sGroupCode==this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode)
+		{
+			m_pDlgChatInput->ChangeDepartmentInfo(pGroupInfo);
+		}
+
 #ifdef USES_EBCOM_TEST
 		CComPtr<IEB_GroupInfo> pGroupInfo = theEBClientCore->EB_GetGroupInfo(m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 		if (pGroupInfo != NULL)
@@ -2199,6 +2212,44 @@ void CDlgDialog::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 	//}
 }
 #endif
+
+bool CDlgDialog::UserHeadChange(const EB_ContactInfo* pContactInfo)
+{
+	const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
+	if (bIsDepDialog) return false;
+	if (m_pEbCallInfo->m_pFromAccountInfo.GetUserId()!=pContactInfo->m_nContactUserId) return false;
+	if (m_sImageMd5==pContactInfo->m_sHeadMd5) return false;
+
+	if (PathFileExists(pContactInfo->m_sHeadResourceFile.c_str()))
+	{
+		if (m_pFromImage!=NULL)
+			delete m_pFromImage;
+		m_sImageMd5 = pContactInfo->m_sHeadMd5;
+		USES_CONVERSION;
+		m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(pContactInfo->m_sHeadResourceFile.c_str()));
+		return true;
+	}
+	return false;
+}
+bool CDlgDialog::MemberHeadChange(const EB_MemberInfo * pMemberInfo)
+{
+	const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
+	if (bIsDepDialog) return false;
+	if (m_pEbCallInfo->m_pFromAccountInfo.GetUserId()!=pMemberInfo->m_nMemberUserId) return false;
+	if (m_sImageMd5==pMemberInfo->m_sHeadMd5) return false;
+
+	if (PathFileExists(pMemberInfo->m_sHeadResourceFile.c_str()))
+	{
+		if (m_pFromImage!=NULL)
+			delete m_pFromImage;
+		m_sImageMd5 = pMemberInfo->m_sHeadMd5;
+		USES_CONVERSION;
+		m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(pMemberInfo->m_sHeadResourceFile.c_str()));
+		return true;
+	}
+	return false;
+}
+
 bool CDlgDialog::ClearUnreadMsg(bool bFromUserClick)
 {
 	if (m_pEbCallInfo.get()==NULL)
@@ -2261,6 +2312,11 @@ void CDlgDialog::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 {
 	if (m_pDlgSelectUser.GetSafeHwnd()!=NULL)
 		m_pDlgSelectUser.onMemberInfo(pMemberInfo);
+
+	if (m_pDlgChatInput.get()!=NULL && pMemberInfo->m_sGroupCode==this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode)
+	{
+		m_pDlgChatInput->OnUserEmpInfo(pMemberInfo);
+	}
 
 	if (m_pDlgChatRight.get()!=NULL && pMemberInfo->m_sGroupCode==this->m_pEbCallInfo->m_pCallInfo.m_sGroupCode)
 	{
@@ -2414,14 +2470,6 @@ void CDlgDialog::OnClose()
 
 void CDlgDialog::OnBnClickedButtonAddUser()
 {
-	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0 && !theEBAppClient.EB_IsGroupAdminLevel(m_pEbCallInfo->m_pCallInfo.m_sGroupCode))
-	{
-		CDlgMessageBox::EbDoModal(this,"","没有管理员权限：\t\n不能邀请好友！",CDlgMessageBox::IMAGE_WARNING,true,5);
-		return;
-	}
-
-	std::vector<tstring> pExistUserList;
-
 	bool bExistGroup = false;
 #ifdef USES_EBCOM_TEST
 	short nGroupType = -1;
@@ -2436,6 +2484,15 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
 		bExistGroup = theEBAppClient.EB_GetGroupType(m_pEbCallInfo->m_pCallInfo.m_sGroupCode,nGroupType);
 #endif
+
+	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0 &&
+		(nGroupType!=EB_GROUP_TYPE_TEMP && !theEBAppClient.EB_IsGroupAdminLevel(m_pEbCallInfo->m_pCallInfo.m_sGroupCode)))
+	{
+		CDlgMessageBox::EbDoModal(this,"","没有管理员权限：\t\n不能邀请好友！",CDlgMessageBox::IMAGE_WARNING,true,5);
+		return;
+	}
+
+	std::vector<tstring> pExistUserList;
 	// ????加离线用户
 	if (bExistGroup)
 	{
@@ -2528,7 +2585,7 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 		for (; pIter!=m_pDlgSelectUser.m_pSelectedTreeItem.end(); pIter++)
 #endif
 		{
-			const tstring sSelAccount = pIter->first;
+			const tstring& sSelAccount = pIter->first;
 #ifdef USES_SELECTED_ITEM_UID
 			const eb::bigint nToUserId = pIter->second;
 #else
@@ -2602,6 +2659,10 @@ void CDlgDialog::OnBnClickedButtonSendFile()
 	if (m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0 && theApp.GetDisableGroupSharedCloud())
 	{
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("禁用群共享：\r\n请使用一对一聊天窗口发送文件！"),CDlgMessageBox::IMAGE_WARNING,5);
+		return;
+	}else if (m_pDlgChatInput->IsForbidSpeech())
+	{
+		CDlgMessageBox::EbMessageBox(this,_T(""),_T("禁言限制中：\r\n不能发送群文件！"),CDlgMessageBox::IMAGE_WARNING,5);
 		return;
 	}
 
@@ -2737,13 +2798,13 @@ void CDlgDialog::DrawInfo(void)
 	const Gdiplus::Font fontEbDescription(&fontFamily, 12, FontStyleRegular, UnitPixel);
 	Gdiplus::SolidBrush brushEbTitle(Gdiplus::Color(32,32,32));
 	Gdiplus::PointF pointTitle(7,5);
-	//const bool bIsDepDialog = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
-	//if (bIsDepDialog)
-	//	graphics.DrawString(A2W_ACP(m_sFullName),-1,&fontEbTitle,pointTitle,&brushEbTitle);
-	//else
-		graphics.DrawString(A2W_ACP(m_sFromName.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
-	if (!m_sFromDescription.empty())
+	if (m_sFromDescription.empty())
 	{
+		pointTitle.Y += 10;
+		graphics.DrawString(A2W_ACP(m_sFromName.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
+	}else
+	{
+		graphics.DrawString(A2W_ACP(m_sFromName.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
 		pointTitle.Y += 22;
 		graphics.DrawString(A2W_ACP(m_sFromDescription.c_str()),-1,&fontEbDescription,pointTitle,&brushEbTitle);
 	}
@@ -2955,12 +3016,16 @@ LRESULT CDlgDialog::OnMessageSelectedEmp(WPARAM wParam, LPARAM lParam)
 LRESULT CDlgDialog::OnMessageEBSC(WPARAM wParam, LPARAM lParam)
 {
 	CString sParameter;
-	sParameter.Format(_T("\"\" %d %d\""),(int)EB_MSG_EBSC_OK,(int)this->GetSafeHwnd());
+	if (theApp.GetMinEBSC())
+		sParameter.Format(_T("\"\" %d %d 1 %d\""),(int)EB_MSG_EBSC_OK,(int)this->GetSafeHwnd(),(int)this->GetParent()->GetSafeHwnd());
+	else
+		sParameter.Format(_T("\"\" %d %d\""),(int)EB_MSG_EBSC_OK,(int)this->GetSafeHwnd());
 	theApp.RunEBSC(sParameter);
 	return 0;
 }
 LRESULT CDlgDialog::OnMessageEBSCOK(WPARAM wParam, LPARAM lParam)
 {
+	//this->SetFocus();
 	//AfxMessageBox(_T("OnMessageEBSCOK"));
 	if (this->m_pDlgChatInput != NULL && m_pDlgChatInput->GetSafeHwnd())
 		m_pDlgChatInput->SetScreenCopyFinished();
@@ -3494,6 +3559,12 @@ void CDlgDialog::OnRdControlDest(void)
 }
 void CDlgDialog::OnSendUserECard(void)
 {
+	if (m_pDlgChatInput->IsForbidSpeech())
+	{
+		CDlgMessageBox::EbMessageBox(this,_T(""),_T("禁言限制中：\r\n不能发送名片！"),CDlgMessageBox::IMAGE_WARNING,5);
+		return;
+	}
+
 	if (m_pDlgSelectUser.GetSafeHwnd()==NULL)
 	{
 		m_pDlgSelectUser.Create(CDlgSelectUser::IDD,this);

@@ -45,13 +45,14 @@ public:
 	virtual void onLogonSuccess(const EB_AccountInfo& pAccountInfo) {}
 	virtual void onLogonTimeout(const EB_AccountInfo& pAccountInfo) {}
 	virtual void onLogonError(const EB_AccountInfo& pAccountInfo,EB_STATE_CODE nState) {}
-	virtual void onOnlineAnother(void) {}	// 在其他地方登录
+	virtual void onOnlineAnother(int nOnlineAnotherType) {}	// 0=在其他地方登录 1=修改密码退出
 	virtual void onLogout(void) {}
 	virtual void onAccountInfoChange(const EB_AccountInfo& pAccountInfo) {}
 
 	virtual void onEditInfoResponse(EB_STATE_CODE nState, int nFlag) {}								// 个人资料修改返回
 	virtual void onUserStateChange(const EB_MemberInfo* pMemberInfo, bool bIsOwnerMember) {}		// 修改在线状态
 	virtual void onUserHeadChange(const EB_MemberInfo* pMemberInfo, bool bIsOwnerMember) {}			// 修改群组头像
+	virtual void onContactHeadChange(const EB_ContactInfo* pContactInfo) {}											// 好友/联系人修改头像
 
 	// 呼叫（会话）
 	virtual void onCallIncoming(const EB_CallInfo& pCallInfo, const EB_AccountInfo& pFromAccount) {}
@@ -118,7 +119,7 @@ public:
 		, SERVER_MOVED		// 服务器业务已经转移，需要重新登录
 		, SERVER_RESTART	// 服务器已经重启，需要重新登录
 		, SERVER_TIMEOUT	// 服务器连接超时，有可能是本地网络问题
-	};
+	}SERVER_STATE;
 	virtual void onServerChange(SERVER_STATE nServerState) {}			// 服务器状态改变
 	virtual void onStateCode(EB_STATE_CODE nStateCode, unsigned long nParam) {}			// 错误状态码
 };
@@ -173,6 +174,9 @@ typedef enum EB_WINDOW_MESSAGE_TYPE
 	, EB_WM_LOGOUT
 	// const EB_AccountInfo* pAccountInfo = (const EB_AccountInfo*)wp;
 	, EB_WM_ACCOUNT_INFO_CHANGE
+
+	// const EB_ContactInfo* pContactInfo = (const EB_ContactInfo*)wp;
+	, EB_WM_CONTACT_HEAD_CHANGE
 
 	/*==========================================================
 	会话
@@ -300,7 +304,7 @@ typedef enum EB_WINDOW_MESSAGE_TYPE
 	, EB_WM_STATE_CODE
 	, EB_WM_SUBSCRIBE_FUNC_INFO	= WM_USER+0x501
 
-};
+}EB_WINDOW_MESSAGE_TYPE;
 
 } // namespace entboost
 

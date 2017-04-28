@@ -136,7 +136,7 @@ BOOL CDlgFrameList::OnInitDialog()
 		CFrameWndInfoProxy::SetShowHideLeft(false);
 	}
 	this->EnableToolTips();
-	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,CFrameWndInfoProxy::GetShowedLeft()?_T("收缩左边工具栏"):_T("展开左边工具栏"));
+	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,CFrameWndInfoProxy::GetShowedLeft()?_T("收起面板"):_T("展开面板"));
 	//this->SetToolTipText(IDC_EDIT_SEARCH,_T("搜索：用户、帐号、联系人；回车开始聊天"));
 
 	//this->MoveWindow(0, 0, DEFAULT_DLG_WIDTH, DEFAULT_DLG_HEIGHT);
@@ -391,7 +391,7 @@ void CDlgFrameList::MoveSize(int cx, int cy)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetType()==CFrameWndInfo::FRAME_WND_WORK_FRAME)// && m_pWorkFrameCallback!=NULL)
 			{
 #ifdef USES_FRAMELIST_APPFRAME
@@ -496,7 +496,7 @@ void CDlgFrameList::OnSize(UINT nType, int cx, int cy)
 	if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
 	{
 		const int const_minbtn_width = 24;
-		CRect m_rectSwitchLeft;
+		//CRect m_rectSwitchLeft;
 		m_rectSwitchLeft.left = 1;
 		m_rectSwitchLeft.right = m_rectSwitchLeft.left + const_minbtn_width;
 		m_rectSwitchLeft.bottom = cy - 3;
@@ -821,6 +821,42 @@ void CDlgFrameList::OnTimer(UINT_PTR nIDEvent)
 	case TIMERID_CHECK_MOUSE_POS:
 		{
 			CFrameWndInfoProxy::CheckMousePos();
+			if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
+			{
+				CPoint pos;
+				GetCursorPos(&pos);
+				this->ScreenToClient(&pos);
+
+				const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+				if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_OFFICE)
+				{
+					if (m_btnSwitchLeft.IsWindowVisible())
+						m_btnSwitchLeft.ShowWindow(SW_HIDE);
+				}else
+				{
+					static bool thePtInRect = false;
+					const bool bPtInRect = m_rectSwitchLeft.PtInRect(pos)?true:false;
+					if (thePtInRect!=bPtInRect)
+					{
+						thePtInRect = bPtInRect;
+						if (bPtInRect)
+						{
+							if (!m_btnSwitchLeft.IsWindowVisible())
+							{
+								m_btnSwitchLeft.ShowWindow(SW_SHOW);
+								m_btnSwitchLeft.Invalidate();
+							}
+						}else
+						{
+							if (m_btnSwitchLeft.IsWindowVisible())
+							{
+								m_btnSwitchLeft.ShowWindow(SW_HIDE);
+								m_btnSwitchLeft.Invalidate();
+							}
+						}
+					}
+				}
+			}
 		}break;
 	case TIMERID_CHECK_SHRINKAGEBAR:
 		{
@@ -1292,7 +1328,7 @@ void CDlgFrameList::OnBnClickedButtonSwitchLeft()
 		CLockList<CFrameWndInfo::pointer>::const_iterator pIter = m_pList.begin();
 		if (pIter!=m_pList.end())
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetType()==CFrameWndInfo::FRAME_WND_WORK_FRAME)
 			{
 				rdLock.unlock();
@@ -1314,7 +1350,7 @@ void CDlgFrameList::OnBnClickedButtonSwitchLeft()
 	}
 
 	WritePrivateProfileString(_T("default"),_T("frame-list-show-left"),(bShowedLeft?_T("1"):_T("0")),theApp.GetUserSettingIniFile());
-	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,bShowedLeft?_T("收缩左边工具栏"):_T("展开左边工具栏"));
+	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,bShowedLeft?_T("收起面板"):_T("展开面板"));
 	m_btnSwitchLeft.SetDrawTrianglePic((bShowedLeft?3:4),theDefaultFlatLineColor,theDefaultFlatBlackText2Color,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
 	CFrameWndInfoProxy::SetShowHideLeft(bShowedLeft);
 	CRect rect;
@@ -1469,7 +1505,7 @@ void CDlgFrameList::OnBnClickedButtonMax()
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 		{
 			pFrameWndInfo->GetDialog()->SetBtnMax(bSetBtnMax);

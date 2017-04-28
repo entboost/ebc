@@ -32,6 +32,7 @@ public:
 	CString m_sWorkPhone;
 	CString m_sEmail;
 	CString m_sFax;
+	int m_nDisplayIndex;
 	CString m_sAddress;
 	CString m_sDescription;
 	int m_nGender;
@@ -46,7 +47,8 @@ protected:
 	CRect m_rectHead;
 	Gdiplus::Image * m_imageHead;
 	CDlgChangeHead* m_pDlgChangeHead;
-	int m_nOldFileSize;
+	//mycp::bigint m_nOldFileSize;
+	tstring m_sOldFileMd5;
 	bool m_bSetTimer;
 
 	bool m_bNewEemployee;
@@ -64,6 +66,7 @@ protected:
 	CHoverEdit	m_editWorkPhone;
 	CHoverEdit	m_editEmail;
 	CHoverEdit	m_editFax;
+	CHoverEdit	m_editDisplayIndex;
 	CHoverEdit	m_editAddress;
 	CHoverEdit	m_editDescription;
 	CTraButton m_btnClose;

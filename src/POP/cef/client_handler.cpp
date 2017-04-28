@@ -2,6 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#ifdef WIN32
+#pragma warning(disable:4819)
+#endif
+
 #include "StdAfx.h"
 #include "client_handler.h"
 #include <stdio.h>
@@ -42,6 +46,9 @@ enum client_menu_ids {
   CLIENT_ID_COPY_LINK_URL,
   CLIENT_ID_COPY_IMAGE_URL,
   CLIENT_ID_OPEN_IMAGE_URL,
+  CLIENT_ID_SEARCH_BAIDU,
+  CLIENT_ID_SEARCH_SOGOU,
+  CLIENT_ID_SEARCH_360,
   //CEF_CLIENT_MENU_COMMAND_ID_FIND,
   //CLIENT_ID_RELOAD,
   //CLIENT_ID_TESTMENU_SUBMENU,
@@ -244,6 +251,7 @@ void ClientHandler::OnFindResult(CefRefPtr<CefBrowser> browser,
 
 inline bool CefCheckUrl(const std::wstring& sUrl)
 {
+	if (sUrl.empty()) return false;
 	const size_t nSize = sUrl.size();
 	std::wstring sUrlPrefix = nSize>=8?sUrl.substr(0,8):L"";
 	std::transform(sUrlPrefix.begin(), sUrlPrefix.end(), sUrlPrefix.begin(), tolower);
@@ -327,6 +335,17 @@ void ClientHandler::OnBeforeContextMenu(
 		 // if (nInsertIndexAt>=0)
 			//  model->InsertItemAt(nInsertIndexAt+1,MENU_ID_RELOAD,libEbc::ACP2UTF8("刷新(&F)").string());
 	  //}
+	  const int nMenuIdCopyIndex = model->GetIndexOf(MENU_ID_COPY);
+		if (nMenuIdCopyIndex>=0)
+		{
+			model->InsertSeparatorAt(nMenuIdCopyIndex+1);
+			//model->InsertItemAt(nMenuIdCopyIndex+2,CLIENT_ID_SEARCH_BAIDU,libEbc::ACP2UTF8("百度搜索(&S)").string());
+			CefRefPtr<CefMenuModel> pSubMenuModel = model->InsertSubMenuAt(nMenuIdCopyIndex+2,CLIENT_ID_SEARCH_BAIDU,libEbc::ACP2UTF8("搜索(&S)").string());
+			pSubMenuModel->InsertItemAt(0,CLIENT_ID_SEARCH_BAIDU,libEbc::ACP2UTF8("百度搜索(&B)").string());
+			pSubMenuModel->InsertItemAt(1,CLIENT_ID_SEARCH_SOGOU,libEbc::ACP2UTF8("搜狗搜索(&S)").string());
+			pSubMenuModel->InsertItemAt(2,CLIENT_ID_SEARCH_360,libEbc::ACP2UTF8("360搜索(&3)").string());
+		}
+		
 	  if (model->GetIndexOf(MENU_ID_RELOAD_NOCACHE)<0)
 	  {
 		  const int nInsertIndexAt = model->GetIndexOf(MENU_ID_FORWARD);
@@ -354,7 +373,7 @@ void ClientHandler::OnBeforeContextMenu(
 	  }else
 	  {
 		  const std::wstring sSelectionText = params->GetSelectionText();
-		  if (CefCheckUrl(sSelectionText))
+		  if (!CefCheckUrl(sSelectionText))
 		  {
 #ifndef USES_INSERT_LINK_FIRST_POS
 			  if (nInsertIndexAt<0)
@@ -467,257 +486,289 @@ bool ClientHandler::OnContextMenuCommand(
     EventFlags event_flags) {
   CEF_REQUIRE_UI_THREAD();
 
-  switch (command_id) {
-	  case MENU_ID_VIEW_SOURCE:
-		  {
-			  // view-source:about:blank
-			  if (browser->GetMainFrame()==NULL) return false;
-			  const CefString sUrl = browser->GetMainFrame()->GetURL();
-			  if (sUrl.empty()) return false;
-			  std::wstring sViewSourceString(L"view-source:");
-			  sViewSourceString.append(sUrl.c_str());
-			  return m_pHandler->OnBeforePopup(sViewSourceString.c_str());
-		  }break;
-	  case CLIENT_ID_OPEN_LINK_URL0:
-		  {
-			  CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
-			  if (sUnfilteredLinkUrl.empty())
-				  sUnfilteredLinkUrl = params->GetSelectionText();
-			  if (!sUnfilteredLinkUrl.empty())
-			  {
-				  if (browser->GetMainFrame()!=NULL)
-				  {
-					  browser->GetMainFrame()->LoadURL(sUnfilteredLinkUrl);
-				  }else if (m_pHandler!=NULL)
-				  {
-					  if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
-						  return m_pHandler->OnBeforePopup(sUnfilteredLinkUrl.c_str());
-				  }
-				  return true;
-			  }
-		  }break;
-	  case CLIENT_ID_OPEN_LINK_URL1:
-		  {
-			  if (m_pHandler!=NULL)
-			  {
-				  CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
-				  if (sUnfilteredLinkUrl.empty())
-					  sUnfilteredLinkUrl = params->GetSelectionText();
-				  if (!sUnfilteredLinkUrl.empty())
-				  {
-					  if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
-						  return m_pHandler->OnBeforePopup(sUnfilteredLinkUrl.c_str());
-					  else
-						  return true;
-				  }
-			  }
-			  return false;
-		  }break;
-	  case CLIENT_ID_OPEN_LINK_URL2:
-		  {
-			  CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
-			  if (sUnfilteredLinkUrl.empty())
-				  sUnfilteredLinkUrl = params->GetSelectionText();
-			  if (!sUnfilteredLinkUrl.empty())
-			  {
-				  if (m_pHandler==NULL)
-				  {
-					  ShellExecuteW(NULL,  L"open", sUnfilteredLinkUrl.c_str(), NULL, NULL, SW_SHOW);
-				  }else
-				  {
-					  if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
-						  ShellExecuteW(NULL,  L"open", sUnfilteredLinkUrl.c_str(), NULL, NULL, SW_SHOW);
-				  }
-				  return true;
-			  }
-			  return false;
-		  }break;
-	  case CLIENT_ID_SAVEAS_LINK_URL:
-		  {
-			  if (browser->GetMainFrame()==NULL) return false;
-			  CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
-			  if (sUnfilteredLinkUrl.empty())
-				  sUnfilteredLinkUrl = params->GetSelectionText();
-			  if (!sUnfilteredLinkUrl.empty())
-			  {
-				  //// 
-				  ////std::wstring uriContent = L"data:application/octet-stream,download=abc.html,";
-				  ////std::wstring uriContent = L"data:application/octet-stream,attachment;filename=abc.html,";
-				  //std::wstring uriContent = L"data:application/octet-stream,";
-				  //uriContent.append(sUnfilteredLinkUrl.c_str());
-				  //std::wstring sJSCommand = L"window.open(\"";
-				  //sJSCommand.append(uriContent.c_str());
-				  //sJSCommand.append(L"\", '');");
-				  //browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
-				  //return true;
+  switch (command_id)
+	{
+	case CLIENT_ID_SEARCH_SOGOU:
+		{
+			// https://www.sogou.com/web?_asf=www.entboost.com&query=abcd
+		  const std::wstring sSelectionText = params->GetSelectionText();
+			if (sSelectionText.empty()) return false;
+			std::wstring sSearchUrl(L"https://www.sogou.com/web?_asf=www.entboost.com&query=");
+			sSearchUrl.append(sSelectionText.substr(0,100));
+			return m_pHandler->OnBeforePopup(sSearchUrl.c_str());
+		}break;
+	case CLIENT_ID_SEARCH_360:
+		{
+			// https://www.so.com/s?fr=entboost.com&src=entboost.com&q=abc
+		  const std::wstring sSelectionText = params->GetSelectionText();
+			if (sSelectionText.empty()) return false;
+			std::wstring sSearchUrl(L"https://www.so.com/s?fr=entboost.com&src=entboost.com&q=");
+			sSearchUrl.append(sSelectionText.substr(0,100));
+			return m_pHandler->OnBeforePopup(sSearchUrl.c_str());
+		}break;
+	case CLIENT_ID_SEARCH_BAIDU:
+		{
+			// https://www.baidu.com/s?wd=abc
+		  const std::wstring sSelectionText = params->GetSelectionText();
+			if (sSelectionText.empty()) return false;
+			std::wstring sSearchUrl(L"https://www.baidu.com/s?wd=");
+			sSearchUrl.append(sSelectionText.substr(0,100));
+			return m_pHandler->OnBeforePopup(sSearchUrl.c_str());
+		}break;
+	case MENU_ID_VIEW_SOURCE:
+		{
+			// view-source:about:blank
+			if (browser->GetMainFrame()==NULL) return false;
+			const CefString sUrl = browser->GetMainFrame()->GetURL();
+			if (sUrl.empty()) return false;
+			std::wstring sViewSourceString(L"view-source:");
+			sViewSourceString.append(sUrl.c_str());
+			return m_pHandler->OnBeforePopup(sViewSourceString.c_str());
+		}break;
+	case CLIENT_ID_OPEN_LINK_URL0:
+		{
+			CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
+			if (sUnfilteredLinkUrl.empty())
+				sUnfilteredLinkUrl = params->GetSelectionText();
+			if (!sUnfilteredLinkUrl.empty())
+			{
+				if (browser->GetMainFrame()!=NULL)
+				{
+					browser->GetMainFrame()->LoadURL(sUnfilteredLinkUrl);
+				}else if (m_pHandler!=NULL)
+				{
+					if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
+						return m_pHandler->OnBeforePopup(sUnfilteredLinkUrl.c_str());
+				}
+				return true;
+			}
+		}break;
+	case CLIENT_ID_OPEN_LINK_URL1:
+		{
+			if (m_pHandler!=NULL)
+			{
+				CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
+				if (sUnfilteredLinkUrl.empty())
+					sUnfilteredLinkUrl = params->GetSelectionText();
+				if (!sUnfilteredLinkUrl.empty())
+				{
+					if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
+						return m_pHandler->OnBeforePopup(sUnfilteredLinkUrl.c_str());
+					else
+						return true;
+				}
+			}
+			return false;
+		}break;
+	case CLIENT_ID_OPEN_LINK_URL2:
+		{
+			CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
+			if (sUnfilteredLinkUrl.empty())
+				sUnfilteredLinkUrl = params->GetSelectionText();
+			if (!sUnfilteredLinkUrl.empty())
+			{
+				if (m_pHandler==NULL)
+				{
+					ShellExecuteW(NULL,  L"open", sUnfilteredLinkUrl.c_str(), NULL, NULL, SW_SHOW);
+				}else
+				{
+					if (!m_pHandler->OnBeforeBrowse(sUnfilteredLinkUrl.c_str()))
+						ShellExecuteW(NULL,  L"open", sUnfilteredLinkUrl.c_str(), NULL, NULL, SW_SHOW);
+				}
+				return true;
+			}
+			return false;
+		}break;
+	case CLIENT_ID_SAVEAS_LINK_URL:
+		{
+			if (browser->GetMainFrame()==NULL) return false;
+			CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
+			if (sUnfilteredLinkUrl.empty())
+				sUnfilteredLinkUrl = params->GetSelectionText();
+			if (!sUnfilteredLinkUrl.empty())
+			{
+				//// 
+				////std::wstring uriContent = L"data:application/octet-stream,download=abc.html,";
+				////std::wstring uriContent = L"data:application/octet-stream,attachment;filename=abc.html,";
+				//std::wstring uriContent = L"data:application/octet-stream,";
+				//uriContent.append(sUnfilteredLinkUrl.c_str());
+				//std::wstring sJSCommand = L"window.open(\"";
+				//sJSCommand.append(uriContent.c_str());
+				//sJSCommand.append(L"\", '');");
+				//browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
+				//return true;
 
-				  //sJSCommand = L"document.execCommand('SaveAs','1',\"";
-				  //sJSCommand.append(uriContent.c_str());
-				  //sJSCommand.append(L"\");");
+				//sJSCommand = L"document.execCommand('SaveAs','1',\"";
+				//sJSCommand.append(uriContent.c_str());
+				//sJSCommand.append(L"\");");
 
-				  ////std::wstring sJSCommand = L"alert('You pressed the space bar!');";
-				  //std::wstring sJSCommand = L"document.execCommand('SaveAs');";
-				  //browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
-				  //return true;
+				////std::wstring sJSCommand = L"alert('You pressed the space bar!');";
+				//std::wstring sJSCommand = L"document.execCommand('SaveAs');";
+				//browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
+				//return true;
 
-				  //myTempWindow = window.open(filepath,'','left=10000,screenX=10000');
-				  //myTempWindow.document.execCommand('SaveAs','null',name);
-				  //myTempWindow.close();
-				  //sJSCommand = L"var myTempWindow = window.open(\"";
-				  //sJSCommand.append(uriContent.c_str());
-				  //sJSCommand.append(L"\", '');");
-				  //sJSCommand.append(L"myTempWindow.document.execCommand('SaveAs','null','abc.html');");
-				  //sJSCommand.append(L"myTempWindow.close();");
-				  //browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
+				//myTempWindow = window.open(filepath,'','left=10000,screenX=10000');
+				//myTempWindow.document.execCommand('SaveAs','null',name);
+				//myTempWindow.close();
+				//sJSCommand = L"var myTempWindow = window.open(\"";
+				//sJSCommand.append(uriContent.c_str());
+				//sJSCommand.append(L"\", '');");
+				//sJSCommand.append(L"myTempWindow.document.execCommand('SaveAs','null','abc.html');");
+				//sJSCommand.append(L"myTempWindow.close();");
+				//browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
 
-				  //<html>
-				  //  <head>
-				  //    <meta charset="UTF-8">
-				  //    <script type="text/javascript">
-				  //      function linkDownload(a, filename, content) {
-				  ////        contentType =  'data:application/octet-stream,';
-				  ////        uriContent = contentType + encodeURIComponent(content);
-				  ////        a.setAttribute('href', uriContent);
-				  //        a.setAttribute('href', content);
-				  //        a.setAttribute('download', filename);
-				  //      }
-				  //      function download(filename, content) {
-				  //        var a = document.createElement('a');
-				  //        linkDownload(a, filename, content);
-				  //        document.body.appendChild(a);
-				  //        a.click();
-				  //        document.body.removeChild(a);
-				  //      }
-				  //    </script>
-				  //   </head>
-				  //  <body>
-				  //    <a href="#" onclick="linkDownload(this, 'test.txt', 'Hello World!');">download</a>
-				  //    <button onclick="download('test.txt', 'Hello World!');">download</button>
-				  //  </body>
-				  //</html>
+				//<html>
+				//  <head>
+				//    <meta charset="UTF-8">
+				//    <script type="text/javascript">
+				//      function linkDownload(a, filename, content) {
+				////        contentType =  'data:application/octet-stream,';
+				////        uriContent = contentType + encodeURIComponent(content);
+				////        a.setAttribute('href', uriContent);
+				//        a.setAttribute('href', content);
+				//        a.setAttribute('download', filename);
+				//      }
+				//      function download(filename, content) {
+				//        var a = document.createElement('a');
+				//        linkDownload(a, filename, content);
+				//        document.body.appendChild(a);
+				//        a.click();
+				//        document.body.removeChild(a);
+				//      }
+				//    </script>
+				//   </head>
+				//  <body>
+				//    <a href="#" onclick="linkDownload(this, 'test.txt', 'Hello World!');">download</a>
+				//    <button onclick="download('test.txt', 'Hello World!');">download</button>
+				//  </body>
+				//</html>
 
-				  const std::wstring sUrlTemp = sUnfilteredLinkUrl;
-				  std::string::size_type find = sUrlTemp.rfind(L"/");
-				  if (find==std::string::npos) return false;
-				  const std::wstring sFileName(sUrlTemp.substr(find+1));
+				const std::wstring sUrlTemp = sUnfilteredLinkUrl;
+				std::string::size_type find = sUrlTemp.rfind(L"/");
+				if (find==std::string::npos) return false;
+				const std::wstring sFileName(sUrlTemp.substr(find+1));
 
-				  std::wstring sJSCommand = L"var a = document.createElement('a');";
-				  sJSCommand.append(L"a.setAttribute('href', '");					// a.setAttribute('href', uriContent);
-				  sJSCommand.append(sUnfilteredLinkUrl.c_str());
-				  sJSCommand.append(L"');");
-				  sJSCommand.append(L"a.setAttribute('download', '");				// a.setAttribute('download', filename);
-				  sJSCommand.append(sFileName);
-				  sJSCommand.append(L"');");
-				  sJSCommand.append(L"document.body.appendChild(a);");
-				  sJSCommand.append(L"a.click();");
-				  sJSCommand.append(L"document.body.removeChild(a);");
-				  browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
-				  return true;
-			  }
-		  }break;
-	  case CLIENT_ID_COPY_LINK_URL:
-		  {
-			  if (browser->GetHost()==NULL) return false;
-			  CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
-			  if (sUnfilteredLinkUrl.empty())
-				  sUnfilteredLinkUrl = params->GetSelectionText();
-			  return CopyToClipboard(browser->GetHost()->GetWindowHandle(),sUnfilteredLinkUrl);
-		  }break;
-	  case CLIENT_ID_COPY_IMAGE_URL:
-		  {
-			  if (params->GetMediaType()==CM_MEDIATYPE_IMAGE)
-			  {
-				  //"javascript:document.execCommand('SaveAs','true','your_file.txt')", params->GetSourceUrl(), 0);
-				  //browser->GetMainFrame()->ExecuteJavaScript(
-					 // "document.execCommand('SaveAs','true','your_file.txt')", params->GetSourceUrl(), 0);
+				std::wstring sJSCommand = L"var a = document.createElement('a');";
+				sJSCommand.append(L"a.setAttribute('href', '");					// a.setAttribute('href', uriContent);
+				sJSCommand.append(sUnfilteredLinkUrl.c_str());
+				sJSCommand.append(L"');");
+				sJSCommand.append(L"a.setAttribute('download', '");				// a.setAttribute('download', filename);
+				// ** 可以解决中文乱码问题；
+				USES_CONVERSION;
+				const tstring sFileNamTemp = libEbc::URLDecode(W2A_UTF8(sFileName.c_str()),false);
+				sJSCommand.append(A2W_UTF8(sFileNamTemp.c_str()));
+				//sJSCommand.append(sFileName);
+				sJSCommand.append(L"');");
+				sJSCommand.append(L"document.body.appendChild(a);");
+				sJSCommand.append(L"a.click();");
+				sJSCommand.append(L"document.body.removeChild(a);");
+				browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
+				return true;
+			}
+		}break;
+	case CLIENT_ID_COPY_LINK_URL:
+		{
+			if (browser->GetHost()==NULL) return false;
+			CefString sUnfilteredLinkUrl = params->GetUnfilteredLinkUrl();
+			if (sUnfilteredLinkUrl.empty())
+				sUnfilteredLinkUrl = params->GetSelectionText();
+			return CopyToClipboard(browser->GetHost()->GetWindowHandle(),sUnfilteredLinkUrl);
+		}break;
+	case CLIENT_ID_COPY_IMAGE_URL:
+		{
+			if (params->GetMediaType()==CM_MEDIATYPE_IMAGE)
+			{
+				//"javascript:document.execCommand('SaveAs','true','your_file.txt')", params->GetSourceUrl(), 0);
+				//browser->GetMainFrame()->ExecuteJavaScript(
+				// "document.execCommand('SaveAs','true','your_file.txt')", params->GetSourceUrl(), 0);
 
-				  //// ** 可以下载
-				  ////uriContent = "data:application/octet-stream," + encodeURIComponent(content);
-				  ////newWindow = window.open(uriContent, 'neuesDokument');
+				//// ** 可以下载
+				////uriContent = "data:application/octet-stream," + encodeURIComponent(content);
+				////newWindow = window.open(uriContent, 'neuesDokument');
 
-				  //std::wstring uriContent = L"data:application/octet-stream,";
-				  //uriContent.append(params->GetSourceUrl().c_str());
-				  //std::wstring sJSCommand = L"window.open(\"";
-				  //sJSCommand.append(uriContent.c_str());
-				  //sJSCommand.append(L"\", 'neuesDokument');");
-				  //browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
-				  //return false;
+				//std::wstring uriContent = L"data:application/octet-stream,";
+				//uriContent.append(params->GetSourceUrl().c_str());
+				//std::wstring sJSCommand = L"window.open(\"";
+				//sJSCommand.append(uriContent.c_str());
+				//sJSCommand.append(L"\", 'neuesDokument');");
+				//browser->GetMainFrame()->ExecuteJavaScript(sJSCommand,"",0);
+				//return false;
 
-				  //var url = getContextURL() + 'services/exportExcel?reportDate=20151110';
-				  //window.open(url); 
-				  //const tstring sUrl = params->GetSourceUrl();
-				  //std::stringstream ss;
-				  //ss << "<html><script language=\"JavaScript\">"
-					 // " var url = " << sUrl << ";"
-					 // " window.open(url);"
-					 // "</script>"
-					 // "<body bgcolor=\"white\">"
-					 // "</body></html>";
-				  //frame->LoadString(ss.str(), params->GetSourceUrl());
-				  //return false;
+				//var url = getContextURL() + 'services/exportExcel?reportDate=20151110';
+				//window.open(url); 
+				//const tstring sUrl = params->GetSourceUrl();
+				//std::stringstream ss;
+				//ss << "<html><script language=\"JavaScript\">"
+				// " var url = " << sUrl << ";"
+				// " window.open(url);"
+				// "</script>"
+				// "<body bgcolor=\"white\">"
+				// "</body></html>";
+				//frame->LoadString(ss.str(), params->GetSourceUrl());
+				//return false;
 
-				  const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
-				  if (!sSourceUrl.empty())
-					  return CopyToClipboard(browser->GetHost()->GetWindowHandle(),sSourceUrl);
-				  //else
-					 // return CopyToClipboard(browser->GetHost()->GetWindowHandle(),params->GetLinkUrl());
-			  }
-			  return false;
-		  }break;
-	  case CLIENT_ID_OPEN_IMAGE_URL:
-		  {
-			  if (m_pHandler!=NULL && params->GetMediaType()==CM_MEDIATYPE_IMAGE)
-			  {
-				  const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
-				  if (!sSourceUrl.empty())
-				  {
-					  //LoadString
-					  //params->
-					  if (!m_pHandler->OnBeforeBrowse(sSourceUrl.c_str()))
-						  return m_pHandler->OnBeforePopup(sSourceUrl.c_str());
-					  else
-						  return true;
-				  }
-			  }
-			  return false;
-		  }break;
-	  case CEF_CLIENT_MENU_COMMAND_ID_IMAGE_SAVEAS:
-	  case CEF_CLIENT_MENU_COMMAND_ID_COPY_IMAGE:
-		  {
-			  if (m_pHandler!=NULL && params->GetMediaType()==CM_MEDIATYPE_IMAGE)
-			  {
-				  const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
-				  if (!sSourceUrl.empty())
-				  {
-					  return m_pHandler->OnExecuteMenu(command_id,sSourceUrl.c_str());
-				  }
-			  }
-			  return false;
-		  }break;
-    case CLIENT_ID_SHOW_DEVTOOLS:
-      ShowDevTools(browser, CefPoint());
-      return true;
-    case CLIENT_ID_CLOSE_DEVTOOLS:
-      CloseDevTools(browser);
-      return true;
-    case CLIENT_ID_INSPECT_ELEMENT:
-      ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
-      return true;
+				const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
+				if (!sSourceUrl.empty())
+					return CopyToClipboard(browser->GetHost()->GetWindowHandle(),sSourceUrl);
+				//else
+				// return CopyToClipboard(browser->GetHost()->GetWindowHandle(),params->GetLinkUrl());
+			}
+			return false;
+		}break;
+	case CLIENT_ID_OPEN_IMAGE_URL:
+		{
+			if (m_pHandler!=NULL && params->GetMediaType()==CM_MEDIATYPE_IMAGE)
+			{
+				const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
+				if (!sSourceUrl.empty())
+				{
+					//LoadString
+					//params->
+					if (!m_pHandler->OnBeforeBrowse(sSourceUrl.c_str()))
+						return m_pHandler->OnBeforePopup(sSourceUrl.c_str());
+					else
+						return true;
+				}
+			}
+			return false;
+		}break;
+	case CEF_CLIENT_MENU_COMMAND_ID_IMAGE_SAVEAS:
+	case CEF_CLIENT_MENU_COMMAND_ID_COPY_IMAGE:
+		{
+			if (m_pHandler!=NULL && params->GetMediaType()==CM_MEDIATYPE_IMAGE)
+			{
+				const CefString sSourceUrl = params->GetSourceUrl();	// 图片链接地址
+				if (!sSourceUrl.empty())
+				{
+					return m_pHandler->OnExecuteMenu(command_id,sSourceUrl.c_str());
+				}
+			}
+			return false;
+		}break;
+	case CLIENT_ID_SHOW_DEVTOOLS:
+		ShowDevTools(browser, CefPoint());
+		return true;
+	case CLIENT_ID_CLOSE_DEVTOOLS:
+		CloseDevTools(browser);
+		return true;
+	case CLIENT_ID_INSPECT_ELEMENT:
+		ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
+		return true;
 	case CEF_CLIENT_MENU_COMMAND_ID_FIND:
 	case MENU_ID_FIND:
-      return ExecuteTestMenu(CEF_CLIENT_MENU_COMMAND_ID_FIND,NULL);
+		return ExecuteTestMenu(CEF_CLIENT_MENU_COMMAND_ID_FIND,NULL);
 	case MENU_ID_RELOAD:
 		browser->Reload();
 		return true;
 	case MENU_ID_RELOAD_NOCACHE:
 		browser->ReloadIgnoreCache();
 		return true;
-	//case CLIENT_ID_RELOAD:
-	//	browser->Reload();
-	//	return true;
-    default:  // Allow default handling, if any.
-      return ExecuteTestMenu(command_id,NULL);
-  }
+		//case CLIENT_ID_RELOAD:
+		//	browser->Reload();
+		//	return true;
+	default:  // Allow default handling, if any.
+		return ExecuteTestMenu(command_id,NULL);
+	}
   return false;
 }
 
@@ -1665,7 +1716,7 @@ void ClientHandler::OnClearAll(void)
 		CLockMap<uint32,CefDownloadInfo::pointer>::iterator pIter = m_pFileDownloadList.begin();
 		for (; pIter!=m_pFileDownloadList.end(); pIter++)
 		{
-			CefDownloadInfo::pointer pDownloadInfo = pIter->second;
+			const CefDownloadInfo::pointer& pDownloadInfo = pIter->second;
 			for (int i=0;i<20;i++)	// max 2S
 			{
 				Sleep(100);

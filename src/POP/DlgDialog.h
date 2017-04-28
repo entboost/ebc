@@ -9,6 +9,8 @@
 #define DEFAULT_DEP_WIDTH	760
 #define DEFAULT_DLG_HEIGHT	588
 
+Gdiplus::Image* BuildImageFromFile(const WCHAR* sImageFile);
+
 // CDlgDialog dialog
 class CDlgUserList;
 
@@ -45,7 +47,7 @@ public:
 	const CString& GetFullName(void) const {return m_sFullName;}
 	const CString& GetShortName(void) const {return m_sShortName;}
 	const tstring& GetFromDescriptoin(void) const {return m_sFromDescription;}
-	const Gdiplus::Image* GetFromImage(void) const {return m_pFromImage;}
+	Gdiplus::Image* GetFromImage(void) const {return m_pFromImage==NULL?NULL:m_pFromImage->Clone();}
 	EB_USER_LINE_STATE GetFromLineState(void) const {return m_nFromLineState;}
 	bool GetFromIsOffLineState(void) const {return m_nFromLineState==EB_LINE_STATE_OFFLINE || m_nFromLineState==EB_LINE_STATE_UNKNOWN;}
 	void LineStateChange(eb::bigint nUserId, EB_USER_LINE_STATE bLineState);
@@ -123,6 +125,8 @@ public:
 #else
 	void ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 #endif
+	bool UserHeadChange(const EB_ContactInfo* pContactInfo);
+	bool MemberHeadChange(const EB_MemberInfo * pMemberInfo);
 	bool ClearUnreadMsg(bool bFromUserClick);
 	int GetUnreadMsgCount(void) const;
 
@@ -151,6 +155,7 @@ protected:
 	CString m_sFullName;
 	CString m_sShortName;
 	tstring m_sFromDescription;
+	tstring m_sImageMd5;
 	Gdiplus::Image* m_pFromImage;
 	EB_USER_LINE_STATE m_nFromLineState;
 	bool m_bDeleteThis;

@@ -93,9 +93,6 @@ protected:
 	void SelectSearch(HTREEITEM hSelItem);
 	void DeleteSelected(HTREEITEM hSelItem);
 
-	//bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const;
-	//virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
-
 	LRESULT OnTreeItemSelChanged(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemDoubleClieck(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);

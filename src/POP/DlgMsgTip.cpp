@@ -246,6 +246,8 @@ void CDlgMsgTip::OnBnClickedButtonClose()
 
 void CDlgMsgTip::AddSubMsgTip(eb::bigint nId, eb::bigint nSubId, const CString& sMsgTip, const CString& sParam, eb::bigint nMsgId)
 {
+	CString sMsgTipTemp(sMsgTip);
+	sMsgTipTemp.Replace(_T("&"),_T("&&"));
 	CTreeItemInfo::pointer pItemInfo;
 	if (m_pIdItemInfo.find(nId,pItemInfo))
 	{
@@ -254,13 +256,13 @@ void CDlgMsgTip::AddSubMsgTip(eb::bigint nId, eb::bigint nSubId, const CString& 
 			const eb::bigint nMsgId = pItemInfo->m_sParentId;
 			theEBAppClient.EB_AckMsg(nMsgId,1);
 		}
-		m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTip);
+		m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTipTemp);
 		pItemInfo->m_nBigId = nSubId;
 		pItemInfo->m_sName = (LPCTSTR)sParam;
 		pItemInfo->m_sParentId = nMsgId;
 	}else
 	{
-		HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTip);
+		HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTipTemp);
 		pItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_SUBMSG,hEmpItem);
 		pItemInfo->m_sId = nId;
 		pItemInfo->m_nBigId = nSubId;
@@ -272,13 +274,15 @@ void CDlgMsgTip::AddSubMsgTip(eb::bigint nId, eb::bigint nSubId, const CString& 
 }
 void CDlgMsgTip::AddEmailMsgTip(eb::bigint nId, eb::bigint nEmailSubId, const CString& sMsgTip, const CString& sParam)
 {
+	CString sMsgTipTemp(sMsgTip);
+	sMsgTipTemp.Replace(_T("&"),_T("&&"));
 	CTreeItemInfo::pointer pItemInfo;
 	if (m_pIdItemInfo.find(nId,pItemInfo))
 	{
-		m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTip);
+		m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTipTemp);
 	}else
 	{
-		HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTip);
+		HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTipTemp);
 		pItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_EMAIL,hEmpItem);
 		pItemInfo->m_sId = nId;
 		pItemInfo->m_nBigId = nEmailSubId;
@@ -303,16 +307,18 @@ void CDlgMsgTip::DelEmailMsgTip(eb::bigint nId)
 
 void CDlgMsgTip::AddMsgTip(eb::bigint nGroupId, eb::bigint nFromUserId, const CString& sMsgTip)
 {
+	CString sMsgTipTemp(sMsgTip);
+	sMsgTipTemp.Replace(_T("&"),_T("&&"));
 	bool bNewMsg = false;
 	if (nGroupId>0)
 	{
 		CTreeItemInfo::pointer pItemInfo;
 		if (m_pGroupItemInfo.find(nGroupId,pItemInfo))
 		{
-			m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTip);
+			m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTipTemp);
 		}else
 		{
-			HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTip);
+			HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTipTemp);
 			pItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_GROUP,hEmpItem);
 			pItemInfo->m_sId = 1;
 			pItemInfo->m_nSubType = -2;
@@ -327,10 +333,10 @@ void CDlgMsgTip::AddMsgTip(eb::bigint nGroupId, eb::bigint nFromUserId, const CS
 		CTreeItemInfo::pointer pItemInfo;
 		if (m_pUserItemInfo.find(nFromUserId,pItemInfo))
 		{
-			m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTip);
+			m_pTreeMessage.SetItemText(pItemInfo->m_hItem,sMsgTipTemp);
 		}else
 		{
-			HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTip);
+			HTREEITEM hEmpItem = m_pTreeMessage.InsertItem(sMsgTipTemp);
 			pItemInfo = CTreeItemInfo::create(CTreeItemInfo::ITEM_TYPE_CONTACT,hEmpItem);
 			pItemInfo->m_nUserId = nFromUserId;
 			pItemInfo->m_dwItemData = EB_LINE_STATE_ONLINE_NEW;
@@ -564,7 +570,7 @@ void CDlgMsgTip::OnBnClickedButtonDelall()
 		CLockMap<eb::bigint,CTreeItemInfo::pointer>::iterator pIter = m_pIdItemInfo.begin();
 		for (; pIter!=m_pIdItemInfo.end(); pIter++)
 		{
-			CTreeItemInfo::pointer pItemInfo = pIter->second;
+			const CTreeItemInfo::pointer& pItemInfo = pIter->second;
 			if (pItemInfo->m_sParentId>0)
 			{
 				const eb::bigint nMsgId = pItemInfo->m_sParentId;

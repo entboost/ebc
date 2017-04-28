@@ -275,32 +275,44 @@ inline std::string CGC_UTF82ACP(const char* sString)
 #include <iconv.h>
 inline int cgc_code_convert(const char *from_charset,const char *to_charset,const char *inbuf,size_t inlen,char *outbuf,size_t outlen)  
 {  
-	iconv_t cd;  
+	iconv_t cd = 0;  
 	//int rc;  
 	char **pin = (char**)&inbuf;  
 	char **pout = &outbuf;  
 
-	cd = iconv_open(to_charset,from_charset);  
-	if (cd==0)  
-		return -1;  
-	memset(outbuf,0,outlen);  
-	if (iconv(cd,pin,&inlen,pout,&outlen) == -1)  
-		return -1;  
+	int ret = 0;
+	try
+	{
+		cd = iconv_open(to_charset,from_charset);  
+		if (cd==0)  
+			return -1;  
+		memset(outbuf,0,outlen);  
+		if ((int)iconv(cd,pin,&inlen,pout,&outlen) == -1)  
+		{
+			ret = -1;
+			//return -1;  
+		}
+	}catch(std::exception const &)
+	{
+	}catch(...){
+	}
 	iconv_close(cd);  
-	return 0;  
+	return ret;
 }  
 inline int cgc_u2g(const char *inbuf,size_t inlen,char *outbuf,size_t outlen)  
 {  
-	return cgc_code_convert("utf-8","gb2312",inbuf,inlen,outbuf,outlen);  
+	return cgc_code_convert("utf-8","gbk",inbuf,inlen,outbuf,outlen);  
+	//return cgc_code_convert("utf-8","gb2312",inbuf,inlen,outbuf,outlen);  
 }  
 inline int cgc_g2u(const char *inbuf,size_t inlen,char *outbuf,size_t outlen)  
 {  
-	return cgc_code_convert("gb2312","utf-8",inbuf,inlen,outbuf,outlen);  
+	return cgc_code_convert("gbk","utf-8",inbuf,inlen,outbuf,outlen);  
+	//return cgc_code_convert("gb2312","utf-8",inbuf,inlen,outbuf,outlen);  
 }
 inline int CGC_XXX2UTF8(const char* from_charset, const char *inbuf,size_t inlen, std::string& pOut)
 {
-	char* pBuf = new char[inlen*2+1];
-	const int ret = cgc_code_convert(from_charset,"utf-8",inbuf,inlen,pBuf,inlen*2+1);
+	char* pBuf = new char[inlen*2+10];
+	const int ret = cgc_code_convert(from_charset,"utf-8",inbuf,inlen,pBuf,inlen*2+10);
 	if (ret==0)
 		pOut = pBuf;
 	delete[] pBuf;

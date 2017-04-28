@@ -33,6 +33,7 @@ CDlgFuncWindow::CDlgFuncWindow(CWnd* pParent /*=NULL*/,bool bDeleteThis)
 	//m_bChildMode = false;
 	m_nMsgType = 0;
 	m_bBroadcastMsg = false;
+	m_nShowMyMsgSubId = 0;
 	m_bOpenNewClose = false;
 #ifndef USES_CEF_BROADCAST
 	m_pBroadcastView = NULL;
@@ -61,6 +62,7 @@ void CDlgFuncWindow::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_MAX, m_btnMax);
 	DDX_Control(pDX, IDC_BUTTON_CLOSE, m_btnClose);
 	DDX_Control(pDX, IDC_EXPLORER1, m_pExplorer);
+	DDX_Control(pDX, IDC_BUTTON_VIEW_MYMSG, m_btnViewMyMsg);
 }
 
 
@@ -76,6 +78,7 @@ BEGIN_MESSAGE_MAP(CDlgFuncWindow, CEbDialogBase)
 	ON_WM_TIMER()
 	//ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 	ON_WM_MOUSEWHEEL()
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_MYMSG, &CDlgFuncWindow::OnBnClickedButtonViewMymsg)
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CDlgFuncWindow, CEbDialogBase)
@@ -96,7 +99,6 @@ END_EVENTSINK_MAP()
 // CDlgFuncWindow message handlers
 
 
-
 inline void GetHtmlString(const std::string & sTitle, const std::string& sText, std::string& pOutHtmlString)
 {
 	pOutHtmlString.clear();
@@ -104,19 +106,18 @@ inline void GetHtmlString(const std::string & sTitle, const std::string& sText, 
 	std::transform(sTextTemp.begin(), sTextTemp.end(), sTextTemp.begin(), tolower);
 	if (sTextTemp.find("<head")==std::string::npos)
 	{
+			//_T(".popups { \r\n")\
+			//_T(" BORDER-RIGHT: black 1px solid; PADDING-RIGHT: 5px; BORDER-TOP: black 1px solid; DISPLAY: none; PADDING-LEFT: 5px; BACKGROUND: #eee; PADDING-BOTTOM: 5px; BORDER-LEFT: black 1px solid; WIDTH: 100%; PADDING-TOP: 5px; BORDER-BOTTOM: black 1px solid; POSITION: absolute; HEIGHT: 90px \r\n")\
+			//_T("} \r\n")
 		pOutHtmlString = _T("<HEAD>\r\n")\
 			_T("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\r\n")\
 			_T("<style> \r\n")\
-			_T("<!-- \r\n")\
-			_T(".popups { \r\n")\
-			_T("	BORDER-RIGHT: black 1px solid; PADDING-RIGHT: 5px; BORDER-TOP: black 1px solid; DISPLAY: none; PADDING-LEFT: 5px; BACKGROUND: #eee; PADDING-BOTTOM: 5px; BORDER-LEFT: black 1px solid; WIDTH: 110px; PADDING-TOP: 5px; BORDER-BOTTOM: black 1px solid; POSITION: absolute; HEIGHT: 90px \r\n")\
-			_T("} \r\n")\
 			_T("input, td, body, p { \r\n")\
 			_T("FONT-SIZE: 14px; \r\n")\
 			_T("line-height:20px;font-family: \"Arial\", \"Verdana\", \"Helvetica\", \"sans-serif\";\r\n")\
 			_T("} \r\n")\
 			_T("Body{ \r\n")\
-			_T("Scrollbar-Face-Color:#F4F7FA; \r\n");
+			_T("word-break:break-all;word-wrap:break-word; \r\nScrollbar-Face-Color:#F4F7FA; \r\n");
 		pOutHtmlString += _T("BORDER-LEFT-STYLE: none;  \r\n")\
 			_T("BORDER-RIGHT-STYLE: none; \r\n")\
 			_T("BORDER-TOP-STYLE: none;  \r\n")\
@@ -131,7 +132,6 @@ inline void GetHtmlString(const std::string & sTitle, const std::string& sText, 
 			_T("text-decoration: none;\r\n")\
 			_T("color: #0066CC;\r\n")\
 			_T("}\r\n")\
-			_T("-->\r\n")\
 			_T("</style> \r\n") \
 			//_T("\r\n</HEAD>\r\n<body bgcolor=\"white\">");
 			_T("\r\n<title>");
@@ -148,6 +148,20 @@ inline void GetHtmlString(const std::string & sTitle, const std::string& sText, 
 		pOutHtmlString += sText;
 	}
 }
+
+void CDlgFuncWindow::SetShowMyMsgSubId(mycp::bigint nSubId,const std::string& sParameters)
+{
+	m_nShowMyMsgSubId = nSubId;
+	m_sBCMsgParameters = sParameters;
+	if (m_nShowMyMsgSubId>0 && m_btnViewMyMsg.GetSafeHwnd()!=NULL && !m_btnViewMyMsg.IsWindowVisible())
+	{
+		m_btnViewMyMsg.ShowWindow(SW_SHOW);
+	}else if (m_nShowMyMsgSubId==0 && m_btnViewMyMsg.GetSafeHwnd()!=NULL && m_btnViewMyMsg.IsWindowVisible())
+	{
+		m_btnViewMyMsg.ShowWindow(SW_HIDE);
+	}
+}
+
 void CDlgFuncWindow::UpdateBroadcastMsg(const std::string& sTitle, const std::string& sText, eb::bigint nMsgId)
 {
 	// *用户不点击，不处理
@@ -213,6 +227,19 @@ BOOL CDlgFuncWindow::OnInitDialog()
 	m_pPanelStatus->Create(CPanelText::IDD,this);
 	m_pPanelStatus->ShowWindow(SW_HIDE);
 	m_pPanelStatus->SetBgColor(theDefaultFlatLineColor);
+
+	m_btnViewMyMsg.SetTextHotMove(false);
+	m_btnViewMyMsg.SetAutoSize(false);
+	m_btnViewMyMsg.SetWindowText(_T("我的消息"));
+	m_btnViewMyMsg.SetToolTipText(_T("点击进入我的消息"));
+	m_btnViewMyMsg.SetNorTextColor(RGB(0,128,255));
+	m_btnViewMyMsg.SetHotTextColor(RGB(255,255,255));
+	m_btnViewMyMsg.SetPreTextColor(RGB(255,255,255));
+	m_btnViewMyMsg.SetDrawPanel(true,-1,theApp.GetHotColor(),theApp.GetPreColor());
+	if (m_nShowMyMsgSubId>0)
+	{
+		m_btnViewMyMsg.ShowWindow(SW_SHOW);
+	}
 
 	//theApp.AdaptIeVersion();
 	if (m_nFuncBrowserType==EB_FUNC_BROWSER_TYPE_DEFAULT)
@@ -464,17 +491,28 @@ void CDlgFuncWindow::OnSize(UINT nType, int cx, int cy)
 	}else if (m_nBrowserType==EB_BROWSER_TYPE_CEF && m_pCefBrowser.GetSafeHwnd())
 	{
 		const int const_border_top = 0;
-		const int const_border_bottom = 2;
+		const int const_border_bottom = m_bBroadcastMsg?24:2;
 		m_pCefBrowser.MoveWindow(1,WINDOW_TITLE_HEIGHT+const_border_top,cx-2,cy-WINDOW_TITLE_HEIGHT-(const_border_top+const_border_bottom));
 		SetTimer(TIMER_REFRESH_BROWSER,10,NULL);
 #endif
 	}else if (m_nBrowserType==EB_BROWSER_TYPE_IE && m_pExplorer.GetSafeHwnd())
 	{
 		const int const_border_top = 0;
-		const int const_border_bottom = 2;
+		const int const_border_bottom = m_bBroadcastMsg?24:2;
 		m_pExplorer.MoveWindow(1,WINDOW_TITLE_HEIGHT+const_border_top,cx-2,cy-WINDOW_TITLE_HEIGHT-(const_border_top+const_border_bottom));
 	}
-
+	if (m_bBroadcastMsg && m_btnViewMyMsg.GetSafeHwnd()!=NULL)
+	//if (m_nShowMyMsgSubId>0 && m_btnViewMyMsg.GetSafeHwnd()!=NULL)
+	{
+		const int const_btn_width = 55;
+		const int const_btn_height = 19;
+		CRect rectViewMsgMsg;
+		rectViewMsgMsg.left = cx-const_btn_width-10;
+		rectViewMsgMsg.right = rectViewMsgMsg.left + const_btn_width;
+		rectViewMsgMsg.top = cy-24;
+		rectViewMsgMsg.bottom = rectViewMsgMsg.top + const_btn_height;
+		m_btnViewMyMsg.MoveWindow(&rectViewMsgMsg);
+	}
 	MovePanelFind(cx);
 	if (m_pPanelStatus!=NULL && m_pPanelStatus->IsWindowVisible())
 	{
@@ -808,6 +846,7 @@ void CDlgFuncWindow::OnTimer(UINT_PTR nIDEvent)
 	CEbDialogBase::OnTimer(nIDEvent);
 }
 
+static CString theDownloadResource = _T("eb-download-resource://");
 static CString theReqAddContact = _T("eb-add-contact://");
 static CString theCallAccount = _T("ebim-call-account://");
 static CString theCallGroup = _T("ebim-call-group://");
@@ -849,6 +888,18 @@ void CDlgFuncWindow::OnBeforeNavigate(const wchar_t* szURL, bool* pOutCancel)
 #endif
 		if (bRet && m_bOpenNewClose)
 			DoClose(true);
+		return;
+	}
+	pos = csURL.Find(theDownloadResource, 0); 
+	if( pos != -1 )
+	{
+		// eb-download-resource://[TYPE],[RESOURCEID]
+		// eb-download-resource://[TYPE],[RESOURCEID],[FILENAME]
+		*pOutCancel = true;	
+		const CString sResourceInfo = csURL.Mid(pos+theDownloadResource.GetLength());
+		char * lpszBuffer = new char[sResourceInfo.GetLength()+1];
+		strcpy(lpszBuffer,sResourceInfo);
+		theApp.GetMainWnd()->PostMessage(EB_COMMAND_DOWNLOAD_RESOURCE,(WPARAM)lpszBuffer,(LPARAM)0);
 		return;
 	}
 	pos = csURL.Find(theCallGroup, 0); 
@@ -1795,4 +1846,34 @@ BOOL CDlgFuncWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		}
 	}
 	return __super::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+void CDlgFuncWindow::OnBnClickedButtonViewMymsg()
+{
+	if (m_nShowMyMsgSubId>0)
+	{
+		bool bRet = false;
+#ifdef USES_EBCOM_TEST
+		CComPtr<IEB_SubscribeFuncInfo> pSubscribeFuncInfo = theEBClientCore->EB_GetSubscribeFuncInfo(m_nShowMyMsgSubId);
+		if (pSubscribeFuncInfo!=NULL)
+		{
+			//bRet = theApp.OpenSubscribeFuncWindow(EB_SubscribeFuncInfo(pSubscribeFuncInfo),"",(LPCTSTR)sParameters,NULL);
+			bRet = true;
+		}
+#else
+		EB_SubscribeFuncInfo pSubscribeFuncInfo;
+		if (theEBAppClient.EB_GetSubscribeFuncInfo(m_nShowMyMsgSubId,&pSubscribeFuncInfo))
+		{
+			//bRet = theApp.OpenSubscribeFuncWindow(pSubscribeFuncInfo,"",(LPCTSTR)sParameters,NULL);
+			bRet = true;
+		}
+#endif
+		if (bRet)
+		{
+			COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo(m_nShowMyMsgSubId, m_sBCMsgParameters);
+			theApp.GetMainWnd()->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
+			if (m_bOpenNewClose)
+				DoClose(true);
+		}
+	}
 }

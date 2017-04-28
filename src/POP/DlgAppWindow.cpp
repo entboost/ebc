@@ -1050,7 +1050,17 @@ bool CDlgAppWindow::OnBeforeBrowse(const wchar_t* sUrl)
 
 void CDlgAppWindow::OnAddressChange(const wchar_t* sUrl)
 {
+	if (m_nBrowserType!=EB_BROWSER_TYPE_CEF) return;
 
+	if (this->IsWindowVisible())	// 当前窗口显示才发送消息
+	{
+		const CString sUrlTemp(sUrl);
+		char * lpszBuffer = new char[sUrlTemp.GetLength()+1];
+		strcpy(lpszBuffer,sUrlTemp);
+		const LPARAM nSearchFocus = 0;
+		//const LPARAM nSearchFocus = (sUrlTemp=="about:blank")?1:0;
+		this->GetParent()->PostMessage(EB_COMMAND_CHANGE_APP_URL,(WPARAM)lpszBuffer,nSearchFocus);
+	}
 }
 void CDlgAppWindow::OnTitleChange(const wchar_t* sTitle, const wchar_t* sUrl)
 {
@@ -1352,6 +1362,7 @@ void CDlgAppWindow::OnFindText(const char* lpszFindText, bool bFindUp, bool bMat
 }
 #endif
 
+static CString theDownloadResource = _T("eb-download-resource://");
 static CString theReqAddContact = _T("eb-add-contact://");
 static CString theCallAccount = _T("ebim-call-account://");
 static CString theCallGroup = _T("ebim-call-group://");
@@ -1387,6 +1398,18 @@ void CDlgAppWindow::OnBeforeNavigate(const wchar_t* szURL, bool* pOutCancel)
 #endif
 		if (bRet && m_bOpenNewClose)
 			this->PostMessage(WM_CLOSE, 0, 0);
+		return;
+	}
+	pos = csURL.Find(theDownloadResource, 0); 
+	if( pos != -1 )
+	{
+		// eb-download-resource://[TYPE],[RESOURCEID]
+		// eb-download-resource://[TYPE],[RESOURCEID],[FILENAME]
+		*pOutCancel = true;	
+		const CString sResourceInfo = csURL.Mid(pos+theDownloadResource.GetLength());
+		char * lpszBuffer = new char[sResourceInfo.GetLength()+1];
+		strcpy(lpszBuffer,sResourceInfo);
+		theApp.GetMainWnd()->PostMessage(EB_COMMAND_DOWNLOAD_RESOURCE,(WPARAM)lpszBuffer,(LPARAM)0);
 		return;
 	}
 	pos = csURL.Find(theCallGroup, 0); 

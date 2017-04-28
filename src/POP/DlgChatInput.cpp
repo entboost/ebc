@@ -24,6 +24,8 @@
 #define TIMERID_SEND_CALL_NOTIFY	105
 #define TIMERID_HIDE_NOTIFY1		106
 #define TIMERID_CHECK_NOTIFY		107
+#define TIMERID_SC_OK						108
+#define TIMERID_CHECK_FORBID		109
 
 // CDlgChatInput dialog
 const int const_max_length = 80;
@@ -51,6 +53,7 @@ CDlgChatInput::CDlgChatInput(CWnd* pParent /*=NULL*/)
 	m_tShowNotifyTime = 0;
 	m_bLastReceiveMsg = false;
 	m_pPanelStatus = NULL;
+	m_pPanelInputForbidStatus = NULL;
 }
 
 CDlgChatInput::~CDlgChatInput()
@@ -65,6 +68,7 @@ void CDlgChatInput::DoDataExchange(CDataExchange* pDX)
 	//DDX_Control(pDX, IDC_BUTTON_FONT, m_btnFont);
 	DDX_Control(pDX, IDC_BUTTON_IMAGE, m_btnImage);
 	DDX_Control(pDX, IDC_BUTTON_EBSC, m_btnEBSC);
+	DDX_Control(pDX, IDC_BUTTON_MIN_EBSC, m_btnMinEBSC);
 	//DDX_Control(pDX, IDC_BUTTON_FILE_MANAGER, m_btnFileManager);
 	DDX_Control(pDX, IDC_BUTTON_MSG_RECORD, m_btnMsgRecord);
 	DDX_Control(pDX, IDC_BUTTON_CLOSE, m_btnClose);
@@ -93,15 +97,23 @@ BEGIN_MESSAGE_MAP(CDlgChatInput, CEbDialogBase)
 	ON_MESSAGE(WM_DROP_FILE, OnDropFile)
 	ON_MESSAGE(WM_RICK_SAVEAS, OnRichSaveAs)
 	ON_BN_CLICKED(IDC_BUTTON_EBSC, &CDlgChatInput::OnBnClickedButtonEbsc)
+	ON_BN_CLICKED(IDC_BUTTON_MIN_EBSC, &CDlgChatInput::OnBnClickedButtonMinEbsc)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGE, &CDlgChatInput::OnBnClickedButtonImage)
 	ON_WM_ERASEBKGND()
 	ON_WM_PAINT()
 	//ON_WM_DROPFILES()
 	ON_BN_CLICKED(IDC_BUTTON_SWITCH_RETURN, &CDlgChatInput::OnBnClickedButtonSwitchReturn)
+	ON_COMMAND(EB_COMMAND_SWITCH_MIN_EBSC, OnCmdSwitchMinEBSC)
 	ON_COMMAND(EB_COMMAND_SEND_TYPE_RETURN, OnCmdSendTypeReturn)
 	ON_COMMAND(EB_COMMAND_SEND_TYPE_CTRL_RETURN, OnCmdSendTypeCtrlReturn)
 	ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 END_MESSAGE_MAP()
+
+
+bool CDlgChatInput::IsForbidSpeech(void) const
+{
+	return (m_pCallInfo.m_sGroupCode>0 && m_pPanelInputForbidStatus!=NULL && m_pPanelInputForbidStatus->IsWindowVisible())?true:false;
+}
 
 void CDlgChatInput::SetCtrlColor(bool bInvalidate)
 {
@@ -147,6 +159,14 @@ BOOL CDlgChatInput::OnInitDialog()
 	m_pPanelStatus->SetBgColor(theDefaultFlatBgColor);
 	m_pPanelStatus->SetDrawPos(0,0);
 	m_pPanelStatus->SetBorder(0);
+
+	m_pPanelInputForbidStatus = new CPanelText(this);
+	m_pPanelInputForbidStatus->Create(CPanelText::IDD,this);
+	m_pPanelInputForbidStatus->ShowWindow(SW_HIDE);
+	m_pPanelInputForbidStatus->SetBgColor(theDefaultFlatBgColor);
+	m_pPanelInputForbidStatus->SetDrawPos(0,0);
+	m_pPanelInputForbidStatus->SetBorder(0);
+	
 	//m_pPanelStatus->SetMouseMove(TRUE);
 
 	//m_bMustInviteUser = this->m_pCallInfo->m_bOffLineCall;//m_bReceiveOffLineMsg;
@@ -266,6 +286,7 @@ BOOL CDlgChatInput::OnInitDialog()
 	//m_richInput.ModifyStyle(0,ES_WANTRETURN);
 	//m_richInput.SetTargetDevice(NULL,1);
 	m_richInput.SetBackgroundColor(FALSE,theDefaultFlatBgColor);
+	m_pPanelInputForbidStatus->SetWindowPos(&m_richInput, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
 
 	//m_richInput.SetFocus();
 	m_richInput.LimitText(24*1024);
@@ -283,6 +304,10 @@ BOOL CDlgChatInput::OnInitDialog()
 	}
 	this->SetToolTipText(IDC_BUTTON_IMAGE,_T("发送表情"));
 	this->SetToolTipText(IDC_BUTTON_EBSC,_T("屏幕画布截图 Shift + Alt + A"));
+	if (theApp.GetMinEBSC())
+		this->SetToolTipText(IDC_BUTTON_MIN_EBSC,_T("截图时隐藏当前窗口（点击切换）"));
+	else
+		this->SetToolTipText(IDC_BUTTON_MIN_EBSC,_T("截图时显示当前窗口（点击切换）"));
 	this->SetToolTipText(IDC_BUTTON_MSG_RECORD,_T("查看消息记录"));
 	this->SetToolTipText(IDC_BUTTON_CLOSE,_T("关闭"));
 	this->SetToolTipText(IDC_BUTTON_SWITCH_RETURN,_T("切换发送消息按键"));
@@ -296,6 +321,9 @@ BOOL CDlgChatInput::OnInitDialog()
 	m_btnEBSC.SetAutoSize(false);
 	m_btnEBSC.Load(IDB_PNG_BTN_EBCS);
 	m_btnEBSC.SetWindowText(_T(""));
+	m_btnMinEBSC.SetWindowText(_T(""));
+	m_btnMinEBSC.SetDrawTrianglePic(2,theDefaultFlatBlackText2Color,theDefaultTextBlackColor,-1,-1,8,4);
+	m_btnMinEBSC.SetDrawPanel(true,theDefaultFlatBgColor);
 	//m_btnFileManager.SetAutoSize(false);
 	//m_btnFileManager.Load(IDB_PNG_58X24);
 	//m_btnFileManager.SetToolTipText(_T("查看传输文件"));
@@ -365,6 +393,7 @@ BOOL CDlgChatInput::OnInitDialog()
 	}else
 	{
 		SetTimer(TIMERID_CHECK_NOTIFY,1000,NULL);
+		CheckMyForbidSpeechState(false,false);
 	}
 	//SetCircle(false);
 	SetDlgChildFont(theDefaultDialogFontSize,theFontFace.c_str());
@@ -421,6 +450,7 @@ void CDlgChatInput::OnDestroy()
 	//m_wndSplitter2.DestroyWindow();
 	m_richInput.DestroyWindow();
 
+	m_pMinEBSCMenu.DestroyMenu();
 	m_pSendTypeSwitchMenu.DestroyMenu();
 	if (m_pDlgToolbar.GetSafeHwnd()!=NULL)
 		m_pDlgToolbar.DestroyWindow();
@@ -432,6 +462,12 @@ void CDlgChatInput::OnDestroy()
 		m_pPanelStatus->DestroyWindow();
 		delete m_pPanelStatus;
 		m_pPanelStatus = NULL;
+	}
+	if (m_pPanelInputForbidStatus!=NULL)
+	{
+		m_pPanelInputForbidStatus->DestroyWindow();
+		delete m_pPanelInputForbidStatus;
+		m_pPanelInputForbidStatus = NULL;
 	}
 
 	CEbDialogBase::OnDestroy();
@@ -456,6 +492,9 @@ void CDlgChatInput::DoResize(UINT nID,int delta)
 		CSplitterControl::ChangeHeight(&m_pMrFrameControl, delta, CW_TOPALIGN);
 		//CSplitterControl::ChangePos(m_pPanelStatus, 0, delta);
 		CSplitterControl::ChangeHeight(&m_richInput, -delta, CW_BOTTOMALIGN);
+		if (m_pPanelInputForbidStatus!=NULL && m_pPanelInputForbidStatus->GetSafeHwnd()!=NULL)
+			CSplitterControl::ChangeHeight(m_pPanelInputForbidStatus, -delta, CW_BOTTOMALIGN);
+
 	//}else if (nID == IDC_STA_SPLITTER2)
 	//{
 	//	CSplitterControl::ChangeHeight(m_pwebOutWndPubc, delta, CW_TOPALIGN);
@@ -538,6 +577,10 @@ void CDlgChatInput::MoveSize(int cx, int cy)
 	if (m_richInput.GetSafeHwnd())
 	{
 		m_richInput.MoveWindow(2, const_rich_input_top, cx-2, rectRichInput.Height());	// 左边间隔
+		if (m_pPanelInputForbidStatus!=NULL && m_pPanelInputForbidStatus->GetSafeHwnd()!=NULL)
+		{
+			m_pPanelInputForbidStatus->MoveWindow(2, const_rich_input_top, cx-2, rectRichInput.Height());	// 左边间隔
+		}
 	}
 	//const int const_bar_button_top = const_rich_input_top-const_bar_button_height-1;
 	//const int const_splitter1_top = const_bar_button_top-const_splitter_height;
@@ -582,8 +625,12 @@ void CDlgChatInput::MoveSize(int cx, int cy)
 	m_btnImage.MovePoint(x,y);
 	x += (const_bar_button_width+const_bar_button_inteval);
 	m_btnEBSC.MovePoint(x,y);
+	x += (const_bar_button_width);
+	const int const_btn_min_ebsc_width = 10;
+	if (m_btnMinEBSC.GetSafeHwnd()!=NULL)
+		m_btnMinEBSC.MoveWindow(x,y,const_btn_min_ebsc_width,const_bar_button_height);
 	//y -= 1;	// ?
-	x += (const_bar_button_width+const_bar_button_inteval);
+	x += (const_btn_min_ebsc_width+const_bar_button_inteval);
 	//x = cx-m_btnMsgRecord.GetImgWidth()-const_btn_right_inteval;
 	m_btnMsgRecord.MovePoint(x,y);
 	//x -= m_btnMsgRecord.GetImgWidth();
@@ -817,12 +864,8 @@ void CDlgChatInput::ScrollToEnd(void)
 
 void CDlgChatInput::SetScreenCopyFinished(void)
 {
-	m_richInput.SetFocus();
-	// Ctrl+V
-	keybd_event(VK_CONTROL, 0, 0, 0);
-	keybd_event('V', 0, 0, 0);
-	keybd_event('V', 0, KEYEVENTF_KEYUP, 0);
-	keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+	// ** 使用定时器，解决某些情况下，不能正常复制屏幕截图问题
+	SetTimer(TIMERID_SC_OK,1,NULL);
 	return;
 	//Send   control   键
 	//BYTE pbKeyState[256];
@@ -838,6 +881,12 @@ void CDlgChatInput::SetScreenCopyFinished(void)
 }
 void CDlgChatInput::SendFile(const char* lpszFilePath,bool bCheckImage)
 {
+	if (IsForbidSpeech())
+	{
+		// ** 禁言限制中
+		return;
+	}
+
 	if (bCheckImage)
 	{
 		USES_CONVERSION;
@@ -894,12 +943,22 @@ void CDlgChatInput::OnUserEmpInfo(IEB_MemberInfo* pMemberInfo)
 #else
 void CDlgChatInput::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo)
 {
+	if (pMemberInfo->m_nMemberUserId==theApp.GetLogonUserId())
+	{
+		CheckMyForbidSpeechState(true,true);
+	}
+
 	//if (m_pDlgUserList)
 	//{
 	//	m_pDlgUserList->OnUserEmpInfo(pMemberInfo);
 	//}
 }
 #endif
+
+void CDlgChatInput::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
+{
+	CheckMyForbidSpeechState(true,false);
+}
 
 #ifdef USES_EBCOM_TEST
 void CDlgChatInput::SelectedEmp(IEB_MemberInfo* pMemberInfo)
@@ -987,11 +1046,13 @@ void CDlgChatInput::SelectedEmp(eb::bigint nUserId)
 }
 
 
-void CDlgChatInput::AddLineString(eb::bigint nMsgId,const CString& sText, int nAlignmentFormat)
+void CDlgChatInput::AddLineString(eb::bigint nMsgId,const CString& sText, int nAlignmentFormat, bool bWriteTime)
 {
 	m_pMrFrameInterface->AddLine(nMsgId);
 	m_pMrFrameInterface->SetAlignmentFormat(nAlignmentFormat);
 	m_pMrFrameInterface->WriteString((LPCTSTR)sText,theDefaultChatSystemColor);
+	if (bWriteTime)
+		m_pMrFrameInterface->WriteTime(0,"%H:%M");
 	const bool hIsScrollEnd = (m_pMrFrameInterface->IsScrollEnd()==VARIANT_TRUE)?true:false;
 	m_pMrFrameInterface->UpdateSize(VARIANT_TRUE);
 	if (hIsScrollEnd)
@@ -2127,6 +2188,16 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 		AddLineString(0,_T("超过最大消息长度！"),1);
 		return;
 	}
+	else if (nState==EB_STATE_GROUP_FORBIG_SPEECH)
+	{
+		AddLineString(0,_T("群禁言中！"),1);
+		return;
+	}
+	else if (nState==EB_STATE_FORBIG_SPEECH)
+	{
+		AddLineString(0,_T("你被禁言中！"),1);
+		return;
+	}
 
 	const EB_ChatRoomRichMsg * pRichMsg = pCrMsgInfo->m_pRichMsg;
 	const int nSubType = pRichMsg->GetSubType(); 
@@ -2590,7 +2661,7 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 		AddLineString(0,_T("发送不成功，对方离线消息空间已满！"),1);
 	}else if (EB_STATE_NOT_MEMBER_ERROR==nState && m_pCallInfo.m_sGroupCode>0)
 	{
-		AddLineString(0,_T("没有其他群组成员，发送失败！"),1);
+		AddLineString(0,_T("没有其他群组成员，不能发送聊天信息！"),1);
 	}else if (nState!=EB_STATE_OK && nState!=EB_STATE_FORWARD_MSG)
 	{
 		CString sTemp;
@@ -3472,6 +3543,102 @@ void CDlgChatInput::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 	}
 }
 
+void CDlgChatInput::CheckMyForbidSpeechState(bool bNewMessage,bool bFromMemberInfo)
+{
+	if (m_pCallInfo.m_sGroupCode==0) return;
+	// *** 群组聊天，检查当前用户是否禁言状态
+	int nForbidMinutes = 0;
+	if (theEBAppClient.EB_IsMemberForbidSpeech(m_pCallInfo.m_sGroupCode,theApp.GetLogonUserId(),nForbidMinutes))
+	{
+		// ** 检查到我的帐号，当前群组部门禁言
+		CString sStringText;
+		if (nForbidMinutes==0)
+			sStringText = _T("你被永久禁言：");
+		else
+		{
+			if (nForbidMinutes<60)
+				sStringText.Format(_T("你被禁言 %d 分钟："),nForbidMinutes);
+			else if (nForbidMinutes<1440)	// 1440分钟=24小时=1天
+			{
+				// a 剩余分钟数
+				const int nRemainMinutes = nForbidMinutes%60;
+				if (nRemainMinutes==0)
+					sStringText.Format(_T("你被禁言 %d 小时："),(nForbidMinutes/60));
+				else
+					sStringText.Format(_T("你被禁言 %d 小时 %d 分钟："),(nForbidMinutes/60),nRemainMinutes);
+			}else
+			{
+				const int nDays = nForbidMinutes/1440;
+				const int nHours = (nForbidMinutes%1440)/60;
+				const int nMinutes = nForbidMinutes%60;
+				sStringText.Format(_T("你被禁言 %d 天"),nDays);
+				CString sTemp;
+				if (nHours>0)
+				{
+					sTemp.Format(_T(" %d 小时"),nHours);
+					sStringText += sTemp;
+				}
+				if (nMinutes>0)
+				{
+					sTemp.Format(_T(" %d 分钟"),nMinutes);
+					sStringText += sTemp;
+				}
+				sStringText += _T("：");
+			}
+		}
+		if (bNewMessage)
+			AddLineString(0,sStringText,1,true);
+		USES_CONVERSION;
+		m_pPanelInputForbidStatus->SetDrawText(T2W(sStringText));
+		m_pPanelInputForbidStatus->ShowWindow(SW_SHOW);
+		m_richInput.EnableWindow(FALSE);
+		m_btnImage.EnableWindow(FALSE);
+		m_btnEBSC.EnableWindow(FALSE);
+		m_btnSend.EnableWindow(FALSE);
+		SetTimer(TIMERID_CHECK_FORBID,60*1000,NULL);
+	}
+	else if (theEBAppClient.EB_IsGroupForbidSpeech(m_pCallInfo.m_sGroupCode))
+	{
+		if (theEBAppClient.EB_IsGroupAdminLevel(m_pCallInfo.m_sGroupCode) || theEBAppClient.EB_IsGroupManager(m_pCallInfo.m_sGroupCode))
+		{
+			m_pPanelInputForbidStatus->ShowWindow(SW_HIDE);
+			m_richInput.EnableWindow(TRUE);
+			m_btnImage.EnableWindow(TRUE);
+			m_btnEBSC.EnableWindow(TRUE);
+			m_btnSend.EnableWindow(TRUE);
+		}
+		else
+		{
+			const CString sStringText(_T("群禁言中，群管理员可以发言："));
+			if (bNewMessage && !m_pPanelInputForbidStatus->IsWindowVisible())
+			{
+				AddLineString(0,sStringText,1,true);
+			}
+			USES_CONVERSION;
+			m_pPanelInputForbidStatus->SetDrawText(T2W(sStringText));
+			m_pPanelInputForbidStatus->ShowWindow(SW_SHOW);
+			m_richInput.EnableWindow(FALSE);
+			m_btnImage.EnableWindow(FALSE);
+			m_btnEBSC.EnableWindow(FALSE);
+			m_btnSend.EnableWindow(FALSE);
+			SetTimer(TIMERID_CHECK_FORBID,60*1000,NULL);
+		}
+		return;
+	}
+	else if (m_pPanelInputForbidStatus->IsWindowVisible())
+	{
+		if (bFromMemberInfo)
+			AddLineString(0,_T("你已被解除禁言："),1,true);
+		else
+			AddLineString(0,_T("已经解除群禁言："),1,true);
+		m_pPanelInputForbidStatus->ShowWindow(SW_HIDE);
+		m_richInput.EnableWindow(TRUE);
+		m_btnImage.EnableWindow(TRUE);
+		m_btnEBSC.EnableWindow(TRUE);
+		m_btnSend.EnableWindow(TRUE);
+	}
+}
+
 void CDlgChatInput::LoadMsgRecord(void)
 {
 	if (m_pMrFrameInterface==NULL) return;
@@ -3757,6 +3924,21 @@ void CDlgChatInput::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{
+	case TIMERID_CHECK_FORBID:
+		{
+			KillTimer(TIMERID_CHECK_FORBID);
+			CheckMyForbidSpeechState(false,false);
+		}break;
+	case TIMERID_SC_OK:
+		{
+			KillTimer(TIMERID_SC_OK);
+			m_richInput.SetFocus();
+			// Ctrl+V
+			keybd_event(VK_CONTROL, 0, 0, 0);
+			keybd_event('V', 0, 0, 0);
+			keybd_event('V', 0, KEYEVENTF_KEYUP, 0);
+			keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+		}break;
 	case TIMERID_HIDE_NOTIFY1:
 		{
 			KillTimer(TIMERID_HIDE_NOTIFY1);
@@ -4023,6 +4205,31 @@ void CDlgChatInput::OnBnClickedButtonEbsc()
 {
 	this->GetParent()->PostMessage(EB_MSG_EBSC, 0, 0);
 	m_richInput.SetFocus();
+}
+void CDlgChatInput::OnBnClickedButtonMinEbsc()
+{
+	if (m_pMinEBSCMenu.GetSafeHmenu()==NULL)
+	{
+		m_pMinEBSCMenu.CreatePopupMenu();
+		m_pMinEBSCMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SWITCH_MIN_EBSC,_T("截图时隐藏当前窗口"));
+	}
+	m_pMinEBSCMenu.CheckMenuItem(EB_COMMAND_SWITCH_MIN_EBSC,theApp.GetMinEBSC()?MF_CHECKED:MF_UNCHECKED);
+
+	CPoint point;
+	GetCursorPos(&point);
+	m_pMinEBSCMenu.TrackPopupMenu(TPM_LEFTBUTTON|TPM_LEFTALIGN|TPM_BOTTOMALIGN,point.x,point.y,this);
+}
+void CDlgChatInput::OnCmdSwitchMinEBSC(void)
+{
+	if (theApp.GetMinEBSC())
+	{
+		theApp.SetMinEBSC(false);
+		this->SetToolTipText(IDC_BUTTON_MIN_EBSC,_T("截图时显示当前窗口（点击切换）"));
+	}else
+	{
+		theApp.SetMinEBSC(true);
+		this->SetToolTipText(IDC_BUTTON_MIN_EBSC,_T("截图时隐藏当前窗口（点击切换）"));
+	}
 }
 
 //void CDlgChatInput::ShowImageWindow(bool bShow)
@@ -4437,6 +4644,7 @@ void CDlgChatInput::OnBnClickedButtonSwitchReturn()
 	GetCursorPos(&point);
 	m_pSendTypeSwitchMenu.TrackPopupMenu(TPM_LEFTBUTTON|TPM_LEFTALIGN|TPM_BOTTOMALIGN,point.x,point.y,this);
 }
+
 void CDlgChatInput::OnCmdSendTypeReturn(void)
 {
 	theApp.SetSendType(0);

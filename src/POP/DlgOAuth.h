@@ -24,6 +24,7 @@ public:
 	tstring m_sAppParameter0;
 	const CString& GetAccountPrefix(void) const {return m_sAccountPrefix;}
 	const CString& GetProductName(void) const {return m_sProductName;}
+	int GetSystemAccountFlag(void) const {return m_nSystemAccountFlag;}
 	bool GetLicenseUser(void) const {return m_bLicenseUser;}
 	bool GetSendRegMail(void) const {return m_bSendRegMail;}
 	bool GetSaveConversationLocal(void) const {return (m_nSaveConversations&1)==1;}
@@ -31,6 +32,7 @@ public:
 	bool GetAuthContact(void) const {return m_bAuthContact;}
 	eb::bigint GetDeployId(void) const {return m_nDeployId;}
 	int GetLicenseType(void) const {return m_nLicenstType;}
+	int GetEBServerVersion(void) const {return m_nEBServerVersion;}
 	//eb::bigint GetGroupMsgSugId(void) const {return m_nGroupMsgSubId;}
 	eb::bigint GetAutoOpenSubId(void) const {return m_nAutoOpenSubId;}
 	bool GetAutoHideMainFrame(void) const {return m_bAutoHideMainFrame;}
@@ -45,6 +47,7 @@ public:
 	EB_BROWSER_TYPE GetDefaultBrowserType(void) const {return m_nDefaultBrowserType;}
 	bool GetDisableMsgReceipt(void) const {return m_bDisableMsgReceipt;}
 	bool GetStatSubGroupMember(void) const {return m_bStatSubGroupMember;}
+	const tstring& GetDefaultUrl(void) const {return m_sDefaultUrl;}
 	bool GetIeException(void) const {return m_bIeException;}
 
 // Dialog Data
@@ -53,12 +56,14 @@ public:
 protected:
 	CString m_sAccountPrefix;
 	CString m_sProductName;
+	int m_nSystemAccountFlag;	// 系统帐号标示，1=系统管理员；2=普通企业管理员；0=普通用户
 	bool m_bLicenseUser;
 	bool m_bSendRegMail;
 	int m_nSaveConversations;
 	bool m_bAuthContact;
 	eb::bigint m_nDeployId;
 	int m_nLicenstType;	// 许可类型；0=未授权；1=终身授权；2=时间授权
+	int m_nEBServerVersion;
 	//eb::bigint m_nGroupMsgSubId;
 	eb::bigint m_nAutoOpenSubId;
 	bool m_bAutoHideMainFrame;
@@ -74,6 +79,7 @@ protected:
 	bool m_bDisableMsgReceipt;
 	bool m_bStatSubGroupMember;
 	bool m_bIeException;
+	tstring m_sDefaultUrl;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	static void RunEBC(void);

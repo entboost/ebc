@@ -66,6 +66,8 @@ public:
 
 	CString m_sProductName;
 
+	std::string m_sDefaultUrl;
+	int m_nEBServerVersion;
 	int m_nOpenRegister;
 	bool m_bOpenVisitor;
 	bool m_bLicenseUser;

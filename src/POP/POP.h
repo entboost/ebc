@@ -60,11 +60,11 @@ const CEBString const_default_group_name = "默认分组";
 const eb::bigint const_default_group_ugid = 0;
 const int const_default_menu_image_size = 24;
 
-#define DEFAULT_TRIANGLE_BTN_WIDTH 7
-#define DEFAULT_TRIANGLE_BTN_HEIGHT 14
+#define DEFAULT_TRIANGLE_BTN_WIDTH 5		// 7
+#define DEFAULT_TRIANGLE_BTN_HEIGHT 10	// 14
 
 //#define MENU_TOOLBAR_ICON_OFFSET_DELETE_GROUP	4
-#define MENU_TOOLBAR_ICON_OFFSET_DELETE			5
+#define MENU_TOOLBAR_ICON_OFFSET_DELETE						5	// 删除
 //#define MENU_TOOLBAR_ICON_OFFSET_MSG			6
 //#define MENU_TOOLBAR_ICON_OFFSET_SHARE			7
 //#define MENU_TOOLBAR_ICON_OFFSET_UPLOAD			8
@@ -112,6 +112,7 @@ public:
 	Gdiplus::Image * m_imageDefaultTempGroup;
 	Gdiplus::Image * m_imageStateAway;
 	Gdiplus::Image * m_imageStateBusy;
+	Gdiplus::Image * m_imageStateForbid;
 	tstring m_sDefaultAppImage;
 
 	Image * GetUserHeadImage(mycp::bigint nUserId,const tstring& sAccount) const;
@@ -203,6 +204,7 @@ public:
 	const CString& GetLogonPassword(void) const {return m_sLogonPassword;}
 	void SetEntManagerurl(const tstring& v) {m_sEntManagerUrl = v;}
 	const tstring& GetEntManagerurl(void) const {return m_sEntManagerUrl;}
+	const tstring& GetDefaultUrl(void) const {return m_sDefaultUrl;}
 	const CString& GetDefaultLoadingImageFile(void) const {return m_sDefaultLoadingImageFile;}
 	const CString& GetDefaultPageImageFile(void) const {return m_sDefaultPageImageFile;}
 	//const HICON GetIconAway(void) const {return m_iconAway;}
@@ -234,6 +236,7 @@ public:
 	bool GetColorFlat(void) const {return m_bColorFlat;}
 	const CString& GetAccountPrefix(void) const {return m_sAccountPrefix;}
 	const CString& GetProductName(void) const {return m_sProductName;}
+	int GetSystemAccountFlag(void) const {return m_nSystemAccountFlag;}
 	bool GetLicenseUser(void) const {return m_bLicenseUser;}
 	bool GetSendRegMail(void) const {return m_bSendRegMail;}
 	bool GetSaveConversationLocal(void) const {return m_bSaveConversationLocal;}
@@ -242,6 +245,7 @@ public:
 	eb::bigint GetDeployId(void) const {return m_nDeployId;}
 	int GetLicenseType(void) const {return m_nLicenstType;}
 	bool IsLicenseType(void) const {return (m_nLicenstType==1||m_nLicenstType==2)?true:false;}
+	int GetEBServerVersion(void) const {return m_nEBServerVersion;}
 	eb::bigint GetGroupMsgSugId(void);
 	eb::bigint GetFindAppSugId(void);
 	eb::bigint GetMyCollectionSugId(void);
@@ -264,6 +268,8 @@ public:
 	EB_BROWSER_TYPE GetDefaultBrowserType(void) const {return m_nDefaultBrowserType;}
 	bool SetDefaultUIStyleType(EB_UI_STYLE_TYPE newValue);
 	EB_UI_STYLE_TYPE GetDefaultUIStyleType(void) const {return m_nDefaultUIStyleType;}
+	void SetMinEBSC(bool newValue);
+	bool GetMinEBSC(void) const {return m_nMinEBSC;}
 
 	bool GetIeException(void) const {return m_bIeException;}
 
@@ -289,6 +295,7 @@ private:
 	eb::bigint m_nLogonUserId;
 	CString m_sLogonPassword;
 	tstring m_sEntManagerUrl;
+	tstring m_sDefaultUrl;
 	CString m_sDefaultLoadingImageFile;
 	CString m_sDefaultPageImageFile;
 	//HICON m_iconAway;
@@ -317,6 +324,7 @@ private:
 	////COLORREF m_nOkColor1;
 	CString m_sAccountPrefix;
 	CString m_sProductName;
+	int m_nSystemAccountFlag;	// 系统帐号标示，1=系统管理员；2=普通企业管理员；0=普通用户
 	bool m_bLicenseUser;
 	bool m_bSendRegMail;
 	bool m_bSaveConversationLocal;
@@ -324,6 +332,7 @@ private:
 	bool m_bAuthContact;
 	eb::bigint m_nDeployId;
 	int m_nLicenstType;	// 许可类型；0=未授权；1=终身授权；2=时间授权
+	int m_nEBServerVersion;
 	eb::bigint m_nGroupMsgSubId;
 	eb::bigint m_nFindAppSubId;
 	eb::bigint m_nMyCollectionSubId;
@@ -340,6 +349,7 @@ private:
 	eb::bigint m_nEnterpriseCreateUserId;
 	EB_BROWSER_TYPE m_nDefaultBrowserType;
 	EB_UI_STYLE_TYPE m_nDefaultUIStyleType;
+	bool m_nMinEBSC;
 	bool m_bDisableMsgReceipt;
 	bool m_bStatSubGroupMember;
 
@@ -358,9 +368,9 @@ private:
 	CBitmap m_bmpTreeType9Opened;
 
 	public:
-	virtual bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const;
+	virtual bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,Gdiplus::Image*& pImage3,int& pState) const;
 	virtual bool GetItemIcon(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,HICON& pIcon1, HICON& pIcon2,int& pState) const;
-	virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,CBitmap** pBitmapOpened,CBitmap** pBitmapClosed) const;
+	virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,const CBitmap** pBitmapOpened,const CBitmap** pBitmapClosed) const;
 	virtual COLORREF GetItemTextColor(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem, COLORREF colorDefault) const;
 private:
 	//CAboutDlg* m_dlgAbout;

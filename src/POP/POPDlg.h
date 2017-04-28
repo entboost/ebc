@@ -127,7 +127,7 @@ protected:
 	//bool m_bTimerToSwitchOnUIStyleTypeOffice;
 	bool m_bShowedLeft;
 	CTraButton m_btnSwitchLeft;
-	//CRect m_rectSwitchLeft;
+	CRect m_rectSwitchLeft;
 	bool m_bShowedToolbar;
 	CTraButton m_btnSwitchToolbar;
 	CRect m_rectSwitchToolbar;
@@ -349,8 +349,9 @@ protected:
 	LRESULT OnMessageAccountInfoChange(WPARAM wParam, LPARAM lParam);
 
 	LRESULT OnMessageSInfoResponse(WPARAM wParam, LPARAM lParam);
-	LRESULT OnMessageUserStateChange(WPARAM wParam, LPARAM lParam);
-	LRESULT OnMessageUserHeadChange(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageMemberStateChange(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageMemberHeadChange(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageContactHeadChange(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageCallConnected(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageCallHangup(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageAlertingCall(WPARAM wParam, LPARAM lParam);
@@ -513,6 +514,7 @@ protected:
 	void AddSubUnreadMsg(mycp::bigint nSubId, bool bSendToAppFrame);
 	void SetSubUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount, bool bSendToAppFrame);
 	LRESULT OnMsgClearSubIdUnReadmsg(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgDownloadResource(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedButtonGoback();
 	afx_msg void OnBnClickedButtonGoforward();

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER // WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
 
@@ -26,10 +26,12 @@
 
 namespace mycp {
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #include <Windows.h>
 #include <Mmsystem.h>
+#ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib")
+#endif
 #else
 #include <time.h>   
 inline unsigned long timeGetTime()  
@@ -219,13 +221,13 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 
 	const uint16 expectSeq = m_nLastPacketSeq + 1;
 	if (nSeq == expectSeq || m_nLastPacketSeq==-1 ||
-		(nSeq>=1 && nSeq<=10 && m_nLastPacketSeq>300 && m_nLastPacketSeq<65200))	// ?¿Í»§¶ËÖØÐÂ½øÈë
+		(nSeq>=1 && nSeq<=10 && m_nLastPacketSeq>300 && m_nLastPacketSeq<65200))	// ?å®¢æˆ·ç«¯é‡æ–°è¿›å…¥
 	{
 		m_nLastPacketSeq = nSeq;
 		return;
 	}
 
-	//// ¼ÆËãÏà¾à¶àÉÙ¸öSEQ
+	//// è®¡ç®—ç›¸è·å¤šå°‘ä¸ªSEQ
 	//int intervalseqs = nSeq - m_nLastPacketSeq;
 	//if (intervalseqs<0)
 	//	intervalseqs = (intervalseqs*-1)-1;
@@ -233,14 +235,14 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 	//	intervalseqs--;
 
 	int n = 0;
-	if (nSeq>expectSeq && (nSeq-expectSeq) < 0x7F00)	// Õý³£´óÐ¡SEQ£¬È±ÉÙÇ°ÃæSEQ
+	if (nSeq>expectSeq && (nSeq-expectSeq) < 0x7F00)	// æ­£å¸¸å¤§å°SEQï¼Œç¼ºå°‘å‰é¢SEQ
 	{
-		// *Ð§¹ûºÃÏñºÃÒ»Ð©£¬¾Í²»ÖªÁ÷Á¿ÈçºÎ£»
+		// *æ•ˆæžœå¥½åƒå¥½ä¸€äº›ï¼Œå°±ä¸çŸ¥æµé‡å¦‚ä½•ï¼›
 		m_nLastPacketSeq = nSeq;
 		//const uint16 nMaxResendCount = (ntohl(pRtpDataHead.m_nTotleLength)/ntohs(pRtpDataHead.m_nUnitLength))>10?(MAX_RESEND_COUNT+3):MAX_RESEND_COUNT;
 		const uint16 nMaxResendCount = MAX_RESEND_COUNT;
 		if ((nSeq-expectSeq)>nMaxResendCount)
-			return;	// ÍøÂç¹ý²î£¬ÖØ·¢Êý¾ÝÒ²Ã»ÓÃ£¬ÓÅ»¯Á÷Á¿£»
+			return;	// ç½‘ç»œè¿‡å·®ï¼Œé‡å‘æ•°æ®ä¹Ÿæ²¡ç”¨ï¼Œä¼˜åŒ–æµé‡ï¼›
 		n = nSeq-expectSeq;
 		if (nNAKType>=SOTP_RTP_NAK_REQUEST_2)
 		{
@@ -249,8 +251,8 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 			//	//theLostSeqInfo1.clear();
 			//	theLostSeqInfo2.clear();
 			//	//theLostSeqInfo3.clear();
-			//	intervalseqs = 0;	// ¹ýÆÚÊý¾ÝÖØ·¢Ò²ÎÞÓÃ,ÓÃÓÚÍøÂçÌØ±ð²îÊ±¼õÉÙÁ÷Á¿
-			//	//intervalseqs = nMaxResendCount;	// ¹ýÆÚÊý¾ÝÖØ·¢Ò²ÎÞÓÃ,ÓÃÓÚÍøÂçÌØ±ð²îÊ±¼õÉÙÁ÷Á¿
+			//	intervalseqs = 0;	// è¿‡æœŸæ•°æ®é‡å‘ä¹Ÿæ— ç”¨,ç”¨äºŽç½‘ç»œç‰¹åˆ«å·®æ—¶å‡å°‘æµé‡
+			//	//intervalseqs = nMaxResendCount;	// è¿‡æœŸæ•°æ®é‡å‘ä¹Ÿæ— ç”¨,ç”¨äºŽç½‘ç»œç‰¹åˆ«å·®æ—¶å‡å°‘æµé‡
 			//}
 			if (n>1)
 			//if (intervalseqs>0)
@@ -261,7 +263,7 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 			}
 		}
 	}
-	else if (expectSeq>nSeq && (expectSeq - nSeq)> 0x7F00)	// seq ÖØÐÂ´ÓÍ·¿ªÊ¼¼ÆËã
+	else if (expectSeq>nSeq && (expectSeq - nSeq)> 0x7F00)	// seq é‡æ–°ä»Žå¤´å¼€å§‹è®¡ç®—
 	//else if (expectSeq > nSeq && (intervalseqs > 200))
 	{
 		m_nLastPacketSeq = nSeq;
@@ -272,7 +274,7 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 
 		if (nNAKType>=SOTP_RTP_NAK_REQUEST_2)
 		{
-			// ÏÈ·¢ËÍ65535Ç°Ãæ
+			// å…ˆå‘é€65535å‰é¢
 			int diff1 = 65535 - expectSeq;
 			if (diff1 > nMaxResendCount)
 				diff1 = nMaxResendCount;
@@ -280,14 +282,14 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 			theLostSeqInfo2.lost(65535-diff1, diff1+1);
 			//theLostSeqInfo3.lost(65535-diff1, diff1+1);
 
-			// ·¢ËÍ65535ºó,0¿ªÊ¼Êý¾Ý
+			// å‘é€65535åŽ,0å¼€å§‹æ•°æ®
 			const int diff2 = nSeq>0?(nSeq-1):0;
 			if (diff2 >= nMaxResendCount)
 			{
 				//theLostSeqInfo1.clear();
 				theLostSeqInfo2.clear();
 				//theLostSeqInfo3.clear();
-				//diff2 = 0;	// ¹ýÆÚÊý¾ÝÖØ·¢Ò²ÎÞÓÃ,ÓÃÓÚÍøÂçÌØ±ð²îÊ±¼õÉÙÁ÷Á¿
+				//diff2 = 0;	// è¿‡æœŸæ•°æ®é‡å‘ä¹Ÿæ— ç”¨,ç”¨äºŽç½‘ç»œç‰¹åˆ«å·®æ—¶å‡å°‘æµé‡
 			}else if (diff2 > 0)
 			{
 				//theLostSeqInfo1.lost(nSeq-diff2, diff2);
@@ -296,7 +298,7 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 			}
 
 			//if (intervalseqs > nMaxResendCount)
-			//	intervalseqs = nMaxResendCount;	// ¹ýÆÚÊý¾ÝÖØ·¢Ò²ÎÞÓÃ,ÓÃÓÚÍøÂçÌØ±ð²îÊ±¼õÉÙÁ÷Á¿
+			//	intervalseqs = nMaxResendCount;	// è¿‡æœŸæ•°æ®é‡å‘ä¹Ÿæ— ç”¨,ç”¨äºŽç½‘ç»œç‰¹åˆ«å·®æ—¶å‡å°‘æµé‡
 
 			//theLostSeqInfo1.lost(seq-intervalseqs, intervalseqs);
 			//theLostSeqInfo2.lost(seq-intervalseqs, intervalseqs);
@@ -312,12 +314,12 @@ void CSotpRtpSource::CaculateMissedPackets(const tagSotpRtpDataHead& pRtpDataHea
 	}
 #endif
 
-	if (nNAKType>=SOTP_RTP_NAK_REQUEST_1 && n>0)	// *ÒôÆµ ¸Ð¾õÍøÂç²îÊ±,ÒôÆµÐ§¹ûºÃÒ»Ð©
+	if (nNAKType>=SOTP_RTP_NAK_REQUEST_1 && n>0)	// *éŸ³é¢‘ æ„Ÿè§‰ç½‘ç»œå·®æ—¶,éŸ³é¢‘æ•ˆæžœå¥½ä¸€äº›
 	{
 		if (n==1)
 		{
 			if (m_bServerMode)
-				m_nLastExpectSeq = expectSeq;	// ÁÙÊ±¼ÇÂ¼È±Ê§Êý¾Ý£¬ÏÂÒ»¸öseq°ü»á×Ô¶¯ÅÐ¶ÏÊÇ·ñÐèÒªÇëÇó²¹³¥£¬ÓÅ»¯Á÷Á¿¡£
+				m_nLastExpectSeq = expectSeq;	// ä¸´æ—¶è®°å½•ç¼ºå¤±æ•°æ®ï¼Œä¸‹ä¸€ä¸ªseqåŒ…ä¼šè‡ªåŠ¨åˆ¤æ–­æ˜¯å¦éœ€è¦è¯·æ±‚è¡¥å¿ï¼Œä¼˜åŒ–æµé‡ã€‚
 			else
 			{
 				if (m_pLastExpect1.m_nExpectSeq==-1)
@@ -388,10 +390,10 @@ void CSotpRtpSource::PushRtpData(const tagSotpRtpDataHead& pRtpDataHead,const cg
 	if (pRtpDataHead.m_nIndex>=SOTP_RTP_MAX_PACKETS_PER_FRAME) return;
 	const uint32 ts = pRtpDataHead.m_nTimestamp;
 	// the packet expire time.
-	if (ts<m_nLastFrameTimestamp && ts>0 && (m_nLastFrameTimestamp-ts) < 0xFFFF)		// Ç°Ãæ¹ýÆÚÊý¾Ý
+	if (ts<m_nLastFrameTimestamp && ts>0 && (m_nLastFrameTimestamp-ts) < 0xFFFF)		// å‰é¢è¿‡æœŸæ•°æ®
 	{
 		return;
-	}else if (ts>m_nLastFrameTimestamp && (ts-m_nLastFrameTimestamp)>20*1000)	// 20S£¬ÖÐ¼äÍ£Ö¹ºó£¬ºóÃæ¼ÌÐø
+	}else if (ts>m_nLastFrameTimestamp && (ts-m_nLastFrameTimestamp)>20*1000)	// 20Sï¼Œä¸­é—´åœæ­¢åŽï¼ŒåŽé¢ç»§ç»­
 	{
 		m_nLastPacketSeq = -1;
 	}
@@ -409,14 +411,14 @@ void CSotpRtpSource::PushRtpData(const tagSotpRtpDataHead& pRtpDataHead,const cg
 		}
 		//memset(pFrame->m_pPayload, 0, pRtpDataHead.m_nTotleLength+1);
 		memcpy(&pFrame->m_pRtpHead,&pRtpDataHead,SOTP_RTP_DATA_HEAD_SIZE);
-		pFrame->m_nFirstSeq = pRtpDataHead.m_nSeq-pRtpDataHead.m_nIndex;	// *seqÖØÍ·¿ªÊ¼Ò²Õý³£
+		pFrame->m_nFirstSeq = pRtpDataHead.m_nSeq-pRtpDataHead.m_nIndex;	// *seqé‡å¤´å¼€å§‹ä¹Ÿæ­£å¸¸
 		pFrame->m_nPacketNumber = (pRtpDataHead.m_nTotleLength+pRtpDataHead.m_nUnitLength-1)/pRtpDataHead.m_nUnitLength;
 		if (ts>0 && !m_bServerMode)
 		{
-#ifdef WIN32
-			// 900 ms ÊÇÕý³£ÔÊÐíÑÓ³Ù
-			// min(1000,xx)ms ÊÇFPSµÄ¼ä¸ôÊ±¼ä£¬×î´ó 1000ms 1FPS
-			// min(4500,xx)ms ÊÇ¼ÆËã°ü´óÐ¡ÑÓ³ÙÊ±¼ä£¬Ã¿2KB×óÓÒ£¬Ôö¼Ó100ms ÑÓ³Ù£¬×î´ó 4500ms
+#ifdef _MSC_VER // WIN32
+			// 900 ms æ˜¯æ­£å¸¸å…è®¸å»¶è¿Ÿ
+			// min(1000,xx)ms æ˜¯FPSçš„é—´éš”æ—¶é—´ï¼Œæœ€å¤§ 1000ms 1FPS
+			// min(4500,xx)ms æ˜¯è®¡ç®—åŒ…å¤§å°å»¶è¿Ÿæ—¶é—´ï¼Œæ¯2KBå·¦å³ï¼Œå¢žåŠ 100ms å»¶è¿Ÿï¼Œæœ€å¤§ 4500ms
 			const short nOffset = 900 + min(1000,((ts>m_nLastFrameTimestamp)?(ts-m_nLastFrameTimestamp):(m_nLastFrameTimestamp-ts)));
 			pFrame->m_nExpireTime = timeGetTime() + nOffset + min(4500,((pFrame->m_nPacketNumber/2)*100));
 #else
@@ -439,8 +441,8 @@ void CSotpRtpSource::PushRtpData(const tagSotpRtpDataHead& pRtpDataHead,const cg
 
 	if (ts>0 && m_nLastFrameTimestamp == 0)
 	{
-		// ²»ÄÜÉ¾³ý£¬ÓÃÓÚ½â¾öÖÐ¼ä½ø·¿¼ä³öÊÓÆµÂýÎÊÌâ
-		m_nLastFrameTimestamp = pFrame->m_pRtpHead.m_nTimestamp - 1;	// ??ÕâÐÐ´úÂëÃ»ÓÃ£¬µ«Ò²Ã»ÓÐÓ°Ïì£»
+		// ä¸èƒ½åˆ é™¤ï¼Œç”¨äºŽè§£å†³ä¸­é—´è¿›æˆ¿é—´å‡ºè§†é¢‘æ…¢é—®é¢˜
+		m_nLastFrameTimestamp = pFrame->m_pRtpHead.m_nTimestamp - 1;	// ??è¿™è¡Œä»£ç æ²¡ç”¨ï¼Œä½†ä¹Ÿæ²¡æœ‰å½±å“ï¼›
 		m_nWaitForFrameSeq = (int)(unsigned short)(pFrame->m_nFirstSeq);
 	}
 
@@ -467,59 +469,62 @@ void CSotpRtpSource::GetWholeFrame(HSotpRtpFrameCallback pCallback, void* nUserD
 		CLockMap<uint32,CSotpRtpFrame::pointer>::iterator pIter = m_pReceiveFrames.begin();
 		for (; pIter!=m_pReceiveFrames.end(); pIter++)
 		{
-			const CSotpRtpFrame::pointer pFrame = pIter->second;
+			const CSotpRtpFrame::pointer& pFrame = pIter->second;
 			if (pFrame->m_pRtpHead.m_nTimestamp==0 && pFrame->m_pRtpHead.m_nSeq==0 && pFrame->IsWholeFrame())
 			{
 				// OK
+				const CSotpRtpFrame::pointer pFrameTemp = pFrame;
 				m_pReceiveFrames.erase(pIter);
 				//callback the frame.
 				wrlock.unlock();	// **
 				if(pCallback!=0)
-					pCallback(this->GetSrcId(), pFrame, 0, nUserData);
-				SetPool(pFrame);
+					pCallback(this->GetSrcId(), pFrameTemp, 0, nUserData);
+				SetPool(pFrameTemp);
 				break;
 			}else if ((m_nWaitForFrameSeq == -1 || ((unsigned short)(m_nWaitForFrameSeq)) == pFrame->m_nFirstSeq) && pFrame->IsWholeFrame())
 				//}else if (IsWholeFrame(pFrame) && (m_nWaitForFrameSeq == -1 || ((unsigned short)(m_nWaitForFrameSeq)) == pFrame->m_nFirstSeq))
 			{
 				// OK
+				const CSotpRtpFrame::pointer pFrameTemp = pFrame;
 				m_pReceiveFrames.erase(pIter);
-				m_nLastFrameTimestamp = pFrame->m_pRtpHead.m_nTimestamp;
-				m_nWaitForFrameSeq = (int)(uint16)(pFrame->m_nFirstSeq + pFrame->m_nPacketNumber);
-				if (m_bWaitforNextKeyVideo && pFrame->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO_I)
+				m_nLastFrameTimestamp = pFrameTemp->m_pRtpHead.m_nTimestamp;
+				m_nWaitForFrameSeq = (int)(uint16)(pFrameTemp->m_nFirstSeq + pFrameTemp->m_nPacketNumber);
+				if (m_bWaitforNextKeyVideo && pFrameTemp->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO_I)
 					m_bWaitforNextKeyVideo = false;
 
-				if (!m_bWaitforNextKeyVideo || pFrame->m_pRtpHead.m_nDataType != SOTP_RTP_NAK_DATA_VIDEO)
+				if (!m_bWaitforNextKeyVideo || pFrameTemp->m_pRtpHead.m_nDataType != SOTP_RTP_NAK_DATA_VIDEO)
 				{
 					//callback the frame.
 					const uint16 nLostDataTemp = m_nLostData;
 					m_nLostData = 0;
 					wrlock.unlock();	// **
 					if(pCallback!=0)
-						pCallback(this->GetSrcId(), pFrame, nLostDataTemp, nUserData);
+						pCallback(this->GetSrcId(), pFrameTemp, nLostDataTemp, nUserData);
 				}
-				SetPool(pFrame);
+				SetPool(pFrameTemp);
 				break;
 			}else if (pFrame->m_nExpireTime < tNow)
 			{
 				// expire time
+				const CSotpRtpFrame::pointer pFrameTemp = pFrame;
 				m_pReceiveFrames.erase(pIter);
-				m_nLastFrameTimestamp = pFrame->m_pRtpHead.m_nTimestamp;
-				m_nWaitForFrameSeq = (int)(uint16)(pFrame->m_nFirstSeq + pFrame->m_nPacketNumber);
+				m_nLastFrameTimestamp = pFrameTemp->m_pRtpHead.m_nTimestamp;
+				m_nWaitForFrameSeq = (int)(uint16)(pFrameTemp->m_nFirstSeq + pFrameTemp->m_nPacketNumber);
 
-				if (!m_bWaitforNextKeyVideo && pFrame->IsWholeFrame())
+				if (!m_bWaitforNextKeyVideo && pFrameTemp->IsWholeFrame())
 				{
 					//callback the frame.
 					const uint16 nLostDataTemp = m_nLostData;
 					m_nLostData = 0;
 					wrlock.unlock();	// **
 					if(pCallback!=0)
-						pCallback(this->GetSrcId(), pFrame, nLostDataTemp, nUserData);
+						pCallback(this->GetSrcId(), pFrameTemp, nLostDataTemp, nUserData);
 				}else
 				{
 					m_nLostData++;
-					m_bWaitforNextKeyVideo = (pFrame->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO_I||pFrame->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO)?true:false;
+					m_bWaitforNextKeyVideo = (pFrameTemp->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO_I||pFrameTemp->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO)?true:false;
 				}
-				SetPool(pFrame);
+				SetPool(pFrameTemp);
 				break;
 			}else// if ((++nCount)>=2)
 			{

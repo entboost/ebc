@@ -6,7 +6,7 @@
 #include<openssl/err.h>  
 #include <openssl/bio.h>  
 #include <string>  
-#ifdef WIN32
+#ifdef _MSC_VER	//WIN32
 #ifdef _DLL
 #pragma comment(lib, "libeay32.lib")
 #pragma comment(lib, "ssleay32.lib")
@@ -45,7 +45,7 @@ public:
 	const std::string& GetPrivateKey(void) const {return m_sPrivateKey;}
 
 	void rsa_generatekey_file(int bits=RSA_BITS){
-		/* 生成公钥 */  
+		/* 鐢熸垚鍏挜 */  
 		RSA* rsa = RSA_new();
 		BIGNUM* bne = BN_new();
 		BN_set_word(bne,RSA_F4);
@@ -56,7 +56,7 @@ public:
 		BIO_write_filename( bp, (void*)m_sPublicFile.c_str() );  
 		PEM_write_bio_RSAPublicKey(bp, rsa);  
 		BIO_free_all( bp );  
-		/* 生成私钥 */  
+		/* 鐢熸垚绉侀挜 */  
 		bp = BIO_new_file(m_sPrivateFile.c_str(), "w+");
 		// EVP_des_ede3
 		PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
@@ -65,7 +65,7 @@ public:
 		BN_clear_free(bne);
 	}
 	void rsa_generatekey_mem(int bits=RSA_BITS){
-		/* 生成公钥 */  
+		/* 鐢熸垚鍏挜 */  
 		RSA* rsa = RSA_new();
 		BIGNUM* bne = BN_new();
 		BN_set_word(bne,RSA_F4);
@@ -81,7 +81,7 @@ public:
 		else
 			m_sPublicKey.clear();
 		BIO_free_all( bp );
-		/* 生成私钥 */  
+		/* 鐢熸垚绉侀挜 */  
 		bp = BIO_new( BIO_s_mem() );  
 		// EVP_des_ede3
 		PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
@@ -227,10 +227,10 @@ public:
 		return ret;  
 	}  
 
-	// **RSA_NO_PADDING 不能加密
-	// **RSA_PKCS1_PADDING 可以加密
-	// PKCS#1中主要提供了两种加密方案，RSAEX- OAEP和PSAES-PKCS1-v1_5
-	// （反正就是两种加密过程了，有点复杂，它主要是先对先对需要加密的数据进行了编码，比如RSAES-OAEP 采用EME-OAEP编码，再进行加密或解密）
+	// **RSA_NO_PADDING 涓嶈兘鍔犲瘑
+	// **RSA_PKCS1_PADDING 鍙互鍔犲瘑
+	// PKCS#1涓富瑕佹彁渚涗簡涓ょ鍔犲瘑鏂规锛孯SAEX- OAEP鍜孭SAES-PKCS1-v1_5
+	// 锛堝弽姝ｅ氨鏄袱绉嶅姞瀵嗚繃绋嬩簡锛屾湁鐐瑰鏉傦紝瀹冧富瑕佹槸鍏堝鍏堝闇�瑕佸姞瀵嗙殑鏁版嵁杩涜浜嗙紪鐮侊紝姣斿RSAES-OAEP 閲囩敤EME-OAEP缂栫爜锛屽啀杩涜鍔犲瘑鎴栬В瀵嗭級
 	int rsa_private_encrypt(const unsigned char* fdata,int flen,unsigned char** pToData){
 		if (m_pPrivateRSA == NULL)
 			return -1;
@@ -299,4 +299,4 @@ private:
 	RSA* m_pPublicRSA;
 };
 
-#endif __RSA_H__
+#endif //__RSA_H__

@@ -56,6 +56,7 @@ public:
 	//	, OT_SLEF
 	//};
 
+	bool IsForbidSpeech(void) const;
 	void SetCallInfo(const EB_CallInfo& pCallInfo, const EB_AccountInfo& pFromAccountInfo);
 	void SetCtrlColor(bool bInvalidate = true);
 	void SetOwnerCall(bool bOwnerCall) {m_bOwnerCall = bOwnerCall;}
@@ -64,7 +65,7 @@ public:
 	void ScrollToEnd(void);
 	void SetScreenCopyFinished(void);	// Ctrl+V
 	void SendFile(const char* lpszFilePath, bool bCheckImage);
-	void AddLineString(eb::bigint nMsgId,const CString& sText, int nAlignmentFormat=0);
+	void AddLineString(eb::bigint nMsgId,const CString& sText, int nAlignmentFormat=0, bool bWriteTime=false);
 #ifdef USES_EBCOM_TEST
 	void OnUserEmpInfo(IEB_MemberInfo* pMemberInfo);
 	void SelectedEmp(IEB_MemberInfo* pMemberInfo);
@@ -72,6 +73,7 @@ public:
 	void OnReceivedFile(IEB_ChatFileInfo* pCrFileInfo);
 #else
 	void OnUserEmpInfo(const EB_MemberInfo* pMemberInfo);
+	void ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 	void SelectedEmp(const EB_MemberInfo* pMemberInfo);
 	bool OnSentFile(const CCrFileInfo * pCrFileInfo, EB_STATE_CODE nState);
 	void OnReceivedFile(const CCrFileInfo * pCrFileInfo);
@@ -108,6 +110,7 @@ public:
 	enum { IDD = IDD_DLG_CHATINPUT };
 
 protected:
+	CNewMenu m_pMinEBSCMenu;
 	CNewMenu m_pSendTypeSwitchMenu;
 	EB_CallInfo m_pCallInfo;
 	EB_AccountInfo m_pFromAccountInfo;
@@ -141,6 +144,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CTraButton m_btnImage;
 	CTraButton m_btnEBSC;
+	CTraButton m_btnMinEBSC;
 	//CTraButton m_btnFileManager;
 	CTraButton m_btnMsgRecord;
 	CTraButton m_btnClose;
@@ -154,6 +158,7 @@ protected:
 	CLabelEx m_checkPrivate;
 	//CxSkinButton m_btnFont;
 	COleRichEditCtrl m_richInput;
+	CPanelText * m_pPanelInputForbidStatus;
 
 	void GetInputTextRange(int nFirst, int nLast, CString& refString) const;
 	void FormatMsg(EB_ChatRoomRichMsg* pOutMsgFormat);
@@ -191,6 +196,7 @@ protected:
 	void WriteMsgDate(time_t tMsgTime);
 	void WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromUid,const tstring& sFromName,eb::bigint nToUid,const tstring& sToName,time_t tMsgTime, int nReadFlag);
 	void LoadMsgRecord(void);
+	void CheckMyForbidSpeechState(bool bNewMessage,bool bFromMemberInfo);
 
 	DECLARE_MESSAGE_MAP()
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -215,11 +221,13 @@ protected:
 	LRESULT OnDropFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnRichSaveAs(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedButtonEbsc();
+	afx_msg void OnBnClickedButtonMinEbsc();
 	afx_msg void OnBnClickedButtonImage();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnPaint();
 	//afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnBnClickedButtonSwitchReturn();
+	afx_msg void OnCmdSwitchMinEBSC(void);
 	afx_msg void OnCmdSendTypeReturn(void);
 	afx_msg void OnCmdSendTypeCtrlReturn(void);
 	LRESULT OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam);

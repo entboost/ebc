@@ -56,6 +56,9 @@ protected:
 	afx_msg void OnCmdClearHistory();
 	afx_msg void OnCmdChangeBrowserType();
 	afx_msg void OnCmdFileManager();
+	afx_msg void OnCmdSearchBaidu();
+	afx_msg void OnCmdSearchSogou();
+	afx_msg void OnCmdSearch360();
 	afx_msg void OnBnClickedButtonRefresh();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnSize(UINT nType, int cx, int cy);

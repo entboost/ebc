@@ -22,8 +22,8 @@ public:
 	void UpdateResFile(const tstring& sResFile);
 	bool MoveWindow(LPCRECT lpRect, BOOL bRepaint = TRUE);
 	void ShowWindow(bool bShow);
-	void AddUnreadMsg(void);
-	void SetUnreadMsg(size_t nUnreadMsgCount);
+	void AddUnreadMsg(bool bShowForce);
+	void SetUnreadMsg(size_t nUnreadMsgCount, bool bShowForce);
 	int ClearUnreadMsg(void);
 
 	CEBFuncButton(void);

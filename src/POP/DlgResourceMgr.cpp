@@ -809,13 +809,6 @@ LRESULT CDlgResourceMgr::OnTreeItemSelChanged(WPARAM wp, LPARAM lp)
 //	// 正常显示
 //	return 1;
 //}
-//bool CDlgResourceMgr::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const
-//{
-//	if (pTreeCtrl.GetSafeHwnd()==m_treeItem.GetSafeHwnd()) return false;	// ITEM不显示
-//	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
-//	if (pTreeItemInfo != NULL && pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_DIR) return true;
-//	return false;
-//}
 LRESULT CDlgResourceMgr::OnTreeItemDblclk(WPARAM wp, LPARAM lp)
 {
 	const HTREEITEM hDblClkItem = (HTREEITEM)wp;
@@ -960,7 +953,7 @@ void CDlgResourceMgr::OnNMRClickTreeDir(NMHDR *pNMHDR, LRESULT *pResult)
 					m_sMoveResId = pTreeItemInfo->m_sId;
 					for (;pIter!=m_pDirItemInfo.end();pIter++)
 					{
-						const CTreeItemInfo::pointer pDirTreeItemInfo = pIter->second;
+						const CTreeItemInfo::pointer& pDirTreeItemInfo = pIter->second;
 						if (pDirTreeItemInfo->m_sId == pTreeItemInfo->m_sParentId ||										// 当前目录
 							(pTreeItemInfo->m_nSubType==EB_RESOURCE_DIR && pTreeItemInfo->m_sId==pDirTreeItemInfo->m_sId))	// 本身目录
 							continue;
@@ -1087,7 +1080,7 @@ void CDlgResourceMgr::OnNMRClickTreeItem(NMHDR *pNMHDR, LRESULT *pResult)
 					m_sMoveResId = pTreeItemInfo->m_sId;
 					for (;pIter!=m_pDirItemInfo.end();pIter++)
 					{
-						const CTreeItemInfo::pointer pDirTreeItemInfo = pIter->second;
+						const CTreeItemInfo::pointer& pDirTreeItemInfo = pIter->second;
 						if (pDirTreeItemInfo->m_sId == pTreeItemInfo->m_sParentId ||										// 当前目录
 							(pTreeItemInfo->m_nSubType==EB_RESOURCE_DIR && pTreeItemInfo->m_sId==pDirTreeItemInfo->m_sId))	// 本身目录
 							continue;
@@ -1463,31 +1456,34 @@ void CDlgResourceMgr::NewItem(const EB_ResourceInfo& pResourceInfo)
 			sSize.Format(_T("文件上传中..."));
 		if (m_sGroupCode==0)
 		{
-			if (pResourceInfo.m_nDownloads>0)
-				sItemName.Format(_T("%s\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
-			else
-				sItemName.Format(_T("%s\n%s  %s"),pResourceInfo.m_sName.c_str(),sTime.c_str(),sSize);
+			sItemName.Format(_T("%s (%s)\n%s 下载 %d 次"),pResourceInfo.m_sName.c_str(),sSize,sTime.c_str(),pResourceInfo.m_nDownloads);
+			//if (pResourceInfo.m_nDownloads>0)
+			//	sItemName.Format(_T("%s\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
+			//else
+			//	sItemName.Format(_T("%s\n%s  %s"),pResourceInfo.m_sName.c_str(),sTime.c_str(),sSize);
 		}else
 		{
 			tstring sMemberName;
 			theEBAppClient.EB_GetMemberNameByUserId(m_sGroupCode,pResourceInfo.m_nCreateUserId,sMemberName);
 			if (pResourceInfo.m_nShare==EB_RESOURCE_SHARE_TEMP)
 			{
-				if (!pResourceInfo.m_sDeleteTime.empty())
-				{
-					sItemName.Format(_T("%s到期"),pResourceInfo.m_sDeleteTime.c_str());
-					sTime = sItemName;
-				}
-				if (pResourceInfo.m_nDownloads>0)
-					sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
-				else
-					sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
+				sItemName.Format(_T("%s (%s)\n%s (%s) 下载 %d 次 (临时文件 %s 到期)"),pResourceInfo.m_sName.c_str(),sSize,sTime.c_str(),sMemberName.c_str(),pResourceInfo.m_nDownloads,pResourceInfo.m_sDeleteTime.c_str());
+				//if (!pResourceInfo.m_sDeleteTime.empty())
+				//{
+				//	sItemName.Format(_T("%s到期"),pResourceInfo.m_sDeleteTime.c_str());
+				//	sTime = sItemName;
+				//}
+				//if (pResourceInfo.m_nDownloads>0)
+				//	sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
+				//else
+				//	sItemName.Format(_T("%s  （群临时文件，上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
 			}else
 			{
-				if (pResourceInfo.m_nDownloads>0)
-					sItemName.Format(_T("%s  （上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
-				else
-					sItemName.Format(_T("%s  （上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
+				sItemName.Format(_T("%s (%s)\n%s (%s) 下载 %d 次"),pResourceInfo.m_sName.c_str(),sSize,sTime.c_str(),sMemberName.c_str(),pResourceInfo.m_nDownloads);
+				//if (pResourceInfo.m_nDownloads>0)
+				//	sItemName.Format(_T("%s  （上传者：%s）\n%s  %s  下载%d次"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize,pResourceInfo.m_nDownloads);
+				//else
+				//	sItemName.Format(_T("%s  （上传者：%s）\n%s  %s"),pResourceInfo.m_sName.c_str(),sMemberName.c_str(),sTime.c_str(),sSize);
 			}
 		}
 	}else if (pResourceInfo.m_nResType==EB_RESOURCE_DIR)

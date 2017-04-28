@@ -296,8 +296,9 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_WM_VIDEO_TIMEOUT, OnMessageVideoTimeout)
 	ON_MESSAGE(EB_WM_VIDEO_CLOSE, OnMessageVideoEnd)
 
-	ON_MESSAGE(EB_WM_USER_STATE_CHANGE, OnMessageUserStateChange)
-	ON_MESSAGE(EB_WM_USER_HEAD_CHANGE, OnMessageUserHeadChange)
+	ON_MESSAGE(EB_WM_USER_STATE_CHANGE, OnMessageMemberStateChange)
+	ON_MESSAGE(EB_WM_USER_HEAD_CHANGE, OnMessageMemberHeadChange)
+	ON_MESSAGE(EB_WM_CONTACT_HEAD_CHANGE, OnMessageContactHeadChange)
 	ON_MESSAGE(EB_WM_EDITINFO_RESPONSE, OnMessageSInfoResponse)
 	ON_MESSAGE(EB_WM_CALL_CONNECTED, OnMessageCallConnected)
 	ON_MESSAGE(EB_WM_CALL_HANGUP, OnMessageCallHangup)
@@ -420,6 +421,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
 	ON_MESSAGE(EB_COMMAND_SHOW_REFRESH_OR_STOP, OnMsgShowRefreshOrStop)
 	ON_MESSAGE(EB_COMMAND_CLEAR_SUBID_UNREAD_MSG, OnMsgClearSubIdUnReadmsg)
+	ON_MESSAGE(EB_COMMAND_DOWNLOAD_RESOURCE, OnMsgDownloadResource)
 	ON_NOTIFY(NM_CLICK, IDC_TREE_SEARCH, &CPOPDlg::OnNMClickTreeSearch)
 	ON_BN_CLICKED(IDC_BUTTON_GOBACK, &CPOPDlg::OnBnClickedButtonGoback)
 	ON_BN_CLICKED(IDC_BUTTON_GOFORWARD, &CPOPDlg::OnBnClickedButtonGoforward)
@@ -609,7 +611,7 @@ BOOL CPOPDlg::OnInitDialog()
 
 	DisableMoveBottom(TRUE);
 	this->EnableToolTips();
-	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,m_bShowedLeft?_T("收缩左边工具栏"):_T("展开左边工具栏"));
+	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,m_bShowedLeft?_T("收起面板"):_T("展开面板"));
 	this->SetToolTipText(IDC_BUTTON_SWITCH_TOOLBAR2,_T("收缩工具栏"));
 	this->SetToolTipText(IDC_BUTTON_SKIN2,_T("设置"));
 	this->SetToolTipText(IDC_BUTTON_MIN,_T("最小化"));
@@ -841,7 +843,7 @@ BOOL CPOPDlg::OnInitDialog()
 #else
 	m_btnNewApp.SetDrawNewPic(true,RGB(64,64,64),-1,-1,-1,2,11);
 #endif
-	m_btnNewApp.ShowWindow(theApp.GetEntManagerurl().empty()?SW_HIDE:SW_SHOW);
+	m_btnNewApp.ShowWindow((theApp.GetSystemAccountFlag()==1 && !theApp.GetEntManagerurl().empty())?SW_SHOW:SW_HIDE);
 
 	m_btnSearchTrackDel.Create(_T(""),WS_CHILD|WS_VISIBLE, CRect(0,0,1,1), &m_treeSearch, 0xffff);
 	m_btnSearchTrackDel.SetAutoSize(false);
@@ -980,7 +982,7 @@ BOOL CPOPDlg::OnInitDialog()
 #ifdef USES_SUPPORT_UI_STYLE
 	if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
 	{
-		//m_btnSwitchLeft.ShowWindow(SW_HIDE);
+		m_btnSwitchLeft.ShowWindow(SW_HIDE);
 	}else
 #endif
 	{
@@ -1432,13 +1434,18 @@ LRESULT CPOPDlg::OnMessageBroadcastMsg(WPARAM wParam, LPARAM lParam)
 		m_pDlgMySession->InsertCallRecord(pCallRecordInfo,true);
 	}
 
-	CString sContent;
-	if (theApp.GetGroupMsgSugId()>0)
-		sContent.Format(_T("%s<br/><a href=\"eb-open-subid://%lld,tab_type=bc_msg\">查看我的消息</a>"),sMsgContent.c_str(),theApp.GetGroupMsgSugId());
-	if (theApp.GetGroupMsgSugId()>0)
-		m_pDlgBroadcastMsg->UpdateBroadcastMsg(sMsgName,libEbc::ACP2UTF8(sContent),nMsgId);
-	else
-		m_pDlgBroadcastMsg->UpdateBroadcastMsg(sMsgName,libEbc::ACP2UTF8(sMsgContent.c_str()),nMsgId);
+	//CString sContent;
+	//if (theApp.GetGroupMsgSugId()>0)
+	//	sContent.Format(_T("%s<br/><a href=\"eb-open-subid://%lld,tab_type=bc_msg\">查看我的消息</a>"),sMsgContent.c_str(),theApp.GetGroupMsgSugId());
+	//if (theApp.GetGroupMsgSugId()>0)
+	//	m_pDlgBroadcastMsg->UpdateBroadcastMsg(sMsgName,libEbc::ACP2UTF8(sContent),nMsgId);
+	//else
+	//	m_pDlgBroadcastMsg->UpdateBroadcastMsg(sMsgName,libEbc::ACP2UTF8(sMsgContent.c_str()),nMsgId);
+	if (m_pDlgBroadcastMsg->GetShowMyMsgSubId()==0 && theApp.GetGroupMsgSugId()>0)
+	{
+		m_pDlgBroadcastMsg->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=bc_msg");
+	}
+	m_pDlgBroadcastMsg->UpdateBroadcastMsg(sMsgName,libEbc::ACP2UTF8(sMsgContent.c_str()),nMsgId);
 	m_pDlgBroadcastMsg->ShowWindow(SW_SHOW);
 	//CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 	//CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
@@ -1588,7 +1595,9 @@ LRESULT CPOPDlg::OnMessageStateCode(WPARAM wParam, LPARAM lParam)
 
 LRESULT CPOPDlg::OnMessageOnlineAnother(WPARAM wParam, LPARAM lParam)
 {
-	// 已经在其他地方登录，退出当前连接；
+	// 0=已经在其他地方登录，退出当前连接；
+	// 1=修改密码，退出当前连接；
+	const int nOnlineAnotherType = (int)wParam;
 	SetTimer(TIMERID_LOGOUT,10,NULL);
 	return 0;
 }
@@ -1727,11 +1736,22 @@ LRESULT CPOPDlg::OnMessageSInfoResponse(WPARAM wParam, LPARAM lParam)
 	{
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("帐号或密码错误：\r\n请重新输入！"),CDlgMessageBox::IMAGE_ERROR,5);
 		return 0;
-	}else if (nFlag==1)
+	}else if (nFlag==1)	// *** 修改密码
 	{
 		if (nState==EB_STATE_OK)
-			CDlgMessageBox::EbMessageBox(this,_T(""),_T("密码修改成功！"),CDlgMessageBox::IMAGE_INFORMATION,5);
-		else
+		{
+			if (theApp.m_pBoEB->use("eb"))
+			{
+				CString sSql;
+				sSql.Format(_T("update user_login_record_t set password='' where user_id=%lld"),theApp.GetLogonUserId());
+				theApp.m_pBoEB->execsql(sSql);
+				theApp.m_pBoEB->close();
+			}
+			CDlgMessageBox::EbDoModal(this,"",_T("密码修改成功：\r\n请重新登录。"),CDlgMessageBox::IMAGE_INFORMATION,true,8);
+			OnLogout();
+			return 0;
+			//CDlgMessageBox::EbMessageBox(this,_T(""),_T("密码修改成功！"),CDlgMessageBox::IMAGE_INFORMATION,5);
+		}else
 		{
 			CString sText;
 			sText.Format(_T("密码修改失败，错误代码：%d\r\n请重试！"),nState);
@@ -2233,6 +2253,12 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 		return 0;
 	switch (nState)
 	{
+	case EB_STATE_GROUP_FORBIG_SPEECH:
+		CDlgMessageBox::EbMessageBox(this,"","群禁言中：\r\n不能发送群文件！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
+	case EB_STATE_FORBIG_SPEECH:
+		CDlgMessageBox::EbMessageBox(this,"","你被禁言中：\r\n不能发送群文件！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
 	case EB_STATE_FILE_ALREADY_EXIST:
 		//return 0;	// 不能返回，后面处理
 	case EB_STATE_OK:
@@ -2252,6 +2278,9 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 		}
 	case EB_STATE_TIMEOUT_ERROR:
 		CDlgMessageBox::EbMessageBox(this,"","文件发送超时：\r\n请重新发送！",CDlgMessageBox::IMAGE_WARNING,5);
+		return 1;
+	case EB_STATE_NOT_MEMBER_ERROR:
+		CDlgMessageBox::EbMessageBox(this,"","没有其他群组成员：\r\n不能发送文件！",CDlgMessageBox::IMAGE_WARNING,5);
 		return 1;
 	default:
 		{
@@ -3452,7 +3481,7 @@ LRESULT CPOPDlg::OnMessageFileManager(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-LRESULT CPOPDlg::OnMessageUserStateChange(WPARAM wParam, LPARAM lParam)
+LRESULT CPOPDlg::OnMessageMemberStateChange(WPARAM wParam, LPARAM lParam)
 {
 #ifdef USES_EBCOM_TEST
 	IEB_MemberInfo * pEBMemberInfo = (IEB_MemberInfo*)wParam;
@@ -3517,7 +3546,7 @@ LRESULT CPOPDlg::OnMessageUserStateChange(WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-LRESULT CPOPDlg::OnMessageUserHeadChange(WPARAM wParam, LPARAM lParam)
+LRESULT CPOPDlg::OnMessageMemberHeadChange(WPARAM wParam, LPARAM lParam)
 {
 #ifdef USES_EBCOM_TEST
 	IEB_MemberInfo * pEBMemberInfo = (IEB_MemberInfo*)wParam;
@@ -3535,6 +3564,18 @@ LRESULT CPOPDlg::OnMessageUserHeadChange(WPARAM wParam, LPARAM lParam)
 	const EB_MemberInfo * pMemberInfo = (const EB_MemberInfo*)wParam;
 	//const bool bIsOwnerMember = lParam==1?true:false;
 
+	// 更新聊天会话列表图标
+	const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+	if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
+	{
+		if (m_pDlgFrameList!=NULL)
+		{
+			m_pDlgFrameList->MemberHeadChange(pMemberInfo);
+		}
+	}else if (!theApp.GetHideMainFrame())
+	{
+		CFrameWndInfoProxy::MemberHeadChange(pMemberInfo);
+	}
 	// 更新界面用户状况改变
 	if (pMemberInfo != NULL && m_pDlgMyEnterprise != NULL)
 	{
@@ -3560,7 +3601,29 @@ LRESULT CPOPDlg::OnMessageUserHeadChange(WPARAM wParam, LPARAM lParam)
 #endif
 	return 0;
 }
-
+LRESULT CPOPDlg::OnMessageContactHeadChange(WPARAM wParam, LPARAM lParam)
+{
+	const EB_ContactInfo* pContactInfo = (const EB_ContactInfo*)wParam;
+	if (m_pDlgMyContacts!=NULL)
+	{
+		m_pDlgMyContacts->ContactHeadChange(pContactInfo);
+	}
+	if (pContactInfo->m_nContactUserId>0)
+	{
+		const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+		if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
+		{
+			if (m_pDlgFrameList!=NULL)
+			{
+				m_pDlgFrameList->UserHeadChange(pContactInfo);
+			}
+		}else if (!theApp.GetHideMainFrame())
+		{
+			CFrameWndInfoProxy::UserHeadChange(pContactInfo);
+		}
+	}
+	return 0;
+}
 void CPOPDlg::SaveCallRecord(eb::bigint sCallId,eb::bigint sGroupCode,const EB_AccountInfo& pFromAccountInfo)
 {
 	eb::bigint sEmpCode = pFromAccountInfo.m_pFromCardInfo.m_sMemberCode;
@@ -4885,13 +4948,14 @@ LRESULT CPOPDlg::OnMessageRequestJoin2Group(WPARAM wParam, LPARAM lParam)
 	if (theApp.GetGroupMsgSugId()>0)
 	{
 		CString sContent;
-		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加入群组：%lld<br/>附加消息：%s</font><br/>\
-						   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),
-			sRequestAccount.c_str(),nGroupId,sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
+		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加入群组：%lld<br/>附加消息：%s</font>"), sRequestAccount.c_str(),nGroupId,sDescription.substr(0,60).c_str());
+		//sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加入群组：%lld<br/>附加消息：%s</font><br/>\
+		//				   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"), sRequestAccount.c_str(),nGroupId,sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
 		CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 		CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
 		pFuncWindow->m_bDisableContextMenu = true;
 		pFuncWindow->m_bBroadcastMsg = true;
+		pFuncWindow->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=sys_msg");
 		pFuncWindow->m_nMsgType = nMsgType;
 		pFuncWindow->m_bOpenNewClose = true;
 		pFuncWindow->m_sTitle = _T("验证消息");
@@ -5010,13 +5074,14 @@ LRESULT CPOPDlg::OnMessageInviteJoin2Group(WPARAM wParam, LPARAM lParam)
 			sGroupName.Format(_T("%lld"),nGroupId);
 
 		CString sContent;
-		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>邀请你加入群组：%s<br/>附加消息：%s</font><br/>\
-						   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),
-			sRequestAccount.c_str(),sGroupName,sMsgContent.Left(20),theApp.GetGroupMsgSugId());
+		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>邀请你加入群组：%s<br/>附加消息：%s</font>"), sRequestAccount.c_str(),sGroupName,sMsgContent.Left(60));
+		//sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>邀请你加入群组：%s<br/>附加消息：%s</font><br/>\
+		//				   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"), sRequestAccount.c_str(),sGroupName,sMsgContent.Left(20),theApp.GetGroupMsgSugId());
 		CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 		CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
 		pFuncWindow->m_bDisableContextMenu = true;
 		pFuncWindow->m_bBroadcastMsg = true;
+		pFuncWindow->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=sys_msg");
 		pFuncWindow->m_nMsgType = nMsgType;
 		pFuncWindow->m_bOpenNewClose = true;
 		pFuncWindow->m_sTitle = _T("验证消息");
@@ -5410,13 +5475,14 @@ LRESULT CPOPDlg::OnMessageRequestAddContact(WPARAM wParam, LPARAM lParam)
 	if (theApp.GetGroupMsgSugId()>0)
 	{
 		CString sContent;
-		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加为好友<br/>附加消息：%s</font><br/>\
-						   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),
-			sRequestAccount.c_str(),sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
+		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加为好友<br/>附加消息：%s</font>"), sRequestAccount.c_str(),sDescription.substr(0,60).c_str());
+		//sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>申请加为好友<br/>附加消息：%s</font><br/>\
+		//				   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"), sRequestAccount.c_str(),sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
 		CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 		CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
 		pFuncWindow->m_bDisableContextMenu = true;
 		pFuncWindow->m_bBroadcastMsg = true;
+		pFuncWindow->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=sys_msg");
 		pFuncWindow->m_nMsgType = nMsgType;
 		pFuncWindow->m_bOpenNewClose = true;
 		pFuncWindow->m_sTitle = _T("验证消息");
@@ -5516,13 +5582,14 @@ LRESULT CPOPDlg::OnMessageRejectAddContact(WPARAM wParam, LPARAM lParam)
 	if (theApp.GetGroupMsgSugId()>0)
 	{
 		CString sContent;
-		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>拒绝加为好友<br/>附加消息：%s</font><br/>\
-						   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),
-			sRequestAccount.c_str(),sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
+		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>拒绝加为好友<br/>附加消息：%s</font>"), sRequestAccount.c_str(),sDescription.substr(0,60).c_str());
+		//sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>拒绝加为好友<br/>附加消息：%s</font><br/>\
+		//				   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"), sRequestAccount.c_str(),sDescription.substr(0,30).c_str(),theApp.GetGroupMsgSugId());
 		CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 		CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
 		pFuncWindow->m_bDisableContextMenu = true;
 		pFuncWindow->m_bBroadcastMsg = true;
+		pFuncWindow->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=sys_msg");
 		pFuncWindow->m_nMsgType = nMsgType;
 		pFuncWindow->m_bOpenNewClose = true;
 		pFuncWindow->m_sTitle = _T("通知消息");
@@ -5553,13 +5620,14 @@ LRESULT CPOPDlg::OnMessageAcceptAddContact(WPARAM wParam, LPARAM lParam)
 	if (theApp.GetGroupMsgSugId()>0)
 	{
 		CString sContent;
-		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>添加好友成功</font><br/>\
-						   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),
-						   sName.c_str(),theApp.GetGroupMsgSugId());
+		sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>添加好友成功</font>"),sName.c_str());
+		//sContent.Format(_T("<font color=\"#6c6c6c\">用户：%s<br/>添加好友成功</font><br/>\
+		//				   <a href=\"eb-open-subid://%lld,tab_type=sys_msg\">查看我的消息</a>"),sName.c_str(),theApp.GetGroupMsgSugId());
 		CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
 		CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
 		pFuncWindow->m_bDisableContextMenu = true;
 		pFuncWindow->m_bBroadcastMsg = true;
+		pFuncWindow->SetShowMyMsgSubId(theApp.GetGroupMsgSugId(),"tab_type=sys_msg");
 		pFuncWindow->m_nMsgType = EBC_MSG_TYPE_ACCERPT_ADD_CONTACT;
 		pFuncWindow->m_bOpenNewClose = true;
 		pFuncWindow->m_sTitle = _T("通知消息");
@@ -6061,7 +6129,7 @@ LRESULT CPOPDlg::OnMessageHotKey(WPARAM wParam, LPARAM lParam)
 
 	//判断响应了什么热键  
 	if( (MOD_ALT|MOD_SHIFT) == fuModifiers && 'A' == uVirtKey )  
-	{  
+	{
 		CString sParameter;
 		sParameter.Format(_T("\"\" %d %d\""),(int)EB_MSG_EBSC_OK,(int)this->GetForegroundWindow()->GetSafeHwnd());	// OK
 		//sParameter.Format(_T("\"\" %d %d\""),(int)EB_MSG_EBSC_OK,(int)this->GetTopWindow()->GetSafeHwnd());
@@ -6421,7 +6489,7 @@ void CPOPDlg::MoveSize(int cx, int cy)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
 			{
 				CFrameWndInfoProxy::ResetUserData(pFrameWndInfo);
@@ -6517,24 +6585,23 @@ void CPOPDlg::OnSize(UINT nType, int cx, int cy)
 	btnx -= const_minbtn_width;
 	if (m_btnSkin.GetSafeHwnd())
 		m_btnSkin.MoveWindow(btnx,0,const_minbtn_width,const_minbtn_height);
-	if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
-	{
-		btnx -= const_minbtn_width;
-		m_rectSwitchToolbar.left = btnx;
-		m_rectSwitchToolbar.right = m_rectSwitchToolbar.left+const_minbtn_width;
-		m_rectSwitchToolbar.top = 2;
-		m_rectSwitchToolbar.bottom = m_rectSwitchToolbar.top+const_minbtn_width;
-		m_btnSwitchToolbar.MoveWindow(&m_rectSwitchToolbar);
-	}
-	//if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
+	//if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
 	//{
-	//	CRect m_rectSwitchLeft;
-	//	m_rectSwitchLeft.left = 1;
-	//	m_rectSwitchLeft.right = m_rectSwitchLeft.left + const_minbtn_width;
-	//	m_rectSwitchLeft.bottom = cy - 3;
-	//	m_rectSwitchLeft.top = m_rectSwitchLeft.bottom - const_minbtn_width;
-	//	m_btnSwitchLeft.MoveWindow(&m_rectSwitchLeft);
+	//	btnx -= const_minbtn_width;
+	//	m_rectSwitchToolbar.left = btnx;
+	//	m_rectSwitchToolbar.right = m_rectSwitchToolbar.left+const_minbtn_width;
+	//	m_rectSwitchToolbar.top = 2;
+	//	m_rectSwitchToolbar.bottom = m_rectSwitchToolbar.top+const_minbtn_width;
+	//	m_btnSwitchToolbar.MoveWindow(&m_rectSwitchToolbar);
 	//}
+	if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
+	{
+		m_rectSwitchLeft.left = 1;
+		m_rectSwitchLeft.right = m_rectSwitchLeft.left + const_minbtn_width;
+		m_rectSwitchLeft.bottom = cy - 3;
+		m_rectSwitchLeft.top = m_rectSwitchLeft.bottom - const_minbtn_width;
+		m_btnSwitchLeft.MoveWindow(&m_rectSwitchLeft);
+	}
 	MoveSize(cx,cy);
 	if (nType==SIZE_RESTORED && GetWorkFrameShowed() && m_pDlgAppFrame!=NULL && m_pDlgAppFrame->GetSafeHwnd()!=NULL)
 	{
@@ -6657,9 +6724,9 @@ void CPOPDlg::DrawInfo(void)
 		this->AddBgDrawInfo(CEbBackDrawInfo(29,1.0,false,false,0,theDefaultFlatBgColor));
 		this->AddBgDrawInfo(CEbBackDrawInfo(1,1.0,false,false,0,theDefaultFlatLineColor));
 		this->AddBgDrawInfo(CEbBackDrawInfo(0,1.0,false,false,0,theDefaultFlatBgColor));
-		const int nHeight = const_bottom_intever*-1;
-		this->AddBgDrawInfo(CEbBackDrawInfo(nHeight,1.0,false,false,0,theDefaultFlatLineColor));
-		this->AddBgDrawInfo(CEbBackDrawInfo(nHeight+1,1.0,false,false,0,theDefaultFlatBgColor));
+		//const int nHeight = const_bottom_intever*-1;
+		//this->AddBgDrawInfo(CEbBackDrawInfo(nHeight,1.0,false,false,0,theDefaultFlatLineColor));
+		//this->AddBgDrawInfo(CEbBackDrawInfo(nHeight+1,1.0,false,false,0,theDefaultFlatBgColor));
 		this->DrawPopBg(&memDC, theApp.GetMainColor(), 1, UISTYLE_CHAT_POS_STA_FIRST_Y+const_number_height, 2);
 	}
 #endif
@@ -6686,6 +6753,7 @@ void CPOPDlg::DrawInfo(void)
 		this->AddBgDrawInfo(CEbBackDrawInfo(1,1.0,false,false,0,theDefaultFlatLineColor));
 		this->AddBgDrawInfo(CEbBackDrawInfo(theYY-1,1.0,false,false,0,theDefaultFlatBgColor));
 		this->AddBgDrawInfo(CEbBackDrawInfo(1,1.0,false,false,0,theDefaultFlatLineColor));
+		//this->AddBgDrawInfo(CEbBackDrawInfo(0,1.0,false,false,0,theDefaultFlatBgColor));	// 统一灰色，去掉线条（需要考虑工作区左边工具栏整体效果）
 #else
 		this->AddBgDrawInfo(CEbBackDrawInfo(0,1.0,false,true,const_border_left));
 		this->AddBgDrawInfo(CEbBackDrawInfo(theYY,1.0,false,false,0,theDefaultFlatBgColor));
@@ -6805,7 +6873,9 @@ void CPOPDlg::DrawInfo(void)
 		{
 			if (PathFileExists(sHeadFile.c_str()))
 			{
-				pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sHeadFile.c_str()));
+				pImage = libEbc::LoadImageFromFile(sHeadFile.c_str());
+				if (pImage==NULL)
+					pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sHeadFile.c_str()));
 			}else 
 			{
 				pImage = theApp.m_imageDefaultMember->Clone();
@@ -7054,7 +7124,7 @@ void CPOPDlg::OnBnClickedButtonMax()
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 		{
 			pFrameWndInfo->GetDialog()->SetBtnMax(bSetBtnMax);
@@ -7566,56 +7636,89 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 			CPoint pos;
 			GetCursorPos(&pos);
 			this->ScreenToClient(&pos);
-			if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
+			if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
 			{
-				static bool thePtInRect = false;
-				const bool bPtInRect = m_rectSwitchToolbar.PtInRect(pos)?true:false;
-				if (thePtInRect!=bPtInRect)
+				const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+				if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
 				{
-					thePtInRect = bPtInRect;
-					if (bPtInRect)
+					if (m_btnSwitchLeft.IsWindowVisible())
+						m_btnSwitchLeft.ShowWindow(SW_HIDE);
+				}else
+				{
+					static bool thePtInRect = false;
+					const bool bPtInRect = m_rectSwitchLeft.PtInRect(pos)?true:false;
+					if (thePtInRect!=bPtInRect)
 					{
-						if (m_bShowedToolbar)
-							m_btnSwitchToolbar.SetDrawTrianglePic(1,RGB(64,64,64),-1,-1,-1,12,6);
-						else
-							m_btnSwitchToolbar.SetDrawTrianglePic(2,RGB(64,64,64),-1,-1,-1,10,5);
-					}else
-					{
-#ifdef USES_NEW_UI_1220
-						const COLORREF color = theDefaultFlatLineColor;
-#else
-						const COLORREF color = theDefaultBtnWhiteColor;
-#endif
-						if (m_bShowedToolbar)
-							m_btnSwitchToolbar.SetDrawTrianglePic(1,color,-1,-1,-1,12,6);
-						else
-							m_btnSwitchToolbar.SetDrawTrianglePic(2,color,-1,-1,-1,10,5);
+						thePtInRect = bPtInRect;
+						if (bPtInRect)
+						{
+							if (!m_btnSwitchLeft.IsWindowVisible())
+							{
+								m_btnSwitchLeft.ShowWindow(SW_SHOW);
+								m_btnSwitchLeft.Invalidate();
+							}
+						}else
+						{
+							if (m_btnSwitchLeft.IsWindowVisible())
+							{
+								m_btnSwitchLeft.ShowWindow(SW_HIDE);
+								m_btnSwitchLeft.Invalidate();
+							}
+						}
+					}
+				}
+			}
 
-					}
-					m_btnSwitchToolbar.Invalidate();
-				}
-			}
-			if (m_btnSwitchFrame.GetSafeHwnd()!=NULL)
-			{
-				static bool thePtInRect = false;
-				const bool bPtInRect = m_rectSwitchFrame.PtInRect(pos)?true:false;
-				if (thePtInRect!=bPtInRect)
-				{
-					thePtInRect = bPtInRect;
-					if (bPtInRect)
-					{
-						m_btnSwitchFrame.SetDrawTrianglePic(3,RGB(64,64,64),-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-					}else
-					{
-#ifdef USES_NEW_UI_1220
-						m_btnSwitchFrame.SetDrawTrianglePic(3,theDefaultFlatLineColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-#else
-						m_btnSwitchFrame.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-#endif
-					}
-					m_btnSwitchFrame.Invalidate();
-				}
-			}
+//			if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
+//			{
+//				static bool thePtInRect = false;
+//				const bool bPtInRect = m_rectSwitchToolbar.PtInRect(pos)?true:false;
+//				if (thePtInRect!=bPtInRect)
+//				{
+//					thePtInRect = bPtInRect;
+//					if (bPtInRect)
+//					{
+//						if (m_bShowedToolbar)
+//							m_btnSwitchToolbar.SetDrawTrianglePic(1,RGB(64,64,64),-1,-1,-1,12,6);
+//						else
+//							m_btnSwitchToolbar.SetDrawTrianglePic(2,RGB(64,64,64),-1,-1,-1,10,5);
+//					}else
+//					{
+//#ifdef USES_NEW_UI_1220
+//						const COLORREF color = theDefaultFlatLineColor;
+//#else
+//						const COLORREF color = theDefaultBtnWhiteColor;
+//#endif
+//						if (m_bShowedToolbar)
+//							m_btnSwitchToolbar.SetDrawTrianglePic(1,color,-1,-1,-1,12,6);
+//						else
+//							m_btnSwitchToolbar.SetDrawTrianglePic(2,color,-1,-1,-1,10,5);
+//
+//					}
+//					m_btnSwitchToolbar.Invalidate();
+//				}
+//			}
+//			if (m_btnSwitchFrame.GetSafeHwnd()!=NULL)
+//			{
+//				static bool thePtInRect = false;
+//				const bool bPtInRect = m_rectSwitchFrame.PtInRect(pos)?true:false;
+//				if (thePtInRect!=bPtInRect)
+//				{
+//					thePtInRect = bPtInRect;
+//					if (bPtInRect)
+//					{
+//						m_btnSwitchFrame.SetDrawTrianglePic(3,RGB(64,64,64),-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+//					}else
+//					{
+//#ifdef USES_NEW_UI_1220
+//						m_btnSwitchFrame.SetDrawTrianglePic(3,theDefaultFlatLineColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+//#else
+//						m_btnSwitchFrame.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+//#endif
+//					}
+//					m_btnSwitchFrame.Invalidate();
+//				}
+//			}
 			if (m_btnNewApp.GetSafeHwnd()!=NULL)
 			{
 				static bool thePtInRect = false;
@@ -7716,7 +7819,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 #ifdef USES_EBCOM_TEST
 						const CEBString sSettingEnterprise = theEBSetting->Enterprise.GetBSTR();
 #else
-						const CEBString sSettingEnterprise = theSetting.GetEnterprise();
+						const CEBString& sSettingEnterprise = theSetting.GetEnterprise();
 #endif
 						if (theApp.GetLicenseUser() && !theApp.GetProductName().IsEmpty())
 						{
@@ -7951,7 +8054,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 				CLockMap<eb::bigint, CEBCCallInfo::pointer>::const_iterator pIterCallList = theApp.m_pCallList.begin();
 				for (; pIterCallList!=theApp.m_pCallList.end(); pIterCallList++)
 				{
-					const CEBCCallInfo::pointer pEbCallInfo = pIterCallList->second;
+					const CEBCCallInfo::pointer& pEbCallInfo = pIterCallList->second;
 					const eb::bigint sCallid = pEbCallInfo->m_pCallInfo.GetCallId();
 					if ((tNow-pEbCallInfo->m_tLastTime)<=5*60) continue;
 
@@ -7973,9 +8076,9 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 							// 这里主要用于处理自动响应，没有打开聊天界面会话
 							// *其实在OnMessageCallConnected已经有处理；
 #ifdef USES_EBCOM_TEST
-							theEBClientCore->EB_CallExit(pEbCallInfo->m_pCallInfo.GetCallId());
+							theEBClientCore->EB_CallExit(sCallid);
 #else
-							theEBAppClient.EB_CallExit(pEbCallInfo->m_pCallInfo.GetCallId());
+							theEBAppClient.EB_CallExit(sCallid);
 #endif
 							break;
 						}
@@ -7988,9 +8091,9 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 						// 这里主要用于处理自动响应，没有打开聊天界面会话
 						// *其实在OnMessageCallConnected已经有处理；
 #ifdef USES_EBCOM_TEST
-						theEBClientCore->EB_CallExit(pEbCallInfo->m_pCallInfo.GetCallId());
+						theEBClientCore->EB_CallExit(sCallid);
 #else
-						theEBAppClient.EB_CallExit(pEbCallInfo->m_pCallInfo.GetCallId());
+						theEBAppClient.EB_CallExit(sCallid);
 #endif
 						break;
 					}
@@ -10241,6 +10344,7 @@ void CPOPDlg::OnAutoLogin()
 
 void CPOPDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
+
 	CPoint pos;
 	GetCursorPos(&pos);
 	ScreenToClient(&pos);
@@ -10259,6 +10363,23 @@ void CPOPDlg::OnMouseMove(UINT nFlags, CPoint point)
 			return;
 		}
 	}
+
+	// EntName LOGO
+	const CString& sProductName = theApp.GetProductName();
+	if (theApp.GetDefaultUrl().empty() || !theApp.GetLicenseUser() || sProductName.IsEmpty() || sProductName.Find(_T("恩布"))>=0)
+	{
+		const CRect rectEntName(8,8,76,28);
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (rectEntName.PtInRect(pos))
+		{
+			::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
+			return;
+		}
+	}
+
+	//  恩布
 	__super::OnMouseMove(nFlags, point);
 }
 void CPOPDlg::CancelSaveDescription(void)
@@ -10322,6 +10443,24 @@ void CPOPDlg::OnCancel()
 void CPOPDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	// EntName LOGO
+	const CString& sProductName = theApp.GetProductName();
+	if (theApp.GetDefaultUrl().empty() || !theApp.GetLicenseUser() || sProductName.IsEmpty() || sProductName.Find(_T("恩布"))>=0)
+	{
+		const CRect rectEntName(8,8,76,28);
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (rectEntName.PtInRect(pos))
+		{
+			if (theApp.GetDefaultUrl().empty())
+				ShellExecute(NULL,  "open", "http://www.entboost.com", NULL, NULL, SW_SHOW);
+			else
+				ShellExecute(NULL,  "open", theApp.GetDefaultUrl().c_str(), NULL, NULL, SW_SHOW);
+			return;
+		}
+	}
+
 	CPoint pos;
 	GetCursorPos(&pos);
 	ScreenToClient(&pos);
@@ -10589,7 +10728,7 @@ void CPOPDlg::OnUIStyleTypeOffice(void)
 				CLockList<CFrameWndInfo::pointer>::const_iterator pIter = pList.begin();
 				for (; pIter!=pList.end(); pIter++)
 				{
-					CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+					const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 					m_pDlgFrameList->ResetUserData(pFrameWndInfo);
 					if (pFrameWndInfo->GetType()==CFrameWndInfo::FRAME_WND_CALL_DIALOG && pFrameWndInfo->GetDialog().get()!=NULL)
 					{
@@ -10631,8 +10770,8 @@ void CPOPDlg::OnUIStyleTypeChat(void)
 		m_btnMyShare.Load(IDB_PNG_BTN_MY_SHARE_UISTYLE1,24);
 		m_btnMyShare.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
 
-		//if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
-		//	m_btnSwitchLeft.ShowWindow(SW_HIDE);
+		if (m_btnSwitchLeft.GetSafeHwnd()!=NULL && m_btnSwitchLeft.IsWindowVisible())
+			m_btnSwitchLeft.ShowWindow(SW_HIDE);
 
 		CreateFrameList(false);
 		// *添加工作台
@@ -11361,7 +11500,8 @@ LRESULT CPOPDlg::OnMessageReturnMainFrame(WPARAM wParam, LPARAM lParam)
 	}
 	if (m_btnNewApp.GetSafeHwnd()!=NULL)
 	{
-		m_btnNewApp.ShowWindow(theApp.GetEntManagerurl().empty()?SW_HIDE:SW_SHOW);
+		m_btnNewApp.ShowWindow((theApp.GetSystemAccountFlag()==1 && !theApp.GetEntManagerurl().empty())?SW_SHOW:SW_HIDE);
+		//m_btnNewApp.ShowWindow(theApp.GetEntManagerurl().empty()?SW_HIDE:SW_SHOW);
 	}
 	CRect rect;
 	this->GetClientRect(&rect);
@@ -11514,7 +11654,8 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 	}
 	if (m_btnNewApp.GetSafeHwnd()!=NULL)
 	{
-		m_btnNewApp.ShowWindow(theApp.GetEntManagerurl().empty()?SW_HIDE:SW_SHOW);
+		m_btnNewApp.ShowWindow((theApp.GetSystemAccountFlag()==1 && !theApp.GetEntManagerurl().empty())?SW_SHOW:SW_HIDE);
+		//m_btnNewApp.ShowWindow(theApp.GetEntManagerurl().empty()?SW_HIDE:SW_SHOW);
 	}
 	CRect rect;
 	this->GetClientRect(&rect);
@@ -11526,7 +11667,8 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 
 void CPOPDlg::OnBnClickedButtonNewApp()
 {
-	if (!theApp.GetEntManagerurl().empty())
+	if (theApp.GetSystemAccountFlag()==1 && !theApp.GetEntManagerurl().empty())
+	//if (!theApp.GetEntManagerurl().empty())
 	{
 		// eb/func/func.csp
 		tstring sUrl = theApp.GetEntManagerurl();
@@ -11537,21 +11679,21 @@ void CPOPDlg::OnBnClickedButtonNewApp()
 
 void CPOPDlg::OnBnClickedButtonSwitchToolbar2()
 {
-	if (m_bShowedToolbar)
-	{
-		this->SetToolTipText(IDC_BUTTON_SWITCH_TOOLBAR2,_T("展开工具栏"));
-		m_btnSwitchToolbar.SetDrawTrianglePic(2,RGB(64,64,64),-1,-1,-1,10,5);
-	}else
-	{
-		this->SetToolTipText(IDC_BUTTON_SWITCH_TOOLBAR2,_T("收缩工具栏"));
-		m_btnSwitchToolbar.SetDrawTrianglePic(1,RGB(64,64,64),-1,-1,-1,12,6);
-	}
-	m_bShowedToolbar = !m_bShowedToolbar;
-	this->Invalidate();
-	CRect rect;
-	this->GetClientRect(&rect);
-	MoveSize(rect.Width(),rect.Height());
-	m_btnSwitchToolbar.Invalidate();
+	//if (m_bShowedToolbar)
+	//{
+	//	this->SetToolTipText(IDC_BUTTON_SWITCH_TOOLBAR2,_T("展开工具栏"));
+	//	m_btnSwitchToolbar.SetDrawTrianglePic(2,RGB(64,64,64),-1,-1,-1,10,5);
+	//}else
+	//{
+	//	this->SetToolTipText(IDC_BUTTON_SWITCH_TOOLBAR2,_T("收缩工具栏"));
+	//	m_btnSwitchToolbar.SetDrawTrianglePic(1,RGB(64,64,64),-1,-1,-1,12,6);
+	//}
+	//m_bShowedToolbar = !m_bShowedToolbar;
+	//this->Invalidate();
+	//CRect rect;
+	//this->GetClientRect(&rect);
+	//MoveSize(rect.Width(),rect.Height());
+	//m_btnSwitchToolbar.Invalidate();
 }
 
 LRESULT CPOPDlg::OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam)
@@ -11601,7 +11743,7 @@ void CPOPDlg::AddSubUnreadMsg(mycp::bigint nSubId, bool bSendToAppFrame)
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
 		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
 		{
-			pFuncButtonInfo->AddUnreadMsg();
+			pFuncButtonInfo->AddUnreadMsg(true);
 			break;
 		}
 	}
@@ -11628,7 +11770,7 @@ void CPOPDlg::SetSubUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount, bool 
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
 		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
 		{
-			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount);
+			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount,true);
 			break;
 		}
 	}
@@ -11679,6 +11821,49 @@ LRESULT CPOPDlg::OnMsgClearSubIdUnReadmsg(WPARAM wParam, LPARAM lParam)
 	delete[] lpszSubId;
 	return 0;
 }
+
+LRESULT CPOPDlg::OnMsgDownloadResource(WPARAM wParam, LPARAM lParam)
+{
+	// eb-download-resource://[TYPE],[RESOURCEID]
+	// eb-download-resource://[TYPE],[RESOURCEID],[FILENAME]
+	char * lpszResourceInfo = (char*)wParam;
+	if (lpszResourceInfo==NULL) return 1;
+	const CString sResourceInfo(lpszResourceInfo);
+	delete[] lpszResourceInfo;
+	const int nFind1 = sResourceInfo.Find(',');
+	if (nFind1<=0) return 1;
+	const int nType = atoi(sResourceInfo.Left(nFind1));
+	const int nFind2 = sResourceInfo.Find(',',nFind1+1);
+	eb::bigint nResourceId = 0;
+	CString sDefaultFileName;
+	if (nFind2>0)
+	{
+		nResourceId = eb_atoi64(sResourceInfo.Mid(nFind1+1,nFind2-nFind1));
+		const tstring sFileName(libEbc::URLDecode(sResourceInfo.Mid(nFind2+1),true));
+		sDefaultFileName = libEbc::UTF82ACP(sFileName.c_str()).c_str();
+		//sDefaultFileName = libEbc::UTF82ACP(sResourceInfo.Mid(nFind2+1)).c_str();
+	}else
+	{
+		nResourceId = eb_atoi64(sResourceInfo.Mid(nFind1+1));
+		sDefaultFileName.Format(_T("%lld"),nResourceId);
+	}
+
+	tstring sFileName;
+	tstring sFileExt;
+	libEbc::GetFileExt((LPCTSTR)sDefaultFileName,sFileName,sFileExt);
+	CFileDialog dlg(FALSE, sFileExt.c_str(), sDefaultFileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, theAllFilesFilter, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		const CString sPathName(dlg.GetPathName());
+#ifdef USES_EBCOM_TEST
+		theEBClientCore->EB_DownloadFileRes(nResourceId, (LPCTSTR)sPathName);
+#else
+		theEBAppClient.EB_DownloadFileRes(nResourceId, sPathName);
+#endif
+	}
+	return 0;
+}
+
 void CPOPDlg::OnNMClickTreeSearch(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
@@ -11717,14 +11902,14 @@ void CPOPDlg::OnBnClickedButtonSwitchLeft()
 		}
 	}
 	WritePrivateProfileString(_T("default"),_T("show-left"),(m_bShowedLeft?_T("1"):_T("0")),theApp.GetUserSettingIniFile());
-	//this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,m_bShowedLeft?_T("收缩左边工具栏"):_T("展开左边工具栏"));
-	//m_btnSwitchLeft.SetDrawTrianglePic((m_bShowedLeft?3:4),theDefaultFlatLineColor,theDefaultFlatBlackText2Color,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	this->SetToolTipText(IDC_BUTTON_SWITCH_LEFT,m_bShowedLeft?_T("收起面板"):_T("展开面板"));
+	m_btnSwitchLeft.SetDrawTrianglePic((m_bShowedLeft?3:4),theDefaultFlatLineColor,theDefaultFlatBlackText2Color,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
 	CFrameWndInfoProxy::SetShowHideLeft(m_bShowedLeft);
 	this->Invalidate();
 	CRect rect;
 	this->GetClientRect(&rect);
 	MoveSize(rect.Width(),rect.Height());
-	//m_btnSwitchLeft.Invalidate();
+	m_btnSwitchLeft.Invalidate();
 }
 
 void CPOPDlg::OnActivateApp(BOOL bActive, DWORD dwThreadID)

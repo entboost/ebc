@@ -2204,6 +2204,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\forbid_speech.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\skin\img1cloud.png"
 				>
 			</File>
@@ -2273,6 +2277,10 @@
 			</File>
 			<File
 				RelativePath=".\res\skin\imgstatebusy.png"
+				>
+			</File>
+			<File
+				RelativePath=".\res\skin\imgstateforbid.png"
 				>
 			</File>
 			<File

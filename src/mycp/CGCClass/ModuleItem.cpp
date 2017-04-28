@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER // WIN32
 #pragma warning(disable:4267)
 #endif // WIN32
 
@@ -196,7 +196,7 @@ bool ModuleItem::getAllowMethod(const tstring & invokeName, tstring & methodName
 bool ModuleItem::authAccount(const tstring & account, const tstring & passwd) const
 {
 	//
-	// 不必验证用户
+	// 涓嶅繀楠岃瘉鐢ㄦ埛
 	//
 	if (!this->m_bAuthAccount) return true;
 

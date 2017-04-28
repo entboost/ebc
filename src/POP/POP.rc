@@ -193,6 +193,7 @@ BEGIN
     PUSHBUTTON      "",IDC_BUTTON_FONT,121,123,14,14,NOT WS_VISIBLE
     PUSHBUTTON      "表情",IDC_BUTTON_IMAGE,143,121,34,14
     PUSHBUTTON      "屏幕画布",IDC_BUTTON_EBSC,179,122,34,14
+    PUSHBUTTON      "^",IDC_BUTTON_MIN_EBSC,207,121,15,14
     PUSHBUTTON      "文件传输",IDC_BUTTON_FILE_MANAGER,223,122,34,14,NOT WS_VISIBLE
     PUSHBUTTON      "消息记录",IDC_BUTTON_MSG_RECORD,262,121,34,14
     PUSHBUTTON      "发送(&S)",IDC_BUTTON_SEND,268,203,50,14
@@ -274,7 +275,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_SYSMENU
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     LTEXT           "联 系 人：",IDC_STATIC_CONTACT,20,35,40,10,SS_CENTERIMAGE
-    EDITTEXT        IDC_EDIT_CONTACT_ACCOUNT,60,35,100,12,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_EDIT_CONTACT_ACCOUNT,60,35,100,12,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "姓      名：",IDC_STATIC_CONTACT_NAME,20,55,40,10,SS_CENTERIMAGE
     EDITTEXT        IDC_EDIT_CONTACT_NAME,60,55,100,12,ES_AUTOHSCROLL
     LTEXT           "公      司：",IDC_STATIC_COMPANY,20,75,40,10,SS_CENTERIMAGE
@@ -388,14 +389,16 @@ BEGIN
     EDITTEXT        IDC_EDIT_FAX,220,145,100,12,ES_MULTILINE | ES_AUTOHSCROLL
     LTEXT           "邮      箱：",IDC_STATIC_EMAIL,20,165,40,10,SS_CENTERIMAGE
     EDITTEXT        IDC_EDIT_EMAIL,60,165,100,12,ES_MULTILINE | ES_AUTOHSCROLL
-    LTEXT           "地      址：",IDC_STATIC_ADDRESS,180,165,40,10,SS_CENTERIMAGE
-    EDITTEXT        IDC_EDIT_ADDRESS,220,165,100,12,ES_MULTILINE | ES_AUTOHSCROLL
-    LTEXT           "个性签名：",IDC_STATIC_DESCRIPTION,20,185,40,10,SS_CENTERIMAGE
-    EDITTEXT        IDC_EDIT_DESCRIPTION,60,185,260,30,ES_MULTILINE | ES_AUTOVSCROLL
-    DEFPUSHBUTTON   "确定",IDOK,200,225,50,14
-    PUSHBUTTON      "关闭",IDCANCEL,255,225,50,14
+    LTEXT           "显示排序：",IDC_STATIC_DISPLAY_INDEX,180,165,40,10,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DISPLAY_INDEX2,220,165,100,12,ES_MULTILINE | ES_AUTOHSCROLL
+    LTEXT           "地      址：",IDC_STATIC_ADDRESS,20,185,40,10,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_ADDRESS,60,185,100,12,ES_MULTILINE | ES_AUTOHSCROLL
+    LTEXT           "个性签名：",IDC_STATIC_DESCRIPTION,20,205,40,10,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DESCRIPTION,60,205,260,30,ES_MULTILINE | ES_AUTOVSCROLL
+    DEFPUSHBUTTON   "确定",IDOK,200,243,50,14
+    PUSHBUTTON      "关闭",IDCANCEL,255,243,50,14
     PUSHBUTTON      "",IDC_BUTTON_CLOSE,326,7,20,14
-    PUSHBUTTON      "设为默认名片",IDC_BUTTON_DEFAULT_EMP,55,225,60,14
+    PUSHBUTTON      "设为默认名片",IDC_BUTTON_DEFAULT_EMP,55,241,60,14
     PUSHBUTTON      "更换头像",IDC_BUTTON_CHANGEHEAD,70,61,32,15
 END
 
@@ -789,6 +792,7 @@ BEGIN
     PUSHBUTTON      "",IDC_BUTTON_MIN,285,7,20,14
     PUSHBUTTON      "",IDC_BUTTON_MAX,307,7,20,14
     PUSHBUTTON      "",IDC_BUTTON_CLOSE,332,7,20,14
+    PUSHBUTTON      "我的消息",IDC_BUTTON_VIEW_MYMSG,289,215,42,14,NOT WS_VISIBLE
 END
 
 IDD_DLG_VIDEO_CONFERENCE DIALOGEX 0, 0, 350, 232
@@ -1019,8 +1023,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,24,2,529
- PRODUCTVERSION 1,24,2,529
+ FILEVERSION 1,25,0,556
+ PRODUCTVERSION 1,25,0,556
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1037,12 +1041,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Entboost.com, Inc."
             VALUE "FileDescription", "恩布互联客户端"
-            VALUE "FileVersion", "1, 24, 2, 529"
+            VALUE "FileVersion", "1, 25, 0, 556"
             VALUE "InternalName", "ebc.exe"
             VALUE "LegalCopyright", "(c) Entboost.com, Inc.  All rights reserved."
             VALUE "OriginalFilename", "ebc.exe"
             VALUE "ProductName", "恩布互联客户端"
-            VALUE "ProductVersion", "1, 24, 2, 529"
+            VALUE "ProductVersion", "1, 25, 0, 556"
         END
     END
     BLOCK "VarFileInfo"
@@ -1624,6 +1628,7 @@ IDB_TREE_TYPE9_OPENED   BITMAP                  "res\\skin\\tree_type9_opened.bm
 IDB_BITMAP_BROWSER_CHROME BITMAP                  "res\\skin\\browser_chrome.bmp"
 IDB_BITMAP_BROWSER_IE   BITMAP                  "res\\skin\\browser_ie.bmp"
 IDB_BITMAP_SELECT_COLOR BITMAP                  "res\\color_select.bmp"
+IDB_BITMAP_FORBID_SPEECH BITMAP                  "res\\forbid_speech.bmp"
 IDB_BITMAP_MENU_ONLINE  BITMAP                  "res\\skin\\menuonline.bmp"
 IDB_BITMAP_MENU_AWAY    BITMAP                  "res\\skin\\menuaway.bmp"
 IDB_BITMAP_MENU_BUSY    BITMAP                  "res\\skin\\menubusy.bmp"
@@ -1702,6 +1707,7 @@ IDB_PNG_DEFAULT_PROJECT PNG                     "res\\skin\\imgdefaultproject.pn
 IDB_PNG_DEFAULT_TEMPGROUP PNG                     "res\\skin\\imgdefaulttempgroup.png"
 IDB_PNG_STATE_AWAY      PNG                     "res\\skin\\imgstateaway.png"
 IDB_PNG_STATE_BUSY      PNG                     "res\\skin\\imgstatebusy.png"
+IDB_PNG_STATE_FORBID    PNG                     "res\\skin\\imgstateforbid.png"
 IDB_PNG_DEFAULT_ORG     PNG                     "res\\skin\\imgdefaultorg.png"
 IDB_PNG_DEFAULT_VISITOR PNG                     "res\\skin\\imgdefaultvisitor.png"
 IDB_PNG_BTN_FILE_MGR    PNG                     "res\\skin\\btnfilemgr.png"

@@ -16,14 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER // WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
 
 typedef unsigned int			UINT;
-typedef unsigned int      WPARAM;
+typedef unsigned int        WPARAM;
 typedef long							LPARAM;
 
+#ifdef _QT_MAKE_
+#include <cstring>
+#endif
 #include "CGCClass.h"
 #include "ParseCgcSotp2.h"
 #include "../ThirdParty/stl/rsa.h"
@@ -37,7 +40,9 @@ namespace mycp {
 
 #ifdef WIN32
 #include "windows.h"
+#ifdef _MSC_VER
 #pragma comment(lib, "Ws2_32.lib")
+#endif
 std::string ParseCgcSotp2::str_convert(const char * strSource, int sourceCodepage, int targetCodepage)
 {
 	int unicodeLen = MultiByteToWideChar(sourceCodepage, 0, strSource, -1, NULL, 0);
@@ -283,7 +288,7 @@ bool ParseCgcSotp2::parseBuffer(const unsigned char * pBuffer,size_t nBufferSize
 		}
 	}
 
-	// ? Òªµ÷Õû²¢ÇÒĞèÒª²âÊÔ£¡
+	// ? è¦è°ƒæ•´å¹¶ä¸”éœ€è¦æµ‹è¯•ï¼
 	pNextLineFind = strstr(pNextLineFind, "\n");
 	while (pNextLineFind != NULL && pNextLineFind[0] == '\n')
 	{
@@ -332,7 +337,7 @@ unsigned char* ParseCgcSotp2::rebuildBuffer(size_t bBufferSize)
 	return m_pSslDecryptData;
 }
 
-	// °ÑSOTPĞ­Òé£¬¸Äµ½2.0°æ±¾
+	// æŠŠSOTPåè®®ï¼Œæ”¹åˆ°2.0ç‰ˆæœ¬
 const char * ParseCgcSotp2::parseOneLine(const char * pLineBuffer,size_t nBufferSize)
 {
 	if (pLineBuffer == NULL || nBufferSize<=1) return NULL;
@@ -1159,7 +1164,7 @@ bool ParseCgcSotp2::sotpCompare(const char * pBuffer, const char * pCompare, int
 {
 	int i1 = 0, i2 = 0;
 	leftIndex = 0;
-	// ÅĞ¶ÏÇ°Ãæ¿Õ¸ñ»òÕß¡®TAB¡¯¼ü£»
+	// åˆ¤æ–­å‰é¢ç©ºæ ¼æˆ–è€…â€˜TABâ€™é”®ï¼›
 	//while (' ' == pBuffer[leftIndex] || '\t' == pBuffer[leftIndex] || '\r' == pBuffer[leftIndex])
 	while (' ' == pBuffer[leftIndex] || '\t' == pBuffer[leftIndex])
 	{

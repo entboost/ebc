@@ -175,6 +175,7 @@ typedef enum EB_COMMAND_ID
 	, EB_MSG_EBSC_OK
 	, EB_MSG_VIEW_MSG_RECORD
 	, EB_COMMAND_VIEW_GROUP_SHARE
+	, EB_COMMAND_DOWNLOAD_RESOURCE
 	, EB_COMMAND_DELETE_MSG_RECORD
 	, EB_COMMAND_FILE_MANAGER
 	, EB_COMMAND_SHOWHIDE_MAIN
@@ -229,6 +230,14 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_DEPARTMENT_REFRESH
 	, EB_COMMAND_MEMBER_ADD_ADMIN
 	, EB_COMMAND_MEMBER_DEL_ADMIN
+	, EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_10		// ½ûÑÔ10·ÖÖÓ
+	, EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_60		// ½ûÑÔ1Ð¡Ê±
+	, EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_720		// ½ûÑÔ12Ð¡Ê±
+	, EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_1440	// ½ûÑÔ1Ìì£½24Ð¡Ê±
+	, EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_0			// ÓÀ¾Ã½ûÑÔ
+	, EB_COMMAND_MEMBER_DEL_FORBID_SPEECH
+	, EB_COMMAND_MEMBER_ADD_GROUP_FORBID_SPEECH		// Èº½ûÑÔ
+	, EB_COMMAND_MEMBER_DEL_GROUP_FORBID_SPEECH		// ½â³ýÈº½ûÑÔ
 
 	, EB_COMMAND_NEW_GROUP
 	, EB_COMMAND_DELETE_GROUP
@@ -245,6 +254,9 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_CLEAR_IE_TEMPFILE
 	, EB_COMMAND_SAVE_HISROTY
 	, EB_COMMAND_CLEAR_HISROTY
+	, EB_COMMAND_SEARCH_BAIDU
+	, EB_COMMAND_SEARCH_SOGOU
+	, EB_COMMAND_SEARCH_360
 	, EB_COMMAND_NEW_DIR_RES	= WM_USER+250
 	, EB_COMMAND_DELETE_DIR_RES
 	, EB_COMMAND_EDIT_DIR_RES
@@ -283,6 +295,7 @@ typedef enum EB_COMMAND_ID
 	, EB_COMMAND_SEND_TYPE_RETURN	= WM_USER+720
 	, EB_COMMAND_SEND_TYPE_CTRL_RETURN
 	, EB_COMMAND_SEND_100TEST
+	, EB_COMMAND_SWITCH_MIN_EBSC
 
 };
 
@@ -326,6 +339,8 @@ public:
 	{}
 };
 
+#define EB_LEVEL_FORBID_SPEECH	0x1000
+
 class CTreeItemInfo
 {
 public:
@@ -345,6 +360,11 @@ public:
 		, ITEM_TYPE_EMAIL
 		, ITEM_TYPE_SUBMSG
 	};
+	typedef enum ITEM_EXT_DATA
+	{
+		ITEM_EXT_DATA_FORBID_SPEECH = 0x1	// ½ûÑÔ
+	}ITEM_EXT_DATA;
+
 	static CTreeItemInfo::pointer create(ITEM_TYPE nItemType,int nIndex)
 	{
 		return CTreeItemInfo::pointer(new CTreeItemInfo(nItemType,nIndex));
@@ -367,8 +387,21 @@ public:
 			m_sName = pItemInfo->m_sName;
 			m_sAccount = pItemInfo->m_sAccount;
 			m_dwItemData = pItemInfo->m_dwItemData;
+			m_nExtData = pItemInfo->m_nExtData;
 			m_nCount1 = pItemInfo->m_nCount1;
 			m_nCount2 = pItemInfo->m_nCount2;
+			if (m_pHeadImage!=NULL)
+			{
+				delete m_pHeadImage;
+			}
+			if (pItemInfo->m_pHeadImage!=NULL)
+			{
+				m_pHeadImage = pItemInfo->m_pHeadImage->Clone();
+			}else
+			{
+				m_pHeadImage = NULL;
+			}
+			m_sHeadMd5 = pItemInfo->m_sHeadMd5;
 		}
 	}
 	ITEM_TYPE m_nItemType;
@@ -386,8 +419,20 @@ public:
 	mycp::bigint m_sId;			// resid,...
 	mycp::bigint m_sParentId;
 	DWORD m_dwItemData;
+	int m_nExtData;
 	int m_nCount1;
 	int m_nCount2;
+	Gdiplus::Image* m_pHeadImage;
+	tstring m_sHeadMd5;
+	void UpdateHead(Gdiplus::Image* pHeadImage,const tstring& sHeadMd5)
+	{
+		if (m_pHeadImage!=NULL)
+		{
+			delete m_pHeadImage;
+		}
+		m_pHeadImage = pHeadImage;
+		m_sHeadMd5 = sHeadMd5;
+	}
 
 	//EB_EnterpriseInfo m_pEnterpriseInfo;
 	//EB_GroupInfo m_pGroupInfo;
@@ -400,8 +445,9 @@ public:
 		, m_sEnterpriseCode(0),m_sGroupCode(0),m_sMemberCode(0)
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
-		, m_dwItemData(0)
+		, m_dwItemData(0), m_nExtData(0)
 		, m_nCount1(0), m_nCount2(0)
+		, m_pHeadImage(NULL)
 	{
 	}
 	CTreeItemInfo(ITEM_TYPE nItemType,HTREEITEM hItem)
@@ -410,8 +456,9 @@ public:
 		, m_sEnterpriseCode(0),m_sGroupCode(0),m_sMemberCode(0)
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
-		, m_dwItemData(0)
+		, m_dwItemData(0), m_nExtData(0)
 		, m_nCount1(0), m_nCount2(0)
+		, m_pHeadImage(NULL)
 	{
 	}
 	CTreeItemInfo(void)
@@ -420,8 +467,9 @@ public:
 		, m_sEnterpriseCode(0),m_sGroupCode(0),m_sMemberCode(0)
 		, m_nUserId(0),m_nBigId(0)
 		, m_sId(0),m_sParentId(0)
-		, m_dwItemData(0)
+		, m_dwItemData(0), m_nExtData(0)
 		, m_nCount1(0), m_nCount2(0)
+		, m_pHeadImage(NULL)
 	{
 	}
 };

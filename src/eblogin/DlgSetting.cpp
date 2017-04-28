@@ -1,3 +1,6 @@
+#ifdef WIN32
+#pragma warning(disable:4819 4267)
+#endif
 // DlgSetting.cpp : implementation file
 //
 

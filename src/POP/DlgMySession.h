@@ -83,11 +83,8 @@ protected:
 	void DeleteItem(HTREEITEM hItem);
 	void CallItem(HTREEITEM hItem);
 
-	bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const;
+	bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,Gdiplus::Image*& pImage3,int& pState) const;
 	virtual COLORREF GetItemTextColor(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem, COLORREF colorDefault) const;
-	//virtual HICON GetItemIcon(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
-	//virtual int GetItemState(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem, HICON& pOutIcon) const;
-	//virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const {return false;}
 	LRESULT OnTreeItemDblclk(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);
 

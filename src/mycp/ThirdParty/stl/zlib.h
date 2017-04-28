@@ -8,7 +8,7 @@
 #endif // useconds_t
 
 #include <zlib.h>
-#ifdef WIN32
+#ifdef _MSC_VER	//WIN32
 #ifdef _DEBUG
 #pragma comment(lib,"zlibd.lib")
 #else

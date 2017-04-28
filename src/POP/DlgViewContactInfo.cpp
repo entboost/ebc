@@ -290,9 +290,16 @@ void CDlgViewContactInfo::DrawInfo(void)
 				graphics.DrawImage(&imageHead, const_image_x, const_image_y, const_image_size,const_image_size);
 			}else
 			{
-				Image * pImage = theApp.m_imageDefaultMember->Clone();
+				Image * pImage = theApp.m_imageDefaultMember;
 				graphics.DrawImage(pImage, const_image_x, const_image_y, const_image_size,const_image_size);
-				delete pImage;
+			}
+			int nForbidMinutes = 0;
+			if (theApp.m_imageStateForbid!=NULL && theEBAppClient.EB_IsMemberForbidSpeech(m_pMemberInfo.m_sGroupCode,m_pMemberInfo.m_nMemberUserId,nForbidMinutes))
+			{
+				Image * pImage = theApp.m_imageStateForbid;
+				const int nImageWidth = pImage->GetWidth();
+				const int nImageHeight = pImage->GetHeight();
+				graphics.DrawImage(pImage, const_image_x+(const_image_size-nImageWidth), const_image_y+(const_image_size-nImageHeight), nImageWidth,nImageHeight);
 			}
 			sOutText.Format(_T("%s(%lld)"),m_pMemberInfo.m_sUserName.c_str(),m_pMemberInfo.m_nMemberUserId);
 			//if (m_pGroupInfo.m_nManagerUserId==m_pMemberInfo.m_nMemberUserId)
@@ -378,23 +385,29 @@ void CDlgViewContactInfo::DrawInfo(void)
 			Image * pImage = NULL;
 			if (m_pGroupInfo.m_nGroupType==EB_GROUP_TYPE_DEPARTMENT)
 			{
-				pImage = theApp.m_imageDefaultDepartment->Clone();
+				pImage = theApp.m_imageDefaultDepartment;
 				sOutText.Format(_T("%s(%lld)"), m_pGroupInfo.m_sGroupName.c_str(),m_pGroupInfo.m_sGroupCode);
 			}else if (m_pGroupInfo.m_nGroupType==EB_GROUP_TYPE_PROJECT)
 			{
-				pImage = theApp.m_imageDefaultProject->Clone();
+				pImage = theApp.m_imageDefaultProject;
 				sOutText.Format(_T("%s(%lld)"), m_pGroupInfo.m_sGroupName.c_str(),m_pGroupInfo.m_sGroupCode);
 			}else if (m_pGroupInfo.m_nGroupType==EB_GROUP_TYPE_GROUP)
 			{
-				pImage = theApp.m_imageDefaultGroup->Clone();
+				pImage = theApp.m_imageDefaultGroup;
 				sOutText.Format(_T("%s(%lld)"), m_pGroupInfo.m_sGroupName.c_str(),m_pGroupInfo.m_sGroupCode);
 			}else// if (m_pGroupInfo.m_nGroupType==EB_GROUP_TYPE_TEMP)
 			{
-				pImage = theApp.m_imageDefaultTempGroup->Clone();
+				pImage = theApp.m_imageDefaultTempGroup;
 				sOutText.Format(_T("%s"), m_pGroupInfo.m_sGroupName.c_str());
 			}
 			graphics.DrawImage(pImage, const_image_x, const_image_y, const_image_size,const_image_size);
-			delete pImage;
+			if (theEBAppClient.EB_IsGroupForbidSpeech(m_pGroupInfo.m_sGroupCode) && theApp.m_imageStateForbid!=NULL)
+			{
+				pImage = theApp.m_imageStateForbid;
+				const int nImageWidth = pImage->GetWidth();
+				const int nImageHeight = pImage->GetHeight();
+				graphics.DrawImage(pImage, const_image_x+(const_image_size-nImageWidth), const_image_y+(const_image_size-nImageHeight), nImageWidth,nImageHeight);
+			}
 			graphics.DrawString(A2W_ACP(sOutText),-1,&fontTitle,pointTitle,&brushEbTitle);
 			int x = pointTitle.X;
 			int y = 35;
@@ -445,9 +458,8 @@ void CDlgViewContactInfo::DrawInfo(void)
 		}break;
 	case VIEW_ENTERPRISE:
 		{
-			Image * pImage = theApp.m_imageDefaultOrg->Clone();;
+			Image * pImage = theApp.m_imageDefaultOrg;
 			graphics.DrawImage(pImage, const_image_x, const_image_y, const_image_size,const_image_size);
-			delete pImage;
 			sOutText.Format(_T("%s"), m_pEnterpriseInfo.m_sEnterpriseName.c_str());
 			graphics.DrawString(A2W_ACP(sOutText),-1,&fontTitle,pointTitle,&brushEbTitle);
 			int x = pointTitle.X;

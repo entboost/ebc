@@ -27,6 +27,7 @@ public:
 
 protected:
 	tstring m_sHeadResourceFile;
+	tstring m_sHeadResourceMd5;
 	CRect m_rectHead;
 	CRect m_rectBig;
 	Gdiplus::Image * m_imageHead1;

@@ -83,7 +83,7 @@ void CPanelFiles::MoveSize(int cx, int cy)
 	CLockMap<eb::bigint, CDlgTranFile::pointer>::const_iterator pIter = m_pTranFiles.begin();
 	for (; pIter!=m_pTranFiles.end(); pIter++)
 	{
-		CDlgTranFile::pointer pDlgTranFile = pIter->second;
+		const CDlgTranFile::pointer& pDlgTranFile = pIter->second;
 		pDlgTranFile->MoveWindow(0, index*const_TranFile_Height, cx, const_TranFile_Height);
 		//pDlgTranFile->MoveWindow(0, index*const_TranFile_Height, const_TranFile_Width, const_TranFile_Height);
 		index++;
@@ -96,7 +96,7 @@ void CPanelFiles::SetCtrlColor(void)
 	CLockMap<eb::bigint, CDlgTranFile::pointer>::const_iterator pIter = m_pTranFiles.begin();
 	for (; pIter!=m_pTranFiles.end(); pIter++)
 	{
-		CDlgTranFile::pointer pDlgTranFile = pIter->second;
+		const CDlgTranFile::pointer& pDlgTranFile = pIter->second;
 		pDlgTranFile->SetCtrlColor();
 	}
 }
@@ -109,7 +109,7 @@ void CPanelFiles::ExitChat(bool bHangup)
 		CLockMap<eb::bigint, CDlgTranFile::pointer>::const_iterator pIter = m_pTranFiles.begin();
 		if (pIter!=m_pTranFiles.end())
 		{
-			CDlgTranFile::pointer pDlgTranFile = pIter->second;
+			const CDlgTranFile::pointer pDlgTranFile = pIter->second;
 			m_pTranFiles.erase(pIter);
 			wtlock.unlock();	// ½âËø£¬Ô¤·ÀËÀËø
 			pDlgTranFile->Cancel();

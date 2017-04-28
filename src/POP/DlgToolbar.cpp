@@ -737,6 +737,7 @@ void CDlgToolbar::OnBnClickedBtn3()
 				GlobalUnlock(clipbuffer);
 				SetClipboardData(CF_TEXT,clipbuffer);
 				CloseClipboard();
+				HideReset();
 			}
 		}break;
 	case EB_MR_CTRL_DATA_TYPE_IMAGE:
@@ -770,6 +771,7 @@ void CDlgToolbar::OnBnClickedBtn3()
 					DeleteObject(bitmap);
 					DeleteDC(dcMem);
 					delete pImage;
+					HideReset();
 				}else
 				{
 					CloseClipboard();
@@ -788,6 +790,7 @@ void CDlgToolbar::OnBnClickedBtn3()
 				break;
 			}
 			CopyFileToClipboard(m_sMoveEnterString.c_str());
+			HideReset();
 		}break;
 	default:
 		break;
@@ -812,6 +815,7 @@ void CDlgToolbar::OnBnClickedBtn4()
 				GlobalUnlock(clipbuffer);
 				SetClipboardData(CF_TEXT,clipbuffer);
 				CloseClipboard();
+				HideReset();
 			}
 		}break;
 	case EB_MR_CTRL_DATA_TYPE_IMAGE:

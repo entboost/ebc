@@ -197,6 +197,16 @@ public:
 	virtual cgcObject::pointer getFrontListAttribute(const tstring& attributeName, bool is_pop=true) = 0;
 	virtual cgcObject::pointer getFrontListAttribute(void* attributeName, bool is_pop=true) = 0;
 
+	virtual bool popFrontListAttribute(int attributeName) = 0;
+	virtual bool popFrontListAttribute(bigint attributeName) = 0;
+	virtual bool popFrontListAttribute(const tstring& attributeName) = 0;
+	virtual bool popFrontListAttribute(void* attributeName) = 0;
+
+	virtual bool popBackListAttribute(int attributeName) = 0;
+	virtual bool popBackListAttribute(bigint attributeName) = 0;
+	virtual bool popBackListAttribute(const tstring& attributeName) = 0;
+	virtual bool popBackListAttribute(void* attributeName) = 0;
+
 	virtual bool isListAttributeEmtpy(int attributeName) const = 0;
 	virtual bool isListAttributeEmtpy(bigint attributeName) const = 0;
 	virtual bool isListAttributeEmtpy(const tstring& attributeName) const = 0;

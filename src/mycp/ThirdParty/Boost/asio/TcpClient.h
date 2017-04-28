@@ -49,6 +49,33 @@ public:
 	{
 		return TcpClient::pointer(new TcpClient(handler));
 	}
+	static void Test_To_SSL_library_init(void)
+	{
+		static bool theTestInit = false;
+		//printf("**** Test2_SSL_library_init = %d\n",(int)(theTestInit?1:0));
+		if (!theTestInit)
+		{
+			theTestInit = true;
+			SSL_CTX * handle_ = ::SSL_CTX_new(::SSLv2_client_method());	// 返回0
+			if (handle_==NULL)
+			{
+				SSL_library_init();	// *** 初始化SSL环境，解决组件在线更新 context error 异常问题；
+			}else
+			{
+				SSL_CTX_free(handle_);
+			}
+		}
+	}
+	//static boost::asio::ssl::context* createNewSSLContent(boost::asio::ssl::method m)
+	//{
+	//	Test_To_SSL_library_init();
+	//	return new boost::asio::ssl::context(m);
+	//}
+	//static boost::asio::ssl::context* createNewSSLContent(boost::asio::io_service& io,boost::asio::ssl::method m)
+	//{
+	//	Test_To_SSL_library_init();
+	//	return new boost::asio::ssl::context(io,m);
+	//}
 
 	void setUnusedSize(size_t v = 10) {m_unusedsize = v;}
 	void setMaxBufferSize(size_t v = mycp::asio::Max_ReceiveBuffer_ReceiveSize) {m_maxbuffersize = v;}
@@ -196,7 +223,8 @@ public:
 		return true;
 		//return preverified;  
 	} 
-	void handle_handshake(const TcpClient::pointer& pTcpClient,const boost::system::error_code& error)
+	void handle_handshake(const boost::system::error_code& error)
+	//void handle_handshake(const TcpClient::pointer& pTcpClient,const boost::system::error_code& error)
 	{
 		if(!error)
 		{
@@ -315,7 +343,9 @@ private:
 			if (m_socket->is_ssl())
 			{
 				m_socket->get_ssl_socket()->async_handshake(boost::asio::ssl::stream_base::client,boost::bind(&TcpClient::handle_handshake,
-					this,shared_from_this(),boost::asio::placeholders::error));
+					this,boost::asio::placeholders::error));
+				//m_socket->get_ssl_socket()->async_handshake(boost::asio::ssl::stream_base::client,boost::bind(&TcpClient::handle_handshake,
+				//	this,shared_from_this(),boost::asio::placeholders::error));
 				return;
 			}
 #endif
@@ -412,6 +442,9 @@ private:
 	int m_nDisconnectWaittingData;	// default 6s
 	bool m_bInOnReceiveData;
 };
+
+//#define CREATE_NEW_SSL_CONTEXT1(m) (TcpClient::Test_To_SSL_library_init(); return new boost::asio::ssl::context(m);)
+//#define CREATE_NEW_SSL_CONTEXT2(io,m) (TcpClient::Test_To_SSL_library_init(); return new boost::asio::ssl::context(io,m);)
 
 } // namespace asio
 } // namespace mycp

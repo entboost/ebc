@@ -4,16 +4,16 @@
 #include <openssl/evp.h>  
 #include <openssl/aes.h>  
 #include <openssl/rand.h>  
-#ifdef WIN32
+#ifdef _MSC_VER	//WIN32
 #pragma comment(lib, "libeay32.lib")  
 #pragma comment(lib, "ssleay32.lib")  
 #endif
 
-// ****ECBÄ£Ê½
+// ****ECBæ¨¡å¼
 inline int aes_ecb_encrypt_full(const unsigned char *userKey,int klen,const unsigned char* in,int ilen,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_encrypt_key(userKey, klen*8, &key);
@@ -25,8 +25,8 @@ inline int aes_ecb_encrypt_full(const unsigned char *userKey,int klen,const unsi
 }
 inline int aes_ecb_encrypt(const unsigned char *userKey,int klen,const unsigned char* in,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_encrypt_key(userKey, klen*8, &key);
@@ -37,8 +37,8 @@ inline int aes_ecb_encrypt(const unsigned char *userKey,int klen,const unsigned 
 }
 inline int aes_ecb_decrypt_full(const unsigned char *userKey,int klen,const unsigned char* in,int ilen,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_decrypt_key(userKey, klen*8, &key);
@@ -50,8 +50,8 @@ inline int aes_ecb_decrypt_full(const unsigned char *userKey,int klen,const unsi
 }
 inline int aes_ecb_decrypt(const unsigned char *userKey,int klen,const unsigned char* in,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_decrypt_key(userKey, klen*8, &key);
@@ -60,11 +60,11 @@ inline int aes_ecb_decrypt(const unsigned char *userKey,int klen,const unsigned 
 	AES_ecb_encrypt(in,out,&key,AES_DECRYPT);
 	return 0;
 }
-// ****CBCÄ£Ê½¼ò½é
+// ****CBCæ¨¡å¼ç®€ä»‹
 inline int aes_cbc_encrypt_full(const unsigned char *userKey,int klen,const unsigned char* in,int length,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_encrypt_key(userKey, klen*8, &key);
@@ -79,8 +79,8 @@ inline int aes_cbc_encrypt_full(const unsigned char *userKey,int klen,const unsi
 }
 inline int aes_cbc_encrypt(const unsigned char *userKey,int klen,const unsigned char* in,int length,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_encrypt_key(userKey, klen*8, &key);
@@ -94,8 +94,8 @@ inline int aes_cbc_encrypt(const unsigned char *userKey,int klen,const unsigned 
 }
 inline int aes_cbc_decrypt_full(const unsigned char *userKey,int klen,const unsigned char* in,int length,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_decrypt_key(userKey, klen*8, &key);
@@ -110,8 +110,8 @@ inline int aes_cbc_decrypt_full(const unsigned char *userKey,int klen,const unsi
 }
 inline int aes_cbc_decrypt(const unsigned char *userKey,int klen,const unsigned char* in,int length,unsigned char* out)
 {
-	// Èç¹ûÃÜÔ¿Êı×ÖÊÇ16¸ö×Ö½Ú£¬16*8=128£»Ôò´Ë²ÎÊıÖµÓ¦Îª128£»
-	// ·µ»ØÖµ£º 0 ³É¹¦£¬ -1 userkey£¬keyÎª¿Õ£¬ -2£º ÃÜÔ¿³¤¶È²»ÊÇ128(16*8)£¬192(24*8)£¬256(32*8)£»
+	// å¦‚æœå¯†é’¥æ•°å­—æ˜¯16ä¸ªå­—èŠ‚ï¼Œ16*8=128ï¼›åˆ™æ­¤å‚æ•°å€¼åº”ä¸º128ï¼›
+	// è¿”å›å€¼ï¼š 0 æˆåŠŸï¼Œ -1 userkeyï¼Œkeyä¸ºç©ºï¼Œ -2ï¼š å¯†é’¥é•¿åº¦ä¸æ˜¯128(16*8)ï¼Œ192(24*8)ï¼Œ256(32*8)ï¼›
 	int ret = 0;
 	AES_KEY         key;
 	ret = AES_set_decrypt_key(userKey, klen*8, &key);
@@ -298,4 +298,4 @@ inline int aes_cbc_decrypt(const unsigned char *userKey,int klen,const unsigned 
 //	return plaintext_len;  
 //}  
 
-#endif __AES_H__
+#endif //__AES_H__

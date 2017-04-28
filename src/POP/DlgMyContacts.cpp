@@ -86,7 +86,8 @@ BOOL CDlgMyContacts::OnInitDialog()
 	m_btnCallTrack.SetAutoFocus(true);
 	m_btnCallTrack.Load(IDB_PNG_HOT_CALL);
 	m_btnCallTrack.SetToolTipText(_T("打开会话"));
-	//m_treeContacts.SetBkMode(VividTree::BK_MODE_GRADIENT);
+	m_treeContacts.SetBkMode(VividTree::BK_MODE_GRADIENT);
+	m_treeContacts.SetBkGradients(theDefaultFlatBgColor,theDefaultFlatBgColor);
 	m_treeContacts.SetCallback((CTreeCallback*)&theApp);
 	m_treeContacts.ModifyStyle(0, TVS_SINGLEEXPAND);
 	//m_treeContacts.SetTreeOpenClosedBmp(IDB_TREE_OPENED, IDB_TREE_CLOSED);
@@ -296,7 +297,7 @@ void CDlgMyContacts::UGDelete(const EB_UGInfo* pUGInfo)
 		CLockMap<eb::bigint,CTreeItemInfo::pointer>::const_iterator pIter;
 		for (pIter=m_pContactItemInfo.begin(); pIter!=m_pContactItemInfo.end(); pIter++)
 		{
-			CTreeItemInfo::pointer pContactItemInfo = pIter->second;
+			const CTreeItemInfo::pointer& pContactItemInfo = pIter->second;
 			if (pContactItemInfo->m_sParentId == pGroupItemInfo->m_sId)
 			{
 				if (pDefaultGroupItemInfo.get()==NULL)
@@ -451,6 +452,15 @@ void CDlgMyContacts::ContactInfo(IEB_ContactInfo* pPopContactInfo)
 	m_treeContacts.Sort(pGroupItemInfo->m_hItem, CPOPApp::TreeCmpFunc);
 }
 #else
+void CDlgMyContacts::ContactHeadChange(const EB_ContactInfo* pPopContactInfo)
+{
+	if (pPopContactInfo==NULL || pPopContactInfo->m_nContactId==0) return;
+	//CTreeItemInfo::pointer pGroupItemInfo;
+	//if (m_pContactItemInfo.find(pPopContactInfo->m_nContactId, pContactItemInfo))
+	//{
+	//	// ???
+	//}
+}
 void CDlgMyContacts::ContactInfo(const EB_ContactInfo* pPopContactInfo)
 {
 	if (pPopContactInfo==NULL || pPopContactInfo->m_nContactId==0) return;
@@ -865,12 +875,6 @@ void CDlgMyContacts::CallItem(HTREEITEM hItem)
 //	// 全部显示为灰色
 //	return 0;
 //}
-//bool CDlgMyContacts::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const
-//{
-//	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)pTreeCtrl.GetItemData(hItem);
-//	if (pTreeItemInfo != NULL && pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP) return true;
-//	return false;
-//}
 
 void CDlgMyContacts::OnViewMsgRecord()
 {
@@ -1074,7 +1078,7 @@ void CDlgMyContacts::OnNMRClickTreeContacts(NMHDR *pNMHDR, LRESULT *pResult)
 				int nIndex = 0;
 				for (; pIter!=m_pGroupItemInfo.end();  pIter++)
 				{
-					CTreeItemInfo::pointer pGroupItemInfo = pIter->second;
+					const CTreeItemInfo::pointer& pGroupItemInfo = pIter->second;
 					if (pGroupItemInfo->m_sId==const_default_group_ugid || pGroupItemInfo->m_sId==pTreeItemInfo->m_sParentId)
 						continue;
 					pPopupMenuMoveto.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MY_UGINFO+nIndex,pGroupItemInfo->m_sName.c_str());
@@ -1202,7 +1206,7 @@ void CDlgMyContacts::OnMyUGInfo(UINT nID)
 	int nIndex = 0;
 	for (; pIter!=m_pGroupItemInfo.end();  pIter++)
 	{
-		CTreeItemInfo::pointer pGroupItemInfo = pIter->second;
+		const CTreeItemInfo::pointer& pGroupItemInfo = pIter->second;
 		if (pGroupItemInfo->m_sId==const_default_group_ugid || pGroupItemInfo->m_sId == pContactItemInfo->m_sParentId)
 			continue;
 		if (nSelectIndex==nIndex)

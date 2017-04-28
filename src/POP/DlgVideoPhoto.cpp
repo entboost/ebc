@@ -286,7 +286,9 @@ void CDlgVideoPhoto::OnBnClickedButtonPhoto()
 		DeleteFile(sBmpPhotoFile.c_str());
 		if (PathFileExists(m_sSavePhotoFile.c_str()))
 		{
-			m_imageHead = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sSavePhotoFile.c_str()));
+			m_imageHead = libEbc::LoadImageFromFile(m_sSavePhotoFile.c_str());
+			if (m_imageHead==NULL)
+				m_imageHead = new Gdiplus::Image((const WCHAR*)A2W_ACP(m_sSavePhotoFile.c_str()));
 		}
 		this->Invalidate();
 #ifdef _DEBUG

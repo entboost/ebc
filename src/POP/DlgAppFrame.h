@@ -182,6 +182,7 @@ protected:
 	LRESULT OnMsgOpenAppUrl(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMoveUp(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMoveDown(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam);
 	//LRESULT OnMessageMoveOffset(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 public:

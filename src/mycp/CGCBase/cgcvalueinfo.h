@@ -20,7 +20,9 @@
 #ifndef __cgcvalueinfo_head__
 #define __cgcvalueinfo_head__
 
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4996)
+#endif
 
 #include <vector>
 //#ifdef USES_CGC_STRING
@@ -245,16 +247,22 @@ inline cgcValueInfo::cgcValueInfo(const cgcObject::pointer& v, ValueAttribute a)
 	memset(&u, 0, sizeof(u));
 }
 inline cgcValueInfo::cgcValueInfo(const cgcValueInfo::pointer& v, ValueAttribute a)
-: m_type(TYPE_VALUEINFO), m_attribute(a), m_str(""), m_valueInfo(v)
+: m_type(TYPE_VALUEINFO), m_attribute(a), m_str("")//, m_valueInfo(v)
 {
 	memset(&u, 0, sizeof(u));
+	if (v.get()!=NULL)
+		m_valueInfo = v->copy();
 }
 inline cgcValueInfo::cgcValueInfo(const std::vector<cgcValueInfo::pointer> & v, ValueAttribute a)
 : m_type(TYPE_VECTOR), m_attribute(a), m_str("")
 {
 	memset(&u, 0, sizeof(u));
 	for (size_t i=0; i<v.size(); i++)
-		m_vector.push_back(v[i]);
+	{
+		if (v[i].get()!=NULL)
+			m_vector.push_back(v[i]->copy());
+		//m_vector.push_back(v[i]);
+	}
 }
 inline cgcValueInfo::cgcValueInfo(const CLockMap<tstring, cgcValueInfo::pointer> & v, ValueAttribute a)
 : m_type(TYPE_MAP), m_attribute(a), m_str("")
@@ -262,7 +270,11 @@ inline cgcValueInfo::cgcValueInfo(const CLockMap<tstring, cgcValueInfo::pointer>
 	memset(&u, 0, sizeof(u));
 	CLockMap<tstring, cgcValueInfo::pointer>::const_iterator iter;
 	for (iter=v.begin(); iter!=v.end(); iter++)
-		m_map.insert(iter->first, iter->second);
+	{
+		if (iter->second.get()!=NULL)
+			m_map.insert(iter->first, iter->second->copy());
+		//m_map.insert(iter->first, iter->second);
+	}
 }
 inline cgcValueInfo::~cgcValueInfo(void)
 {
@@ -706,23 +718,32 @@ inline const cgcValueInfo& cgcValueInfo::operator = (const cgcValueInfo::pointer
 			m_object = v->getObject();
 			break;
 		case TYPE_VALUEINFO:
-			break;
+			{
+				if (v->getValueInfo().get()!=NULL)
+					m_valueInfo = v->getValueInfo()->copy();
+			}break;
 		case TYPE_VECTOR:
 			{
 				for (size_t i=0; i<v->getVector().size(); i++)
 				{
-					m_vector.push_back(v->getVector()[i]);
+					if (v->getVector()[i].get()!=NULL)
+						m_vector.push_back(v->getVector()[i]->copy());
+					//m_vector.push_back(v->getVector()[i]);
 				}
 			}break;
 		case TYPE_MAP:
 			{
 				CLockMap<tstring, cgcValueInfo::pointer>::const_iterator iter;
 				for (iter=v->getMap().begin(); iter!=v->getMap().end(); iter++)
-					m_map.insert(iter->first, iter->second);
+				{
+					if (iter->second.get()!=NULL)
+						m_map.insert(iter->first, iter->second->copy());
+					//m_map.insert(iter->first, iter->second);
+				}
 			}break;
 		case TYPE_BUFFER:
 			{
-				this->setBuffer(v->getBuffer(),v->getBufferSize());
+				this->setBuffer((const unsigned char*)v->getBuffer(),v->getBufferSize());
 			}break;
 		default:
 			break;
@@ -1080,12 +1101,12 @@ inline tstring cgcValueInfo::toString(void) const
 		}
 	case TYPE_BIGINT:
 		{
-			char buffer[32];
-#ifdef WIN32
-			sprintf(buffer, "%I64d", u.m_bigint);
-#else
+            char buffer[24];
+//#ifdef WIN32
+//			sprintf(buffer, "%I64d", u.m_bigint);
+//#else
 			sprintf(buffer, "%lld", u.m_bigint);
-#endif
+//#endif
 			return tstring(buffer);
 		}
 		//		case TYPE_TIME:
@@ -1306,7 +1327,7 @@ inline cgcValueInfo::pointer cgcValueInfo::copy(void) const
 	case TYPE_BUFFER:
 		{
 			result = CGC_VALUEINFO(cgcValueInfo::TYPE_BUFFER);
-			result->setBuffer(u.m_buffer.pBuffer,u.m_buffer.nSize);
+			result->setBuffer((const unsigned char*)u.m_buffer.pBuffer,u.m_buffer.nSize);
 		}break;
 	default:
 		break;

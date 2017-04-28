@@ -300,9 +300,15 @@ void VividTree::DrawBackGround( CDC* pDC )
 	}
 	if ( mode == BK_MODE_GRADIENT )
 	{
-		GradientFillRect( pDC, 
-			CRect( m_h_offset, m_v_offset, m_h_size + m_h_offset, m_v_size + m_v_offset ), 
-			m_gradient_bkgd_from, m_gradient_bkgd_to, !m_gradient_horz );
+		if (m_gradient_bkgd_from==m_gradient_bkgd_to)
+		{
+			pDC->FillSolidRect( rect, m_gradient_bkgd_from); 
+		}else
+		{
+			GradientFillRect( pDC, 
+				CRect( m_h_offset, m_v_offset, m_h_size + m_h_offset, m_v_size + m_v_offset ), 
+				m_gradient_bkgd_from, m_gradient_bkgd_to, !m_gradient_horz );
+		}
 	}
 	else if ( mode == BK_MODE_FILL )
 	{
@@ -433,7 +439,7 @@ void VividTree::DrawItems( CDC *pDC )
 	DWORD tree_style;
 	BITMAP bm;
 	CDC dc_mem;
-	CBitmap *button;
+	const CBitmap *button = NULL;
 	int count = 0;
 	int state;
 	bool selected;
@@ -574,8 +580,8 @@ void VividTree::DrawItems( CDC *pDC )
 				//}
 			}
 			count++;
-			CBitmap * pBitmapOpen = NULL;
-			CBitmap * pBitmapClosed = NULL;
+			const CBitmap * pBitmapOpen = NULL;
+			const CBitmap * pBitmapClosed = NULL;
 			const bool bDrawOpenClose = m_hCallback==NULL?has_children:m_hCallback->GetItemDrawOpenClose(*this,show_item,&pBitmapOpen,&pBitmapClosed);
 			if ( bDrawOpenClose )
 			{
@@ -587,7 +593,7 @@ void VividTree::DrawItems( CDC *pDC )
 				if (button!=NULL && button->GetSafeHandle()!=NULL)		// add by hd
 				{
 					VERIFY(button->GetObject(sizeof(bm), (LPVOID)&bm));
-					CBitmap *bmp_old = (CBitmap*)dc_mem.SelectObject(button); 
+					CBitmap *bmp_old = (CBitmap*)dc_mem.SelectObject((CBitmap*)button); 
 					pDC->BitBlt( rc_item.left+xoffset, rc_item.top+(rc_item.Height()-bm.bmHeight)/2, bm.bmWidth, bm.bmHeight, 
 						//pDC->BitBlt( rc_item.left - bm.bmWidth - 2, rc_item.top, bm.bmWidth, bm.bmHeight, 
 						&dc_mem, 0, 0, SRCAND );
@@ -607,23 +613,25 @@ void VividTree::DrawItems( CDC *pDC )
 				// lookup the ICON instance (if any) and draw it
 				Gdiplus::Image * pImage1 = NULL;
 				Gdiplus::Image * pImage2 = NULL;
+				Gdiplus::Image * pImage3 = NULL;
 				int nState = 1;
-				bool bRet = m_hCallback==NULL?false:m_hCallback->GetItemImage(*this,show_item,pImage1,pImage2,nState);
+				bool bRet = m_hCallback==NULL?false:m_hCallback->GetItemImage(*this,show_item,pImage1,pImage2,pImage3,nState);
 				if (bRet)
 				{
 					xoffset += 1;
 					assert (pImage1 != NULL);
-					Gdiplus::Rect destRect(rc_item.left+xoffset, rc_item.top+top_ico_offset, m_ico_width, m_ico_height);
+					const Gdiplus::Rect destRect(rc_item.left+xoffset, rc_item.top+top_ico_offset, m_ico_width, m_ico_height);
 					if (nState == 1)
 					{
 						graphics.DrawImage(pImage1,destRect,0,0, pImage1->GetWidth()+1, pImage1->GetHeight()+1,Gdiplus::UnitPixel);
 						if (pImage2 != NULL)
 						{
-							destRect.X += (m_ico_width-pImage2->GetWidth());
-							destRect.Y += (m_ico_height-pImage2->GetHeight());
-							destRect.Width = pImage2->GetWidth();
-							destRect.Height = pImage2->GetHeight();
-							graphics.DrawImage(pImage2,destRect,0,0, pImage2->GetWidth(), pImage2->GetHeight(),Gdiplus::UnitPixel);
+							Gdiplus::Rect destRect2(destRect);
+							destRect2.X += (m_ico_width-pImage2->GetWidth());
+							destRect2.Y += (m_ico_height-pImage2->GetHeight());
+							destRect2.Width = pImage2->GetWidth();
+							destRect2.Height = pImage2->GetHeight();
+							graphics.DrawImage(pImage2,destRect2,0,0, pImage2->GetWidth(), pImage2->GetHeight(),Gdiplus::UnitPixel);
 						}
 					}else
 					{
@@ -640,10 +648,26 @@ void VividTree::DrawItems( CDC *pDC )
 						pImageAttributes.SetColorMatrix(&theColorMatrix,ColorMatrixFlagsDefault, ColorAdjustTypeBitmap);
 						graphics.DrawImage(pImage1,destRect,0,0, pImage1->GetWidth()+1, pImage1->GetHeight()+1,Gdiplus::UnitPixel,&pImageAttributes);
 					}
-					delete pImage1;
+					//delete pImage1;
 					if (pImage2 != NULL)
 					{
 						delete pImage2;
+					}
+					if (pImage3 != NULL)
+					{
+						Gdiplus::Rect destRect3(destRect);
+						if (destRect3.X>(INT)pImage3->GetWidth())
+						{
+							destRect3.X -= (pImage3->GetWidth()+1);
+							destRect3.Y += (m_ico_height-pImage3->GetHeight()-1);
+						}else
+						{
+							destRect3.X = 0;
+							destRect3.Y += (m_ico_height-pImage3->GetHeight()+2);
+						}
+						destRect3.Width = pImage3->GetWidth();
+						destRect3.Height = pImage3->GetHeight();
+						graphics.DrawImage(pImage3,destRect3,0,0, pImage3->GetWidth(), pImage3->GetHeight(),Gdiplus::UnitPixel);
 					}
 					xoffset += (m_ico_width+3);
 				}else

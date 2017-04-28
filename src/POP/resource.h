@@ -242,6 +242,8 @@
 #define IDB_PNG_BTN_FILE_MGR_UISTYLE1   297
 #define IDB_PNG_ENTBOOST42              299
 #define IDB_PNG_BTN_SEND_ECARD          300
+#define IDB_PNG_STATE_FORBID            301
+#define IDB_BITMAP_FORBID_SPEECH        302
 #define IDC_BUTTON_CALLUSER             1001
 #define IDC_STATIC_SAVEPWD              1001
 #define IDC_STATIC_LINE_CONVERSATION    1001
@@ -285,6 +287,8 @@
 #define IDC_BUTTON_SEND                 1016
 #define IDC_BUTTON_SEND2                1017
 #define IDC_BUTTON_SWITCH_RETURN        1017
+#define IDC_BUTTON_SWITCH_RETURN2       1018
+#define IDC_BUTTON_MIN_EBSC             1018
 #define IDC_BUTTON_FONT                 1019
 #define IDC_BUTTON_FILE                 1020
 #define IDC_BUTTON_SAVEAS               1020
@@ -542,8 +546,10 @@
 #define IDC_BUTTON_SEND_MSG             1121
 #define IDC_BUTTON_SEND_MSG2            1122
 #define IDC_BUTTON_REQUEST_ADD_CONTACT  1122
+#define IDC_BUTTON_VIEW_MYMSG           1122
 #define IDC_EDIT_CONTACT_ADDRESS        1123
 #define IDC_EDIT_CONTACT_ACCOUNT        1124
+#define IDC_EDIT_DISPLAY_INDEX2         1125
 #define IDC_STATIC_GROUP_NAME           6553
 #define ID_CONTACT_32771                32771
 #define ID_CONTACT_32773                32773
@@ -586,7 +592,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        301
 #define _APS_NEXT_COMMAND_VALUE         32802
-#define _APS_NEXT_CONTROL_VALUE         1122
+#define _APS_NEXT_CONTROL_VALUE         1123
 #define _APS_NEXT_SYMED_VALUE           113
 #endif
 #endif

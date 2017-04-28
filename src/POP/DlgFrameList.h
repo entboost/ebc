@@ -71,6 +71,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CHoverEdit m_editSearch;
 	CTraButton m_btnSwitchLeft;
+	CRect m_rectSwitchLeft;
 	CPanelSearch* m_pPanelSearch;
 	CTraButton m_btnMin;
 	CTraButton m_btnMax;

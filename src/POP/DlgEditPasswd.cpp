@@ -143,7 +143,10 @@ void CDlgEditPasswd::Save(void)
 #else
 	theEBAppClient.EB_SetPassword(sOldPwd,sNewPwd);
 #endif
-	if (theApp.m_pBoEB->use("eb"))
+	// *** 不保存用户数据，保存OAuthKey实现自动登录
+	// *** 兼容旧服务端版本 1.24.2 以前版本； v1.25.0.544, 2017-04-11
+	// *** v1.25.0 以上版本，客户端不保存密码，只保存本地硬件唯一标识，实现自动登录，提高安全性
+	if (theApp.GetEBServerVersion()==0 && theApp.m_pBoEB->use("eb"))	
 	{
 		CString sSql;
 		sSql.Format(_T("update user_login_record_t set password='%s' where account='%s' AND password='%s'"),sNewPwd,theApp.GetLogonAccount(),sOldPwd);

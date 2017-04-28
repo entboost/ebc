@@ -51,6 +51,8 @@ public:
 	bool m_bClosePrompt;
 	bool m_bWinResizable;
 	EB_FUNC_BROWSER_TYPE m_nFuncBrowserType;
+	mycp::bigint GetShowMyMsgSubId(void) const {return m_nShowMyMsgSubId;}
+	void SetShowMyMsgSubId(mycp::bigint nSubId,const std::string& sParameters);
 
 // Dialog Data
 	enum { IDD = IDD_DLG_FUNC_WINDOW };
@@ -63,6 +65,7 @@ protected:
 	CTraButton m_btnMin;
 	CTraButton m_btnMax;
 	CTraButton m_btnClose;
+	CTraButton m_btnViewMyMsg;
 	EB_BROWSER_TYPE m_nBrowserType;
 #ifdef USES_LIBCEF
 	CCefBrowser m_pCefBrowser;
@@ -78,6 +81,9 @@ protected:
 	CPanelText * m_pPanelStatus;
 	std::wstring m_sStatusMessage;
 	eb::bigint m_nBroadcastMsgId;
+
+	mycp::bigint m_nShowMyMsgSubId;
+	std::string m_sBCMsgParameters;
 
 	void OnBeforeNavigate(const wchar_t* szURL, bool* pOutCancel);
 	virtual void OnBeforeNavigate(VARIANT_BOOL* bCancel,LPCTSTR szURL);
@@ -130,4 +136,5 @@ protected:
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 public:
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnBnClickedButtonViewMymsg();
 };

@@ -16,6 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#ifdef _MSC_VER //WIN32
+#pragma warning(disable:4819)
+#endif // WIN32
+#ifdef _QT_MAKE_
+#include <cstring>
+#endif
 #include "AttributesImpl.h"
 
 namespace mycp {
@@ -167,11 +174,11 @@ bool AttributesImpl::getSPropertys(std::vector<cgcKeyValue::pointer>& outValues)
 
 bool AttributesImpl::getIPropertys(std::vector<cgcKeyValue::pointer>& outValues) const
 {
+	char buffer[12];
 	AUTO_CONST_RLOCK(m_intPropertys);
 	CLockMultiMap<int, cgcValueInfo::pointer>::const_iterator iter;
 	for (iter=m_intPropertys.begin(); iter!=m_intPropertys.end(); iter++)
 	{
-		char buffer[12];
 		sprintf(buffer, "%d", iter->first);
 		 outValues.push_back(CGC_KEYVALUE(buffer, iter->second));
 	}
@@ -179,16 +186,16 @@ bool AttributesImpl::getIPropertys(std::vector<cgcKeyValue::pointer>& outValues)
 }
 bool AttributesImpl::getBPropertys(std::vector<cgcKeyValue::pointer>& outValues) const
 {
+	char buffer[24];
 	BoostReadLock rdLock(const_cast<boost::shared_mutex&>(m_bigintPropertys.mutex()));
 	CLockMultiMap<bigint, cgcValueInfo::pointer>::const_iterator iter = m_bigintPropertys.begin();
 	for (; iter!=m_bigintPropertys.end(); iter++)
 	{
-		char buffer[24];
-#ifdef WIN32
-		sprintf(buffer, "%I64d", iter->first);
-#else
+//#ifdef WIN32
+//		sprintf(buffer, "%I64d", iter->first);
+//#else
 		sprintf(buffer, "%lld", iter->first);
-#endif
+//#endif
 		 outValues.push_back(CGC_KEYVALUE(buffer, iter->second));
 	}
 	return !outValues.empty();
@@ -197,13 +204,13 @@ bool AttributesImpl::getBPropertys(std::vector<cgcKeyValue::pointer>& outValues)
 
 bool AttributesImpl::getPPropertys(std::vector<cgcKeyValue::pointer>& outValues) const
 {
+	char buffer[24];
 	AUTO_CONST_RLOCK(m_pointerPropertys);
 	CLockMultiMap<void*, cgcValueInfo::pointer>::const_iterator iter;
 	for (iter=m_pointerPropertys.begin(); iter!=m_pointerPropertys.end(); iter++)
 	{
-		char buffer[24];
 		sprintf(buffer, "%p", iter->first);
-		 outValues.push_back(CGC_KEYVALUE(buffer, iter->second));
+		outValues.push_back(CGC_KEYVALUE(buffer, iter->second));
 	}
 	return !m_pointerPropertys.empty();
 }
@@ -1103,6 +1110,79 @@ cgcObject::pointer AttributesImpl::getFrontListAttribute(void* attributeName, bo
 		pObjectLists->front(result, is_pop);
 	}
 	return result;
+}
+
+bool AttributesImpl::popFrontListAttribute(int attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popfront();
+	}
+	return false;
+}
+bool AttributesImpl::popFrontListAttribute(bigint attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popfront();
+	}
+	return false;
+}
+bool AttributesImpl::popFrontListAttribute(const tstring& attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popfront();
+	}
+	return false;
+}
+bool AttributesImpl::popFrontListAttribute(void* attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popfront();
+	}
+	return false;
+}
+bool AttributesImpl::popBackListAttribute(int attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popback();
+	}
+	return false;
+}
+bool AttributesImpl::popBackListAttribute(bigint attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pBigIntListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popback();
+	}
+	return false;
+}
+bool AttributesImpl::popBackListAttribute(const tstring& attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pStringListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popback();
+	}
+	return false;
+}
+bool AttributesImpl::popBackListAttribute(void* attributeName)
+{
+	ObjectListPointer pObjectLists;
+	if (m_pVoidListPointer.find(attributeName, pObjectLists))
+	{
+		return pObjectLists->popback();
+	}
+	return false;
 }
 
 bool AttributesImpl::isListAttributeEmtpy(int attributeName) const

@@ -29,10 +29,11 @@ CDlgMemberInfo::CDlgMemberInfo(CWnd* pParent /*=NULL*/)
 	, m_bNewEemployee(false)
 	, m_nGender(0)
 	, m_nBirthday(0)
+	, m_nDisplayIndex(0)
 {
 	m_imageHead = NULL;
 	m_pDlgChangeHead = NULL;
-	m_nOldFileSize = 0;
+	//m_nOldFileSize = 0;
 	m_bSetTimer = false;
 }
 
@@ -54,6 +55,7 @@ void CDlgMemberInfo::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_WORK_PHONE, m_sWorkPhone);
 	DDX_Text(pDX, IDC_EDIT_EMAIL, m_sEmail);
 	DDX_Text(pDX, IDC_EDIT_FAX, m_sFax);
+	DDX_Text(pDX, IDC_EDIT_DISPLAY_INDEX2, m_nDisplayIndex);
 	DDX_Text(pDX, IDC_EDIT_ADDRESS, m_sAddress);
 	DDX_Text(pDX, IDC_EDIT_DESCRIPTION, m_sDescription);
 	DDX_Control(pDX, IDC_COMBO_GENDER, m_comboGender);
@@ -78,6 +80,7 @@ void CDlgMemberInfo::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WORK_PHONE, m_editWorkPhone);
 	DDX_Control(pDX, IDC_EDIT_EMAIL, m_editEmail);
 	DDX_Control(pDX, IDC_EDIT_FAX, m_editFax);
+	DDX_Control(pDX, IDC_EDIT_DISPLAY_INDEX2, m_editDisplayIndex);
 	DDX_Control(pDX, IDC_EDIT_ADDRESS, m_editAddress);
 	DDX_Control(pDX, IDC_EDIT_DESCRIPTION, m_editDescription);
 }
@@ -203,6 +206,7 @@ BOOL CDlgMemberInfo::OnInitDialog()
 	m_editWorkPhone.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editEmail.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editFax.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
+	m_editDisplayIndex.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editAddress.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 	m_editDescription.SetRectangleColor(theApp.GetHotColor(),theDefaultFlatLineColor);
 
@@ -229,7 +233,8 @@ BOOL CDlgMemberInfo::OnInitDialog()
 #endif
 		if (m_sMemberCode==sDefaultMemberCode)
 		{
-			m_btnDefaultEmp.SetWindowText(_T("取消默认名片"));
+			m_btnDefaultEmp.SetWindowText(_T("当前默认名片"));
+			//m_btnDefaultEmp.SetWindowText(_T("取消默认名片"));
 		}
 	}
 
@@ -253,9 +258,11 @@ BOOL CDlgMemberInfo::OnInitDialog()
 	m_editMemberAccount.SetPromptText(_T("**登录帐号**"));
 	m_editUserName.SetPromptText(_T("**用户名称**"));
 	this->GetDlgItem(IDC_EDIT_DEPNAME)->EnableWindow(FALSE);
+	//m_editGroupName.SetReadOnly(TRUE);
 	if (!m_sMemberAccount.IsEmpty())
 	{
 		m_bNewEemployee = false;
+		//m_editMemberAccount.SetReadOnly(TRUE);
 		this->GetDlgItem(IDC_EDIT_ACCOUNT)->EnableWindow(FALSE);
 
 #ifdef USES_EBCOM_TEST
@@ -266,6 +273,16 @@ BOOL CDlgMemberInfo::OnInitDialog()
 		if (!theEBAppClient.EB_CanEditMyBaseMemberInfo(m_sGroupCode))
 #endif
 		{
+			//m_editUserName.SetReadOnly(TRUE);
+			//m_editCellPhone.SetReadOnly(TRUE);
+			//m_editEmail.SetReadOnly(TRUE);
+			//m_editJobTitle.SetReadOnly(TRUE);
+			//m_editJobPosition.SetReadOnly(TRUE);
+			//m_editWorkPhone.SetReadOnly(TRUE);
+			//m_editFax.SetReadOnly(TRUE);
+			//m_editDisplayIndex.SetReadOnly(TRUE);
+			//m_editAddress.SetReadOnly(TRUE);
+
 			this->GetDlgItem(IDC_EDIT_USERNAME)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_COMBO_GENDER)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_COMBO_BIR_YEAR)->EnableWindow(FALSE);
@@ -277,7 +294,12 @@ BOOL CDlgMemberInfo::OnInitDialog()
 			this->GetDlgItem(IDC_EDIT_JOB_POSITION)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_EDIT_WORK_PHONE)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_EDIT_FAX)->EnableWindow(FALSE);
+			this->GetDlgItem(IDC_EDIT_DISPLAY_INDEX2)->EnableWindow(FALSE);
 			this->GetDlgItem(IDC_EDIT_ADDRESS)->EnableWindow(FALSE);
+		}else if (!theEBAppClient.EB_IsGroupAdminLevel(m_sGroupCode))
+		{
+			// 非管理员权限，不能修改显示排序
+			this->GetDlgItem(IDC_EDIT_DISPLAY_INDEX2)->EnableWindow(FALSE);
 		}
 		if (m_sMemberUserId==theApp.GetLogonUserId())	// 自己才能修改
 		{
@@ -416,19 +438,25 @@ BOOL CDlgMemberInfo::OnInitDialog()
 	nX += const_x_interval;
 	this->GetDlgItem(IDC_EDIT_EMAIL)->MoveWindow(nX,nY,const_edit_width1,const_edit_height);
 	nX = const_x2;
+	this->GetDlgItem(IDC_STATIC_DISPLAY_INDEX)->MoveWindow(nX,nY,const_static_width,const_edit_height);
+	nX += const_x_interval;
+	this->GetDlgItem(IDC_EDIT_DISPLAY_INDEX2)->MoveWindow(nX,nY,const_edit_width1,const_edit_height);
+
+	nX = const_x1;
+	nY += const_y_interval;
 	this->GetDlgItem(IDC_STATIC_ADDRESS)->MoveWindow(nX,nY,const_static_width,const_edit_height);
 	nX += const_x_interval;
-	this->GetDlgItem(IDC_EDIT_ADDRESS)->MoveWindow(nX,nY,const_edit_width1,const_edit_height);
+	this->GetDlgItem(IDC_EDIT_ADDRESS)->MoveWindow(nX,nY,const_edit_width2,const_edit_height);
 
 	nX = const_x1;
 	nY += const_y_interval;
 	this->GetDlgItem(IDC_STATIC_DESCRIPTION)->MoveWindow(nX,nY,const_static_width,const_edit_height);
 	nX += const_x_interval;
-	this->GetDlgItem(IDC_EDIT_DESCRIPTION)->MoveWindow(nX,nY,const_edit_width2,53);
+	this->GetDlgItem(IDC_EDIT_DESCRIPTION)->MoveWindow(nX,nY,const_edit_width2,43);	// 53
 
 
 	const int POS_DLG_WIDTH = 612;
-	const int POS_DLG_HEIGHT = 445;
+	const int POS_DLG_HEIGHT = 455;
 	CRect rectClient;
 	this->GetWindowRect(&rectClient);
 	rectClient.right = rectClient.left + POS_DLG_WIDTH;
@@ -528,12 +556,20 @@ void CDlgMemberInfo::DrawInfo(void)
 	const tstring sHeadResourceFile = m_pMemberInfo.m_sHeadResourceFile;
 	if (!sHeadResourceFile.empty() && PathFileExists(sHeadResourceFile.c_str()))
 	{
-		if (m_nOldFileSize==0)
+		if (m_sOldFileMd5.empty())
+		//if (m_nOldFileSize==0)
 		{
-			m_nOldFileSize = libEbc::GetFileSize(sHeadResourceFile.c_str());
+			mycp::bigint m_nOldFileSize = 0;
+			libEbc::GetFileMd5(sHeadResourceFile.c_str(),m_nOldFileSize,m_sOldFileMd5);
+			//m_nOldFileSize = libEbc::GetFileSize(sHeadResourceFile.c_str());
 		}
-		Gdiplus::Image imageHead((const WCHAR*)A2W_ACP(sHeadResourceFile.c_str()));   
-		graphics.DrawImage(&imageHead, m_rectHead.left, m_rectHead.top, m_rectHead.Width(), m_rectHead.Height());
+		Gdiplus::Image * pImage = libEbc::LoadImageFromFile(sHeadResourceFile.c_str());
+		if (pImage==NULL)
+			pImage = new Gdiplus::Image((const WCHAR*)A2W_ACP(sHeadResourceFile.c_str()));
+		graphics.DrawImage(pImage, m_rectHead.left, m_rectHead.top, m_rectHead.Width(), m_rectHead.Height());
+		delete pImage;
+		//Gdiplus::Image imageHead((const WCHAR*)A2W_ACP(sHeadResourceFile.c_str()));   
+		//graphics.DrawImage(&imageHead, m_rectHead.left, m_rectHead.top, m_rectHead.Width(), m_rectHead.Height());
 	}else
 	{
 		Image * pImage = theApp.m_imageDefaultMember->Clone();;
@@ -619,13 +655,14 @@ void CDlgMemberInfo::OnBnClickedButtonDefaultEmp()
 
 	if (bAlreadyMyDefaultEmp)
 	{
-		// 取消默认名片
-#ifdef USES_EBCOM_TEST
-		theEBClientCore->EB_MyDefaultMemberCode = 0;
-#else
-		theEBAppClient.EB_SetMyDefaultMemberCode(0);
-#endif
-		m_btnDefaultEmp.SetWindowText(_T("设为默认名片"));
+		CDlgMessageBox::EbMessageBox(this,_T(""),_T("当前是默认名片！"),CDlgMessageBox::IMAGE_INFORMATION,5);
+//		// 取消默认名片
+//#ifdef USES_EBCOM_TEST
+//		theEBClientCore->EB_MyDefaultMemberCode = 0;
+//#else
+//		theEBAppClient.EB_SetMyDefaultMemberCode(0);
+//#endif
+//		m_btnDefaultEmp.SetWindowText(_T("设为默认名片"));
 	}else
 	{
 
@@ -634,7 +671,7 @@ void CDlgMemberInfo::OnBnClickedButtonDefaultEmp()
 #else
 		theEBAppClient.EB_SetMyDefaultMemberCode(m_sMemberCode);
 #endif
-		m_btnDefaultEmp.SetWindowText(_T("取消默认名片"));
+		//m_btnDefaultEmp.SetWindowText(_T("取消默认名片"));
 	}
 }
 
@@ -711,14 +748,16 @@ void CDlgMemberInfo::OnTimer(UINT_PTR nIDEvent)
 	{
 		mycp::bigint nHeadResourceId = 0;
 		tstring sHeadResourceFilePath;
-		int nFileSize = 0;
-		theEBAppClient.EB_GetMemberHeadFile(m_pMemberInfo.m_sMemberCode,nHeadResourceId,sHeadResourceFilePath,nFileSize);
+		tstring sHeadResourceFileMd5;
+		//int nFileSize = 0;
+		theEBAppClient.EB_GetMemberHeadFile(m_pMemberInfo.m_sMemberCode,nHeadResourceId,sHeadResourceFilePath,sHeadResourceFileMd5);
 		// ** resourceid会先更新，不能判断resourceid
-		if (!sHeadResourceFilePath.empty() && PathFileExists(sHeadResourceFilePath.c_str()) && (sHeadResourceFilePath!=m_pMemberInfo.m_sHeadResourceFile || nFileSize!=m_nOldFileSize))
+		if (!sHeadResourceFilePath.empty() && PathFileExists(sHeadResourceFilePath.c_str()) && !sHeadResourceFileMd5.empty() && (sHeadResourceFilePath!=m_pMemberInfo.m_sHeadResourceFile || sHeadResourceFileMd5!=m_sOldFileMd5))
 		{
 			m_pMemberInfo.m_sHeadResourceId = nHeadResourceId;
 			m_pMemberInfo.m_sHeadResourceFile = sHeadResourceFilePath;
-			m_nOldFileSize = nFileSize;
+			m_sOldFileMd5 = sHeadResourceFileMd5;
+			//m_nOldFileSize = nFileSize;
 			KillTimer(TIMERID_CHECK_RESOURCEFILE);
 			this->Invalidate();
 		}
@@ -775,7 +814,10 @@ void CDlgMemberInfo::OnSelectedImageInfo(const CEBImageDrawInfo& pSelectedImageI
 		m_pDlgChangeHead->ShowWindow(SW_HIDE);
 		//m_pMemberInfo.m_sHeadResourceId = pSelectedImageInfo.m_sResId;
 		m_pMemberInfo.m_sHeadResourceFile = pSelectedImageInfo.m_sResFile;
-		m_nOldFileSize = libEbc::GetFileSize(m_pMemberInfo.m_sHeadResourceFile.c_str());
+		mycp::bigint m_nOldFileSize = 0;
+		m_sOldFileMd5.clear();
+		libEbc::GetFileMd5(m_pMemberInfo.m_sHeadResourceFile.c_str(),m_nOldFileSize,m_sOldFileMd5);
+		//m_nOldFileSize = libEbc::GetFileSize(m_pMemberInfo.m_sHeadResourceFile.c_str());
 		this->Invalidate();
 	}
 }

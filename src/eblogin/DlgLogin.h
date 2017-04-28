@@ -2,6 +2,7 @@
 #include "afxwin.h"
 #include "Tools/TraButton.h"
 #include "Tools/VividTree.h"
+#define USES_OAUTHKEY_LOGIN
 
 class CLoginInfo
 {
@@ -91,6 +92,7 @@ protected:
 	EB_USER_LINE_STATE m_nOutLineState;
 	CLabelEx m_labelError;
 
+	CRect m_rectHead;
 	void DrawInfo(const CString & sAdText);
 	int GetExistAppCount(void) const;
 	bool DownloadHttpFile(const CString & strUrl,const CString& strFile,const CString& strOldLastModified,CString& pOutNewLastModified) const;
@@ -127,6 +129,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	CString m_sUserAccount;
 	CString m_sUserPassword;
+#ifdef USES_OAUTHKEY_LOGIN
+	CString m_sOAuthKey;
+#endif
 	afx_msg void OnBnClickedButtonVisitor();
 	afx_msg void OnBnClickedButtonSetting();
 	afx_msg void OnDestroy();
@@ -156,5 +161,8 @@ public:
 	afx_msg void OnNMKillfocusTreeUsers(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMClickTreeUsers(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeEditUsers();
+	//afx_msg void OnEnChangeEditPassword();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 };

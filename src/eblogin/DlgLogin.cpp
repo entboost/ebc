@@ -1,3 +1,6 @@
+#ifdef WIN32
+#pragma warning(disable:4819 4267)
+#endif
 // DlgLogin.cpp : implementation file
 //
 
@@ -19,7 +22,9 @@
 #define POS_ADIMG_SIGE 120
 #define TIMERID_REFRESH_WIN 1100
 #define TIMERID_DELETE_ITEM 1101
-
+#ifdef USES_OAUTHKEY_LOGIN
+#define TIMERID_GET_LOCALHOST_OAUTHKEY 1102
+#endif
 // CDlgLogin dialog
 
 IMPLEMENT_DYNAMIC(CDlgLogin, CEbDialogBase)
@@ -114,7 +119,10 @@ BEGIN_MESSAGE_MAP(CDlgLogin, CEbDialogBase)
 	ON_MESSAGE(WM_ITEM_TRACK_HOT, OnTreeItemTrackHot)
 
 	ON_EN_CHANGE(IDC_EDIT_USERS, &CDlgLogin::OnEnChangeEditUsers)
+	//ON_EN_CHANGE(IDC_EDIT_PASSWORD, &CDlgLogin::OnEnChangeEditPassword)
 	ON_WM_TIMER()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CDlgLogin message handlers
@@ -182,7 +190,28 @@ void CDlgLogin::OnBnClickedButtonLogin()
 #ifdef USES_EBCOM_TEST
 	const int ret = theEBClientCore->EB_LogonByAccount((LPCTSTR)m_sUserAccount,(LPCTSTR)m_sUserPassword,m_sReqCode.c_str(),m_nOutLineState);
 #else
-	const int ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,m_sUserPassword,m_sReqCode.c_str(),m_nOutLineState);
+#ifdef USES_OAUTHKEY_LOGIN
+	int ret = 0;
+	if (theApp.m_nEBServerVersion==0 && m_sUserPassword != _T("********"))	// ** ¼æÈÝ¾É°æ±¾£¬("********"))ÊÇÐÂ°æ±¾×Ô¶¯µÇÂ¼
+	//if (theApp.m_nEBServerVersion==0)	// ** ¼æÈÝ¾É°æ±¾
+	{
+		ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,m_sUserPassword,m_sReqCode.c_str(),"",m_nOutLineState);
+	}else
+	{
+		mycp::tstring sLocalHostOAuthKey;
+		if (m_labelSavePwd.GetCheck())
+			GetLocalHostOAuthKey(sLocalHostOAuthKey);
+		if (!m_sOAuthKey.IsEmpty() && m_sOAuthKey==sLocalHostOAuthKey.c_str())
+		{
+			ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,"",m_sReqCode.c_str(),sLocalHostOAuthKey.c_str(),m_nOutLineState);
+		}else
+		{
+			ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,m_sUserPassword,m_sReqCode.c_str(),sLocalHostOAuthKey.c_str(),m_nOutLineState);
+		}
+	}
+#else // USES_OAUTHKEY_LOGIN
+	const int ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,m_sUserPassword,m_sReqCode.c_str(),"",m_nOutLineState);
+#endif // USES_OAUTHKEY_LOGIN
 #endif
 	if (ret<0)
 	{
@@ -423,6 +452,9 @@ BOOL CDlgLogin::OnInitDialog()
 	//m_editPassword.SetPromptText(_T("ÇëÊäÈëÕÊºÅÃÜÂë"));	// ***ÉèÖÃÒ²Ã»ÓÃ
 	m_labelSavePwd.SetTextTop(-1);
 	m_labelSavePwd.LoadLabel(IDB_PNG_CHECKBOX,-1,0,2);
+//#ifdef USES_OAUTHKEY_LOGIN
+//	m_labelSavePwd.SetWindowText(_T("×Ô¶¯µÇÂ¼"));
+//#endif
 	m_labelAutoLogin.SetTextTop(-1);
 	m_labelAutoLogin.LoadLabel(IDB_PNG_CHECKBOX,-1,0,2);
 
@@ -499,7 +531,25 @@ BOOL CDlgLogin::OnInitDialog()
 				{
 					m_treeUsers.Select(hItem,TVGN_CARET);
 					m_sUserAccount = pLoginInfo->m_sAccount;
+#ifdef USES_OAUTHKEY_LOGIN
+					//if (theApp.m_nEBServerVersion==0)	// ** ¼æÈÝ¾É°æ±¾
+					//{
+					//	m_sUserPassword = pLoginInfo->m_sPassword;
+					//}
+					//else 
+					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+					{
+						m_sOAuthKey = pLoginInfo->m_sPassword;
+						m_sUserPassword = _T("********");
+					}
+					else
+					{
+						m_sUserPassword = pLoginInfo->m_sPassword;
+						m_sOAuthKey = _T("");
+					}
+#else
 					m_sUserPassword = pLoginInfo->m_sPassword;
+#endif
 					UpdateData(FALSE);
 					m_labelSavePwd.SetCheck(pLoginInfo->m_bSafePwd?TRUE:FALSE);
 					m_labelSavePwd.Invalidate();
@@ -546,7 +596,25 @@ BOOL CDlgLogin::OnInitDialog()
 				if (pLoginInfo.get()!=0 && !pLoginInfo->m_sAccount.IsEmpty() && !pLoginInfo->m_sPassword.IsEmpty())
 				{
 					m_sUserAccount = pLoginInfo->m_sAccount;
+#ifdef USES_OAUTHKEY_LOGIN
+					//if (theApp.m_nEBServerVersion==0)	// ** ¼æÈÝ¾É°æ±¾
+					//{
+					//	m_sUserPassword = pLoginInfo->m_sPassword;
+					//}
+					//else 
+					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+					{
+						m_sOAuthKey = pLoginInfo->m_sPassword;
+						m_sUserPassword = _T("********");
+					}
+					else
+					{
+						m_sUserPassword = pLoginInfo->m_sPassword;
+						m_sOAuthKey = _T("");
+					}
+#else
 					m_sUserPassword = pLoginInfo->m_sPassword;
+#endif
 					UpdateData(FALSE);
 					m_labelSavePwd.SetCheck(pLoginInfo->m_bSafePwd?TRUE:FALSE);
 					m_labelSavePwd.Invalidate();
@@ -575,15 +643,22 @@ BOOL CDlgLogin::OnInitDialog()
 			}
 		}
 	}
+#ifdef USES_OAUTHKEY_LOGIN
+	if (!m_bAutoLogSuccess)
+		SetTimer(TIMERID_GET_LOCALHOST_OAUTHKEY,1,NULL);
+#endif
 
 	const int POS_DLG_LOGIN_WIDTH = 288;	//274;
 	const int POS_DLG_LOGIN_HEIGHT = 568;	// 588
+	const int constEntImagleft = (POS_DLG_LOGIN_WIDTH-POS_ADIMG_SIGE)/2;
+	m_rectHead = CRect(constEntImagleft, POS_ADIMG_TOP, constEntImagleft+POS_ADIMG_SIGE, POS_ADIMG_TOP+POS_ADIMG_SIGE);
 	CRect rectClient;
 	this->GetWindowRect(&rectClient);
 	rectClient.right = rectClient.left + POS_DLG_LOGIN_WIDTH;
 	rectClient.bottom = rectClient.top + POS_DLG_LOGIN_HEIGHT;
 	this->MoveWindow(&rectClient);
 	SetCircle();
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -675,11 +750,29 @@ LRESULT CDlgLogin::OnMessageLogonSuccess(WPARAM wParam, LPARAM lParam)
 			sSql.Format(_T("delete from user_login_record_t where account='%s' OR user_id=%lld"), pAccountInfo->GetAccount().c_str(), pAccountInfo->GetUserId());
 			int ret = theApp.m_pBoEB->execsql(sSql);
 			if (m_labelSavePwd.GetCheck())
+			{
+#ifdef USES_OAUTHKEY_LOGIN
+				if (theApp.m_nEBServerVersion==0)	// ** ¼æÈÝ¾É°æ±¾
+				{
+					sSql.Format(_T("insert into user_login_record_t(account,password,safepwd,linestate,user_id,phone) VALUES('%s','%s',true,%d,%lld,%lld)"),
+						m_sUserAccount,m_sUserPassword,m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
+				}
+				else
+				{
+					mycp::tstring sLocalHostOAuthKey;
+					GetLocalHostOAuthKey(sLocalHostOAuthKey);
+					sSql.Format(_T("insert into user_login_record_t(account,password,safepwd,linestate,user_id,phone) VALUES('%s','%s',true,%d,%lld,%lld)"),
+						m_sUserAccount,sLocalHostOAuthKey.c_str(),m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
+				}
+#else
 				sSql.Format(_T("insert into user_login_record_t(account,password,safepwd,linestate,user_id,phone) VALUES('%s','%s',true,%d,%lld,%lld)"),
-				m_sUserAccount,m_sUserPassword,m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
-			else
+					m_sUserAccount,m_sUserPassword,m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
+#endif
+			}else
+			{
 				sSql.Format(_T("insert into user_login_record_t(account,password,linestate,user_id,phone) VALUES('%s','',%d,%lld,%lld)"),
-				m_sUserAccount,m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
+					m_sUserAccount,m_nOutLineState,pAccountInfo->GetUserId(),pAccountInfo->GetPhone());
+			}
 			ret = theApp.m_pBoEB->execsql(sSql);
 			theApp.m_pBoEB->close();
 		}
@@ -1209,6 +1302,17 @@ LRESULT CDlgLogin::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long pForgetPwdUrl = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_FORGET_PWD_URL,&pForgetPwdUrl);
 	m_btnForgetPwd.ShowWindow(pForgetPwdUrl==NULL?SW_HIDE:SW_SHOW);
+	unsigned long nEBServerVersion = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_EB_SERVER_VERSION,&nEBServerVersion);
+	theApp.m_nEBServerVersion = nEBServerVersion;
+	unsigned long pDefaultUrl = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,&pDefaultUrl);
+	if (pDefaultUrl != NULL && strlen((const char*)pDefaultUrl)>0)
+	{
+		theApp.m_sDefaultUrl = (const char*)pDefaultUrl;
+		theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,pDefaultUrl);
+	}
+
 	CRect rect;
 	this->GetClientRect(&rect);
 	MoveSize(rect.Width(),rect.Height());
@@ -1698,10 +1802,11 @@ void CDlgLogin::DrawInfo(const CString & sAdText)
 
 	// AD LOGO
 	const Gdiplus::Font fontAdText(&fontFamily, 16, FontStyleRegular, UnitPixel);
-	const int constEntImagleft = (rectClient.Width()-POS_ADIMG_SIGE)/2;
-	graphics.DrawImage(theApp.m_imageEntLogo, constEntImagleft, POS_ADIMG_TOP, POS_ADIMG_SIGE, POS_ADIMG_SIGE);
+	//const int constEntImagleft = (rectClient.Width()-POS_ADIMG_SIGE)/2;
+	//graphics.DrawImage(theApp.m_imageEntLogo, constEntImagleft, POS_ADIMG_TOP, POS_ADIMG_SIGE, POS_ADIMG_SIGE);
+	graphics.DrawImage(theApp.m_imageEntLogo, m_rectHead.left, m_rectHead.top, m_rectHead.Width(), m_rectHead.Height());
 	{
-		CRect m_rectHead(constEntImagleft, POS_ADIMG_TOP, constEntImagleft+POS_ADIMG_SIGE, POS_ADIMG_TOP+POS_ADIMG_SIGE);
+		//CRect m_rectHead(constEntImagleft, POS_ADIMG_TOP, constEntImagleft+POS_ADIMG_SIGE, POS_ADIMG_TOP+POS_ADIMG_SIGE);
 		Gdiplus::Color colorBg;
 		colorBg.SetFromCOLORREF(theApp.GetMainColor());
 		Gdiplus::Pen penBg(colorBg);
@@ -2212,6 +2317,14 @@ BOOL CDlgLogin::PreTranslateMessage(MSG* pMsg)
 		{
 			m_editUser.SetFocus();
 		}
+		// 
+#ifdef USES_OAUTHKEY_LOGIN
+	}else if (pMsg->message == WM_KEYDOWN && pMsg->hwnd == m_editPassword.GetSafeHwnd())
+	{
+		// ÊÖ¹¤ÊäÈëÃÜÂë£¬Çå¿Õ m_sOAuthKey
+		if (!m_sOAuthKey.IsEmpty())
+			m_sOAuthKey = _T("");
+#endif
 	}else if (pMsg->message == WM_KEYDOWN && pMsg->hwnd == m_editUser.GetSafeHwnd())
 	{
 		if (pMsg->wParam == VK_ESCAPE)
@@ -2395,7 +2508,25 @@ void CDlgLogin::SelectItem(HTREEITEM hItem, bool bHideUserCtrl)
 			}
 			m_bCanSearch = false;
 			m_editUser.SetWindowText(pLoginInfo->m_sAccount);
+#ifdef USES_OAUTHKEY_LOGIN
+			//if (theApp.m_nEBServerVersion==0)	// ** ¼æÈÝ¾É°æ±¾
+			//{
+			//	m_editPassword.SetWindowText(pLoginInfo->m_sPassword);
+			//}
+			//else 
+			if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+			{
+				m_sOAuthKey = pLoginInfo->m_sPassword;
+				m_editPassword.SetWindowText(_T("********"));
+			}
+			else
+			{
+				m_editPassword.SetWindowText(pLoginInfo->m_sPassword);
+				m_sOAuthKey = _T("");
+			}
+#else
 			m_editPassword.SetWindowText(pLoginInfo->m_sPassword);
+#endif
 			m_labelSavePwd.SetCheck(pLoginInfo->m_bSafePwd?TRUE:FALSE);
 			m_labelSavePwd.Invalidate();
 			m_editUser.SetSel(nSel,-1);
@@ -2470,7 +2601,7 @@ void CDlgLogin::OnEnChangeEditUsers()
 		CLockMap<CString, CLoginInfo::pointer>::iterator pIter = m_pLoginInfoList.begin();
 		for (; pIter!=m_pLoginInfoList.end(); pIter++)
 		{
-			CLoginInfo::pointer pLoginInfo = pIter->second;
+			const CLoginInfo::pointer& pLoginInfo = pIter->second;
 			if (pLoginInfo->m_sAccount.Find(sAccount)==0)
 			{
 				bFindAccount = true;
@@ -2489,8 +2620,8 @@ void CDlgLogin::OnEnChangeEditUsers()
 		m_labelSavePwd.Invalidate();
 		theApp.InvalidateParentRect(&m_labelSavePwd);
 	}
-
 }
+//void CDlgLogin::OnEnChangeEditPassword()
 
 void CDlgLogin::OnTimer(UINT_PTR nIDEvent)
 {
@@ -2503,7 +2634,51 @@ void CDlgLogin::OnTimer(UINT_PTR nIDEvent)
 		KillTimer(nIDEvent);
 		theApp.InvalidateParentRect(&m_labelSavePwd);
 		theApp.InvalidateParentRect(&m_labelAutoLogin);
+#ifdef USES_OAUTHKEY_LOGIN
+	}else if (TIMERID_GET_LOCALHOST_OAUTHKEY==nIDEvent)
+	{
+		KillTimer(nIDEvent);
+		mycp::tstring sLocalHostOAuthKey;
+		GetLocalHostOAuthKey(sLocalHostOAuthKey);
+#endif
 	}
 
 	CEbDialogBase::OnTimer(nIDEvent);
+}
+
+void CDlgLogin::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if (!theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.IsEmpty() || m_sProductName.Find(_T("¶÷²¼"))>=0)
+	{
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (m_rectHead.PtInRect(pos))
+		{
+			::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
+			return;
+		}
+	}
+
+	CEbDialogBase::OnMouseMove(nFlags, point);
+}
+
+void CDlgLogin::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	if (theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.IsEmpty() || m_sProductName.Find(_T("¶÷²¼"))>=0)
+	{
+		CPoint pos;
+		GetCursorPos(&pos);
+		ScreenToClient(&pos);
+		if (m_rectHead.PtInRect(pos))
+		{
+			if (theApp.m_sDefaultUrl.empty())
+				ShellExecute(NULL, "open", "http://www.entboost.com", NULL, NULL,SW_SHOW);
+			else
+				ShellExecute(NULL, "open", theApp.m_sDefaultUrl.c_str(), NULL, NULL,SW_SHOW);
+			return;
+		}
+	}
+
+	CEbDialogBase::OnLButtonDown(nFlags, point);
 }

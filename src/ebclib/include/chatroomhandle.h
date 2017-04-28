@@ -499,7 +499,7 @@ typedef enum CR_WINDOW_MESSAGE
 	, CR_WM_P2P_REQUEST						= WM_USER+0x1141
 	, CR_WM_P2P_RESPONSE
 	, CR_WM_P2P_OK
-};
+}CR_WINDOW_MESSAGE;
 
 // If MFC error use CR_WINDOW_MESSAGE.
 class CChatRoomCallBack

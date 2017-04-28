@@ -124,10 +124,10 @@ void CEBFuncButton::ShowWindow(bool bShow)
 	}
 }
 
-void CEBFuncButton::AddUnreadMsg(void)
+void CEBFuncButton::AddUnreadMsg(bool bShowForce)
 {
 	m_nUnreadMsgCount++;
-	if (m_nUnreadMsgCount==10)
+	if (m_nUnreadMsgCount>=10)
 		m_msg.SetTextLeft(0);
 	if (m_msg.GetSafeHwnd()!=NULL)
 	{
@@ -140,11 +140,12 @@ void CEBFuncButton::AddUnreadMsg(void)
 		//	m_rectMsg.right = m_rectMsg.left+DEFAULT_MSG_WIDTH2;
 		//	m_msg.MoveWindow(&m_rectMsg);
 		//}
-		m_msg.ShowWindow(SW_SHOW);
+		if (bShowForce)
+			m_msg.ShowWindow(SW_SHOW);
 	}
 }
 
-void CEBFuncButton::SetUnreadMsg(size_t nUnreadMsgCount)
+void CEBFuncButton::SetUnreadMsg(size_t nUnreadMsgCount, bool bShowForce)
 {
 	if (m_nUnreadMsgCount==nUnreadMsgCount) return;
 	if (nUnreadMsgCount<=0)
@@ -169,7 +170,8 @@ void CEBFuncButton::SetUnreadMsg(size_t nUnreadMsgCount)
 			//	m_rectMsg.right = m_rectMsg.left+DEFAULT_MSG_WIDTH2;
 			//	m_msg.MoveWindow(&m_rectMsg);
 			//}
-			m_msg.ShowWindow(SW_SHOW);
+			if (bShowForce)
+				m_msg.ShowWindow(SW_SHOW);
 		}
 	}
 }

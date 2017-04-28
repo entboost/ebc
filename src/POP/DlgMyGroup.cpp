@@ -53,7 +53,14 @@ BEGIN_MESSAGE_MAP(CDlgMyGroup, CDialog)
 	ON_COMMAND(EB_COMMAND_DEPARTMENT_EDIT_EMP, &CDlgMyGroup::OnDepartmentEditEmp)
 	ON_COMMAND(EB_COMMAND_MEMBER_DEL_ADMIN, &CDlgMyGroup::OnMemberDelAdminLevel)
 	ON_COMMAND(EB_COMMAND_MEMBER_ADD_ADMIN, &CDlgMyGroup::OnMemberAddAdminLevel)
-	
+	ON_COMMAND(EB_COMMAND_MEMBER_DEL_GROUP_FORBID_SPEECH, &CDlgMyGroup::OnMemberDelGroupForbidSpeech)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_GROUP_FORBID_SPEECH, &CDlgMyGroup::OnMemberAddGroupForbidSpeech)
+	ON_COMMAND(EB_COMMAND_MEMBER_DEL_FORBID_SPEECH, &CDlgMyGroup::OnMemberDelForbidSpeech)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_10, &CDlgMyGroup::OnMemberAddForbidSpeech_10)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_60, &CDlgMyGroup::OnMemberAddForbidSpeech_60)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_720, &CDlgMyGroup::OnMemberAddForbidSpeech_720)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_1440, &CDlgMyGroup::OnMemberAddForbidSpeech_1440)
+	ON_COMMAND(EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_0, &CDlgMyGroup::OnMemberAddForbidSpeech_0)
 	ON_WM_TIMER()
 	ON_COMMAND(EB_COMMAND_EDIT_DEPARTMENT, &CDlgMyGroup::OnDepartmentEdit)
 	ON_WM_DESTROY()
@@ -88,8 +95,9 @@ BOOL CDlgMyGroup::OnInitDialog()
 	m_btnEditEmpTrack.Load(IDB_PNG_HOT_EDIT);
 	m_btnEditEmpTrack.SetToolTipText(_T("修改我的名片"));
 
-	//m_treeDepartment.SetBkMode(VividTree::BK_MODE_GRADIENT);
-	//m_treeDepartment.SetBkGradients(theDefaultBtnWhiteColor,theDefaultBtnWhiteColor);
+	//m_treeDepartment.SetBkMode(VividTree::BK_MODE_FILL);
+	m_treeDepartment.SetBkMode(VividTree::BK_MODE_GRADIENT);
+	m_treeDepartment.SetBkGradients(theDefaultFlatBgColor,theDefaultFlatBgColor);
 	m_treeDepartment.SetCallback(&theApp);
 	m_treeDepartment.ModifyStyle(0, TVS_SINGLEEXPAND);
 	//m_treeDepartment.SetTreeOpenClosedBmp(IDB_TREE_OPENED, IDB_TREE_CLOSED);
@@ -234,6 +242,11 @@ void CDlgMyGroup::SetMemberInfo(HTREEITEM hGroupItem, const EB_MemberInfo* pMemb
 		pEmpItemInfo->m_nUserId = pMemberInfo->m_nMemberUserId;
 		pEmpItemInfo->m_sName = pMemberInfo->m_sUserName;
 		pEmpItemInfo->m_dwItemData = pMemberInfo->m_nLineState;
+		pEmpItemInfo->m_nIndex = pMemberInfo->m_nDisplayIndex;
+		if ((pMemberInfo->m_nManagerLevel&EB_LEVEL_FORBID_SPEECH)==0)
+			pEmpItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
+		else
+			pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
 
 		if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
 			pEmpItemInfo->m_nSubType = 11;
@@ -395,9 +408,7 @@ void CDlgMyGroup::MyDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 		pDepItemInfo->m_sEnterpriseCode = pGroupInfo->m_sEnterpriseCode;
 		pDepItemInfo->m_sGroupCode = pGroupInfo->m_sGroupCode;
 		pDepItemInfo->m_nSubType = pGroupInfo->m_nGroupType;
-		pDepItemInfo->m_sName = pGroupInfo->m_sGroupName;
 		pDepItemInfo->m_dwItemData = 0;
-		pDepItemInfo->m_nBigId = pGroupInfo->m_nMyEmpId;
 		m_pDepItemInfo.insert(pGroupInfo->m_sGroupCode,pDepItemInfo);
 		m_treeDepartment.SetItemData(hGroupItem, (DWORD)pDepItemInfo.get());
 		//if (m_treeDepartment.GetTrackItem()==NULL)
@@ -408,6 +419,9 @@ void CDlgMyGroup::MyDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 	{
 		m_treeDepartment.SetItemText(pDepItemInfo->m_hItem, sText);
 	}
+	pDepItemInfo->m_nBigId = pGroupInfo->m_nMyEmpId;
+	pDepItemInfo->m_sName = pGroupInfo->m_sGroupName;
+	pDepItemInfo->m_nIndex = pGroupInfo->m_nDisplayIndex;
 	// **需要加载，否则会导致成员显示不完整；
 	for (size_t i=0;i<pOutMemberInfoList.size(); i++)
 	{
@@ -669,7 +683,7 @@ CTreeItemInfo::pointer CDlgMyGroup::GetDepItemInfo(HTREEITEM hItem) const
 	CLockMap<eb::bigint, CTreeItemInfo::pointer>::const_iterator pIter = m_pDepItemInfo.begin();
 	for (; pIter!=m_pDepItemInfo.end(); pIter++)
 	{
-		CTreeItemInfo::pointer pTreeItemInfo = pIter->second;
+		const CTreeItemInfo::pointer& pTreeItemInfo = pIter->second;
 		if (pTreeItemInfo->m_hItem == hItem)
 			return pTreeItemInfo;
 	}
@@ -812,6 +826,7 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 	// ?? 群组云盘功能
 	EB_FUNC_LOCATION nFuncLocation = EB_FUNC_LOCATION_UNKNOWN;
 	theApp.ClearSubscribeSelectInfo();
+	CNewMenu pPopupMenuForbidSpeech;
 	CNewMenu m_menu2;
 	m_menu2.CreatePopupMenu();
 	m_menu2.SetBitmapBackground(RGB(192,192,192));
@@ -858,7 +873,7 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 		{
 			m_menu2.AppendMenu(MF_SEPARATOR);
 			if (theEBAppClient.EB_IsGroupAdminLevel(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId))
-				m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_DEL_ADMIN,_T("撤销管理员"));
+				m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_DEL_ADMIN,_T("取消管理员资格"));
 			else
 				m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_ADMIN,_T("加为管理员"));
 		}
@@ -877,6 +892,21 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 			//m_menu2.InsertODMenu(-1,_T("修改成员名片"),MF_BYPOSITION,EB_COMMAND_DEPARTMENT_EDIT_EMP,IDB_BITMAP_MENU_EDIT);
 			m_menu2.AppendODMenu(_T("移除成员(&D)"),MF_BYPOSITION,EB_COMMAND_DEPARTMENT_DEL_EMP,&theApp.m_pMenuImageList,MENU_TOOLBAR_ICON_OFFSET_DELETE);
 			//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_DEPARTMENT_DEL_EMP,_T("移除成员"));
+
+			int nForbidMinutes = 0;
+			if (theEBAppClient.EB_IsMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId,nForbidMinutes))
+			{
+				m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_DEL_FORBID_SPEECH,_T("解除禁言"));
+			}else
+			{
+				pPopupMenuForbidSpeech.CreatePopupMenu();
+				pPopupMenuForbidSpeech.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_10,_T("10分钟"));
+				pPopupMenuForbidSpeech.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_60,_T("1小时"));
+				pPopupMenuForbidSpeech.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_720,_T("12小时"));
+				pPopupMenuForbidSpeech.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_1440,_T("1天"));
+				pPopupMenuForbidSpeech.AppendMenu(MF_BYCOMMAND,EB_COMMAND_MEMBER_ADD_FORBID_SPEECH_0,_T("永久"));
+				m_menu2.InsertODMenu(-1,_T("禁言"),MF_POPUP|MF_BYPOSITION,(UINT)pPopupMenuForbidSpeech.m_hMenu,IDB_BITMAP_FORBID_SPEECH);
+			}
 		}else
 		{
 			// 我不是群管理员，普通成员
@@ -935,11 +965,17 @@ void CDlgMyGroup::OnNMRClickTreeDepartment(NMHDR *pNMHDR, LRESULT *pResult)
 		{
 			m_menu2.InsertODMenu(-1,_T("聊天记录"),MF_BYPOSITION,EB_MSG_VIEW_MSG_RECORD,IDB_BITMAP_MENU_MSG);
 		}
-		m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
+		if (!theApp.GetDisableGroupSharedCloud())
+			m_menu2.InsertODMenu(-1,_T("群共享(&S)"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
 		bool bNeedSeparator = true;
 		if (theEBAppClient.EB_IsGroupAdminLevel(pTreeItemInfo->m_sGroupCode))
 		{
 			m_menu2.AppendMenu(MF_SEPARATOR);
+			if (theEBAppClient.EB_IsGroupForbidSpeech(pTreeItemInfo->m_sGroupCode))
+				m_menu2.InsertODMenu(-1,_T("解除群禁言"),MF_BYPOSITION,EB_COMMAND_MEMBER_DEL_GROUP_FORBID_SPEECH,IDB_BITMAP_FORBID_SPEECH);
+			else
+				m_menu2.InsertODMenu(-1,_T("群禁言"),MF_BYPOSITION,EB_COMMAND_MEMBER_ADD_GROUP_FORBID_SPEECH,IDB_BITMAP_FORBID_SPEECH);
+			//m_menu2.AppendMenu(MF_SEPARATOR);
 			bNeedSeparator = false;
 			// 我是群管理员
 			sText.Format(_T("修改%s资料"),GetGroupTypeText((EB_GROUP_TYPE)nGroupType));
@@ -1244,12 +1280,6 @@ void CDlgMyGroup::OnSubscribeFunc(UINT nID)
 //	}
 //	return 0;
 //}
-//bool CDlgMyGroup::GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const
-//{
-//	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hItem);
-//	if (pTreeItemInfo != NULL && pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP) return true;
-//	return false;
-//}
 
 LRESULT CDlgMyGroup::OnTreeItemSelChanged(WPARAM wp, LPARAM lp)
 {
@@ -1275,12 +1305,12 @@ LRESULT CDlgMyGroup::OnTreeItemDblclk(WPARAM wp, LPARAM lp)
 	const HTREEITEM hDblClkItem = (HTREEITEM)wp;
 	if (hDblClkItem==NULL) return 0;
 	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hDblClkItem);
-	if (pTreeItemInfo != NULL && pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_MEMBER && pTreeItemInfo->m_nUserId==theApp.GetLogonUserId())
+	if (pTreeItemInfo != NULL && pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_MEMBER)
 	{
-		OnDepartmentEditEmp();
-	}else
-	{
-		this->CallItem(hDblClkItem);
+		if (pTreeItemInfo->m_nUserId==theApp.GetLogonUserId())
+			OnDepartmentEditEmp();
+		else
+			this->CallItem(hDblClkItem);
 	}
 	return 0;
 }
@@ -1480,6 +1510,7 @@ void CDlgMyGroup::OnDepartment3New()
 		pPopDepartment.m_sDescription = (LPCTSTR)pDlgGroupInfo.m_sDescription;
 		pPopDepartment.m_nCreateUserId = theApp.GetLogonUserId();
 		pPopDepartment.m_nManagerUserId = pDlgGroupInfo.m_nManagerUserId;
+		pPopDepartment.m_nDisplayIndex = pDlgGroupInfo.m_nDisplayIndex;
 #ifdef USES_EBCOM_TEST
 		CIEB_GroupInfo* pEBGroupInfo = new CIEB_GroupInfo(pPopDepartment);
 		CComPtr<IEB_GroupInfo> pInterface;
@@ -1724,6 +1755,85 @@ void CDlgMyGroup::OnMemberAddAdminLevel()
 	if (pTreeItemInfo == NULL || pTreeItemInfo->m_nItemType != CTreeItemInfo::ITEM_TYPE_MEMBER) return;
 	theEBAppClient.EB_AddGroupAdminLevel(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId);
 }
+void CDlgMyGroup::OnMemberDelGroupForbidSpeech()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL) return;
+	if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_GROUP)
+	{
+		// 解除群禁言
+		theEBAppClient.EB_SetGroupForbidSpeech(pTreeItemInfo->m_sGroupCode,false);
+	}
+}
+void CDlgMyGroup::OnMemberAddGroupForbidSpeech()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL) return;
+	if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_GROUP)
+	{
+		// 群组禁言
+		theEBAppClient.EB_SetGroupForbidSpeech(pTreeItemInfo->m_sGroupCode,true);
+	}
+}
+void CDlgMyGroup::OnMemberDelForbidSpeech()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL) return;
+	if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_MEMBER)
+	{
+		theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, false);
+	}
+}
+void CDlgMyGroup::OnMemberAddForbidSpeech_10()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL || pTreeItemInfo->m_nItemType != CTreeItemInfo::ITEM_TYPE_MEMBER) return;
+	theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, true, 10);
+}
+void CDlgMyGroup::OnMemberAddForbidSpeech_60()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL || pTreeItemInfo->m_nItemType != CTreeItemInfo::ITEM_TYPE_MEMBER) return;
+	theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, true, 60);
+}
+void CDlgMyGroup::OnMemberAddForbidSpeech_720()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL || pTreeItemInfo->m_nItemType != CTreeItemInfo::ITEM_TYPE_MEMBER) return;
+	theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, true, 720);
+}
+void CDlgMyGroup::OnMemberAddForbidSpeech_1440()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL || pTreeItemInfo->m_nItemType != CTreeItemInfo::ITEM_TYPE_MEMBER) return;
+	theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, true, 1440);
+}
+void CDlgMyGroup::OnMemberAddForbidSpeech_0()
+{
+	const HTREEITEM hSelItem = m_treeDepartment.GetSelectedItem();
+	if (hSelItem==NULL) return;
+	const CTreeItemInfo * pTreeItemInfo = (const CTreeItemInfo*)m_treeDepartment.GetItemData(hSelItem);
+	if (pTreeItemInfo == NULL) return;
+	if (pTreeItemInfo->m_nItemType == CTreeItemInfo::ITEM_TYPE_MEMBER)
+	{
+		theEBAppClient.EB_SetMemberForbidSpeech(pTreeItemInfo->m_sGroupCode,pTreeItemInfo->m_nUserId, true, 0);	// 永久禁言
+	}
+}
+
 
 void CDlgMyGroup::OnTimer(UINT_PTR nIDEvent)
 {

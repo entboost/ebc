@@ -1,3 +1,6 @@
+#ifdef WIN32
+#pragma warning(disable:4819 4267)
+#endif
 
 // eblogin.cpp : Defines the class behaviors for the application.
 //
@@ -65,6 +68,7 @@ CebloginApp::CebloginApp()
 	m_nFlatBgColor = RGB(250,250,250);
 	m_bColorFlat = true;
 	m_bColorGradient = false;
+	m_nEBServerVersion = 0;
 	m_nOpenRegister = 0;
 	m_bOpenVisitor = false;
 	m_bLicenseUser = false;

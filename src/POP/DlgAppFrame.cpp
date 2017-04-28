@@ -531,6 +531,7 @@ BEGIN_MESSAGE_MAP(CDlgAppFrame, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_UP, OnMessageMoveUp)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MOVE_DOWN, OnMessageMoveDown)
+	ON_MESSAGE(EB_COMMAND_CHANGE_APP_URL, OnMsgChangeAppUrl)
 	ON_WM_TIMER()
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_RBUTTONUP()
@@ -567,12 +568,12 @@ void CDlgAppFrame::SetCtrlColor(void)
 #else
 	m_btnSwitchFrame.SetDrawPanel(true,theApp.GetMainColor());
 #endif
-	m_btnSwitchToolbar.SetDrawPanel(true,theApp.GetMainColor());
+	//m_btnSwitchToolbar.SetDrawPanel(true,theApp.GetMainColor());
 	BoostReadLock rdLock(m_pList.mutex());
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		pAppWindowInfo->SetCtrlColor();
 	}
 }
@@ -610,10 +611,14 @@ BOOL CDlgAppFrame::OnInitDialog()
 #else
 	m_btnSwitchFrame.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
 #endif
-	m_btnSwitchToolbar.SetDrawPanelRgn(true);
+	m_btnSwitchToolbar.SetDrawPanelRgn(false);
+	m_btnSwitchToolbar.SetDrawPanel(true,theDefaultFlatBgColor);
 	m_btnSwitchToolbar.SetWindowText(_T(""));
 	m_btnSwitchToolbar.SetToolTipText(_T("隐藏应用导航栏"));
-	m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultFlatLineColor,theDefaultFlatBlackText2Color,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	m_btnSwitchToolbar.SetWindowPos(&wndTopMost,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+	//m_btnSwitchToolbar.ShowWindow(SW_HIDE);
+	//m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
 	m_btnNewWeb.SetDrawPanelRgn(false);
 	m_btnNewWeb.SetWindowText(_T(""));
 	m_btnNewWeb.SetToolTipText(_T("打开新标签页"));
@@ -723,7 +728,7 @@ void CDlgAppFrame::doRefreshOrStop(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pFrameWndInfo->doRefreshOrStop();
@@ -737,7 +742,7 @@ bool CDlgAppFrame::IsLoading(void) const
 	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			return pFrameWndInfo->IsLoading();
@@ -753,7 +758,7 @@ void CDlgAppFrame::goBack(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pFrameWndInfo->goBack();
@@ -768,7 +773,7 @@ void CDlgAppFrame::goForward(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pFrameWndInfo->goForward();
@@ -783,7 +788,7 @@ void CDlgAppFrame::changeBrowserType(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pFrameWndInfo->changeBrowserType();
@@ -797,7 +802,7 @@ EB_BROWSER_TYPE CDlgAppFrame::queryBrowserType(void) const
 	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			return pFrameWndInfo->queryBrowserType();
@@ -811,7 +816,7 @@ bool CDlgAppFrame::canSaveHistory(void) const
 	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			return pFrameWndInfo->canSaveHistory();
@@ -825,7 +830,7 @@ void CDlgAppFrame::saveHistory(void)
 	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pFrameWndInfo->saveHistory();
@@ -895,6 +900,7 @@ void CDlgAppFrame::AddAppUrl(bool bSaveBrowseTitle, const std::string& sAppUrl, 
 		for (; pIter!=m_pList.end(); pIter++)
 		{
 			const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+			//const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetSubscribeId()==nSubscribeId || pFrameWndInfo->GetFromSubscribeId()==nSubscribeId)
 			{
 				rdlock.unlock();
@@ -924,6 +930,7 @@ void CDlgAppFrame::AddAppUrl(bool bSaveBrowseTitle, const std::string& sAppUrl, 
 		for (; pIter!=m_pList.end(); pIter++)
 		{
 			const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+			//const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetAppUrl()=="about:blank" && (nInsertOffset==-1 || nCurrentIndex==nInsertOffset))
 			{
 				rdlock.unlock();
@@ -1006,6 +1013,13 @@ void CDlgAppFrame::AddFromAppFrame(const CDlgAppFrame* pDlgAppFrame)
 {
 	const CLockList<CAppWindowInfo::pointer>& pList = pDlgAppFrame->GetList();
 	if (pList.empty()) return;
+
+	if (!m_bShowedToolbar)
+	{
+		// ** 不能删除该代码，否则某些情况下，第一次切换经典模式，工具条会不能正常显示；
+		OnBnClickedButtonSwitchToolbar();
+	}
+
 	{
 		const bool bOwnerEmpty = this->m_pList.empty(false);
 		unsigned int nCheckedIndex = 0;
@@ -1014,11 +1028,16 @@ void CDlgAppFrame::AddFromAppFrame(const CDlgAppFrame* pDlgAppFrame)
 		CLockList<CAppWindowInfo::pointer>::const_iterator pIter = pList.begin();
 		for (; pIter!=pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			const_cast<CDlgAppFrame*>(pDlgAppFrame)->ResetUserData(pAppWindowInfo);
 
 			CDlgAppWindow* pDlgAppWindow = pAppWindowInfo->GetAppWindow();
 			if (pDlgAppWindow==NULL) continue;
+			//// about:blank
+			//if (pDlgAppWindow->GetLocationURL()== "about:blank" &&  pDlgAppWindow->m_pFuncInfo.m_nFromSubscribeId==0 && pDlgAppWindow->m_pFuncInfo.m_sFunctionUrl.empty())
+			//{
+			//	continue;
+			//}
 
 			int nIndexId = 0;
 			m_pIndexIdList.front(nIndexId);
@@ -1039,6 +1058,9 @@ void CDlgAppFrame::AddFromAppFrame(const CDlgAppFrame* pDlgAppFrame)
 			rectLable.bottom = rectLable.top+const_frame_height;
 			m_pList.add(pAppWindowInfo);
 			pAppWindowInfo->Create(NULL,rectLable,this,pAppWindowInfo->GetUserData(),pFont,pDlgAppWindow->m_pFuncInfo,"",false,(m_bShowedToolbar?const_frame_tool:0),false);
+			//if (pAppWindowInfo->GetAppWindow()!=NULL)
+			//	m_btnSwitchToolbar.SetWindowPos(pAppWindowInfo->GetAppWindow(),0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
+
 		}
 		if (bOwnerEmpty)
 		{
@@ -1112,10 +1134,14 @@ void CDlgAppFrame::MoveSize(int cx, int cy)
 	}
 	if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
 	{
-		m_rectSwitchToolbar.left = m_bShowedToolbar?(const_frame_tool-DEFAULT_RETURN_BTN_WIDTH):0;
+		m_rectSwitchToolbar.left = m_bShowedToolbar?(const_frame_tool-DEFAULT_RETURN_BTN_WIDTH-1):0;
 		m_rectSwitchToolbar.right = m_rectSwitchToolbar.left+DEFAULT_RETURN_BTN_WIDTH;
-		m_rectSwitchToolbar.top = (cy-const_frame_tool)/2;
-		m_rectSwitchToolbar.bottom = m_rectSwitchToolbar.top+const_frame_tool;
+		// 显示在底部
+		m_rectSwitchToolbar.bottom = cy-22;	// **距离底部22用于网页status文本显示
+		m_rectSwitchToolbar.top = m_rectSwitchToolbar.bottom-(22);
+		//// 显示在中间
+		//m_rectSwitchToolbar.top = (cy-const_frame_tool)/2;
+		//m_rectSwitchToolbar.bottom = m_rectSwitchToolbar.top+const_frame_tool;
 		m_btnSwitchToolbar.MoveWindow(&m_rectSwitchToolbar);
 	}
 	for (size_t i=0;i<m_pMainFuncButtonList.size();i++)
@@ -1166,7 +1192,7 @@ void CDlgAppFrame::MoveWindowSize(int cx, int cy)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+			const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 			CRect rectLable;
 #ifdef USES_NEW_UI_1220
 			rectLable.left = (m_bShowedToolbar?const_frame_tool:0)+(index++)*const_frame_width;
@@ -1298,7 +1324,7 @@ void CDlgAppFrame::ClickFrame(unsigned int nWndIndex)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->GetUserData()==nWndIndex)
 			{
 				//SendMsgChangeUrl(pAppWindowInfo,false);	// true
@@ -1338,7 +1364,7 @@ bool CDlgAppFrame::ShowPrev(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pHideFrameWndInfo = pFrameWndInfo;
@@ -1384,7 +1410,7 @@ bool CDlgAppFrame::ShowNext(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+		const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFirstFrameWndInfo.get()==NULL)
 			pFirstFrameWndInfo = pFrameWndInfo;
 		pLastFrameWndInfo = pFrameWndInfo;
@@ -1438,7 +1464,7 @@ void CDlgAppFrame::ShowApp(unsigned int nWndIndex, bool bSearchFocus)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->GetUserData()==nWndIndex)
 			{
 				SendMsgChangeUrl(pAppWindowInfo,bSearchFocus);
@@ -1459,15 +1485,15 @@ void CDlgAppFrame::DelApp(unsigned int nWndIndex)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->GetUserData()==nWndIndex)
 			{
 				m_pIndexIdList.pushfront(pAppWindowInfo->GetUserData());
-				m_pList.erase(pIter);
 				if (pAppWindowInfo->IsAboutBlank())
 				{
 					bCloseAboutBlank = true;
 				}
+				m_pList.erase(pIter);
 				break;
 			}
 			pPrevFrameWndInfo = pAppWindowInfo;
@@ -1493,7 +1519,7 @@ void CDlgAppFrame::DelApp(unsigned int nWndIndex)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->IsChecked())
 			{
 				SendMsgChangeUrl(pAppWindowInfo,false);
@@ -1522,15 +1548,15 @@ void CDlgAppFrame::DelApp(const CWnd* pWnd)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->GetAppWindow()==pWnd)
 			{
 				m_pIndexIdList.pushfront(pAppWindowInfo->GetUserData());
-				m_pList.erase(pIter);
 				if (pAppWindowInfo->IsAboutBlank())
 				{
 					bCloseAboutBlank = true;
 				}
+				m_pList.erase(pIter);
 				break;
 			}
 			pPrevFrameWndInfo = pAppWindowInfo;
@@ -1556,7 +1582,7 @@ void CDlgAppFrame::DelApp(const CWnd* pWnd)
 		CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+			const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 			if (pAppWindowInfo->IsChecked())
 			{
 				SendMsgChangeUrl(pAppWindowInfo,false);
@@ -1584,7 +1610,7 @@ void CDlgAppFrame::SetAppTitle(const CWnd* pWnd, const CString& sTitle)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		if (pAppWindowInfo->GetAppWindow()==pWnd)
 		{
 			pAppWindowInfo->SetTitle(sTitle);
@@ -1605,7 +1631,7 @@ void CDlgAppFrame::SetAppIco(const CWnd* pWnd)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		if (pAppWindowInfo->GetAppWindow()==pWnd)
 		{
 			pAppWindowInfo->SetIco();
@@ -1621,7 +1647,7 @@ void CDlgAppFrame::SendMsgChangeUrl(const CAppWindowInfo::pointer& pAppWindowInf
 		const CString sUrl(pAppWindowInfo->GetLocationURL());
 		char * lpszBuffer = new char[sUrl.GetLength()+1];
 		strcpy(lpszBuffer,sUrl);
-		const int nSearchFocus = (bSearchFocus || sUrl=="about:blank")?1:0;
+		const LPARAM nSearchFocus = (bSearchFocus || sUrl=="about:blank")?1:0;
 		this->GetParent()->PostMessage(EB_COMMAND_CHANGE_APP_URL,(WPARAM)lpszBuffer,nSearchFocus);
 
 		const WPARAM nShowRefreshOrStop = pAppWindowInfo->IsLoading()?2:1;	// 1=show refresh; 2=show stop
@@ -1635,7 +1661,7 @@ void CDlgAppFrame::ShowFirstWnd(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		SendMsgChangeUrl(pAppWindowInfo,false);
 		pAppWindowInfo->ShowHide(true);
 		return;
@@ -1653,7 +1679,7 @@ void CDlgAppFrame::RebuildBtnSize(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 
 		CRect rectLable;
 #ifdef USES_NEW_UI_1220
@@ -1685,7 +1711,7 @@ int CDlgAppFrame::GetOffsetIndexByHwnd(HWND hHwnd) const
 	CLockList<CAppWindowInfo::pointer>::const_iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		if (pAppWindowInfo->IsAppWindow(hHwnd))
 		{
 			return nCurrentIndex;
@@ -1713,7 +1739,8 @@ void CDlgAppFrame::AddUnreadMsg(mycp::bigint nSubId)
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
 		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
 		{
-			pFuncButtonInfo->AddUnreadMsg();
+			const bool bShowForce = m_bShowedToolbar;
+			pFuncButtonInfo->AddUnreadMsg(bShowForce);
 			return;
 		}
 	}
@@ -1725,7 +1752,8 @@ void CDlgAppFrame::SetUnreadMsg(mycp::bigint nSubId, size_t nUnreadMsgCount)
 		const CEBFuncButton::pointer & pFuncButtonInfo = m_pMainFuncButtonList[i];
 		if (pFuncButtonInfo->GetFuncInfo().m_nSubscribeId==nSubId)
 		{
-			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount);
+			const bool bShowForce = m_bShowedToolbar;
+			pFuncButtonInfo->SetUnreadMsg(nUnreadMsgCount,bShowForce);
 			return;
 		}
 	}
@@ -1738,7 +1766,7 @@ void CDlgAppFrame::RefreshAppWnd(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		if (pAppWindowInfo->IsCheckedRefresh())
 		{
 			return;
@@ -1751,7 +1779,7 @@ void CDlgAppFrame::NotifyMoveOrResizeStarted(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		pAppWindowInfo->NotifyMoveOrResizeStarted();
 	}
 }
@@ -1761,7 +1789,7 @@ void CDlgAppFrame::OnLogonSuccess(void)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		pAppWindowInfo->OnLogonSuccess();
 	}
 }
@@ -1771,7 +1799,7 @@ void CDlgAppFrame::OnOffline(int nServerState)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		pAppWindowInfo->OnOffline(nServerState);
 	}
 }
@@ -1782,7 +1810,7 @@ void CDlgAppFrame::CheckMousePos(const POINT& point)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		pAppWindowInfo->CheckMousePos(point);
 	}
 }
@@ -1799,7 +1827,7 @@ void CDlgAppFrame::OnTimer(UINT_PTR nIDEvent)
 			CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 			for (; pIter!=m_pList.end(); pIter++)
 			{
-				const CAppWindowInfo::pointer pFrameWndInfo = *pIter;
+				const CAppWindowInfo::pointer& pFrameWndInfo = *pIter;
 				if (pFrameWndInfo->IsCheckedFocus())
 					break;
 			}
@@ -1832,29 +1860,55 @@ void CDlgAppFrame::OnTimer(UINT_PTR nIDEvent)
 					m_btnSwitchFrame.Invalidate();
 				}
 			}
-			if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
-			{
-				static bool thePtInRect = false;
-				const bool bPtInRect = m_rectSwitchToolbar.PtInRect(pos)?true:false;
-				if (thePtInRect!=bPtInRect)
-				{
-					thePtInRect = bPtInRect;
-					if (bPtInRect)
-					{
-						if (m_bShowedToolbar)
-							m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-						else
-							m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-					}else
-					{
-						if (m_bShowedToolbar)
-							m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-						else
-							m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-					}
-					m_btnSwitchToolbar.Invalidate();
-				}
-			}
+			//if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
+			//{
+			//	static bool thePtInRect = false;
+			//	const bool bPtInRect = m_rectSwitchToolbar.PtInRect(pos)?true:false;
+			//	if (thePtInRect!=bPtInRect)
+			//	{
+			//		thePtInRect = bPtInRect;
+			//		if (bPtInRect)
+			//		{
+			//			if (!m_btnSwitchToolbar.IsWindowVisible())
+			//			{
+			//				m_btnSwitchToolbar.ShowWindow(SW_SHOW);
+			//				m_btnSwitchToolbar.Invalidate();
+			//			}
+			//		}else
+			//		{
+			//			if (m_btnSwitchToolbar.IsWindowVisible())
+			//			{
+			//				m_btnSwitchToolbar.ShowWindow(SW_HIDE);
+			//				m_btnSwitchToolbar.Invalidate();
+			//				//theApp.InvalidateParentRect(&m_btnSwitchToolbar);
+			//			}
+			//		}
+			//	}
+			//}
+
+			//if (m_btnSwitchToolbar.GetSafeHwnd()!=NULL)
+			//{
+			//	static bool thePtInRect = false;
+			//	const bool bPtInRect = m_rectSwitchToolbar.PtInRect(pos)?true:false;
+			//	if (thePtInRect!=bPtInRect)
+			//	{
+			//		thePtInRect = bPtInRect;
+			//		if (bPtInRect)
+			//		{
+			//			if (m_bShowedToolbar)
+			//				m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+			//			else
+			//				m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+			//		}else
+			//		{
+			//			if (m_bShowedToolbar)
+			//				m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+			//			else
+			//				m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultBtnWhiteColor,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+			//		}
+			//		m_btnSwitchToolbar.Invalidate();
+			//	}
+			//}
 			if (m_btnNewWeb.GetSafeHwnd()!=NULL)
 			{
 				static bool thePtInRect = false;
@@ -1920,7 +1974,7 @@ LRESULT CDlgAppFrame::OnMsgShowRefreshOrStop(WPARAM wParam, LPARAM lParam)
 	CLockList<CAppWindowInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CAppWindowInfo::pointer pAppWindowInfo = *pIter;
+		const CAppWindowInfo::pointer& pAppWindowInfo = *pIter;
 		if (pAppWindowInfo->GetAppWindow()==pWnd)
 		{
 			if (pAppWindowInfo->IsChecked())
@@ -1971,7 +2025,11 @@ LRESULT CDlgAppFrame::OnMessageMoveDown(WPARAM wParam, LPARAM lParam)
 	this->ShowNext();
 	return 0;
 }
-
+LRESULT CDlgAppFrame::OnMsgChangeAppUrl(WPARAM wParam, LPARAM lParam)
+{
+	this->GetParent()->PostMessage(EB_COMMAND_CHANGE_APP_URL,wParam,lParam);
+	return 0;
+}
 
 void CDlgAppFrame::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
@@ -1989,15 +2047,19 @@ void CDlgAppFrame::OnRButtonUp(UINT nFlags, CPoint point)
 
 void CDlgAppFrame::OnBnClickedButtonSwitchToolbar()
 {
-	if (m_bShowedToolbar)
-	{
-		m_btnSwitchToolbar.SetToolTipText(_T("显示应用导航栏"));
-		m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-	}else
-	{
-		m_btnSwitchToolbar.SetToolTipText(_T("隐藏应用导航栏"));
-		m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
-	}
+	m_btnSwitchToolbar.SetToolTipText(m_bShowedToolbar?_T("显示应用导航栏"):_T("隐藏应用导航栏"));
+	m_btnSwitchToolbar.SetDrawTrianglePic((m_bShowedToolbar?4:3),theDefaultFlatLineColor,theDefaultFlatBlackText2Color,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	m_btnSwitchToolbar.SetDrawPanel(true,m_bShowedToolbar?theDefaultBtnWhiteColor:theDefaultFlatBgColor);
+
+	//if (m_bShowedToolbar)
+	//{
+	//	m_btnSwitchToolbar.SetToolTipText(_T("显示应用导航栏"));
+	//	m_btnSwitchToolbar.SetDrawTrianglePic(4,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	//}else
+	//{
+	//	m_btnSwitchToolbar.SetToolTipText(_T("隐藏应用导航栏"));
+	//	m_btnSwitchToolbar.SetDrawTrianglePic(3,theDefaultFlatBlackText2Color,-1,-1,-1,DEFAULT_TRIANGLE_BTN_WIDTH,DEFAULT_TRIANGLE_BTN_HEIGHT);
+	//}
 	m_bShowedToolbar = !m_bShowedToolbar;
 	CRect rect;
 	this->GetClientRect(&rect);

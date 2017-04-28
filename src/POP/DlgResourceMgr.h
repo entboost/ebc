@@ -94,9 +94,6 @@ protected:
 	VividTree m_treeDir;
 	VividTree m_treeItem;
 
-	//virtual HICON GetItemIcon(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
-	//virtual int GetItemState(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem, HICON& pOutIcon) const;
-	//virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
 	LRESULT OnTreeItemSelChanged(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemDblclk(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);

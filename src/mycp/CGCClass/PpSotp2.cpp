@@ -16,9 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
+#ifdef _QT_MAKE_
+#include <cstring>
+#endif
 
 #include "PpSotp2.h"
 #include "../ThirdParty/stl/rsa.h"
@@ -155,7 +158,7 @@ tstring CPPSotp2::getSessionResult(int retCode, const tstring & sSessionId, unsi
 //		sType = _T("ACTIVE");
 //		break;
 //	case 10:
-//		sType = _T("OPEN");	// 用于临时打开SESSION
+//		sType = _T("OPEN");	// 鐢ㄤ簬涓存椂鎵撳紑SESSION
 //		break;
 //	default:
 //		sType = _T("UNKNOWN");

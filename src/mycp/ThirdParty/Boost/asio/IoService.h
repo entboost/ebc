@@ -109,7 +109,7 @@ private:
 		//if (pIoService != NULL)
 		{
 			//boost::asio::io_service & pService = pIoService->ioservice();
-			//boost::asio::io_service::work work(pService);	// ±£÷§run≤ªª·ÕÀ≥ˆ
+			//boost::asio::io_service::work work(pService);	// ‰øùËØÅrun‰∏ç‰ºöÈÄÄÂá∫
 			while (!is_killed())
 			{
 				try
@@ -134,7 +134,7 @@ private:
 					do_reset();
 					//pService.reset();
 #ifdef WIN32
-					printf("do_event_loop std::exception. %s, lasterror=%d\n", e.what(), GetLastError());
+                                        printf("do_event_loop std::exception. %s, lasterror=%d\n", e.what(), (int)GetLastError());
 #else
 					printf("do_event_loop std::exception. %s\n", e.what());
 #endif
@@ -150,7 +150,7 @@ private:
 					do_reset();
 					//pService.reset();
 #ifdef WIN32
-					printf("do_event_loop boost::exception. lasterror=%d\n", GetLastError());
+                                        printf("do_event_loop boost::exception. lasterror=%d\n", (int)GetLastError());
 #else
 					printf("do_event_loop boost::exception.\n");
 #endif
@@ -161,7 +161,7 @@ private:
 					do_reset();
 					//pService.reset();
 #ifdef WIN32
-					printf("do_event_loop ... exception. lasterror=%d\n", GetLastError());
+                                        printf("do_event_loop ... exception. lasterror=%d\n", (int)GetLastError());
 #else
 					printf("do_event_loop exception. \n");
 #endif

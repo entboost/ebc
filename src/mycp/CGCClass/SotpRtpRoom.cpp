@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4267 4819 4996)
 #endif // WIN32
 
@@ -75,7 +75,7 @@ CSotpRtpSource::pointer CSotpRtpRoom::RegisterSource(bigint nSrcId, bigint nPara
 				return NullSotpRtpSource;
 			if (pRtpSource->GetRemoteId()!=pcgcRemote->getRemoteId() || (pRtpSource->GetLastCallbackTime()+600)<time(0))
 			{
-				// remote id ²»Í¬£¨»òÕß³¬¹ý10·ÖÖÓ£©£¬ÐèÒªÑéÖ¤Ò»´Î£»
+				// remote id ä¸åŒï¼ˆæˆ–è€…è¶…è¿‡10åˆ†é’Ÿï¼‰ï¼Œéœ€è¦éªŒè¯ä¸€æ¬¡ï¼›
 				if (!pCallback->onRegisterSource(this->GetRoomId(), nSrcId, nParam, pUserData))
 					return NullSotpRtpSource;
 				if (pRtpSource->GetRemoteId()!=pcgcRemote->getRemoteId())
@@ -83,7 +83,7 @@ CSotpRtpSource::pointer CSotpRtpRoom::RegisterSource(bigint nSrcId, bigint nPara
 				pRtpSource->SetLastCallbackTime();
 			}else if (pRtpSource->isRemoteInvalidate())
 			{
-				// ¸üÐÂremoteid
+				// æ›´æ–°remoteid
 				pRtpSource->SetRemote(pcgcRemote);
 			}
 		}
@@ -238,7 +238,7 @@ void CSotpRtpRoom::BroadcastRtpData(const tagSotpRtpDataHead& pRtpDataHead,const
 			const bigint nSrcId = pIter->first;
 			if (nSrcId==nRealSrcId)
 				continue;
-			CSotpRtpSource::pointer pRtpDestSource = pIter->second;
+			const CSotpRtpSource::pointer& pRtpDestSource = pIter->second;
 			if (!pRtpDestSource->IsSinkRecv(nRealSrcId))
 			{
 				//printf("*** CSotpRtpRoom::BroadcastRtpData %lld not recv %lld\n",pRtpDestSource->GetSrcId(),nRealSrcId);
@@ -274,7 +274,7 @@ void CSotpRtpRoom::CheckRegisterSourceLive(time_t tNow,short nExpireSecond, CSot
 		CLockMap<bigint,CSotpRtpSource::pointer>::iterator pIter = m_pSourceList.begin();
 		for (; pIter!=m_pSourceList.end(); )
 		{
-			CSotpRtpSource::pointer pRtpSrcSource = pIter->second;
+			const CSotpRtpSource::pointer& pRtpSrcSource = pIter->second;
 			if (tNow-pRtpSrcSource->GetLastTime()>nExpireSecond)
 			{
 				if (pCallback!=NULL)
@@ -308,7 +308,7 @@ void CSotpRtpRoom::CheckRegisterSinkLive(time_t tNow,short nExpireSecond,bigint 
 		CLockMap<bigint,CSotpRtpSource::pointer>::iterator pIter = m_pSourceList.begin();
 		for (; pIter!=m_pSourceList.end(); pIter++)
 		{
-			CSotpRtpSource::pointer pRtpSrcSource = pIter->second;
+			const CSotpRtpSource::pointer& pRtpSrcSource = pIter->second;
 			if (nSrcId==pRtpSrcSource->GetSrcId() && (tNow-pRtpSrcSource->GetLastTime())>nExpireSecond)
 			{
 				if (pcgcRemote.get()!=NULL)

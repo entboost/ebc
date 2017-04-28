@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #pragma warning(disable:4267 4819 4996)
 #include <winsock2.h>
 #endif // WIN32

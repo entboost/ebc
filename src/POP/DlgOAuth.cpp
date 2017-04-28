@@ -43,12 +43,14 @@ CDlgOAuth::CDlgOAuth(CWnd* pParent /*=NULL*/)
 	: CDialog(CDlgOAuth::IDD, pParent)
 	//, m_pCefBrowser(NULL)
 {
+	m_nSystemAccountFlag = 0;
 	m_bLicenseUser = false;
 	m_bSendRegMail = false;
 	m_nSaveConversations = 3;
 	m_bAuthContact = false;
 	m_nDeployId = 0;
 	m_nLicenstType = 0;
+	m_nEBServerVersion = 0;
 	//m_nGroupMsgSubId = 0;
 	m_nAutoOpenSubId = 0;
 	m_bAutoHideMainFrame = false;
@@ -158,6 +160,10 @@ void CDlgOAuth::OnDocumentComplete(LPDISPATCH pDisp, VARIANT* URL)
 //#endif
 LRESULT CDlgOAuth::OnMessageLogonSuccess(WPARAM wParam, LPARAM lParam)
 {
+	unsigned long nSystemAccountFlag = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_SYSTEM_ACCOUNT_FLAG,&nSystemAccountFlag);
+	m_nSystemAccountFlag = (int)nSystemAccountFlag;
+
 	tstring sLogonHttpReqUrl;
 #ifdef USES_EBCOM_TEST
 	unsigned long pLogonHttpRequrl = theEBClientCore->EB_GetSystemParameter(EB_SYSTEM_PARAMETER_LOGON_HTTP_REQ_URL);
@@ -413,6 +419,9 @@ LRESULT CDlgOAuth::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long nLicenseType = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_LICENSE_TYPE,&nLicenseType);
 	m_nLicenstType = nLicenseType;
+	unsigned long nEBServerVersion = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_EB_SERVER_VERSION,&nEBServerVersion);
+	m_nEBServerVersion = nEBServerVersion;
 	//unsigned long pGroupMsgSubId = 0;
 	//theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_GROUP_MSG_SUBID,&pGroupMsgSubId);
 	//if (pGroupMsgSubId!=NULL && strlen((const char*)pGroupMsgSubId)>0)
@@ -460,6 +469,13 @@ LRESULT CDlgOAuth::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long nStatSubGroupMember = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_STAT_SUB_GROUP_MEMBER,&nStatSubGroupMember);
 	m_bStatSubGroupMember = nStatSubGroupMember==1?true:false;
+	unsigned long pDefaultUrl = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,&pDefaultUrl);
+	if (pDefaultUrl != NULL && strlen((const char*)pDefaultUrl)>0)
+	{
+		m_sDefaultUrl = (const char*)pDefaultUrl;
+		theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,pDefaultUrl);
+	}
 
 #endif
 	return 0;
@@ -594,7 +610,7 @@ BOOL CDlgOAuth::OnInitDialog()
 #ifdef USES_EBCOM_TEST
 	theEBClientCore->EB_LogonOAuth("", EB_LINE_STATE_ONLINE_NEW);
 #else
-	theEBAppClient.EB_LogonOAuth("");
+	theEBAppClient.EB_LogonOAuth(0);
 #endif
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE

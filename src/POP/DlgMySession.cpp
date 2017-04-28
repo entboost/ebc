@@ -86,13 +86,14 @@ BOOL CDlgMySession::OnInitDialog()
 	m_btnCallTrack.SetAutoFocus(true);
 	m_btnCallTrack.Load(IDB_PNG_HOT_CALL);
 	m_btnCallTrack.SetToolTipText(_T("打开会话"));
-	//m_treeSession.SetBkMode(VividTree::BK_MODE_GRADIENT);
+	m_treeSession.SetBkMode(VividTree::BK_MODE_GRADIENT);
+	m_treeSession.SetBkGradients(theDefaultFlatBgColor,theDefaultFlatBgColor);
+	//m_treeSession.SetIntervalLine(true,theDefaultBtnWhiteColor,theDefaultFlatBgColor);
 	m_treeSession.SetCallback((CTreeCallback*)this);
 	m_treeSession.ModifyStyle(TVS_SHOWSELALWAYS, TVS_SINGLEEXPAND);
 	//m_treeSession.SetTreeOpenClosedBmp(IDB_TREE_OPENED, IDB_TREE_CLOSED);
 	m_treeSession.SetItemHeight(40);
 	m_treeSession.SetIconSize(32,32);
-	m_treeSession.SetIntervalLine(true,theDefaultBtnWhiteColor,theDefaultFlatBgColor);
 	//m_treeSession.SetItemIcon( theApp.GetIconCon() );
 
 	SetCtrlColor();
@@ -128,7 +129,7 @@ void CDlgMySession::OnOK()
 }
 
 
-bool CDlgMySession::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const
+bool CDlgMySession::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,Gdiplus::Image*& pImage3,int& pState) const
 {
 	CCallRecordInfo::pointer pCallRecordInfo;
 	if (!m_pCallRecordInfo.find(hItem,pCallRecordInfo))
@@ -239,8 +240,12 @@ bool CDlgMySession::GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdip
 			}
 			if (!sImagePath.empty())
 			{
-				USES_CONVERSION;
-				pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+				pImage1 = libEbc::LoadImageFromFile(sImagePath.c_str());
+				if (pImage1==NULL)
+				{
+					USES_CONVERSION;
+					pImage1 = new Gdiplus::Image((const WCHAR*)A2W_ACP(sImagePath.c_str()));
+				}
 				return true;
 			}else
 			{
@@ -316,7 +321,7 @@ CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, e
 	CLockMap<HTREEITEM, CCallRecordInfo::pointer>::const_iterator pIter = m_pCallRecordInfo.begin();
 	for (; pIter!=m_pCallRecordInfo.end(); pIter++)
 	{
-		CCallRecordInfo::pointer pCallRecordInfo = pIter->second;
+		const CCallRecordInfo::pointer& pCallRecordInfo = pIter->second;
 		if (pCallRecordInfo->m_sMemberCode==-1 && pCallRecordInfo->m_nFromType>0)
 		//if (pCallRecordInfo->m_sMemberCode==-1 && pCallRecordInfo->m_nFromType>0 &&
 		//	(pCallRecordInfo->m_sGroupCode>0 || pCallRecordInfo->m_nFromUserId>0))
@@ -1015,9 +1020,12 @@ void CDlgMySession::OnNMRClickTreeSession(NMHDR *pNMHDR, LRESULT *pResult)
 			CString sSql;
 			if (pCallRecordInfo->m_sGroupCode>0)
 			{
-				bNeedSeparator = true;
-				m_menu2.InsertODMenu(-1, _T("群共享"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
-				//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,_T("群共享"));
+				if (!theApp.GetDisableGroupSharedCloud())
+				{
+					bNeedSeparator = true;
+					m_menu2.InsertODMenu(-1, _T("群共享"),MF_BYPOSITION,EB_COMMAND_VIEW_GROUP_SHARE,IDB_BITMAP_MENU_SHARE);
+					//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_VIEW_GROUP_SHARE,_T("群共享"));
+				}
 				sSql.Format(_T("select msg_type FROM msg_record_t WHERE dep_code=%lld LIMIT 1"),pCallRecordInfo->m_sGroupCode);
 			}else
 			{

@@ -50,7 +50,7 @@ public:
 	// SELECT
 	// outCookie > 0 : OK
 	virtual mycp::bigint select(const char * selectSql) {return 0;}
-	virtual mycp::bigint select(const char * selectSql, int& outCookie) = 0;
+	virtual mycp::bigint select(const char * selectSql, int& outCookie, int nCacheMinutes = 0) = 0;
 
 	// Return ResultSet count
 	virtual mycp::bigint size(int cookie) const = 0;

@@ -27,6 +27,7 @@ public:
 #else
 	void UGInfo(const EB_UGInfo* pUGInfo);
 	void UGDelete(const EB_UGInfo* pUGInfo);
+	void ContactHeadChange(const EB_ContactInfo* pPopContactInfo);
 	void ContactInfo(const EB_ContactInfo* pPopContactInfo);
 	void DeleteContact(const EB_ContactInfo* pPopContactInfo);
 #endif
@@ -54,9 +55,6 @@ protected:
 	void DeleteItem(HTREEITEM hItem);
 	void EditItem(HTREEITEM hItem);
 	void CallItem(HTREEITEM hItem);
-	//virtual bool GetItemImage(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,Gdiplus::Image*& pImage1,Gdiplus::Image*& pImage2,int& pState) const;
-	//virtual int GetItemState(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem,HICON& pOutIcon) const;
-	//virtual bool GetItemDrawOpenClose(const CTreeCtrl& pTreeCtrl,HTREEITEM hItem) const;
 	LRESULT OnTreeItemDblclk(WPARAM wp, LPARAM lp);
 	LRESULT OnTreeItemTrackHot(WPARAM wp, LPARAM lp);
 	BOOL IsTreeCtrlEditMessage(WPARAM KeyCode);

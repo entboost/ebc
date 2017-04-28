@@ -41,7 +41,7 @@ public:
 	unsigned int GetUserData(void) const {return m_nUserData;}
 	const CDlgDialog::pointer& GetDialog(void) const {return m_pDialog;}
 	CWnd * GetWnd(void) const {return m_pWnd;}
-	CWnd * GetParent(void) const {return m_btn.GetSafeHwnd()==NULL?NULL:m_btn.GetParent();}
+	CWnd * GetParent(void) const {return m_btn1.GetSafeHwnd()==NULL?NULL:m_btn1.GetParent();}
 	bool IsWndAddress(const CWnd* pWnd) const {return m_pDialog.get()==pWnd || m_pWnd==pWnd;}
 	FRAME_WND_TYPE GetType(void) const {return m_nType;}
 	eb::bigint GetCallId(void) const {return m_pDialog.get()!=NULL?m_pDialog->GetCallId():0;}
@@ -53,13 +53,16 @@ public:
 
 	void SetCtrlColor(bool bInvalidate = true);
 	BOOL Create(LPCTSTR lpszCaption, const RECT& rect, CWnd* pParent, UINT nID, CFont* pFont, bool bShowClose, bool bShowText);
+	void CheckGroupForbidSpeech(void);
 	//void SetBtnShowHideText(bool bShow);
 	void SetBtnText(LPCTSTR lpszBtnText, LPCTSTR lpszToolTipText);
 	void SetToolTipText(LPCTSTR lpszToolTipText);
 	void ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 	void LineStateChange(eb::bigint nGroupCode, eb::bigint nUserId, EB_USER_LINE_STATE bLineState);
+	void UserHeadChange(const EB_ContactInfo* pContactInfo);
+	void MemberHeadChange(const EB_MemberInfo * pMemberInfo);
 
-	bool IsChecked(void) const {return m_btn.GetChecked();}
+	bool IsChecked(void) const {return m_btn1.GetChecked();}
 	void MoveBtnWindow(LPCRECT rect, bool bShowText);
 	void SetMsgBtnText(LPCTSTR lpszText);
 	void CheckMousePos(POINT point);
@@ -86,7 +89,8 @@ private:
 	bool m_bChildMode;
 	FRAME_WND_TYPE m_nType;
 	CRect m_rectBtn;
-	CTraButton m_btn;
+	CTraButton m_btn1;
+	CTraButton m_btn2;
 	bool m_bBtnShowText;
 	CString m_sBtnShowText;
 	CRect m_rectMsg;
@@ -156,6 +160,8 @@ public:
 	void OnMove(void);
 	void ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 	void UserLineStateChange(eb::bigint nGroupCode, eb::bigint nUserId, EB_USER_LINE_STATE nLineState);
+	void UserHeadChange(const EB_ContactInfo* pContactInfo);
+	void MemberHeadChange(const EB_MemberInfo * pMemberInfo);
 
 #ifdef USES_EBCOM_TEST
 	void OnUserEmpInfo(IEB_MemberInfo* pMemberInfo);

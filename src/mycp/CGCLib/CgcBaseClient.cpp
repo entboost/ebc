@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER // WIN32
 #pragma warning(disable:4267 4312 4819 4996)
 #endif // WIN32
 
@@ -150,7 +150,7 @@ int CgcBaseClient::ParseString(const char * lpszString, const char * lpszInterva
 			break;
 		}
 		if (find==0)
-			pOut.push_back("");	// ¿Õ
+			pOut.push_back("");	// ç©º
 		else
 			pOut.push_back(sIn.substr(0, find));
 		sIn = sIn.substr(find+nIntervalLen);
@@ -175,14 +175,14 @@ std::string CgcBaseClient::GetHostIp(const char * lpszHostName,const char* lpszD
 		if (IsIpAddress(lpszHostName,strlen(lpszHostName))) return lpszHostName;
 		struct hostent *host_entry;
 		//struct sockaddr_in addr;
-		/* ¼´Òª½âÎöµÄÓòÃû»òÖ÷»úÃû */
+		/* å³è¦è§£æçš„åŸŸåæˆ–ä¸»æœºå */
 		host_entry=gethostbyname(lpszHostName);
 		//printf("%s\n", dn_or_ip);
 		if(host_entry!=0)
 		{
 			char lpszIpAddress[50];
 			memset(lpszIpAddress, 0, sizeof(lpszIpAddress));
-			//printf("½âÎöIPµØÖ·: ");
+			//printf("è§£æIPåœ°å€: ");
 			sprintf(lpszIpAddress, "%d.%d.%d.%d",
 				(host_entry->h_addr_list[0][0]&0x00ff),
 				(host_entry->h_addr_list[0][1]&0x00ff),
@@ -241,14 +241,14 @@ void CgcBaseClient::do_proc_activesession(void)
 			continue;
 		try
 		{
-			if (((++index2)%4)==0)	// 4Ãë¼ì²éÒ»´Î£»
+			if (((++index2)%4)==0)	// 4ç§’æ£€æŸ¥ä¸€æ¬¡ï¼›
 				RtpCheckRegisterSink();
 
 			//if (!isTimeToActiveSes()) continue;
-			//if (getSessionId().empty()) continue;	// Î´´ò¿ª£¬»òÕßÒÑ¾­¹Ø±ÕSESSION
+			//if (getSessionId().empty()) continue;	// æœªæ‰“å¼€ï¼Œæˆ–è€…å·²ç»å…³é—­SESSION
 			if (isTimeToActiveSes() && !getSessionId().empty())
 				sendActiveSession();
-			if (isTimeToSendP2PTry())	// Ò»°ã·¢ÍêsendActiveSession£¬²»ĞèÒªÔÙ·¢sendP2PTry
+			if (isTimeToSendP2PTry())	// ä¸€èˆ¬å‘å®ŒsendActiveSessionï¼Œä¸éœ€è¦å†å‘sendP2PTry
 				sendP2PTry(2);
 		}catch(const std::exception &)
 		{
@@ -413,7 +413,7 @@ void CgcBaseClient::StartCIDTimeout(void)
 //	//for (pIter=m_listBoostThread.begin(); pIter!=m_listBoostThread.end(); pIter++)
 //	//{
 //	//	boost::thread * recvThread = *pIter;
-//	//	recvThread->join();	// Èç¹û¸ÃÏß³ÌÔÚÍâÃæ²Ù×÷½çÃæÏûÏ¢£¬»áµ¼ÖÂÍË³ö¹ÒËÀ
+//	//	recvThread->join();	// å¦‚æœè¯¥çº¿ç¨‹åœ¨å¤–é¢æ“ä½œç•Œé¢æ¶ˆæ¯ï¼Œä¼šå¯¼è‡´é€€å‡ºæŒ‚æ­»
 //	//	delete recvThread;
 //	//}
 //	//m_listBoostThread.clear();
@@ -994,7 +994,7 @@ bool CgcBaseClient::doSendRtpData(bigint nRoomId,const unsigned char* pData,uint
 	CSotpRtpSource::pointer pRtpSource = pRtpRoom->GetRtpSource(doGetRtpSourceId());
 	if (pRtpSource.get()==NULL)
 		return false;
-	// ?ÒªÅĞ¶ÏÊÇ·ñÓĞÈË½ÓÊÕÊı¾İ
+	// ?è¦åˆ¤æ–­æ˜¯å¦æœ‰äººæ¥æ”¶æ•°æ®
 	//if (pRtpSource->
 
 	const bigint nNetRoomId = htonll(nRoomId);
@@ -1912,7 +1912,7 @@ void CgcBaseClient::parseData(const unsigned char * data, size_t size,unsigned l
 			nResultValue = ppSotp.getResultValue();
 		}else if (ppSotp.isOpenType() && ppSotp.isSslRequest())	// && !m_pRsaSrc.GetPublicKey().empty())
 		{
-			// ¶Ô·½ÇëÇóopen session£¬ĞèÒª·µ»Ø
+			// å¯¹æ–¹è¯·æ±‚open sessionï¼Œéœ€è¦è¿”å›
 			if (m_sSslPassword.empty())
 				m_sSslPassword = GetSaltString(24);
 			if (m_pCurrentIndexInfo.get()!=NULL)
@@ -2015,7 +2015,7 @@ bool CgcBaseClient::checkSeqTimeout(void)
 	CLockMap<unsigned short, cgcSeqInfo::pointer>::iterator pIter = m_mapSeqInfo.begin();
 	for (; pIter!=m_mapSeqInfo.end();)
 	{
-		cgcSeqInfo::pointer pCidInfo = pIter->second;
+		const cgcSeqInfo::pointer& pCidInfo = pIter->second;
 		if (pCidInfo->isTimeout(0))
 		{
 			if (pCidInfo->canResendAgain())
@@ -2042,6 +2042,7 @@ bool CgcBaseClient::checkSeqTimeout(void)
 			{
 				// 
 //#ifdef USES_WRITE_LOCK
+				const cgcSeqInfo::pointer pCidInfoTemp = pCidInfo;
 				m_mapSeqInfo.erase(pIter);
 				wtlock.unlock();
 //#else
@@ -2050,12 +2051,12 @@ bool CgcBaseClient::checkSeqTimeout(void)
 //				m_mapSeqInfo.remove(nSeq);
 //#endif
 				// OnCidResend
-				if (m_pHandler)
+				if (m_pHandler!=NULL)
 				{
-					if (pCidInfo->getUserData()==SOTP_PROTO_TYPE_ACTIVE)
+					if (pCidInfoTemp->getUserData()==SOTP_PROTO_TYPE_ACTIVE)
 						m_pHandler->OnActiveTimeout();
 					else
-						m_pHandler->OnCidTimeout(pCidInfo->getCid(), pCidInfo->getSign(), false);
+						m_pHandler->OnCidTimeout(pCidInfoTemp->getCid(), pCidInfoTemp->getSign(), false);
 				}
 				return m_mapSeqInfo.empty()?false:true;
 				//m_mapSeqInfo.erase(pIter++);

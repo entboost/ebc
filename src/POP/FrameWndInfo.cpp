@@ -34,8 +34,10 @@ CFrameWndInfo::~CFrameWndInfo(void)
 {
 	if (m_pDialog.get()!=NULL)
 		m_pDialog->DestroyWindow();
-	if (m_btn.GetSafeHwnd()!=NULL)
-		m_btn.DestroyWindow();
+	if (m_btn1.GetSafeHwnd()!=NULL)
+		m_btn1.DestroyWindow();
+	if (m_btn2.GetSafeHwnd()!=NULL)
+		m_btn2.DestroyWindow();
 	if (m_close.GetSafeHwnd()!=NULL)
 		m_close.DestroyWindow();
 	if (m_msg.GetSafeHwnd()!=NULL)
@@ -47,8 +49,10 @@ void CFrameWndInfo::SetUserData(unsigned int nUserData)
 	if (m_nUserData != nUserData)
 	{
 		m_nUserData = nUserData;
-		if (m_btn.GetSafeHwnd()!=NULL)
-			m_btn.SetDlgCtrlID(m_nUserData);
+		if (m_btn1.GetSafeHwnd()!=NULL)
+			m_btn1.SetDlgCtrlID(m_nUserData);
+		if (m_btn2.GetSafeHwnd()!=NULL)
+			m_btn2.SetDlgCtrlID(m_nUserData);
 		if (m_close.GetSafeHwnd()!=NULL)
 			m_close.SetDlgCtrlID(m_nUserData);
 		if (m_msg.GetSafeHwnd()!=NULL)
@@ -60,37 +64,55 @@ void CFrameWndInfo::SetCtrlColor(bool bInvalidate)
 {
 	if (m_pDialog.get()!=NULL)
 		m_pDialog->SetCtrlColor(bInvalidate);
-	if (m_btn.GetSafeHwnd()!=NULL)
+	if (m_btn1.GetSafeHwnd()!=NULL)
 	{
 #ifdef USES_NEW_UI_160111
 		if (m_bChildMode)
 		{
-			//m_btn.SetDrawLine(4,4,0,-1,-1,theDefaultFlatLine2Color);
-			//m_btn.SetDrawPanel(true,theDefaultFlatLine2Color,RGB(128,128,128),RGB(64,64,64));
+			//m_btn1.SetDrawLine(4,4,0,-1,-1,theDefaultFlatLine2Color);
+			//m_btn1.SetDrawPanel(true,theDefaultFlatLine2Color,RGB(128,128,128),RGB(64,64,64));
 #ifdef USES_SUPPORT_UI_STYLE
 			const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
 			if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT || theApp.GetHideMainFrame())
 #else
 			if (theApp.GetHideMainFrame())
 #endif
-				m_btn.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
+				m_btn1.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
 			else
-				m_btn.SetDrawPanel(true,theDefaultFlatBg2Color,theApp.GetHotColor(),theApp.GetHotColor2());
-			//m_btn.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
-			//m_btn.SetDrawPanel(true,RGB(128,128,128),theDefaultFlatLineColor,theDefaultFlatLine2Color);
+				m_btn1.SetDrawPanel(true,theDefaultFlatBg2Color,theApp.GetHotColor(),theApp.GetHotColor2());
+			//m_btn1.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
+			//m_btn1.SetDrawPanel(true,RGB(128,128,128),theDefaultFlatLineColor,theDefaultFlatLine2Color);
 		}else
-			m_btn.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
+			m_btn1.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
 #else
-		m_btn.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
+		m_btn1.SetDrawPanel(true,theApp.GetMainColor(),theApp.GetHotColor(),theApp.GetSelColor());
 #endif
 		if (bInvalidate)
-			m_btn.Invalidate();
+			m_btn1.Invalidate();
 	}
+}
+void CFrameWndInfo::CheckGroupForbidSpeech(void)
+{
+	if (m_pDialog.get()==NULL || m_btn2.GetSafeHwnd()==NULL) return;
+	const CEBCCallInfo::pointer pEbCallInfo = m_pDialog->GetCallInfo();
+	if (pEbCallInfo.get()!=NULL && pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
+	{
+		if (theEBAppClient.EB_IsGroupForbidSpeech(pEbCallInfo->m_pCallInfo.m_sGroupCode))
+		{
+			m_btn2.ShowWindow(SW_SHOW);
+			m_btn2.Invalidate();
+		}
+		else if (m_btn2.IsWindowVisible())
+		{
+			m_btn2.ShowWindow(SW_HIDE);
+		}
+	}
+
 }
 BOOL CFrameWndInfo::Create(LPCTSTR lpszCaption, const RECT& rect, CWnd* pParent, UINT nID, CFont* pFont, bool bShowClose, bool bShowText)
 {
 	m_rectBtn = rect;
-	if (m_btn.GetSafeHwnd()==NULL)
+	if (m_btn1.GetSafeHwnd()==NULL)
 	{
 		CString sWindowText;
 		const size_t nLen = strlen(lpszCaption);
@@ -109,20 +131,36 @@ BOOL CFrameWndInfo::Create(LPCTSTR lpszCaption, const RECT& rect, CWnd* pParent,
 		}
 		m_bBtnShowText = bShowText;
 		m_sBtnShowText = sWindowText;
-		if (!m_btn.Create(m_bBtnShowText?sWindowText:_T(""),WS_CHILD|WS_VISIBLE,rect,pParent,nID))
+		if (!m_btn1.Create(m_bBtnShowText?sWindowText:_T(""),WS_CHILD|WS_VISIBLE,rect,pParent,nID))
 			return FALSE;
-
 	}else
 	{
-		m_btn.SetParent(pParent);
-		m_btn.MoveWindow(&m_rectBtn);
-		m_btn.SetDlgCtrlID(nID);
+		m_btn1.SetParent(pParent);
+		m_btn1.MoveWindow(&m_rectBtn);
+		m_btn1.SetDlgCtrlID(nID);
+	}
+	CRect rectBtn2;
+	rectBtn2.left = m_rectBtn.left+15+2;
+	rectBtn2.right = rectBtn2.left+16;
+	rectBtn2.top = m_rectBtn.top+16+3;
+	rectBtn2.bottom = rectBtn2.top+16;
+	if (m_btn2.GetSafeHwnd()==NULL)
+	{
+		if (!m_btn2.Create(_T(""),WS_CHILD,rectBtn2,pParent,nID))
+			return FALSE;
+		m_btn2.SetWindowPos(&m_btn1, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+		m_btn2.SetDrawImage(false,false,theApp.m_imageStateForbid,Gdiplus::Rect(0,0,16,16));
+	}else
+	{
+		m_btn2.SetParent(pParent);
+		m_btn2.MoveWindow(&rectBtn2);
+		m_btn2.SetDlgCtrlID(nID);
 	}
 	if (pFont!=NULL)
-		m_btn.SetFont(pFont);
-	//m_btn.SetFont(pParent->GetFont());
-	m_btn.SetToolTipText(lpszCaption);
-	m_btn.SetTextHotMove(false);
+		m_btn1.SetFont(pFont);
+	//m_btn1.SetFont(pParent->GetFont());
+	m_btn1.SetToolTipText(lpszCaption);
+	m_btn1.SetTextHotMove(false);
 #ifdef USES_NEW_UI_160111
 	if (m_bChildMode)
 	{
@@ -133,38 +171,39 @@ BOOL CFrameWndInfo::Create(LPCTSTR lpszCaption, const RECT& rect, CWnd* pParent,
 		if (theApp.GetHideMainFrame())
 #endif
 		{
-			m_btn.SetNorTextColor(theDefaultBtnWhiteColor); 
+			m_btn1.SetNorTextColor(theDefaultBtnWhiteColor); 
 		}else
 		{
-			m_btn.SetDrawPanelRgn(false);
-			m_btn.SetNorTextColor(RGB(96,96,96));
-			//m_btn.SetNorTextColor(RGB(0,0,0));	// theDefaultBtnWhiteColor
-			m_btn.SetHotTextColor(theDefaultBtnWhiteColor); 
-			m_btn.SetPreTextColor(theDefaultBtnWhiteColor); 
+			m_btn1.SetDrawPanelRgn(false);
+			m_btn1.SetNorTextColor(RGB(96,96,96));
+			//m_btn1.SetNorTextColor(RGB(0,0,0));	// theDefaultBtnWhiteColor
+			m_btn1.SetHotTextColor(theDefaultBtnWhiteColor); 
+			m_btn1.SetPreTextColor(theDefaultBtnWhiteColor); 
 		}
 	}else
-		m_btn.SetNorTextColor(theDefaultBtnWhiteColor); 
+		m_btn1.SetNorTextColor(theDefaultBtnWhiteColor); 
 #else
-	m_btn.SetNorTextColor(theDefaultBtnWhiteColor); 
+	m_btn1.SetNorTextColor(theDefaultBtnWhiteColor); 
 #endif
 	SetCtrlColor(false);
 
-	m_btn.SetTextTop(1);
+	m_btn1.SetTextTop(1);
 	if (m_pDialog.get()!=NULL)
 	{
 		const bool bGrayImage = m_pDialog->GetFromIsOffLineState();
-		m_btn.SetDrawImage(false,bGrayImage,const_cast<Gdiplus::Image*>(m_pDialog->GetFromImage()),Gdiplus::Rect(3,4,28,28));
-		m_btn.SetTextLeft(31);	// 31=3+28
+		m_btn1.SetDrawImage(true,bGrayImage,m_pDialog->GetFromImage(),Gdiplus::Rect(3,4,28,28));
+		m_btn1.SetTextLeft(31);	// 31=3+28
+		CheckGroupForbidSpeech();
 	}else if (m_nType==FRAME_WND_WORK_FRAME && theApp.m_imageWorkFrame!=NULL)
 	{
-		m_btn.SetDrawImage(false,false,theApp.m_imageWorkFrame,Gdiplus::Rect(3,4,28,28));
-		m_btn.SetTextLeft(31);	// 31=3+28
+		m_btn1.SetDrawImage(false,false,theApp.m_imageWorkFrame,Gdiplus::Rect(3,4,28,28));
+		m_btn1.SetTextLeft(31);	// 31=3+28
 	}else if (m_nType==FRAME_WND_MAIN_FRAME && theApp.m_imageMainFrame!=NULL)
 	{
-		m_btn.SetDrawImage(false,false,theApp.m_imageMainFrame,Gdiplus::Rect(3,4,28,28));
-		m_btn.SetTextLeft(31);	// 31=3+28
-		//m_btn.SetDrawToolButtonPic(10,RGB(255,64,64),-1,-1,-1,15,15);
-		//m_btn.SetWindowText("志勇");
+		m_btn1.SetDrawImage(false,false,theApp.m_imageMainFrame,Gdiplus::Rect(3,4,28,28));
+		m_btn1.SetTextLeft(31);	// 31=3+28
+		//m_btn1.SetDrawToolButtonPic(10,RGB(255,64,64),-1,-1,-1,15,15);
+		//m_btn1.SetWindowText("志勇");
 	}
 
 	if (bShowClose)
@@ -237,25 +276,25 @@ BOOL CFrameWndInfo::Create(LPCTSTR lpszCaption, const RECT& rect, CWnd* pParent,
 //{
 //	if (m_bBtnShowText==bShow) return;
 //	m_bBtnShowText = bShow;
-//	if (m_btn.GetSafeHwnd()!=NULL)
+//	if (m_btn1.GetSafeHwnd()!=NULL)
 //	{
-//		m_btn.SetWindowText(m_bBtnShowText?m_sBtnShowText:_T(""));
+//		m_btn1.SetWindowText(m_bBtnShowText?m_sBtnShowText:_T(""));
 //	}
 //}
 void CFrameWndInfo::SetBtnText(LPCTSTR lpszBtnText, LPCTSTR lpszToolTipText)
 {
-	if (m_btn.GetSafeHwnd()!=NULL)
+	if (m_btn1.GetSafeHwnd()!=NULL)
 	{
 		m_sBtnShowText = lpszBtnText;
 		if (m_bBtnShowText)
-			m_btn.SetWindowText(lpszBtnText);
-		m_btn.SetToolTipText(lpszToolTipText);
+			m_btn1.SetWindowText(lpszBtnText);
+		m_btn1.SetToolTipText(lpszToolTipText);
 	}
 }
 void CFrameWndInfo::SetToolTipText(LPCTSTR lpszToolTipText)
 {
-	if (m_btn.GetSafeHwnd()!=NULL)
-		m_btn.SetToolTipText(lpszToolTipText);
+	if (m_btn1.GetSafeHwnd()!=NULL)
+		m_btn1.SetToolTipText(lpszToolTipText);
 }
 
 void CFrameWndInfo::ClearUnreadMsg(bool bFromUserClick)
@@ -332,7 +371,7 @@ void CFrameWndInfo::SetUnreadMsg(size_t nUnreadMsgCount)
 
 void CFrameWndInfo::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 {
-	if (m_pDialog.get()!=NULL && m_btn.GetSafeHwnd()!=NULL)
+	if (m_pDialog.get()!=NULL && m_btn1.GetSafeHwnd()!=NULL)
 	{
 		m_pDialog->ChangeDepartmentInfo(pGroupInfo);
 		const CString sFullName(m_pDialog->GetFullName());
@@ -354,20 +393,21 @@ void CFrameWndInfo::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 		}
 		m_sBtnShowText = sWindowText;
 		if (m_bBtnShowText)
-			m_btn.SetWindowText(sWindowText);
-		m_btn.SetToolTipText(sFullName);
-		//m_btn.SetToolTipText(sFromName.c_str());
+			m_btn1.SetWindowText(sWindowText);
+		m_btn1.SetToolTipText(sFullName);
+		//m_btn1.SetToolTipText(sFromName.c_str());
+		CheckGroupForbidSpeech();
 	}
 
 }
 
 void CFrameWndInfo::LineStateChange(eb::bigint nGroupCode, eb::bigint nUserId, EB_USER_LINE_STATE bLineState)
 {
-	if (GetGroupId()==0 && GetFromUserId()==nUserId && m_btn.GetSafeHwnd()!=NULL)
+	if (GetGroupId()==0 && GetFromUserId()==nUserId && m_btn1.GetSafeHwnd()!=NULL)
 	{
 		// 更新左边标签
 		const bool bGrayImage = bLineState==EB_LINE_STATE_OFFLINE || bLineState==EB_LINE_STATE_UNKNOWN;
-		m_btn.SetDrawImage(bGrayImage);
+		m_btn1.SetDrawImage(bGrayImage);
 		if (this->m_nUnreadMsgCount>0 && m_msg.GetSafeHwnd()!=NULL)
 		{
 			m_msg.Invalidate();			
@@ -379,13 +419,53 @@ void CFrameWndInfo::LineStateChange(eb::bigint nGroupCode, eb::bigint nUserId, E
 		m_pDialog->LineStateChange(nUserId, bLineState);
 	}
 }
+void CFrameWndInfo::UserHeadChange(const EB_ContactInfo* pContactInfo)
+{
+	if (m_btn1.GetSafeHwnd()!=NULL && m_pDialog.get()!=NULL && GetGroupId()==0 && GetFromUserId()==pContactInfo->m_nContactUserId)// && m_btn1.GetSafeHwnd()!=NULL)
+	{
+		if (m_pDialog->UserHeadChange(pContactInfo))
+		{
+			const bool bGrayImage = m_pDialog->GetFromIsOffLineState();
+			m_btn1.SetDrawImage(true,bGrayImage,m_pDialog->GetFromImage(),Gdiplus::Rect(3,4,28,28));
+		}
+
+		//if (PathFileExists(pContactInfo->m_sHeadResourceFile.c_str()))
+		//{
+		//	USES_CONVERSION;
+		//	Gdiplus::Image * m_pFromImage = BuildImageFromFile((const WCHAR*)A2W_ACP(pContactInfo->m_sHeadResourceFile.c_str()));
+		//	const bool bGrayImage = m_pDialog->GetFromIsOffLineState();
+		//	m_btn1.SetDrawImage(true,bGrayImage,m_pFromImage,Gdiplus::Rect(3,4,28,28));
+		//}
+	}
+}
+void CFrameWndInfo::MemberHeadChange(const EB_MemberInfo * pMemberInfo)
+{
+	if (m_btn1.GetSafeHwnd()!=NULL && m_pDialog.get()!=NULL && GetGroupId()==0 && GetFromUserId()==pMemberInfo->m_nMemberUserId)// && m_btn1.GetSafeHwnd()!=NULL)
+	{
+		if (m_pDialog->MemberHeadChange(pMemberInfo))
+		{
+			const bool bGrayImage = m_pDialog->GetFromIsOffLineState();
+			m_btn1.SetDrawImage(true,bGrayImage,m_pDialog->GetFromImage(),Gdiplus::Rect(3,4,28,28));
+		}
+	}
+}
+
 void CFrameWndInfo::MoveBtnWindow(LPCRECT rect, bool bShowText) {
 	m_rectBtn = rect;
-	m_bBtnShowText = bShowText;
-	if (m_btn.GetSafeHwnd()!=NULL)
+	if (m_btn2.GetSafeHwnd()!=NULL)
 	{
-		m_btn.MoveWindow(m_rectBtn);
-		m_btn.SetWindowText(m_bBtnShowText?m_sBtnShowText:_T(""));
+		CRect rectBtn2;
+		rectBtn2.left = m_rectBtn.left+15+2;
+		rectBtn2.right = rectBtn2.left+16;
+		rectBtn2.top = m_rectBtn.top+16+3;
+		rectBtn2.bottom = rectBtn2.top+16;
+		m_btn2.MoveWindow(rectBtn2);
+	}
+	m_bBtnShowText = bShowText;
+	if (m_btn1.GetSafeHwnd()!=NULL)
+	{
+		m_btn1.MoveWindow(m_rectBtn);
+		m_btn1.SetWindowText(m_bBtnShowText?m_sBtnShowText:_T(""));
 	}
 	//this->SetBtnShowHideText(bShowText);
 	const int const_size = 12;
@@ -403,6 +483,10 @@ void CFrameWndInfo::MoveBtnWindow(LPCRECT rect, bool bShowText) {
 		m_rectMsg.top = m_rectBtn.top + (m_bBtnShowText?2:0);
 		m_rectMsg.bottom = m_rectMsg.top + 16;
 		m_msg.MoveWindow(&m_rectMsg);
+		if (m_nUnreadMsgCount>0)
+		{
+			m_msg.Invalidate();
+		}
 		//CRect rectMsg(rect);
 		//rectMsg.left = rectMsg.right - 25;
 		//m_msg.MoveWindow(&rectMsg);
@@ -420,13 +504,13 @@ void CFrameWndInfo::SetMsgBtnText(LPCTSTR lpszText) {
 	}
 }
 void CFrameWndInfo::CheckMousePos(POINT point){
-	if (m_btn.GetSafeHwnd()==NULL || m_close.GetSafeHwnd()==NULL)
+	if (m_btn1.GetSafeHwnd()==NULL || m_close.GetSafeHwnd()==NULL)
 		return;
 	if (m_rectBtn.PtInRect(point))
 	{
 		if (m_rectClose.PtInRect(point))
 		{
-			//if (m_btn.GetChecked())
+			//if (m_btn1.GetChecked())
 			//	m_close.SetDrawClosePic(true,theApp.GetBgColor3(),-1,-1,-1,2);
 			//else
 			//	m_close.SetDrawClosePic(true,theApp.GetBgTitle0(),-1,-1,-1,2);
@@ -443,26 +527,26 @@ void CFrameWndInfo::CheckMousePos(POINT point){
 #endif
 			{
 				m_close.SetDrawClosePic(true,RGB(27,27,27),-1,-1,-1,2);
-				if (m_btn.GetChecked())
+				if (m_btn1.GetChecked())
 					m_close.SetDrawPanel(true,theApp.GetSelColor());
 				else
 					m_close.SetDrawPanel(true,theApp.GetHotColor());
 			}else
 			{
 				m_close.SetDrawClosePic(true,theDefaultBtnWhiteColor,-1,-1,-1,2);
-				if (m_btn.GetChecked())
+				if (m_btn1.GetChecked())
 					m_close.SetDrawPanel(true,theApp.GetHotColor1());	// RGB(64,64,64)
 				else
 					m_close.SetDrawPanel(true,theApp.GetHotColor());		// RGB(128,128,128)
 			}
 #else
 			m_close.SetDrawClosePic(true,RGB(27,27,27),-1,-1,-1,2);
-			if (m_btn.GetChecked())
+			if (m_btn1.GetChecked())
 				m_close.SetDrawPanel(true,theApp.GetSelColor());
 			else
 				m_close.SetDrawPanel(true,theApp.GetHotColor());
 #endif
-			//if (m_btn.GetChecked())
+			//if (m_btn1.GetChecked())
 			//	m_close.SetDrawPanel(true,theApp.GetBgColor3());
 			//else
 			//	m_close.SetDrawPanel(true,theApp.GetBgTitle0());
@@ -509,13 +593,17 @@ void CFrameWndInfo::ShowHide(bool bShowAndChecked)
 		//	}
 		//}
 	}
-	if (m_btn.GetSafeHwnd()!=NULL)
+	if (m_btn1.GetSafeHwnd()!=NULL)
 	{
-		if (m_btn.GetChecked()!=bShowAndChecked)
+		if (m_btn1.GetChecked()!=bShowAndChecked)
 		{
-			m_btn.SetChecked(bShowAndChecked);
-			m_btn.Invalidate();
+			m_btn1.SetChecked(bShowAndChecked);
+			m_btn1.Invalidate();
 		}
+	}
+	if (m_btn2.GetSafeHwnd()!=NULL && m_btn2.IsWindowVisible())
+	{
+		m_btn2.Invalidate();
 	}
 	if (bShowAndChecked && m_nUnreadMsgCount>0)
 	{
@@ -563,7 +651,7 @@ void CFrameWndInfoProxy::SetCtrlColor(bool bInvalidate)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			pFrameWndInfo->SetCtrlColor(bInvalidate);
 		}
 	}
@@ -737,7 +825,7 @@ void CFrameWndInfoProxy::SetTitle(CFrameWndInfo::FRAME_WND_TYPE nType, LPCTSTR l
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetType()==nType)
 			{
 				pFrameWndInfo->SetBtnText(lpszName, lpszTooltip);
@@ -760,7 +848,7 @@ void CFrameWndInfoProxy::RebuildBtnSize(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		CRect rectLable;
 		rectLable.left = 4;
 		rectLable.top = 5 + nIndex*const_frame_height;
@@ -787,7 +875,7 @@ bool CFrameWndInfoProxy::AddUnreadMsg(eb::bigint nCallId, eb::bigint nMsgId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				pFrameWndInfo->AddUnreadMsg();
@@ -804,13 +892,14 @@ bool CFrameWndInfoProxy::AddUnreadMsg(eb::bigint nCallId, eb::bigint nMsgId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
+				const CFrameWndInfo::pointer pFrameWndInfoTemp = pFrameWndInfo;
 				m_pHideList.erase(pIter);
 				wtLock.unlock();
-				this->AddWnd(pFrameWndInfo,true,false);
-				pFrameWndInfo->AddUnreadMsg();
+				this->AddWnd(pFrameWndInfoTemp,true,false);
+				pFrameWndInfoTemp->AddUnreadMsg();
 				bResult = true;
 				goto AddUnreadMsgCount;
 				//return true;
@@ -837,7 +926,7 @@ bool CFrameWndInfoProxy::SetUnreadMsg(eb::bigint nCallId, size_t nUnreadMsgCount
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				pFrameWndInfo->SetUnreadMsg(nUnreadMsgCount);
@@ -855,7 +944,7 @@ void CFrameWndInfoProxy::SetUnreadMsg(CFrameWndInfo::FRAME_WND_TYPE nType, size_
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetType()==nType)
 			{
 				pFrameWndInfo->SetUnreadMsg(nUnreadMsgCount);
@@ -873,7 +962,7 @@ void CFrameWndInfoProxy::ClearWnd(void)
 	//	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	//	for (; pIter!=m_pList.end(); pIter++)
 	//	{
-	//		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+	//		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 	//		if (pFrameWndInfo->GetUserData()>0)
 	//			m_pIndexIdList.pushfront(pFrameWndInfo->GetUserData());
 	//	}
@@ -890,11 +979,11 @@ void CFrameWndInfoProxy::DelWnd(eb::bigint nCallId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
-				m_pHideList.erase(pIter);
 				m_pCloseList.add(pFrameWndInfo);
+				m_pHideList.erase(pIter);
 				break;
 			}
 		}
@@ -905,12 +994,12 @@ void CFrameWndInfoProxy::DelWnd(eb::bigint nCallId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				m_pIndexIdList.pushfront(pFrameWndInfo->GetUserData());
-				m_pList.erase(pIter);
 				m_pCloseList.add(pFrameWndInfo);
+				m_pList.erase(pIter);
 				//wtLock.unlock();
 				//if (m_pList.empty())
 				//{
@@ -955,7 +1044,7 @@ void CFrameWndInfoProxy::DelWnd(eb::bigint nCallId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsChecked())
 			{
 				pFrameWndInfo->ShowHide(true);
@@ -984,11 +1073,11 @@ void CFrameWndInfoProxy::DelWnd(const CWnd* pWnd)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsWndAddress(pWnd))
 			{
-				m_pHideList.erase(pIter);
 				m_pCloseList.add(pFrameWndInfo);
+				m_pHideList.erase(pIter);
 				break;
 			}
 		}
@@ -999,12 +1088,12 @@ void CFrameWndInfoProxy::DelWnd(const CWnd* pWnd)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsWndAddress(pWnd))
 			{
 				m_pIndexIdList.pushfront(pFrameWndInfo->GetUserData());
-				m_pList.erase(pIter);
 				m_pCloseList.add(pFrameWndInfo);
+				m_pList.erase(pIter);
 				//wtLock.unlock();
 				//if (m_pList.empty())
 				//{
@@ -1054,7 +1143,7 @@ void CFrameWndInfoProxy::DelWnd(const CWnd* pWnd)
 			CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 			for (; pIter!=m_pList.end(); pIter++)
 			{
-				CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+				const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 				if (pFrameWndInfo->IsChecked())
 				{
 					pFrameWndInfo->ShowHide(true);
@@ -1088,7 +1177,7 @@ void CFrameWndInfoProxy::ShowWnd(eb::bigint nCallId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				bFindInfo = true;
@@ -1110,12 +1199,13 @@ void CFrameWndInfoProxy::ShowWnd(eb::bigint nCallId)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
+				const CFrameWndInfo::pointer pFrameWndInfoTemp = pFrameWndInfo;
 				m_pHideList.erase(pIter);
 				wtLock.unlock();
-				AddWnd(pFrameWndInfo,true,false);
+				AddWnd(pFrameWndInfoTemp,true,false);
 				break;
 			}
 		}
@@ -1130,7 +1220,7 @@ void CFrameWndInfoProxy::ShowWnd(unsigned int nWndIndex)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetUserData()==nWndIndex)
 			{
 				bFindInfo = true;
@@ -1153,12 +1243,13 @@ void CFrameWndInfoProxy::ShowWnd(unsigned int nWndIndex)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetUserData()==nWndIndex)
 			{
+				const CFrameWndInfo::pointer pFrameWndInfoTemp = pFrameWndInfo;
 				m_pHideList.erase(pIter);
 				wtLock.unlock();
-				AddWnd(pFrameWndInfo,true, false);
+				AddWnd(pFrameWndInfoTemp,true, false);
 				break;
 			}
 		}
@@ -1173,7 +1264,7 @@ void CFrameWndInfoProxy::OnFirstWorkFrameWndShow(void) const
 	CLockList<CFrameWndInfo::pointer>::const_iterator pIter = m_pList.begin();
 	if (pIter!=m_pList.end())
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked() && pFrameWndInfo->GetType()==CFrameWndInfo::FRAME_WND_WORK_FRAME)
 		{
 			m_pCallback->OnFrameWndShow(pFrameWndInfo,true);
@@ -1187,7 +1278,7 @@ void CFrameWndInfoProxy::ShowFirstWnd(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		pFrameWndInfo->ShowHide(true);
 		if (m_pCallback!=NULL)
 			m_pCallback->OnFrameWndShow(pFrameWndInfo,true);
@@ -1204,7 +1295,7 @@ bool CFrameWndInfoProxy::ShowUpWnd(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			pHideFrameWndInfo = pFrameWndInfo;
@@ -1252,7 +1343,7 @@ bool CFrameWndInfoProxy::ShowDownWnd(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFirstFrameWndInfo.get()==NULL)
 			pFirstFrameWndInfo = pFrameWndInfo;
 		pLastFrameWndInfo = pFrameWndInfo;
@@ -1297,7 +1388,7 @@ bool CFrameWndInfoProxy::ShowOffsetWnd(int nShowOffset)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (nShowOffset>=0 && (nCurrentOffset++)==nShowOffset)
 		{
 			pShowFrameWndInfo = pFrameWndInfo;
@@ -1337,7 +1428,7 @@ void CFrameWndInfoProxy::ShowWnd(const CWnd* pWnd)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsWndAddress(pWnd))
 			{
 				bFindInfo = true;
@@ -1360,12 +1451,13 @@ void CFrameWndInfoProxy::ShowWnd(const CWnd* pWnd)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsWndAddress(pWnd))
 			{
+				const CFrameWndInfo::pointer pFrameWndInfoTemp = pFrameWndInfo;
 				m_pHideList.erase(pIter);
 				wtLock.unlock();
-				AddWnd(pFrameWndInfo,true,false);
+				AddWnd(pFrameWndInfoTemp,true,false);
 				break;
 			}
 		}
@@ -1379,7 +1471,7 @@ void CFrameWndInfoProxy::ShowHideCurrent(bool bShow)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->IsChecked() && !bShow)
 			{
 				m_nCurrentHideIndex = pFrameWndInfo->GetUserData();
@@ -1410,7 +1502,7 @@ void CFrameWndInfoProxy::ClickFrame(unsigned int nWndIndex)
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetUserData()==nWndIndex)
 			{
 				if (pFrameWndInfo->IsClickClose(pos))
@@ -1451,7 +1543,7 @@ bool CFrameWndInfoProxy::ExistCallIdWnd(eb::bigint nCallId) const
 		CLockList<CFrameWndInfo::pointer>::const_iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
 		{
-			const CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				return true;
@@ -1463,7 +1555,7 @@ bool CFrameWndInfoProxy::ExistCallIdWnd(eb::bigint nCallId) const
 		CLockList<CFrameWndInfo::pointer>::const_iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			const CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				return true;
@@ -1478,7 +1570,7 @@ bool CFrameWndInfoProxy::RemoveHideWnd(eb::bigint nCallId)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 	for (; pIter!=m_pHideList.end(); pIter++)
 	{
-		const CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetCallId()==nCallId)
 		{
 			m_pHideList.erase(pIter);
@@ -1498,6 +1590,7 @@ CDlgDialog::pointer CFrameWndInfoProxy::GetCallIdDialog(eb::bigint nCallId, bool
 		for (; pIter!=m_pList.end(); pIter++)
 		{
 			const CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			//const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
 				if (bRemove)
@@ -1541,12 +1634,13 @@ CDlgDialog::pointer CFrameWndInfoProxy::GetCallIdDialog(eb::bigint nCallId, bool
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
 		for (; pIter!=m_pHideList.end(); pIter++)
 		{
-			const CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCallId()==nCallId)
 			{
+				const CFrameWndInfo::pointer pFrameWndInfoTemp = pFrameWndInfo;
 				if (bRemove)
 					m_pHideList.erase(pIter);
-				return pFrameWndInfo->GetDialog();
+				return pFrameWndInfoTemp->GetDialog();
 			}
 		}
 	}
@@ -1568,7 +1662,7 @@ void CFrameWndInfoProxy::RefreshChecked(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (!pFrameWndInfo->IsChecked()) continue;
 		switch (pFrameWndInfo->GetType())
 		{
@@ -1592,7 +1686,7 @@ void CFrameWndInfoProxy::OnMove(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		switch (pFrameWndInfo->GetType())
 		{
 		case CFrameWndInfo::FRAME_WND_CALL_DIALOG:
@@ -1611,7 +1705,7 @@ void CFrameWndInfoProxy::ChangeDepartmentInfo(const EB_GroupInfo* pGroupInfo)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetCallId()==pGroupInfo->m_sGroupCode)
 		{
 			pFrameWndInfo->ChangeDepartmentInfo(pGroupInfo);
@@ -1626,13 +1720,40 @@ void CFrameWndInfoProxy::UserLineStateChange(eb::bigint nGroupCode, eb::bigint n
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		//if (pFrameWndInfo->GetGroupId()==0 && pFrameWndInfo->GetFromUserId()==nUserId)
 		{
 			pFrameWndInfo->LineStateChange(nGroupCode, nUserId, nLineState);
 		}
 	}
-
+}
+void CFrameWndInfoProxy::UserHeadChange(const EB_ContactInfo* pContactInfo)
+{
+	BoostReadLock rdLock(m_pList.mutex());
+	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
+	for (; pIter!=m_pList.end(); pIter++)
+	{
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
+		if (pFrameWndInfo->GetGroupId()==0 && pFrameWndInfo->GetFromUserId()==pContactInfo->m_nContactUserId)
+		{
+			pFrameWndInfo->UserHeadChange(pContactInfo);
+			break;
+		}
+	}
+}
+void CFrameWndInfoProxy::MemberHeadChange(const EB_MemberInfo * pMemberInfo)
+{
+	BoostReadLock rdLock(m_pList.mutex());
+	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
+	for (; pIter!=m_pList.end(); pIter++)
+	{
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
+		if (pFrameWndInfo->GetGroupId()==0 && pFrameWndInfo->GetFromUserId()==pMemberInfo->m_nMemberUserId)
+		{
+			pFrameWndInfo->MemberHeadChange(pMemberInfo);
+			break;
+		}
+	}
 }
 
 void CFrameWndInfoProxy::CheckMousePos(void)
@@ -1644,7 +1765,7 @@ void CFrameWndInfoProxy::CheckMousePos(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		pFrameWndInfo->CheckMousePos(pos);
 	}
 }
@@ -1655,7 +1776,7 @@ void CFrameWndInfoProxy::SetCurrentFocus(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsChecked())
 		{
 			if (pFrameWndInfo->GetDialog().get()!=NULL)
@@ -1673,7 +1794,7 @@ void CFrameWndInfoProxy::OnUserEmpInfo(IEB_MemberInfo* pMemberInfo)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 			pFrameWndInfo->GetDialog()->OnUserEmpInfo(pMemberInfo);
 	}
@@ -1685,7 +1806,7 @@ void CFrameWndInfoProxy::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bS
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 			pFrameWndInfo->GetDialog()->OnUserEmpInfo(pMemberInfo, bSort);
 	}
@@ -1697,7 +1818,7 @@ void CFrameWndInfoProxy::OnRemoveGroup(eb::bigint nGroupId)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 			pFrameWndInfo->GetDialog()->OnRemoveGroup(nGroupId);
 	}
@@ -1708,7 +1829,7 @@ void CFrameWndInfoProxy::OnRemoveMember(eb::bigint nGroupId, eb::bigint nMemberI
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 			pFrameWndInfo->GetDialog()->OnRemoveMember(nGroupId, nMemberId);
 	}
@@ -1719,7 +1840,7 @@ void CFrameWndInfoProxy::OnResourceMove(const EB_ResourceInfo& pResourceInfo,eb:
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 		{
 			if (pFrameWndInfo->GetDialog()->OnResourceMove(pResourceInfo, nOldParentResId))
@@ -1733,7 +1854,7 @@ void CFrameWndInfoProxy::OnResourceInfo(const EB_ResourceInfo& pResourceInfo)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 		{
 			if (pFrameWndInfo->GetDialog()->OnResourceInfo(pResourceInfo))
@@ -1747,7 +1868,7 @@ void CFrameWndInfoProxy::OnResourceDelete(const EB_ResourceInfo& pResourceInfo)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetDialog().get()!=NULL)
 		{
 			if (pFrameWndInfo->GetDialog()->OnResourceDelete(pResourceInfo))
@@ -1762,7 +1883,7 @@ void CFrameWndInfoProxy::OnExitRD(void)
 	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 	for (; pIter!=m_pList.end(); pIter++)
 	{
-		CFrameWndInfo::pointer pFrameWndInfo = *pIter;
+		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
 		pFrameWndInfo->OnExitRD();
 	}
 }

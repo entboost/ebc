@@ -20,6 +20,7 @@ namespace entboost {
 mycp::tstring EB_APPCLIENT_API GetHostIp(const char* lpszHostName,const char* lpszDefaultName);
 bool EB_APPCLIENT_API GetAddressPort(const char* sFullAddress, mycp::tstring& sOutAddress, int & nOutPort);
 //bool EB_APPCLIENT_API GetAccountAddress(const char* sFullAccount, mycp::tstring& sOutAddress);
+void EB_APPCLIENT_API GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey);
 
 //
 class EB_APPCLIENT_API CEBAppClient
@@ -171,12 +172,14 @@ public:
 	/****
 	功能：用户登录
 	====================================================================*/
-	int EB_LogonByAccount(const char * sAccount, const char * sPassword, const char* sReqCode="", EB_USER_LINE_STATE nNewLineState=EB_LINE_STATE_ONLINE_NEW);
+	int EB_LogonByAccount(const char * sAccount, const char * sPassword, const char* sReqCode="", const char * sOAuthKey="",EB_USER_LINE_STATE nNewLineState=EB_LINE_STATE_ONLINE_NEW);
 
 	/****
 	功能：OAUTH验证
+	参数：sOAuthKey 用于自动登录
 	====================================================================*/
-	int EB_LogonOAuth(const char * sAccount="",EB_USER_LINE_STATE nNewLineState=EB_LINE_STATE_ONLINE_NEW);
+	int EB_LogonOAuth(eb::bigint nUserId, const char * sOAuthKey="",EB_USER_LINE_STATE nNewLineState=EB_LINE_STATE_ONLINE_NEW);
+	//int EB_LogonOAuth(const char * sAccount="",EB_USER_LINE_STATE nNewLineState=EB_LINE_STATE_ONLINE_NEW);
 
 	/****
 	功能：重新登录，主要用于电脑挂起，或网络断开重启时，直接重新登录
@@ -723,6 +726,12 @@ public:
 	//bool EB_GetContactInfo(const char* sContactAccount,EB_ContactInfo* pOutContactInfo) const;
 
 	/****
+	功能：获取联系人头像信息
+	====================================================================*/
+	bool EB_GetContactHeadInfoByContactId(eb::bigint nContactId,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+	bool EB_GetContactHeadInfoByUserId(eb::bigint nUserId,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+
+	/****
 	功能：判断是否我的联系人帐号
 	====================================================================*/
 	bool EB_IsMyContactAccount1(eb::bigint nContactId) const;
@@ -772,6 +781,9 @@ public:
 	描述：pGroupInfo->m_sGroupCode为空，表示新建
 	====================================================================*/
 	int EB_EditGroup(const EB_GroupInfo* pGroupInfo);
+
+	bool EB_IsGroupForbidSpeech(eb::bigint nGroupId) const;	// 是否禁言群组
+	int EB_SetGroupForbidSpeech(eb::bigint nGroupId, bool bForbidSpeech);	// 是否禁言群组
 
 	/****
 	功能：删除部门或解散群组
@@ -861,6 +873,15 @@ public:
 	int EB_AddGroupAdminLevel(eb::bigint nGroupId, eb::bigint nMemberUserId);	// 增加群组管理员权限
 	int EB_DelGroupAdminLevel(eb::bigint nGroupId, eb::bigint nMemberUserId);	// 删除群组管理员权限
 
+	bool EB_IsMemberForbidSpeech(eb::bigint nGroupId, eb::bigint nMemberUserId,int& pOutForbidMinutes);	// 判断群组成员是否禁言
+	/****
+	功能：设置或解除群组（部门）成员禁言
+	描述：
+	参数：bForbidSpeech : 禁言或解除禁言 true=禁言 false=解除禁言
+	参数：nForbidMinutes: 禁言分钟数 -1=不处理 0=配合bForbidSpeech=true永久禁言 大于0=配合bForbidSpeech=true禁言多少分钟
+	====================================================================*/
+	int EB_SetMemberForbidSpeech(eb::bigint nGroupId, eb::bigint nMemberUserId, bool bForbidSpeech, int nForbidMinutes=0);	// 设置群组成员禁言
+
 	/****
 	功能：删除群组（部门）成员
 	====================================================================*/
@@ -887,6 +908,14 @@ public:
 	bool EB_GetMemberInfoByMemberCode(EB_MemberInfo* pOutMemberInfo,EB_GroupInfo* pOutGroupInfo,eb::bigint nMemberId) const;
 
 	/****
+	功能：获取群组（部门）成员头像信息
+	====================================================================*/
+	bool EB_GetMemberHeadInfoByMemberCode(eb::bigint nMemberId,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+	bool EB_GetMemberHeadInfoByUserId(eb::bigint nGroupId,eb::bigint nMemberUserId,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+	bool EB_GetMemberHeadInfoByUserId(eb::bigint nMemberUserId,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+	bool EB_GetMemberHeadInfoByAccount(const char* sMemberAccount,tstring& pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const;
+
+	/****
 	功能：获取群组（部门）成员名称
 	====================================================================*/
 	bool EB_GetMemberNameByUserId(eb::bigint nGroupId,eb::bigint nMemberUserId,mycp::tstring& pOutMemberName) const;
@@ -904,8 +933,8 @@ public:
 	/****
 	功能：获取群组（部门）头像文件
 	====================================================================*/
-	bool EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,int& pOutFileSize);
-	bool EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,int& pOutFileSize);
+	bool EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,mycp::tstring& pOutFileMd5);
+	bool EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId,mycp::tstring& pOutHeadPath,mycp::tstring& pOutFileMd5);
 
 	/****
 	功能：获取我的群组（部门）成员信息

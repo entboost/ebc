@@ -547,7 +547,7 @@ void CDlgChatRight::OnSize(UINT nType, int cx, int cy)
 		CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 		for (; pIter!=m_pTabList.end(); pIter++)
 		{
-			CRightTabInfo::pointer pFrameWndInfo = *pIter;
+			const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 			pFrameWndInfo->MoveAppWindow(x, const_Tab_Height, cx-x, cy-const_Tab_Height);
 		}
 	}
@@ -645,7 +645,7 @@ void CDlgChatRight::RefreshAppWnd(void)
 	CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsCheckedRefresh())
 		{
 			return;
@@ -694,7 +694,7 @@ void CDlgChatRight::RefreshWeb(void)
 		CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 		for (; pIter!=m_pTabList.end(); pIter++)
 		{
-			CRightTabInfo::pointer pFrameWndInfo = *pIter;
+			const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCtrlID()>=RIGHC_TAB_ID_APP_FIRST)
 			{
 				if (pFrameWndInfo->IsCheckedRefresh())
@@ -722,7 +722,7 @@ void CDlgChatRight::OnMove(void)
 		CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 		for (; pIter!=m_pTabList.end(); pIter++)
 		{
-			CRightTabInfo::pointer pFrameWndInfo = *pIter;
+			const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCtrlID()>=RIGHC_TAB_ID_APP_FIRST)
 			{
 				if (pFrameWndInfo->IsChecked())
@@ -767,7 +767,7 @@ int CDlgChatRight::GetNeedWidth(void) const
 	CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		switch (pFrameWndInfo->GetCtrlID())
 		{
 		case RIGHC_TAB_ID_USERLIST:
@@ -1480,7 +1480,7 @@ UINT CDlgChatRight::GetTabIDBySubscribeId(eb::bigint nSubscribeId) const
 	CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetSubscribeId()==nSubscribeId)
 			return pFrameWndInfo->GetCtrlID();
 	}
@@ -1494,7 +1494,7 @@ int CDlgChatRight::GetOffsetIndexByHwnd(HWND hWnd) const
 	CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->IsAppWindow(hWnd))
 		{
 			return nCurrentIndex;
@@ -1521,7 +1521,7 @@ bool CDlgChatRight::ShowTabID(UINT nID, bool bCheckClose)
 		CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 		for (; pIter!=m_pTabList.end(); pIter++)
 		{
-			CRightTabInfo::pointer pFrameWndInfo = *pIter;
+			const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCtrlID()==nID || (nID==0 && pShowFrameWndInfo.get()==NULL))
 			{
 				pShowFrameWndInfo = pFrameWndInfo;
@@ -1655,7 +1655,7 @@ bool CDlgChatRight::CloseTabID(UINT nID)
 		CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 		for (; pIter!=m_pTabList.end(); pIter++)
 		{
-			CRightTabInfo::pointer pFrameWndInfo = *pIter;
+			const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 			if (pFrameWndInfo->GetCtrlID()==nID)
 			{
 				pFindFrameWndInfo = pFrameWndInfo;
@@ -1720,7 +1720,7 @@ bool CDlgChatRight::ChangeTabText(UINT nID, LPCTSTR lpszCaption)
 	CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetCtrlID()==nID)
 		{
 			pFrameWndInfo->SetTabText(lpszCaption);
@@ -1736,7 +1736,7 @@ bool CDlgChatRight::ChangeTabText(const CWnd* pWnd, LPCTSTR lpszCaption)
 	CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->ChangeTabText(pWnd,lpszCaption))
 		{
 			//this->SetToolTipText(pFrameWndInfo->GetCtrlID(),lpszCaption);
@@ -1753,7 +1753,7 @@ int CDlgChatRight::GetTabSizeWidth(void) const
 	CLockList<CRightTabInfo::pointer>::const_iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		nResult += pFrameWndInfo->GetTabWidth();
 	}
 	return nResult;
@@ -1787,7 +1787,7 @@ void CDlgChatRight::CheckMousePos(void)
 	CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		pFrameWndInfo->CheckMousePos(pos);
 	}
 }
@@ -1830,7 +1830,7 @@ void CDlgChatRight::ChangeTabPos(void)
 	CLockList<CRightTabInfo::pointer>::iterator pIter = m_pTabList.begin();
 	for (; pIter!=m_pTabList.end(); pIter++)
 	{
-		CRightTabInfo::pointer pFrameWndInfo = *pIter;
+		const CRightTabInfo::pointer& pFrameWndInfo = *pIter;
 		if (pFrameWndInfo->GetCtrlID()==RIGHC_TAB_ID_USERLIST)
 		{
 			rectTab.right = rectTab.left + const_Tab_Width1;
