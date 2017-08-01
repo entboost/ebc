@@ -415,7 +415,7 @@ void CDlgGroupInfo::OnBnClickedButtonManagerName()
 	{
 		return;
 	}
-	m_pDlgSelectUser.SetSeledtedGroupId(m_nGroupId);
+	m_pDlgSelectUser.SetSelectedGroupId(m_nGroupId);
 #ifdef USES_SELECTED_ITEM_UID
 	m_pDlgSelectUser.m_pSelectedUserTreeItem.insert(m_sManagerAccount,m_nManagerUserId);
 #else

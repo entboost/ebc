@@ -43,7 +43,7 @@ const tstring ebc_language_saturday					= "saturday";
 //const tstring ebc_language_		= "";
 
 /*
- * 国际化语言设置类（保留用）
+ * 鍥介檯鍖栬瑷�璁剧疆绫伙紙淇濈暀鐢級
  * 
 *//////////////////////////////////////////////////////
 

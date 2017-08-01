@@ -41,6 +41,9 @@ class ClientApp : public CefApp,
                   public CefBrowserProcessHandler,
                   public CefRenderProcessHandler {
  public:
+
+	 virtual void OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line) override;
+
   // Interface for browser delegates. All BrowserDelegates must be returned via
   // CreateBrowserDelegates. Do not perform work in the BrowserDelegate
   // constructor. See CefBrowserProcessHandler for documentation.

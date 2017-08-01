@@ -1,0 +1,57 @@
+
+           bodb ChangeLog
+           ---------------
+ 0.1.2 (2010-06-04)
+  * Suppor linux compile.
+  * Add CBodbHandler::pointer.
+  
+ 0.1.1 (2010-04-08)
+  * Add SELECT DISTINCT ...
+  * Add CURRENT_TIMESTAMP function
+  
+ 0.1.0 (2010-02-24)
+	* CREATE DATABASE database_name
+  * USE database_name
+  * CREATE TABLE table_name (create_definition,...)
+  * DATATYPE:
+	  	BOOLEAN
+	  	TINYINT SMALLINT INT[EGER] BIGINT
+	  	FLOAT[/REAL] DOUBLE
+	  	DATE TIME TIMESTAMP
+	  	CHAR[ACTER] VARCHAR CLOB
+	  	NCHAR NCHAR[ACTER] NVARCHAR NCLOB
+	  	BINARY VARBINARY BLOB
+	  	? NUMERIC
+  * DEFINITYION:
+  		NOT NULL
+  		UNIQUE
+  		PRIMARY KEY
+  		DEFAULT
+  		UNSIGNED
+  		? CONSTRAINT constraint_name
+  		? REFERENCES
+  		? CHECK
+  * INSERT [INTO]:
+   		INSERT [INTO] table_name VALUES(...)
+  		INSERT [INTO] table_name (...) VALUES (...)
+  * UPDATE:
+   		UPDATE table_name SET field_name=value [WHERE ...]
+  		UPDATE table_name SET field_name=NULL[DEFAULT] [WHERE ...]
+  		? UPDATE table_name SET field_name=field_name*[...]
+  * DELETE:
+  		DELETE FROM table_name [WHERE ...]
+	* SELECT:
+			SELECT * FROM table_name [AS alias_name] [WHERE ...]
+			SELECT field1[,field2 ...] FROM table_name [AS alias_name] [WHERE ...]
+			SELECT field1[,field2 ...] FROM table_name [AS alias_name] [WHERE ...]
+			SELECT field1[,field2 ...] FROM table1 [AS alias_name] [,table2 ...] [WHERE ...]
+			? SELECT FUNC(...) FROM table_name
+			? OTHER SELECT ...
+	* WHERE:
+			WHERE field_name=[!=,<>,>=,>,<=,<]value
+			WHERE field_name IS_NOTNULL[IS_NULL]
+			? WHERE field_name BETWEEN value1 AND value2
+			? WHERE field_name=field_name*[...]
+			? WHERE (SELECT ...)
+			
+  		

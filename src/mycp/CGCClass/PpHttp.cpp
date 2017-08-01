@@ -519,7 +519,7 @@ inline std::string GetMonthName(int nMonth)
 }
 
 #ifdef USES_ZLIB
-bool CPpHttp::MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData)
+bool CPpHttp::MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData)
 {
 	if (nSize>0 && nUserData!=0)
 	{
@@ -529,7 +529,7 @@ bool CPpHttp::MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, 
 	}
 	return true;
 }
-bool CPpHttp::UnZipPostStringCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData)
+bool CPpHttp::UnZipPostStringCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData)
 {
 	if (nSize>0 && nUserData!=0)
 	{
@@ -538,7 +538,7 @@ bool CPpHttp::UnZipPostStringCallBack(uLong nSourceIndex, const unsigned char* p
 	}
 	return true;
 }
-bool CPpHttp::UnZipWriteFileCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData)
+bool CPpHttp::UnZipWriteFileCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData)
 {
 	if (nSize>0 && nUserData!=0)
 	{
@@ -547,12 +547,25 @@ bool CPpHttp::UnZipWriteFileCallBack(uLong nSourceIndex, const unsigned char* pD
 	}
 	return true;
 }
-bool CPpHttp::UnZipWriteCurrentMultiPartCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData)
+//#define USES_PRINT_DEBUG
+//#define USES_WRITE_FILE
+#ifdef USES_WRITE_FILE
+FILE * theFile = NULL;
+#endif
+
+bool CPpHttp::UnZipWriteCurrentMultiPartCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData)
 {
 	if (nSize>0 && nUserData!=0)
 	{
 		CPpHttp * pHttp = (CPpHttp*)nUserData;
 		pHttp->m_currentMultiPart->write((const char*)pData,nSize);
+#ifdef USES_WRITE_FILE
+		if (theFile!=NULL)
+		{
+			fwrite((const char*)pData,1,nSize,theFile);
+			fflush(theFile);
+		}
+#endif
 	}
 	return true;
 }
@@ -769,7 +782,7 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 		if (m_sReqAcceptEncoding.find("gzip")!=std::string::npos)
 		{
 			const_cast<CPpHttp*>(this)->m_nZipCallBackDataSize = 0;
-			if (GZipDataCb((const unsigned char*)m_resultBuffer+MAX_HTTPHEAD_SIZE,(uLong)m_bodySize,Z_DEFAULT_COMPRESSION,MyZipDataCallBack,(unsigned int)this)==Z_OK)
+			if (GZipDataCb((const unsigned char*)m_resultBuffer+MAX_HTTPHEAD_SIZE,(uLong)m_bodySize,Z_DEFAULT_COMPRESSION,MyZipDataCallBack,(unsigned long)this)==Z_OK)
 			{
 				//printf("*********** GZipDataCb m_sReqAcceptEncoding=%s,bodysize=%d,m_nZipCallBackDataSize=%d\n",m_sReqAcceptEncoding.c_str(),(int)m_bodySize,(int)m_nZipCallBackDataSize);
 				const_cast<CPpHttp*>(this)->m_bodySize = m_nZipCallBackDataSize;
@@ -780,7 +793,7 @@ const char * CPpHttp::getHttpResult(size_t& outSize) const
 		}else if (m_sReqAcceptEncoding.find("deflate")!=std::string::npos)
 		{
 			const_cast<CPpHttp*>(this)->m_nZipCallBackDataSize = 0;
-			if (ZipDataCb((const unsigned char*)m_resultBuffer+MAX_HTTPHEAD_SIZE,(uLong)m_bodySize,0,Z_DEFAULT_COMPRESSION,MyZipDataCallBack,(unsigned int)this)==Z_OK)
+            if (ZipDataCb((const unsigned char*)m_resultBuffer+MAX_HTTPHEAD_SIZE,(uLong)m_bodySize,0,Z_DEFAULT_COMPRESSION,MyZipDataCallBack,(unsigned long)this)==Z_OK)
 			{
 				//printf("*********** GZipDataCb m_sReqAcceptEncoding=%s,bodysize=%d,m_nZipCallBackDataSize=%d\n",m_sReqAcceptEncoding.c_str(),(int)m_bodySize,(int)m_nZipCallBackDataSize);
 				const_cast<CPpHttp*>(this)->m_bodySize = m_nZipCallBackDataSize;
@@ -1100,7 +1113,6 @@ inline bool FindHttpHeader(const char * httpRequest, const char ** pOutFind1, co
 	return false;
 }
 
-//#define USES_PRINT_DEBUG
 //inline long hstring2int(const char*s) 
 //{  
 //	int i,t;  
@@ -1132,7 +1144,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 	static FILE * f = NULL;
 	if (f==NULL)
 #ifdef WIN32
-		f = fopen("c:\\entboost_http_recv.txt","wb");
+		f = fopen("d:\\entboost_http_recv.txt","wb");
 #else
 		f = fopen("/entboost_http_recv.txt","wb");
 #endif
@@ -1144,6 +1156,15 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 		fwrite(httpRequest,1,requestSize,f);
 		fflush(f);
 	}
+#endif
+
+#ifdef USES_WRITE_FILE
+	if (theFile==NULL)
+#ifdef WIN32
+		theFile = fopen("d:\\entboost_http_recv_file.f","wb");
+#else
+		theFile = fopen("/entboost_http_recv_file.f","wb");
+#endif
 #endif
 
 	//printf("CPpHttp::IsComplete  size=%d\n",requestSize);
@@ -1248,7 +1269,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 #ifdef USES_ZLIB
 					if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 					{
-						if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteFileCallBack,(unsigned int)m_pResponseSaveFile)==Z_OK)
+                        if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteFileCallBack,(unsigned long)m_pResponseSaveFile)==Z_OK)
 						{
 							bUnZipOk = true;
 						}
@@ -1265,7 +1286,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 				{
 					m_postString.clear();
-					if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned int)this)==Z_OK)
+                    if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned long)this)==Z_OK)
 					{
 						bUnZipOk = true;
 						m_queryString = m_postString;
@@ -1297,7 +1318,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 #ifdef USES_ZLIB
 					if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 					{
-						if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteFileCallBack,(unsigned int)m_pResponseSaveFile)==Z_OK)
+                        if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteFileCallBack,(unsigned long)m_pResponseSaveFile)==Z_OK)
 						{
 							bUnZipOk = true;
 						}
@@ -1311,7 +1332,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 #ifdef USES_ZLIB
 				if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 				{
-					if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned int)this)==Z_OK)
+                    if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned long)this)==Z_OK)
 					{
 						bUnZipOk = true;
 						m_queryString = m_postString;
@@ -1374,7 +1395,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 			if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 			{
 				unsigned int nUnZipSize = 0;
-				if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned int)this)==Z_OK)
+                if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipPostStringCallBack,(unsigned long)this)==Z_OK)
 				{
 					bUnZipOk = true;
 					m_queryString = m_postString;
@@ -1416,20 +1437,29 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				if (find != NULL)
 				{
 					findBoundary = true;
-					if (m_currentMultiPart->getUploadFile()->getFileSize() > 0)
+					//if (m_currentMultiPart->getUploadFile()->getFileSize() > 0)
 					{
 						bool bUnZipOk = false;
 #ifdef USES_ZLIB
 						if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 						{
-							if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)(find-(const char*)httpRequest),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned int)this)==Z_OK)
+                            if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)(find-(const char*)httpRequest),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned long)this)==Z_OK)
 							{
 								bUnZipOk = true;
 							}
 						}
 #endif
 						if (!bUnZipOk)
+						{
 							m_currentMultiPart->write((const char*)httpRequest, find-(const char*)httpRequest);
+#ifdef USES_WRITE_FILE
+							if (theFile!=NULL)
+							{
+								fwrite((const char*)httpRequest,1,find-(const char*)httpRequest,theFile);
+								fflush(theFile);
+							}
+#endif
+						}
 						m_currentMultiPart->close();
 						m_currentMultiPart->setParser(cgcNullParserBaseService);
 						m_files.push_back(m_currentMultiPart);
@@ -1477,7 +1507,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 			if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 			{
 				unsigned int nUnZipSize = 0;
-				if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteCurrentMultiPartCallBack,(unsigned int)this)==Z_OK)
+                if (UnGZipDataCb((const unsigned char*)httpRequest,(uLong)requestSize,&nUnZipSize,UnZipWriteCurrentMultiPartCallBack,(unsigned long)this)==Z_OK)
 				{
 					bUnZipOk = true;
 					//m_receiveSize += nUnZipSize;
@@ -1487,6 +1517,14 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 			if (!bUnZipOk)
 			{
 				m_currentMultiPart->write((const char*)httpRequest, requestSize);
+#ifdef USES_WRITE_FILE
+				if (theFile!=NULL)
+				{
+					fwrite((const char*)httpRequest,1,requestSize,theFile);
+					fflush(theFile);
+				}
+#endif
+
 				//m_receiveSize += requestSize;
 			}
 			// getMaxFileSize & isGreaterMaxSize
@@ -1923,13 +1961,22 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 				tstring boundaryEnd("\r\n");
 				boundaryEnd.append(m_currentMultiPart->getBoundary());
 				const char * find = strstrl((const char*)findSearchEnd, boundaryEnd.c_str(), requestSize-(findSearchEnd-httpRequestOld), boundaryEnd.size());
+#ifdef USES_PRINT_DEBUG
+				if (f!=NULL)
+				{
+					char lpszBuf[1024];
+					sprintf(lpszBuf,"\r\n**** strstrl=%d",(int)(find==0?0:1));
+					fwrite(lpszBuf,1,strlen(lpszBuf),f);
+					fflush(f);
+				}
+#endif
 				if (find == NULL)
 				{
 					bool bUnZipOk = false;
 #ifdef USES_ZLIB
 					if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 					{
-						if (UnGZipDataCb((const unsigned char*)findSearchEnd+4,(uLong)(m_contentLength-size_t(findSearchEnd-httpRequestOld)-4),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned int)this)==Z_OK)
+                        if (UnGZipDataCb((const unsigned char*)findSearchEnd+4,(uLong)(m_contentLength-size_t(findSearchEnd-httpRequestOld)-4),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned long)this)==Z_OK)
 						{
 							bUnZipOk = true;
 						}
@@ -1939,6 +1986,13 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 					{
 						m_currentMultiPart->write(findSearchEnd+4, requestSize-size_t(findSearchEnd-httpRequestOld)-4);
 						//m_currentMultiPart->write(findSearchEnd+4, m_contentLength-size_t(findSearchEnd-httpRequestOld)-4);
+#ifdef USES_WRITE_FILE
+						if (theFile!=NULL)
+						{
+							fwrite((const char*)findSearchEnd+4,1,requestSize-size_t(findSearchEnd-httpRequestOld)-4,theFile);
+							fflush(theFile);
+						}
+#endif
 					}
 					m_sCurrentParameterData.clear();
 					return false;
@@ -1947,14 +2001,23 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 #ifdef USES_ZLIB
 				if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 				{
-					if (UnGZipDataCb((const unsigned char*)findSearchEnd+4,(uLong)(find-findSearchEnd-4),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned int)this)==Z_OK)
+                    if (UnGZipDataCb((const unsigned char*)findSearchEnd+4,(uLong)(find-findSearchEnd-4),NULL,UnZipWriteCurrentMultiPartCallBack,(unsigned long)this)==Z_OK)
 					{
 						bUnZipOk = true;
 					}
 				}
 #endif
 				if (!bUnZipOk)
+				{
 					m_currentMultiPart->write(findSearchEnd+4, find-findSearchEnd-4);
+#ifdef USES_WRITE_FILE
+					if (theFile!=NULL)
+					{
+						fwrite((const char*)findSearchEnd+4,1,find-findSearchEnd-4,theFile);
+						fflush(theFile);
+					}
+#endif
+				}
 				m_currentMultiPart->close();
 				m_currentMultiPart->setParser(cgcNullParserBaseService);
 				if (!m_currentMultiPart->getFileName().empty())
@@ -2076,7 +2139,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 #ifdef USES_ZLIB
 									if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 									{
-										if (UnGZipDataCb((const unsigned char*)findContent,(uLong)m_receiveSize,NULL,UnZipWriteFileCallBack,(unsigned int)m_pResponseSaveFile)==Z_OK)
+                                        if (UnGZipDataCb((const unsigned char*)findContent,(uLong)m_receiveSize,NULL,UnZipWriteFileCallBack,(unsigned long)m_pResponseSaveFile)==Z_OK)
 										{
 											bUnZipOk = true;
 										}
@@ -2103,7 +2166,7 @@ bool CPpHttp::IsComplete(const char * httpRequest, size_t requestSize,bool& pOut
 									if (m_sReqContentEncoding.find("gzip")!=std::string::npos)
 									{
 										m_postString.clear();
-										if (UnGZipDataCb((const unsigned char*)m_queryString.c_str(),(uLong)m_queryString.size(),NULL,UnZipPostStringCallBack,(unsigned int)this)==Z_OK)
+                                        if (UnGZipDataCb((const unsigned char*)m_queryString.c_str(),(uLong)m_queryString.size(),NULL,UnZipPostStringCallBack,(unsigned long)this)==Z_OK)
 										{
 											bUnZipOk = true;
 											m_queryString = m_postString;

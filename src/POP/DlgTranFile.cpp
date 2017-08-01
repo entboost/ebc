@@ -26,7 +26,7 @@ void CDlgTranFile::DoDataExchange(CDataExchange* pDX)
 {
 	CEbDialogBase::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_PROGRESS_PERCENT, m_progPercent);
-	DDX_Control(pDX, IDC_BUTTON_SAVE2CLOUDDRIVE, m_btnSave2CloutDrive);
+	DDX_Control(pDX, IDC_BUTTON_SAVE2CLOUDDRIVE, m_btnSave2CloudDrive);
 	DDX_Control(pDX, IDC_BUTTON_SAVEAS, m_btnSaveas);
 	DDX_Control(pDX, IDC_BUTTON_SAVE, m_btnSave);
 	DDX_Control(pDX, IDC_BUTTON_REJECT, m_btnReject);
@@ -71,15 +71,15 @@ BOOL CDlgTranFile::OnInitDialog()
 
 	if (!m_bIsSendingFile && m_pCrFileInfo.m_bOffFile)
 	{
-		m_btnSave2CloutDrive.SetToolTipText(_T("保存到我的云盘"));
-		m_btnSave2CloutDrive.SetAutoSize(false);
-		m_btnSave2CloutDrive.SetNorTextColor(RGB(0,128,255));
-		m_btnSave2CloutDrive.SetHotTextColor(RGB(0,128,255));
-		m_btnSave2CloutDrive.SetPreTextColor(RGB(0,128,255));
-		m_btnSave2CloutDrive.ShowWindow(SW_SHOW);
+		m_btnSave2CloudDrive.SetToolTipText(_T("保存到我的云盘"));
+		m_btnSave2CloudDrive.SetAutoSize(false);
+		m_btnSave2CloudDrive.SetNorTextColor(RGB(0,128,255));
+		m_btnSave2CloudDrive.SetHotTextColor(RGB(0,128,255));
+		m_btnSave2CloudDrive.SetPreTextColor(RGB(0,128,255));
+		m_btnSave2CloudDrive.ShowWindow(SW_SHOW);
 	}else
 	{
-		m_btnSave2CloutDrive.ShowWindow(SW_HIDE);
+		m_btnSave2CloudDrive.ShowWindow(SW_HIDE);
 	}
 
 	m_btnSaveas.SetTextHotMove(false);
@@ -227,7 +227,7 @@ void CDlgTranFile::OnSize(UINT nType, int cx, int cy)
 	if (!m_bIsSendingFile && m_pCrFileInfo.m_bOffFile)
 	{
 		x -= (const_Button_Width2+const_Button_Interval);
-		m_btnSave2CloutDrive.MovePoint(x, const_Button_Top,const_Button_Width2,const_Button_Height);
+		m_btnSave2CloudDrive.MovePoint(x, const_Button_Top,const_Button_Width2,const_Button_Height);
 	}
 }
 
@@ -262,7 +262,6 @@ void CDlgTranFile::OnBnClickedButtonSaveas()
 	CFileDialog dlg(FALSE, sFileExt.c_str(), m_pCrFileInfo.m_sFileName.c_str(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "All Files (*.*)|*.*||", this);
 	if (dlg.DoModal() == IDOK)
 	{
-		m_btnSave2CloutDrive.ShowWindow(SW_HIDE);
 		const CString sPathName(dlg.GetPathName());
 		if (::PathFileExists(sPathName))
 		{
@@ -282,6 +281,7 @@ void CDlgTranFile::OnBnClickedButtonSaveas()
 		theEBAppClient.EB_AcceptFile(m_pCrFileInfo.GetCallId(),m_pCrFileInfo.m_nMsgId, sPathName);
 #endif
 		// ? P2P等开始传统文件再hide
+		m_btnSave2CloudDrive.ShowWindow(SW_HIDE);
 		m_btnSaveas.EnableWindow(FALSE);
 		m_btnSave.EnableWindow(FALSE);
 		m_btnReject.ShowWindow(SW_HIDE);
@@ -316,7 +316,7 @@ void CDlgTranFile::OnBnClickedButtonSave()
 	theEBAppClient.EB_AcceptFile(m_pCrFileInfo.GetCallId(),m_pCrFileInfo.m_nMsgId, sSaveTo);
 #endif
 	//m_pChatRoom->ReceiveFile(m_pCrFileInfo.m_nMsgId, sSaveTo);
-	m_btnSave2CloutDrive.ShowWindow(SW_HIDE);
+	m_btnSave2CloudDrive.ShowWindow(SW_HIDE);
 	m_btnSaveas.EnableWindow(FALSE);
 	m_btnSave.EnableWindow(FALSE);
 	m_btnReject.ShowWindow(SW_HIDE);

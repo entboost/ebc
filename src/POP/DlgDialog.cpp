@@ -1464,7 +1464,7 @@ void CDlgDialog::OnSave2CloutDrive(IEB_ChatFileInfo* pCrFileInfo,int nStateValue
 	}
 }
 #else
-void CDlgDialog::OnSave2CloutDrive(const CCrFileInfo * pCrFileInfo,int nStateValue)
+void CDlgDialog::OnSave2CloudDrive(const CCrFileInfo * pCrFileInfo,int nStateValue)
 {
 	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
@@ -2556,7 +2556,7 @@ void CDlgDialog::OnBnClickedButtonAddUser()
 		return;
 	}
 	m_pDlgSelectUser.SetSingleSelect(false);
-	m_pDlgSelectUser.SetSeledtedGroupId(-1);
+	m_pDlgSelectUser.SetSelectedGroupId(-1);
 	//m_pDlgSelectUser.SetSeledtedGroupId(m_pEbCallInfo->m_pCallInfo.m_sGroupCode);
 	m_pDlgSelectUser.ShowWindow(SW_SHOW);
 	for (size_t i=0; i<pExistUserList.size(); i++)
@@ -3573,7 +3573,7 @@ void CDlgDialog::OnSendUserECard(void)
 		return;
 	}
 	m_pDlgSelectUser.SetSingleSelect(true);
-	m_pDlgSelectUser.SetSeledtedGroupId(-1);
+	m_pDlgSelectUser.SetSelectedGroupId(-1);
 	m_pDlgSelectUser.ShowWindow(SW_SHOW);
 	const INT_PTR nResponse = m_pDlgSelectUser.RunModalLoop();
 	m_pDlgSelectUser.ShowWindow(SW_HIDE);

@@ -454,7 +454,7 @@ void CDlgAppWindow::ChangeBrowserType(EB_BROWSER_TYPE nNewBrowserType)
 #ifdef USES_LIBCEF
 	if (nNewBrowserType!=m_nBrowserType)
 	{
-		tstring sUrl;
+		std::string sUrl;
 		if (EB_BROWSER_TYPE_CEF==m_nBrowserType)
 		{
 			sUrl = m_pCefBrowser.GetLocationURL();
@@ -1126,9 +1126,11 @@ void CDlgAppWindow::OnStatusMessage(const wchar_t* sValue)
 }
 void CDlgAppWindow::OnLoadError(int nErrorCode,const wchar_t* sErrorText, const wchar_t* sFailedUrl)
 {
+  //if (errorCode == ERR_ABORTED)
 	m_bSaveBrowseTitle = false;
 	const WPARAM nShowRefreshOrStop = 1;	// 1=show refresh; 2=show stop
 	this->GetParent()->PostMessage(EB_COMMAND_SHOW_REFRESH_OR_STOP,nShowRefreshOrStop,(WPARAM)(CWnd*)this);
+	//m_pCefBrowser.StopLoad();
 }
 void CDlgAppWindow::OnLoadingStateChange(const wchar_t* sUrl, bool bIsLoading, bool bCanGoBack, bool bCanGoForward)
 {
@@ -1198,6 +1200,9 @@ void CDlgAppWindow::OnLoadingStateChange(const wchar_t* sUrl, bool bIsLoading, b
 			this->GetClientRect(&rect);
 			m_pCefBrowser.MoveWindow(0,0,rect.Width(),rect.Height());
 			m_pCefBrowser.SetFocus();
+
+			//if (!m_sToNavigateUrl.empty() && m_sToNavigateUrl!="about:blank")
+			//	m_pCefBrowser.LoadURL(libEbc::ACP2UTF8(m_sToNavigateUrl.c_str()).string());
 
 			//if (!m_sToNavigateUrl.empty())
 			//{

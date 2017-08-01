@@ -349,7 +349,7 @@ CCallRecordInfo::pointer CDlgMySession::GetCallRecordInfo(eb::bigint sDepCode, e
 		}else
 		{
 			// ²éÑ¯ÕÊºÅ
-			if (pCallRecordInfo->m_nFromUserId==sAccount)
+			if (pCallRecordInfo->m_sGroupCode==0 && pCallRecordInfo->m_nFromUserId==sAccount)
 			{
 				return pCallRecordInfo;
 			}

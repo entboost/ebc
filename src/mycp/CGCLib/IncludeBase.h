@@ -20,9 +20,11 @@
 #ifndef _INCLUDEBASE_HEAD_INCLUDED__
 #define _INCLUDEBASE_HEAD_INCLUDED__
 //
+#ifndef _WIN32_WINNT
 #ifdef _WIN32
 #define _WIN32_WINNT	0x0600
 #endif
+#endif /// _WIN32_WINNT
 
 // std
 #include <vector>

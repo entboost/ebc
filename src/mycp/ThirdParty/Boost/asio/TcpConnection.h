@@ -31,7 +31,9 @@ public:
 
 const TcpConnection_Handler::pointer NullTcpConnectionHandler;
 
+#define USES_OWNER_RECEIVE_BUFFER
 #define USES_TCP_CONNECTION_OWNER_POINTER
+//#define USES_STATIC_READ_SOME_HANDLER
 
 class TcpConnection
 	: public boost::enable_shared_from_this<TcpConnection>
@@ -50,7 +52,7 @@ private:
 	//CLockList<ReceiveBuffer::pointer> m_datas;
 	//CLockList<ReceiveBuffer::pointer> m_unused;
 	ReceiveBuffer::pointer m_pBuffer;
-	size_t m_unusedsize;
+	//size_t m_unusedsize;
 	//size_t m_maxbuffersize;
 	size_t m_nReadSleep;
 #ifdef USES_TCP_CONNECTION_OWNER_POINTER
@@ -111,18 +113,18 @@ public:
 	void SetReadSleep(size_t v) {m_nReadSleep = v;}
 	void close(void)
 	{
-		if (!m_bClosed && m_socket!=NULL)
-		{
+		if (!m_bClosed && m_socket!=NULL) {
 			//printf("**** TcpConnection::close()\n");
 			m_bClosed = true;
-			try{
+			try {
 				m_socket->close();
-			}catch (std::exception&)
-			{
-			}catch (boost::exception&)
-			{
-			}catch(...)
-			{}
+			}
+			catch (std::exception&) {
+			}
+			catch (boost::exception&) {
+			}
+			catch(...) {
+			}
 		}
 #ifdef USES_TCP_CONNECTION_OWNER_POINTER
 		m_pOwner.reset();
@@ -135,7 +137,7 @@ public:
 		boost::system::error_code error;
 		m_localEndPoint = m_socket->lowest_layer().local_endpoint(error);
 		m_remoteEndPoint = m_socket->lowest_layer().remote_endpoint(error);
-		if (error)
+		if (error.value()!=0)
 			return false;
 
 		//static unsigned short static_id_index = 0;
@@ -144,11 +146,10 @@ public:
 		//m_nId = atoi(lpszId);
 		m_nId = nId;
 		boost::asio::ip::address address = m_remoteEndPoint.address();
-		if (address.is_v4())
-		{
+		if (address.is_v4()) {
 			m_nIpAddress = address.to_v4().to_ulong();
-		}else
-		{
+		}
+		else {
 			// ??? IPV6
 			m_nIpAddress = address.to_v6().scope_id();
 		}
@@ -169,25 +170,24 @@ public:
 		//}
 		//printf("connect start...\n");
 #ifdef USES_OPENSSL
-		if (m_socket->is_ssl())
-		{
+		if (m_socket->is_ssl()) {
 			//printf("**** async_handshake\n");
-			try
-			{
+			try {
 				boost::asio::ssl::stream<tcp::socket> * p = m_socket->get_ssl_socket();
 				p->async_handshake(boost::asio::ssl::stream_base::server,boost::bind(&TcpConnection::handle_handshake,
 					this,m_pOwner,boost::asio::placeholders::error));
-			}catch (std::exception &)
-			{
+			}
+			catch (std::exception &) {
 //#ifdef WIN32
 //				printf("start_accept exception. %s, lasterror=%d\n", e.what(), GetLastError());
 //#else
 //				printf("start_accept exception. %s\n", e.what());
 //#endif
-			}catch (boost::exception &)
-			{}
-			catch(...)
-			{}
+			}
+			catch (boost::exception &) {
+			}
+			catch(...) {
+			}
 			return true;
 		}
 #endif
@@ -199,12 +199,11 @@ public:
 #ifdef USES_OPENSSL
 	void handle_handshake(const TcpConnectionPointer& pconnection,const boost::system::error_code& e)
 	{
-		if(!e)
-		{
+		if (!e) {
 			if (m_handler.get() != NULL)
 				m_handler->OnRemoteAccept(pconnection);
-			if (m_nReadSleep > 0)
-			{
+
+			if (m_nReadSleep > 0) {
 #ifdef WIN32
 				Sleep(m_nReadSleep);
 #else
@@ -212,18 +211,19 @@ public:
 #endif
 			}
 			start_read();
-		}else
-		{
+		}
+		else {
 			//printf("**** handle_handshake %s,%d\n",e.message().c_str(),e.value());
-			try{
+			try {
 				boost::system::error_code ec;
 				m_socket->get_ssl_socket()->shutdown(ec);
-			}catch (std::exception&)
-			{
-			}catch (boost::exception&)
-			{
-			}catch(...)
-			{}
+			}
+			catch (std::exception&) {
+			}
+			catch (boost::exception&) {
+			}
+			catch(...) {
+			}
 			close();
 			//m_socket->close();
 		}
@@ -231,41 +231,62 @@ public:
 #endif
 	void write_handler(const boost::system::error_code& ec)
      {
-		 if(ec)
+		 if (ec.value()!=0)
 			 std::cout<< "Send data error!" << std::endl;
 		 //else
 			// std::cout<< *pstr << " 已发送" << std::endl;
 	}
+#ifdef USES_STATIC_READ_SOME_HANDLER
+	static void read_some_(const TcpConnectionPointer& pOwner, const boost::system::error_code& error, std::size_t size)
+	{
+		pOwner->read_some_handler(error, size);
+	}
+#endif // USES_STATIC_READ_SOME_HANDLER
+
+#ifdef USES_OWNER_RECEIVE_BUFFER
+	void read_some_handler(const boost::system::error_code& error, std::size_t size)
+#else
 	void read_some_handler(const ReceiveBuffer::pointer& buffer, const boost::system::error_code& error, std::size_t size)
+#endif
 	//void read_some_handler(const ReceiveBuffer::pointer& buffer, const TcpConnectionPointer& pOwner,const boost::system::error_code& error, std::size_t size)
 	{
+		if (m_socket==NULL || m_bClosed) return;
+
 		//printf("**** read_some_handler %s,%d;%x\n",error.message().c_str(),error.value(),buffer.get());
-		if ( !error && !m_bClosed)
-		{
+		if ( !error ) {
+#ifdef USES_OWNER_RECEIVE_BUFFER
+			m_pBuffer->size(size);
+#else
 			buffer->size(size);
+#endif
 			//m_datas.add(buffer);
 			bool bStartRead = true;
-			if (m_handler.get() != NULL)
-			{
-				try
-				{
+			if (m_handler.get() != NULL) {
+				try {
 #ifndef USES_TCP_CONNECTION_OWNER_POINTER
 					const TcpConnectionPointer m_pOwner = shared_from_this();
 #endif
+#ifdef USES_OWNER_RECEIVE_BUFFER
+					bStartRead = m_handler->OnRemoteRecv(m_pOwner, m_pBuffer);
+#else
 					bStartRead = m_handler->OnRemoteRecv(m_pOwner, buffer);
+#endif
 					//bStartRead = m_handler->OnRemoteRecv(pOwner, buffer);
-				}catch(std::exception&)
-				{
-				}catch(boost::exception&)
-				{
-				}catch(...)
-				{}
+				}
+				catch(std::exception&) {
+				}
+				catch(boost::exception&) {
+				}
+				catch(...) {
+				}
 			}
-			if (bStartRead)
+			if (bStartRead) {
 				start_read();
-		}else
-		{
-			ShowNetWorkError(error);
+			}
+		}
+		else {
+			if (error.value()!=0)
+				ShowNetWorkError(error);
 			//if (error.value()==335544539)	// short read
 			//{
 			//	printf("****(%d)\n%s\n",buffer->size(),buffer->data());
@@ -313,25 +334,24 @@ public:
 			//	{
 					if (m_handler.get() != NULL)
 						m_handler->OnRemoteClose(this, error.value());
-					try
-					{
-						//if (!m_socket.is_open())
-						{
+
+					try {
+						//if (!m_socket.is_open()) {
 #ifdef USES_OPENSSL
-							if (m_socket->is_ssl())
-							{
+							if (m_socket->is_ssl()) {
 								boost::system::error_code ec;
 								m_socket->get_ssl_socket()->shutdown(ec);
 							}
 #endif
 							//m_socket->close();
-						}
-					}catch (std::exception&)
-					{
-					}catch (boost::exception &)
-					{}
-					catch(...)
-					{}
+						//}
+					}
+					catch (std::exception&) {
+					}
+					catch (boost::exception &) {
+					}
+					catch(...) {
+					}
 					close();
 			//	}break;
 			//}
@@ -369,13 +389,27 @@ private:
 	void start_read(void)
 	{
 		// **这里不做TRY CATCH，由IOSERVICE统一处理，有问题，会自动重启服务
-		// 2017-04-18 有异常，去掉 try 测试情况；
-		//try
-		//{
+		// 2017-06-02 有异常，去掉 try 测试情况；
+		try {
 			//printf("**** start_read->async_read_some,socket=%x,buffer=%x\n",m_socket,m_pBuffer.get());
+#ifdef USES_STATIC_READ_SOME_HANDLER
+
+#ifndef USES_TCP_CONNECTION_OWNER_POINTER
+			const TcpConnectionPointer m_pOwner = shared_from_this();
+#endif
 			m_socket->async_read_some(boost::asio::buffer(const_cast<unsigned char*>(m_pBuffer->data()), Max_ReceiveBuffer_ReceiveSize),
-				boost::bind(&TcpConnection::read_some_handler, this, m_pBuffer,
-				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+				boost::bind(TcpConnection::read_some_, m_pOwner, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+
+#else
+#ifdef USES_OWNER_RECEIVE_BUFFER
+			// ~** 同时增加 shared_from_this()
+			m_socket->async_read_some(boost::asio::buffer(const_cast<unsigned char*>(m_pBuffer->data()), Max_ReceiveBuffer_ReceiveSize),
+				boost::bind(&TcpConnection::read_some_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+#else
+			m_socket->async_read_some(boost::asio::buffer(const_cast<unsigned char*>(m_pBuffer->data()), Max_ReceiveBuffer_ReceiveSize),
+				boost::bind(&TcpConnection::read_some_handler, this, m_pBuffer, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+#endif
+#endif // USES_STATIC_READ_SOME_HANDLER
 			//m_socket->async_read_some(boost::asio::buffer(const_cast<unsigned char*>(m_pBuffer->data()), m_maxbuffersize),
 			//	boost::bind(&TcpConnection::read_some_handler, this, m_pBuffer,shared_from_this(),
 			//	boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
@@ -386,18 +420,18 @@ private:
 			//m_socket.async_read_some(boost::asio::buffer(const_cast<unsigned char*>(newBuffer->data()), m_maxbuffersize),
 			//	boost::bind(&TcpConnection::read_some_handler, this, newBuffer,
 			//	boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-//		}catch (std::exception &)
-//		{
-////#ifdef WIN32
-////			printf("start_read exception. %s, lasterror=%d\n", e.what(), GetLastError());
-////#else
-////			printf("start_read exception. %s\n", e.what());
-////#endif
-//		}catch (boost::exception&)
-//		{
-//		}catch(...)
-//		{
-//		}
+		}
+		catch (std::exception &) {
+//#ifdef WIN32
+//			printf("start_read exception. %s, lasterror=%d\n", e.what(), GetLastError());
+//#else
+//			printf("start_read exception. %s\n", e.what());
+//#endif
+		}
+		catch (boost::exception&) {
+		}
+		catch(...) {
+		}
 	}
 
 #ifdef USES_OPENSSL
@@ -410,7 +444,7 @@ private:
 		, m_bClosed(false)
 		, m_handler(handler)
 		//, m_killed(false), m_proc_data(0)
-		, m_unusedsize(10)//, m_maxbuffersize(Max_ReceiveBuffer_ReceiveSize)
+		//, m_unusedsize(10)//, m_maxbuffersize(Max_ReceiveBuffer_ReceiveSize)
 		,m_nReadSleep(0)
 	{
 		//m_unused.clear(false);

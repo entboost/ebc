@@ -44,8 +44,8 @@ public:
 
 	virtual bool IsThreadSafe(void) const {return false;}
 
-	virtual void OnTimeout(unsigned int nIDEvent, const void * pvParam) = 0;
-	virtual void OnTimerExit(unsigned int nIDEvent, const void * pvParam) {}
+        virtual void OnTimeout(unsigned int /*nIDEvent*/, const void * /*pvParam*/) = 0;
+        virtual void OnTimerExit(unsigned int /*nIDEvent*/, const void * /*pvParam*/) {}
 };
 
 const cgcOnTimerHandler::pointer cgcNullOnTimerHandler;
@@ -80,7 +80,7 @@ public:
 	virtual void log2(LogLevel level, const wchar_t* sData) = 0;
 
 	// The SetTimer method sets a timer on the clock.
-	virtual unsigned int SetTimer(unsigned int nIDEvent, unsigned int nElapse, cgcOnTimerHandler::pointer handler, bool bOneShot = false, const void * pvParam = NULL) = 0;
+	virtual unsigned int SetTimer(unsigned int nIDEvent, unsigned int nElapse, cgcOnTimerHandler::pointer handler, bool bOneShot = false, const void * pvParam = NULL, int nThreadStackSize=0) = 0;
 	// The KillTimer method destroys the specified timer.
 	virtual void KillTimer(unsigned int nIDEvent) = 0;
 	// The KillAllTimer method destroys all timers.

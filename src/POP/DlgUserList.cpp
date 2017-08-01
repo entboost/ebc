@@ -248,7 +248,7 @@ int CDlgUserList::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bSort)
 		pTreeItemInfo->m_nExtData &= ~CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
 	else
 		pTreeItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
-	if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+	if (m_pGroupInfo.m_nGroupType<=EB_GROUP_TYPE_PROJECT && theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
 		pTreeItemInfo->m_nSubType = 11;
 	else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
 		pTreeItemInfo->m_nSubType = 10;

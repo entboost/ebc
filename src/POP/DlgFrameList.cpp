@@ -92,7 +92,7 @@ BEGIN_MESSAGE_MAP(CDlgFrameList, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_CHANGE_BROWSER_TYPE, OnMsgChangeBrowserType)
 	ON_MESSAGE(EB_COMMAND_QUERY_CAN_SAVE_HISTORY, OnMsgQueryCanSaveHistory)
 	ON_MESSAGE(EB_COMMAND_QUERY_BROWSER_TYPE, OnMsgQueryBrowserType)
-	ON_MESSAGE(EB_COMMAND_SAVE_HISROTY, OnMsgSaveHistory)
+	ON_MESSAGE(EB_COMMAND_SAVE_HISTORY, OnMsgSaveHistory)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MIN, OnFrameWndMin)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_MAX, OnFrameWndMax)
 	ON_MESSAGE(EB_COMMAND_RAME_WND_CLOSE, OnFrameWndClose)
@@ -129,7 +129,7 @@ BOOL CDlgFrameList::OnInitDialog()
 	CEbDialogBase::OnInitDialog();
 	ModifyStyle(0, WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU);
 
-	this->SetSplitterBorder();
+	this->SetSplitterBorder(540);
 	this->DisableMoveBottom(TRUE);
 	if (GetPrivateProfileInt(_T("default"),_T("frame-list-show-left"),1,theApp.GetUserSettingIniFile())==0)
 	{

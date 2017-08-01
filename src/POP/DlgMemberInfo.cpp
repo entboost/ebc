@@ -109,29 +109,28 @@ void CDlgMemberInfo::OnBnClickedOk()
 {
 	// TODO: Add your control notification handler code here
 	UpdateData();
-	if (m_sMemberAccount.IsEmpty())
-	{
+	if (m_sMemberAccount.IsEmpty()) {
 		this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("登录帐号不能为空：\r\n请输入！"),CDlgMessageBox::IMAGE_ERROR,5);
 		return;
-	}else if (m_bNewEemployee && theApp.GetAccountPrefix().IsEmpty())
-	{
-		const tstring sAccount(m_sMemberAccount);
-		//eb::bigint nPhone = 0;
-		if (sAccount.find("@") != std::string::npos || !libEbc::IsFullNumber(sAccount.c_str(),sAccount.size()))
-		{
-			// xx@xx邮箱格式
-		}else if (sAccount.size()==11 && sAccount.substr(0,1)=="1")
-		{
-			//nPhone = eb_atoi64(sAccount.c_str());
-		}else
-		{
-			//// 错误格式；
-			//this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
-			//CDlgMessageBox::EbMessageBox(this,"","帐号格式错误：\r\n请重新输入正确邮箱地址或手机号码！",CDlgMessageBox::IMAGE_WARNING,5);
-			//return;
-		}
 	}
+	//else if (m_bNewEemployee && theApp.GetAccountPrefix().IsEmpty()) {
+	//	const tstring sAccount(m_sMemberAccount);
+	//	//eb::bigint nPhone = 0;
+	//	if (sAccount.find("@") != std::string::npos || !libEbc::IsFullNumber(sAccount.c_str(),sAccount.size()))
+	//	{
+	//		// xx@xx邮箱格式
+	//	}else if (sAccount.size()==11 && sAccount.substr(0,1)=="1")
+	//	{
+	//		//nPhone = eb_atoi64(sAccount.c_str());
+	//	}else
+	//	{
+	//		//// 错误格式；
+	//		//this->GetDlgItem(IDC_EDIT_ACCOUNT)->SetFocus();
+	//		//CDlgMessageBox::EbMessageBox(this,"","帐号格式错误：\r\n请重新输入正确邮箱地址或手机号码！",CDlgMessageBox::IMAGE_WARNING,5);
+	//		//return;
+	//	}
+	//}
 	if (m_sUserName.IsEmpty())
 	{
 		this->GetDlgItem(IDC_EDIT_USERNAME)->SetFocus();
@@ -319,7 +318,8 @@ BOOL CDlgMemberInfo::OnInitDialog()
 		this->GetDlgItem(IDC_EDIT_ACCOUNT)->EnableWindow(TRUE);
 		m_editMemberAccount.SetReadOnly(FALSE);
 		this->EnableToolTips();
-		this->SetToolTipText(IDC_EDIT_ACCOUNT,_T("请输入邮箱地址（或手机号码），用于恩布登录帐号！"));
+		this->SetToolTipText(IDC_EDIT_ACCOUNT,_T("请输入用户登录帐号！"));
+		//this->SetToolTipText(IDC_EDIT_ACCOUNT,_T("请输入邮箱地址（或手机号码），用于恩布登录帐号！"));
 	}
 	// 性别
 	m_comboGender.AddString(_T(""));

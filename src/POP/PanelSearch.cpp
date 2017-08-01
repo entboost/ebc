@@ -52,8 +52,8 @@ BEGIN_MESSAGE_MAP(CPanelSearch, CEbDialogBase)
 	ON_WM_DESTROY()
 	ON_COMMAND(EB_COMMAND_CLEAR_CHROME_TEMPFILE, &OnCmdClearChromeTempFile)
 	ON_COMMAND(EB_COMMAND_CLEAR_IE_TEMPFILE, &OnCmdClearIeTempFile)
-	ON_COMMAND(EB_COMMAND_SAVE_HISROTY, &OnCmdSaveHistory)
-	ON_COMMAND(EB_COMMAND_CLEAR_HISROTY, &OnCmdClearHistory)
+	ON_COMMAND(EB_COMMAND_SAVE_HISTORY, &OnCmdSaveHistory)
+	ON_COMMAND(EB_COMMAND_CLEAR_HISTORY, &OnCmdClearHistory)
 	ON_COMMAND(EB_COMMAND_CHANGE_BROWSER_TYPE, &OnCmdChangeBrowserType)
 	ON_COMMAND(EB_COMMAND_FILE_MANAGER, &OnCmdFileManager)
 	ON_COMMAND(EB_COMMAND_SEARCH_BAIDU, &OnCmdSearchBaidu)
@@ -212,8 +212,8 @@ void CPanelSearch::OnBnClickedButtonOptions()
 		//m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_CHANGE_BROWSER_TYPE,sChangeBrowserText,ConvertIconToBitmap(hIcon));
 		m_pOptionsMenu.AppendMenu(MF_SEPARATOR);
 #endif
-		m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SAVE_HISROTY,_T("保存当前浏览记录"));
-		m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_CLEAR_HISROTY,_T("清除所有浏览记录"));
+		m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SAVE_HISTORY,_T("保存当前浏览记录"));
+		m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_CLEAR_HISTORY,_T("清除所有浏览记录"));
 		m_pOptionsMenu.AppendMenu(MF_SEPARATOR);
 #ifdef USES_LIBCEF
 		m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_CLEAR_CHROME_TEMPFILE,_T("清除 Chrome 本地缓存..."));
@@ -231,9 +231,9 @@ void CPanelSearch::OnBnClickedButtonOptions()
 	m_pOptionsMenu.AppendMenu(MF_SEPARATOR);
 	m_pOptionsMenu.AppendMenu(MF_BYCOMMAND,EB_COMMAND_FILE_MANAGER,_T("文件传输管理"));
 
-	m_pOptionsMenu.EnableMenuItem(EB_COMMAND_SAVE_HISROTY,bCanSaveHistory?MF_BYCOMMAND|MF_ENABLED:MF_BYCOMMAND|MF_GRAYED);
+	m_pOptionsMenu.EnableMenuItem(EB_COMMAND_SAVE_HISTORY,bCanSaveHistory?MF_BYCOMMAND|MF_ENABLED:MF_BYCOMMAND|MF_GRAYED);
 	const bool bExistHistoryUrl = theApp.m_pBoUsers->select("SELECT last_time FROM url_record_t LIMIT 1;")>0?true:false;
-	m_pOptionsMenu.EnableMenuItem(EB_COMMAND_CLEAR_HISROTY,bExistHistoryUrl?MF_BYCOMMAND|MF_ENABLED:MF_BYCOMMAND|MF_GRAYED);
+	m_pOptionsMenu.EnableMenuItem(EB_COMMAND_CLEAR_HISTORY,bExistHistoryUrl?MF_BYCOMMAND|MF_ENABLED:MF_BYCOMMAND|MF_GRAYED);
 
 	CPoint point;
 	GetCursorPos(&point);
@@ -431,14 +431,12 @@ void CPanelSearch::OnCmdClearIeTempFile()
 void CPanelSearch::OnCmdSaveHistory()
 {
 #ifdef USES_LIBCEF
-	this->GetParent()->PostMessage(EB_COMMAND_SAVE_HISROTY);
+	this->GetParent()->PostMessage(EB_COMMAND_SAVE_HISTORY);
 #endif
 }
 void CPanelSearch::OnCmdClearHistory()
 {
-	CString sSql;
-	sSql.Format(_T("DELETE FROM url_record_t;"));
-	theApp.m_pBoUsers->execute(sSql);
+	theApp.m_pBoUsers->execute("DELETE FROM url_record_t;");
 	//DeleteDirectory(theApp.GetAppImgTempPath(),false);
 }
 void CPanelSearch::OnCmdChangeBrowserType()

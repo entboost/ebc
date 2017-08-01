@@ -101,13 +101,13 @@ void CDlgEditPasswd::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CDlgEditPasswd::Save(void)
 {
-#ifdef USES_EBCOM_TEST
-	const CEBString sCurrentUserName = theEBClientCore->EB_UserName.GetBSTR();
-	//const CEBString sCurrentPasswd = theEBClientCore->EB_Password.GetBSTR();
-#else
-	tstring sCurrentUserName = theEBAppClient.EB_GetUserName();
-	//tstring sCurrentPasswd = theEBAppClient.EB_GetPassword();
-#endif
+//#ifdef USES_EBCOM_TEST
+//	const CEBString sCurrentUserName = theEBClientCore->EB_UserName.GetBSTR();
+//	//const CEBString sCurrentPasswd = theEBClientCore->EB_Password.GetBSTR();
+//#else
+//	tstring sCurrentUserName = theEBAppClient.EB_GetUserName();
+//	//tstring sCurrentPasswd = theEBAppClient.EB_GetPassword();
+//#endif
 	CString sOldPwd;
 	this->GetDlgItem(IDC_EDIT_OLDPWD)->GetWindowText(sOldPwd);
 	if (sOldPwd.IsEmpty())

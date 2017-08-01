@@ -313,7 +313,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_WM_ENTERPRISE_INFO, OnMessageEnterpriseInfo)
 	ON_MESSAGE(EB_WM_GROUP_INFO, OnMessageGroupInfo)
 	ON_MESSAGE(EB_WM_GROUP_DELETE, OnMessageGroupDelete)
-	ON_MESSAGE(EB_WM_GROUP_EDIT_ERROR, OnMessageGroupEditError)
+	ON_MESSAGE(EB_WM_GROUP_EDIT_RESPONSE, OnMessageGroupEditResponse)
 	ON_MESSAGE(EB_WM_REMOVE_GROUP, OnMessageRemoveGroup)
 	ON_MESSAGE(EB_WM_EXIT_GROUP, OnMessageExitGroup)
 	ON_MESSAGE(EB_WM_REQUEST_ADD2GROUP, OnMessageRequestJoin2Group)
@@ -321,7 +321,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_WM_REJECT_ADD2GROUP, OnMessageRejectJoin2Group)
 	ON_MESSAGE(EB_WM_MEMBER_INFO, OnMessageMemberInfo)
 	//ON_MESSAGE(EB_WM_MEMBER_DELETE, OnMessageMemberDelete)
-	ON_MESSAGE(EB_WM_MEMBER_EDIT_ERROR, OnMessageMemberEditError)
+	ON_MESSAGE(EB_WM_MEMBER_EDIT_RESPONSE, OnMessageMemberEditResponse)
 	ON_MESSAGE(EB_WM_REQUEST_ADDCONTACT, OnMessageRequestAddContact)
 	ON_MESSAGE(EB_WM_REJECT_ADDCONTACT, OnMessageRejectAddContact)
 	ON_MESSAGE(EB_WM_ACCEPT_ADDCONTACT, OnMessageAcceptAddContact)
@@ -368,7 +368,7 @@ BEGIN_MESSAGE_MAP(CPOPDlg, CEbDialogBase)
 	ON_MESSAGE(EB_COMMAND_CHANGE_BROWSER_TYPE, OnMsgChangeBrowserType)
 	ON_MESSAGE(EB_COMMAND_QUERY_CAN_SAVE_HISTORY, OnMsgQueryCanSaveHistory)
 	ON_MESSAGE(EB_COMMAND_QUERY_BROWSER_TYPE, OnMsgQueryBrowserType)
-	ON_MESSAGE(EB_COMMAND_SAVE_HISROTY, OnMsgSaveHistory)
+	ON_MESSAGE(EB_COMMAND_SAVE_HISTORY, OnMsgSaveHistory)
 	//ON_MESSAGE(EB_COMMAND_OPEN_SUBID, OnMsgOpenSubId)
 	ON_MESSAGE(EB_COMMAND_OPEN_APP_URL, OnMsgOpenAppUrl)
 	//ON_MESSAGE(EB_COMMAND_SHELLEXECUTE, OnMsgShellExecuteOpen)
@@ -724,12 +724,23 @@ BOOL CPOPDlg::OnInitDialog()
 	{
 		m_btnMyShare.ShowWindow(SW_HIDE);
 	}
-	m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC,24);
-#ifdef USES_NEW_UI_160111
-	m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
-#else
-	m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
+#ifdef USES_SUPPORT_UI_STYLE
+	if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT)
+	{
+		m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC_UISTYLE1,24);
+		m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
+	}else
 #endif
+	{
+		m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC,24);
+		m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
+	}
+//	m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC,24);
+//#ifdef USES_NEW_UI_160111
+//	m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
+//#else
+//	m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
+//#endif
 	m_btnMainFunc.SetDrawPanelRgn(false);
 	m_btnMainFunc.SetWindowText(_T(""));
 	m_btnGoBack.Load(IDB_PNG_BTN_GOBACK72X18);
@@ -748,7 +759,8 @@ BOOL CPOPDlg::OnInitDialog()
 	//m_btnLineState.ShowWindow(SW_HIDE);
 #endif
 
-	m_btnMainFunc.ShowWindow(SW_HIDE);	// 暂时隐藏该功能按钮
+	m_btnMainFunc.ShowWindow(SW_SHOW);
+	//m_btnMainFunc.ShowWindow(SW_HIDE);	// 暂时隐藏该功能按钮
 
 	m_pPanelSearch = new CPanelSearch(this);
 	m_pPanelSearch->Create(CPanelSearch::IDD,this);
@@ -2253,10 +2265,10 @@ LRESULT CPOPDlg::OnMessageSendingFile(WPARAM wParam, LPARAM lParam)
 		return 0;
 	switch (nState)
 	{
-	case EB_STATE_GROUP_FORBIG_SPEECH:
+	case EB_STATE_GROUP_FORBID_SPEECH:
 		CDlgMessageBox::EbMessageBox(this,"","群禁言中：\r\n不能发送群文件！",CDlgMessageBox::IMAGE_WARNING,5);
 		return 1;
-	case EB_STATE_FORBIG_SPEECH:
+	case EB_STATE_FORBID_SPEECH:
 		CDlgMessageBox::EbMessageBox(this,"","你被禁言中：\r\n不能发送群文件！",CDlgMessageBox::IMAGE_WARNING,5);
 		return 1;
 	case EB_STATE_FILE_ALREADY_EXIST:
@@ -2839,7 +2851,7 @@ LRESULT CPOPDlg::OnMessageSave2CloudDrive(WPARAM wParam, LPARAM lParam)
 	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
 	if (pDlgDialog.get()!=NULL)
 	{
-		pDlgDialog->OnSave2CloutDrive(pCrFileInfo,nState);
+		pDlgDialog->OnSave2CloudDrive(pCrFileInfo,nState);
 		if (!pDlgDialog->IsWindowVisible())
 		{
 			CString sSoundFile;
@@ -3907,6 +3919,7 @@ LRESULT CPOPDlg::OnMessageCallConnected(WPARAM wParam, LPARAM lParam)
 				else
 					sSql.Format(_T("SELECT count(msg_id) FROM msg_record_t WHERE from_uid=%lld AND dep_code=0 AND (read_flag&1)=0"),pConnectInfo->GetFromUserId());
 				int nCookie = 0;
+				theApp.m_pBoUsers->select(sSql,nCookie);
 				cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
 				if (pRecord.get()!=NULL)
 				{
@@ -4002,7 +4015,7 @@ LRESULT CPOPDlg::OnMessageCallHangup(WPARAM wParam, LPARAM lParam)
 	DeleteDlgIncomingCall(nFromUserId);
 #else
 	EB_CallInfo* pCallInfo = (EB_CallInfo*)wParam;
-	bool bOwner = (bool)(lParam==1);
+	const bool bOwner = (bool)(lParam==1);
 
 	bool bRemoveCall = bOwner;
 	CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pCallInfo->GetCallId(), bRemoveCall);
@@ -4373,6 +4386,7 @@ LRESULT CPOPDlg::OnMessageEnterpriseInfo(WPARAM wParam, LPARAM lParam)
 	}
 #else
 	const EB_EnterpriseInfo* pEnterpriseInfo = (const EB_EnterpriseInfo*)wParam;
+	theApp.SetEnterpriseCreateUserId(pEnterpriseInfo->m_nCreateUserId);
 	if (m_pDlgMyEnterprise != NULL)
 		m_pDlgMyEnterprise->EnterpriseInfo(pEnterpriseInfo);
 
@@ -4489,7 +4503,7 @@ LRESULT CPOPDlg::OnMessageGroupDelete(WPARAM wParam, LPARAM lParam)
 #else
 	const EB_GroupInfo* pGroupInfo = (const EB_GroupInfo*)wParam;
 	const eb::bigint sGroupCode = pGroupInfo->m_sGroupCode;
-	bool bIsMyDepartment = (bool)(lParam==1);
+	//bool bIsMyDepartment = (bool)(lParam==1);
 	if (m_pDlgMyEnterprise != NULL)
 	{
 		m_pDlgMyEnterprise->DeleteDepartmentInfo(pGroupInfo->m_sGroupCode);
@@ -4540,7 +4554,7 @@ LRESULT CPOPDlg::OnMessageGroupDelete(WPARAM wParam, LPARAM lParam)
 	theApp.DeleteDbRecord(sGroupCode,false);
 	return 0;
 }
-LRESULT CPOPDlg::OnMessageGroupEditError(WPARAM wParam, LPARAM lParam)
+LRESULT CPOPDlg::OnMessageGroupEditResponse(WPARAM wParam, LPARAM lParam)
 {
 #ifdef USES_EBCOM_TEST
 	IEB_GroupInfo * pGroupInfo = (IEB_GroupInfo*)wParam;
@@ -4551,6 +4565,8 @@ LRESULT CPOPDlg::OnMessageGroupEditError(WPARAM wParam, LPARAM lParam)
 #endif
 	switch (nErrorCode)
 	{
+	case EB_STATE_OK:
+		break;
 	case EB_STATE_NOT_AUTH_ERROR:
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("没有权限：\r\n请联系管理员！"),CDlgMessageBox::IMAGE_ERROR,5);
 		break;
@@ -4664,10 +4680,10 @@ LRESULT CPOPDlg::OnMessageRemoveGroup(WPARAM wParam, LPARAM lParam)
 			m_pDlgFrameList->OnRemoveGroup(pGroupInfo->m_sGroupCode);
 #endif
 
-		CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
-		if (pDlgDialog.get()!=NULL)
-		{
-		}
+		//CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
+		//if (pDlgDialog.get()!=NULL)
+		//{
+		//}
 		if (m_pDlgMyGroup!=NULL)
 		{
 			m_pDlgMyGroup->DeleteDepartmentInfo(pGroupInfo);
@@ -4799,7 +4815,9 @@ LRESULT CPOPDlg::OnMessageExitGroup(WPARAM wParam, LPARAM lParam)
 			m_pDlgFrameList->OnRemoveGroup(pGroupInfo->m_sGroupCode);
 #endif
 
-		GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
+		///  没用代码
+		//GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
+
 		//CDlgDialog::pointer pDlgDialog = GetCallIdDialog(pGroupInfo->m_sGroupCode,true);
 		//if (pDlgDialog.get()!=NULL)
 		//{
@@ -5294,11 +5312,11 @@ LRESULT CPOPDlg::OnMessageMemberInfo(WPARAM wParam, LPARAM lParam)
 		else
 			sSettingEnterprise = theSetting.GetEnterprise();
 		CString sWindowText;
-		EB_EnterpriseInfo pEnterpriseInfo;
-		if (theEBAppClient.EB_GetEnterpriseInfo(&pEnterpriseInfo))
+		tstring sEnterpriseName;
+		if (theEBAppClient.EB_GetEnterpriseName(sEnterpriseName))
 		{
 			sWindowText.Format(_T("%s-%s(%s) %s"),sSettingEnterprise.c_str(),pMemberInfo->m_sUserName.c_str(),
-				pMemberInfo->m_sMemberAccount.c_str(),pEnterpriseInfo.m_sEnterpriseName.c_str());
+				pMemberInfo->m_sMemberAccount.c_str(),sEnterpriseName.c_str());
 		}else
 		{
 			sWindowText.Format(_T("%s-%s(%s)"),sSettingEnterprise.c_str(),pMemberInfo->m_sUserName.c_str(),
@@ -5354,17 +5372,19 @@ LRESULT CPOPDlg::OnMessageMemberInfo(WPARAM wParam, LPARAM lParam)
 ////#endif
 //	return 0;
 //}
-LRESULT CPOPDlg::OnMessageMemberEditError(WPARAM wParam, LPARAM lParam)
+LRESULT CPOPDlg::OnMessageMemberEditResponse(WPARAM wParam, LPARAM lParam)
 {
 #ifdef USES_EBCOM_TEST
 	IEB_MemberInfo* pMemberInfo = (IEB_MemberInfo*)wParam;
 	EB_STATE_CODE nErrorCode = (EB_STATE_CODE)lParam;
 #else
 	const EB_MemberInfo* pMemberInfo = (const EB_MemberInfo*)wParam;
-	EB_STATE_CODE nErrorCode = (EB_STATE_CODE)lParam;
+	const EB_STATE_CODE nErrorCode = (EB_STATE_CODE)lParam;
 #endif
 	switch (nErrorCode)
 	{
+	case EB_STATE_OK:
+		break;
 	case EB_STATE_OAUTH_FORWARD:
 		CDlgMessageBox::EbMessageBox(this,_T(""),_T("邀请成员成功：\r\n等待对方通过验证！"),CDlgMessageBox::IMAGE_INFORMATION,5);
 		break;
@@ -6275,7 +6295,8 @@ void CPOPDlg::MoveSize(int cx, int cy)
 	x += m_btnMyCenter.GetImgWidth();
 
 #ifdef USES_NEW_UI_160111
-	m_btnMainFunc.MovePoint(nBorderLeft,12);
+	m_btnMainFunc.MovePoint(x,y);
+	//m_btnMainFunc.MovePoint(nBorderLeft,12);
 	y = NEW_UI_160111_HEIGHT+29;
 #else
 	m_btnMainFunc.MovePoint(x,y);
@@ -7380,7 +7401,7 @@ void CPOPDlg::HideSearchResult(void)
 		m_btnMyCenter.ShowWindow(SW_SHOW);
 		m_btnFileMgr.ShowWindow(SW_SHOW);
 		m_btnMyShare.ShowWindow(SW_SHOW);
-		//m_btnMainFunc.ShowWindow(SW_SHOW);
+		m_btnMainFunc.ShowWindow(SW_SHOW);
 #endif
 #ifndef USES_NEW_UI_1220
 		m_btnSwitchFrame.ShowWindow(SW_SHOW);
@@ -7446,7 +7467,7 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 			std::vector<eb::bigint> pGroupIdList;
 			std::vector<eb::bigint> pFromUserIdList;
 			CString sSql;
-			sSql.Format(_T("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE from_uid<>%lld (read_flag&1)=0 LIMIT 30"),theApp.GetLogonUserId());
+			sSql.Format(_T("SELECT DISTINCT dep_code,from_uid FROM msg_record_t WHERE from_uid<>%lld AND (read_flag&1)=0 LIMIT 30"),theApp.GetLogonUserId());
 			int nCookie = 0;
 			theApp.m_pBoUsers->select(sSql, nCookie);
 			cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->first(nCookie);
@@ -9320,6 +9341,7 @@ void CPOPDlg::ShowSearchResult(void)
 		m_btnMyCenter.ShowWindow(SW_HIDE);
 		m_btnFileMgr.ShowWindow(SW_HIDE);
 		m_btnMyShare.ShowWindow(SW_HIDE);
+		m_btnMainFunc.ShowWindow(SW_HIDE);
 #endif
 		this->ScreenToClient(&searchRect);
 		m_treeSearch.MoveWindow(&searchRect);
@@ -10229,7 +10251,7 @@ void CPOPDlg::ChangeTrayText(void)
 	tstring sEnterpriseName;
 	theEBAppClient.EB_GetEnterpriseName(sEnterpriseName);
 #endif
-	if (!theApp.GetProductName())
+	if (!theApp.GetProductName().IsEmpty())
 		sEnterpriseName = (LPCTSTR)theApp.GetProductName();
 	if (theApp.IsLogonVisitor())
 		sTrayText.Format(_T("游客-%s-%s"),theApp.GetLogonAccount(),GetLineStateText(nOutLineState));
@@ -10686,6 +10708,8 @@ void CPOPDlg::OnUIStyleTypeOffice(void)
 		m_btnFileMgr.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
 		m_btnMyShare.Load(IDB_PNG_BTN_MY_SHARE,24);
 		m_btnMyShare.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
+		m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC,24);
+		m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultButtonColor);
 
 		//if (m_btnSwitchLeft.GetSafeHwnd()!=NULL)
 		//{
@@ -10769,6 +10793,8 @@ void CPOPDlg::OnUIStyleTypeChat(void)
 		m_btnFileMgr.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
 		m_btnMyShare.Load(IDB_PNG_BTN_MY_SHARE_UISTYLE1,24);
 		m_btnMyShare.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
+		m_btnMainFunc.Load(IDB_PNG_BTN_MAIN_FUNC_UISTYLE1,24);
+		m_btnMainFunc.SetDrawLine(5,1,0,-1,theDefaultBtnWhiteColor);
 
 		if (m_btnSwitchLeft.GetSafeHwnd()!=NULL && m_btnSwitchLeft.IsWindowVisible())
 			m_btnSwitchLeft.ShowWindow(SW_HIDE);
@@ -10857,8 +10883,8 @@ void CPOPDlg::OnBnClickedButtonSkin2()
 		m_menuSkin.AppendMenu(MF_SEPARATOR);
 		for (int i=0; i<theColorSkinSize; i++)
 		{
-			m_menuSkin.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SKIN_1+i,theColorSkinsString[i]);
-			m_menuSkin.ModifyODMenu(theColorSkinsString[i],EB_COMMAND_SKIN_1+i,theColorSkinsValue[i],theColorSkinsValue[i]);
+			m_menuSkin.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SKIN_1+i,theColorSkinsString[i].c_str());
+			m_menuSkin.ModifyODMenu(theColorSkinsString[i].c_str(),EB_COMMAND_SKIN_1+i,theColorSkinsValue[i],theColorSkinsValue[i]);
 		}
 #ifdef USES_SUPPORT_UI_STYLE
 		m_menuSkin.AppendMenu(MF_SEPARATOR);
@@ -11429,7 +11455,7 @@ LRESULT CPOPDlg::OnMessageReturnMainFrame(WPARAM wParam, LPARAM lParam)
 	m_btnMyCenter.ShowWindow(SW_SHOW);
 	m_btnFileMgr.ShowWindow(SW_SHOW);
 	m_btnMyShare.ShowWindow(SW_SHOW);
-	//m_btnMainFunc.ShowWindow(SW_SHOW);
+	m_btnMainFunc.ShowWindow(SW_SHOW);
 	m_editSearch.ShowWindow(SW_SHOW);
 #ifndef USES_NEW_UI_160111
 	m_btnLineState.ShowWindow(SW_SHOW);
@@ -11531,6 +11557,7 @@ void CPOPDlg::SwitchFrameWnd(void)
 			m_btnMyCenter.ShowWindow(SW_HIDE);
 			m_btnFileMgr.ShowWindow(SW_HIDE);
 			m_btnMyShare.ShowWindow(SW_HIDE);
+			m_btnMainFunc.ShowWindow(SW_HIDE);
 			if (m_pDlgAppFrame!=NULL)
 				m_pDlgAppFrame->ShowWindow(SW_HIDE);
 			m_btnMyDepartment.ShowWindow(SW_HIDE);
@@ -11605,6 +11632,7 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 	m_btnMyCenter.ShowWindow(SW_HIDE);
 	m_btnFileMgr.ShowWindow(SW_HIDE);
 	m_btnMyShare.ShowWindow(SW_HIDE);
+	m_btnMainFunc.ShowWindow(SW_HIDE);
 #else
 	m_btnMyCenter.ShowWindow(SW_SHOW);
 	m_btnFileMgr.ShowWindow(SW_SHOW);

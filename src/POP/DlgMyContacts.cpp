@@ -109,6 +109,8 @@ BOOL CDlgMyContacts::OnInitDialog()
 	pContactInfo->m_nSubType = -1;
 	pContactInfo->m_sId = const_default_group_ugid;
 	pContactInfo->m_sName = const_default_group_name;
+	/// 默认分组，排在前面
+	pContactInfo->m_nIndex = 1;
 	m_treeContacts.SetItemData(pGroupTreeItem,(DWORD)pContactInfo.get());
 	m_pGroupItemInfo.insert(const_default_group_ugid, pContactInfo);
 
@@ -222,7 +224,7 @@ void CDlgMyContacts::UGInfo(const EB_UGInfo* pUGInfo)
 			int nContactSize = 0;
 			int nOnlineSize = 0;
 			theEBAppClient.EB_GetUGContactSize(pGroupItemInfo->m_sId,nContactSize,nOnlineSize);
-			sGroupText.Format(_T("%s (%d)"), pUGInfo->m_sGroupName.c_str(), nOnlineSize, nContactSize);
+			sGroupText.Format(_T("%s (%d/%d)"), pUGInfo->m_sGroupName.c_str(), nOnlineSize, nContactSize);
 		}else
 			sGroupText.Format(_T("%s (%d)"), pUGInfo->m_sGroupName.c_str(), pGroupItemInfo->m_dwItemData);
 		m_treeContacts.SetItemText(pGroupItemInfo->m_hItem,sGroupText);
@@ -318,10 +320,22 @@ void CDlgMyContacts::UGDelete(const EB_UGInfo* pUGInfo)
 		}
 		if (pDefaultGroupItemInfo.get()!=NULL)
 		{
-			// 有移到默认分组，重新设置一次数量；
+			/// 有移到默认分组，重新设置一次数量；
 			CString sGroupText;
-			sGroupText.Format(_T("%s(%d)"), pDefaultGroupItemInfo->m_sName.c_str(),pDefaultGroupItemInfo->m_dwItemData);
-			m_treeContacts.SetItemText(pDefaultGroupItemInfo->m_hItem,sGroupText);
+			if (theApp.GetAuthContact())
+			{
+				int nContactSize = 0;
+				int nOnlineSize = 0;
+				theEBAppClient.EB_GetUGContactSize(0,nContactSize,nOnlineSize);
+				sGroupText.Format(_T("%s [%d/%d]"), pDefaultGroupItemInfo->m_sName.c_str(),nOnlineSize,nContactSize);
+			}else
+			{
+				sGroupText.Format(_T("%s (%d)"), pDefaultGroupItemInfo->m_sName.c_str(), pDefaultGroupItemInfo->m_dwItemData);
+			}
+			m_treeContacts.SetItemText(pDefaultGroupItemInfo->m_hItem, sGroupText);
+			//CString sGroupText;
+			//sGroupText.Format(_T("%s (%d)"), pDefaultGroupItemInfo->m_sName.c_str(),pDefaultGroupItemInfo->m_dwItemData);
+			//m_treeContacts.SetItemText(pDefaultGroupItemInfo->m_hItem,sGroupText);
 		}
 	}
 
@@ -483,8 +497,7 @@ void CDlgMyContacts::ContactInfo(const EB_ContactInfo* pPopContactInfo)
 		m_treeContacts.SetItemData(pGroupTreeItem, (DWORD)pGroupItemInfo.get());
 		m_treeContacts.SortChildren(TVI_ROOT);
 	}
-	CString sContactText;
-	sContactText.Format(_T("%s"), pPopContactInfo->m_sName.c_str());
+	const CString sContactText = pPopContactInfo->m_sName.c_str();
 	CTreeItemInfo::pointer pContactItemInfo;
 	bool bChangeGroupCount = false;
 	bool bChangeLineState = false;

@@ -74,39 +74,38 @@ private:
 	void start_accept(void)
 	{
 		// 这里不做TRY CATCH，由IOSERVICE统一处理，有问题，会自动重启服务
-		try
-		{
-			if (m_acceptor != NULL) 
-			{
+		// ~~2017-05-26 去掉 try 测试长时间应用不能收到消息情况；
+		try {
+			if (m_acceptor != NULL) {
 				//printf("start_accept...\n");
 #ifdef USES_OPENSSL
 				TcpConnectionPointer new_connection = TcpConnection::create(m_acceptor->get_io_service(), m_handler,m_sslctx);
 #else
 				TcpConnectionPointer new_connection = TcpConnection::create(m_acceptor->get_io_service(), m_handler);
 #endif
-				if (m_sslctx==NULL)
-				{
+				if (m_sslctx==NULL) {
 					m_acceptor->async_accept(*new_connection->socket()->get_socket(),
 						boost::bind(&TcpAcceptor::handle_accept, this, new_connection,
 						boost::asio::placeholders::error));
-				}else
-				{
+				}
+				else {
 					m_acceptor->async_accept(new_connection->socket()->get_ssl_socket()->lowest_layer(),
 						boost::bind(&TcpAcceptor::handle_accept, this, new_connection,
 						boost::asio::placeholders::error));
 				}
 			}
-		}catch (std::exception & e)
-		{
+		}
+		catch (std::exception & e) {
 #ifdef WIN32
 			printf("start_accept exception. %s, lasterror=%d\n", e.what(), GetLastError());
 #else
 			printf("start_accept exception. %s\n", e.what());
 #endif
-		}catch (boost::exception&)
-		{
-		}catch(...)
-		{}
+		}
+		catch (boost::exception&) {
+		}
+		catch(...) {
+		}
 	}
 
 	void handle_accept(const TcpConnectionPointer& new_connection,

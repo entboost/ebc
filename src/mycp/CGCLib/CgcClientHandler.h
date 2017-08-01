@@ -1,4 +1,4 @@
-/*
+﻿/*
     MYCP is a HTTP and C++ Web Application Server.
     Copyright (C) 2009-2010  Akee Yang <akee.yang@gmail.com>
 
@@ -81,9 +81,9 @@ public:
 	virtual const CgcClientHandler * doGetResponseHandler(void) const  = 0;
 	virtual void doSetDisableSotpParser(bool newv) = 0;		// default false
 
-	virtual bool doSetConfig(int nConfig, unsigned int nInValue) = 0;
-	virtual void doGetConfig(int nConfig, unsigned int* nOutValue) const = 0;
-	virtual void doFreeConfig(int nConfig, unsigned int nInValue) const = 0;
+	virtual bool doSetConfig(int nConfig, unsigned long nInValue) = 0;
+	virtual void doGetConfig(int nConfig, unsigned long* nOutValue) const = 0;
+	virtual void doFreeConfig(int nConfig, unsigned long nInValue) const = 0;
 
 	// io service
 	virtual void doSetIoService(mycp::asio::IoService::pointer pIoService, bool bExitStop = false) = 0;

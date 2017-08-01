@@ -56,6 +56,11 @@
 //#include <afxdhtml.h>
 //#include <atlimage.h>
 
+// 2357,2623
+#ifdef USES_LIBCEF
+#include "cef/cefbrowser.h"
+#endif
+
 #include <Gdiplus.h>
 using namespace Gdiplus;
 #pragma comment(lib,"gdiplus.lib")

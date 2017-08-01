@@ -1,0 +1,31 @@
+
+		--------------------------------------- 2010-05-18
+						
+       Description:
+       ===========
+       
+ Bodb is a boost based software library that implements a simple SQL database engine.
+ 
+ Email      : akee.yang@gmail.com
+ Download		: http://sourceforge.net/projects/bodb/
+ SVN				: http://code.google.com/p/bodb/source/browse/
+
+
+			ThirdParty:
+			==========
+				
+ boost_1_41_0:
+  Boost provides free peer-reviewed portable C++ source libraries.
+  http://www.boost.org
+ 
+ 
+ 			Related Projects:
+ 			=================
+ 						
+ Biwoo: Enterprise Communication Software
+  Biwoo is an open-source, cross-platform enterprise communication software.
+  Biwoo support enterprise multi-level departments, project group organization structure.
+  Support P2P AV chat, file send, image send, group chat, offline messages, chat logs.
+  http://sourceforge.net/projects/biwoo/
+  
+ ...

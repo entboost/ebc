@@ -141,7 +141,9 @@ void CDlgChatInput::SetCtrlColor(bool bInvalidate)
 }
 void CDlgChatInput::SetInputFocus(void)
 {
-	m_richInput.SetFocus();
+	if (m_richInput.GetSafeHwnd()!=0) {
+		m_richInput.SetFocus();
+	}
 }
 
 // CDlgChatInput message handlers
@@ -755,7 +757,7 @@ void CDlgChatInput::send()
 		m_richInput.SetSel(0, -1);
 		m_richInput.Clear();
 		//m_richInput.SetWindowText(_T(""));
-		m_btnSend.SetWindowText(_T("发送"));
+		//m_btnSend.SetWindowText(_T("发送"));
 	}
 	m_richInput.SetFocus();
 	//return;
@@ -1369,11 +1371,11 @@ bool CDlgChatInput::ProcessFile(bool bReceive,const CCrFileInfo * pCrFileInfo,EB
 	}
 	if (bUploadGroupFile)
 	{
-		time_t tMsgTime = time(0);
-		if (!pCrFileInfo->m_sFileTime.empty())
-		{
-			libEbc::ChangeTime(pCrFileInfo->m_sFileTime.c_str(),tMsgTime);
-		}
+		//time_t tMsgTime = time(0);
+		//if (!pCrFileInfo->m_sFileTime.empty())
+		//{
+		//	libEbc::ChangeTime(pCrFileInfo->m_sFileTime.c_str(),tMsgTime);
+		//}
 		WriteMsgDate(tMsgTime);
 
 		tstring sFromName;
@@ -2188,12 +2190,12 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 		AddLineString(0,_T("超过最大消息长度！"),1);
 		return;
 	}
-	else if (nState==EB_STATE_GROUP_FORBIG_SPEECH)
+	else if (nState==EB_STATE_GROUP_FORBID_SPEECH)
 	{
 		AddLineString(0,_T("群禁言中！"),1);
 		return;
 	}
-	else if (nState==EB_STATE_FORBIG_SPEECH)
+	else if (nState==EB_STATE_FORBID_SPEECH)
 	{
 		AddLineString(0,_T("你被禁言中！"),1);
 		return;
@@ -2537,9 +2539,9 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 				if (nWavTimeLength>=0)
 					sText.Format(_T("语音消息 %d\""),nWavTimeLength);
 				else if (nWavTimeLength==-1)
-					sText.Format(_T("语音消息不存在\""),nWavTimeLength);
+					sText =_T("语音消息不存在");
 				else
-					sText.Format(_T("语音消息格式错误\""),nWavTimeLength);
+					sText = _T("语音消息格式错误");
 				m_pMrFrameInterface->WriteWav((LPCTSTR)sText,(LPCTSTR)sObjectFileName,EB_MR_CTRL_TYPE_LCLICK_OPEN);
 				//m_pMrFrameInterface->WriteWav("语音消息",(LPCTSTR)sObjectFileName,EB_MR_CTRL_TYPE_LCLICK_OPEN);
 				if (sOutFirstMsg1!=NULL && nOutMsgLength<const_max_length)
@@ -3446,9 +3448,9 @@ void CDlgChatInput::WriteMsgDate(time_t tMsgTime)
 		pMsgTime.GetDay() != m_tLastMsgDayTime.GetDay())
 	{
 		m_tLastMsgDayTime = pMsgTime;
-		const CString sDayOfWeek = theDayOfWeek[m_tLastMsgDayTime.GetDayOfWeek()-1];
+		const mycp::tstring sDayOfWeek = theDayOfWeek[m_tLastMsgDayTime.GetDayOfWeek()-1];
 		CString sText;
-		sText.Format(_T("--------  %04d-%02d-%02d %s  --------"),m_tLastMsgDayTime.GetYear(),m_tLastMsgDayTime.GetMonth(),m_tLastMsgDayTime.GetDay(),sDayOfWeek);
+		sText.Format(_T("--------  %04d-%02d-%02d %s  --------"),m_tLastMsgDayTime.GetYear(),m_tLastMsgDayTime.GetMonth(),m_tLastMsgDayTime.GetDay(),sDayOfWeek.c_str());
 		m_pMrFrameInterface->AddLine(0);
 		m_pMrFrameInterface->SetAlignmentFormat(1);
 		m_pMrFrameInterface->WriteString((LPCTSTR)sText,theDefaultChatSystemColor);
@@ -3586,7 +3588,8 @@ void CDlgChatInput::CheckMyForbidSpeechState(bool bNewMessage,bool bFromMemberIn
 				sStringText += _T("：");
 			}
 		}
-		if (bNewMessage)
+		if (bNewMessage && !m_pPanelInputForbidStatus->IsWindowVisible())
+		//if (bNewMessage)
 			AddLineString(0,sStringText,1,true);
 		USES_CONVERSION;
 		m_pPanelInputForbidStatus->SetDrawText(T2W(sStringText));

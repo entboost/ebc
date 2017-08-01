@@ -347,9 +347,9 @@ void CDlgChangeHead::OnDestroy()
 	CEbDialogBase::OnDestroy();
 }
 
-static TCHAR BASED_CODE theHeadFilter[] = _T("Image Files (*.png;*jpg;*.bmp;*.ico)|*.png; *jpg; *.jpeg; *.bmp; *.ico|")
+static TCHAR BASED_CODE theHeadFilter[] = _T("Image Files (*.png;*.jpg;*.bmp;*.ico)|*.png; *.jpg; *.jpeg; *.bmp; *.ico|")
 _T("PNG (*.png)|*.png|")
-_T("JPEG (*.jpg;*jpeg)|*.jpg; *.jpeg|")
+_T("JPEG (*.jpg;*.jpeg)|*.jpg; *.jpeg|")
 _T("BMP (*.bmp)|*.bmp|")
 _T("ICO (*.ico)|*.ico|")
 _T("All Files (*.*)|*.*||");

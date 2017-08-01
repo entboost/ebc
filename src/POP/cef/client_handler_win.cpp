@@ -90,22 +90,23 @@ void ClientHandler::OnStatusMessage(CefRefPtr<CefBrowser> browser,
   {
 	  //if (value.empty())
 		 // m_sInDrawEnter.clear();
-		if (value.c_str()!=NULL)
-		{
-			USES_CONVERSION;
-			// ** 中方做 URL DECODE
-			tstring sValutTemp(libEbc::URLDecode(W2A_UTF8(value.c_str()),false));
-			// ** 去掉 http:// 或 https://
-			//if (sValutTemp.size()>7 && sValutTemp.substr(0,7)=="http://")
-			//	sValutTemp = sValutTemp.substr(7);
-			//else if (sValutTemp.size()>8 && sValutTemp.substr(0,8)=="https://")
-			//	sValutTemp = sValutTemp.substr(8);
-			m_pHandler->OnStatusMessage(A2W_UTF8(sValutTemp.c_str()));
-		}else
-		{
-			m_pHandler->OnStatusMessage(NULL);
-		}
-	  //m_pHandler->OnStatusMessage(value.c_str());
+
+		//if (value.c_str()!=NULL)
+		//{
+		//	USES_CONVERSION;
+		//	// ** 中文做 URL DECODE
+		//	tstring sValutTemp(libEbc::URLDecode(W2A_UTF8(value.c_str()),false));
+		//	// ** 去掉 http:// 或 https://
+		//	//if (sValutTemp.size()>7 && sValutTemp.substr(0,7)=="http://")
+		//	//	sValutTemp = sValutTemp.substr(7);
+		//	//else if (sValutTemp.size()>8 && sValutTemp.substr(0,8)=="https://")
+		//	//	sValutTemp = sValutTemp.substr(8);
+		//	m_pHandler->OnStatusMessage(A2W_UTF8(sValutTemp.c_str()));
+		//}else
+		//{
+		//	m_pHandler->OnStatusMessage(NULL);
+		//}
+	  m_pHandler->OnStatusMessage(value.c_str());
   }
 }
 

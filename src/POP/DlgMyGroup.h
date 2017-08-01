@@ -17,6 +17,11 @@ class CDlgMyGroup : public CDialog
 public:
 	CDlgMyGroup(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDlgMyGroup();
+    enum SORT_ITEMS_FLAG {
+        DISABLE_SORT    /// ½ûÅÅÐò
+        , AUTO_SORT     /// ×Ô¶¯ÅÅÐò
+        , ENABLE_SORT   /// Ç¿ÖÆÅÅÐò
+    };
 
 //#ifdef USES_EBCOM_TEST
 //	void MyDepartmentInfo(IEB_GroupInfo* pEBGroupInfo);
@@ -31,7 +36,7 @@ public:
 #else
 	void MyDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 	void MyDepMemberInfo(const EB_MemberInfo* pMemberInfo, bool bChangeLineState);
-	void DeleteEmployeeInfo(const EB_GroupInfo* pGroupInfo, eb::bigint nMemberCode);
+	void DeleteEmployeeInfo(const EB_GroupInfo* pGroupInfo, eb::bigint nMemberCode, bool fromDeleteGroup=false);
 	void DeleteDepartmentInfo(const EB_GroupInfo* pGroupInfo);
 #endif
 	//void ExitDepartment(eb::bigint sDepCode, eb::bigint nMemberUserId);
@@ -55,7 +60,7 @@ protected:
 #ifdef USES_EBCOM_TEST
 	void SetMemberInfo(HTREEITEM hGroupItem, IEB_MemberInfo* pEBEmployeeInfo);
 #else
-	void SetMemberInfo(HTREEITEM hGroupItem, const EB_MemberInfo* pMemberInfo);
+	void SetMemberInfo(const CTreeItemInfo::pointer &hGroupItem, const EB_MemberInfo* pMemberInfo,SORT_ITEMS_FLAG nSortItems=AUTO_SORT);
 #endif
 	CTreeItemInfo::pointer GetDepItemInfo(HTREEITEM hItem) const;
 	void CallItem(HTREEITEM hItem);

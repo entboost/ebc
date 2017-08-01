@@ -20,7 +20,7 @@ using namespace entboost;
 // CebloginApp:
 // See eblogin.cpp for the implementation of this class
 //
-CString GetLineStateText(EB_USER_LINE_STATE nLineState);
+mycp::tstring GetLineStateText(EB_USER_LINE_STATE nLineState);
 
 /*
  * eblogin.exe 恩布客户端登录验证程序
@@ -49,13 +49,13 @@ public:
 	//static void InvalidateParentRect(const CWnd* pWnd);
 	static void GetScreenSize(int & pWidth, int & pHeight);
 	static void InvalidateParentRect(const CWnd* pWnd);
-	const CString & GetAppPath(void) const {return m_sAppPath;}
-	const CString & GetAppDataPath(void) const {return m_sAppDataPath;}
+	const mycp::tstring & GetAppPath(void) const {return m_sAppPath;}
+	const mycp::tstring & GetAppDataPath(void) const {return m_sAppDataPath;}
 
-	CString GetSettingFile(void) const;
-	CString GetSettingIniFile(void) const;
+	mycp::tstring GetSettingFile(void) const;
+	mycp::tstring GetSettingIniFile(void) const;
 	void EBC_SetProfileString(LPCTSTR lpszAppName,LPCTSTR lpszKeyName,LPCTSTR lpszValue);
-	CString EBC_GetProfileString(LPCTSTR lpszAppName,LPCTSTR lpszKeyName,LPCTSTR lpszDefault=NULL);
+	mycp::tstring EBC_GetProfileString(LPCTSTR lpszAppName,LPCTSTR lpszKeyName,LPCTSTR lpszDefault=NULL);
 	void EBC_SetProfileInt(LPCTSTR lpszAppName,LPCTSTR lpszKeyName,UINT nValue);
 	UINT EBC_GetProfileInt(LPCTSTR lpszAppName,LPCTSTR lpszKeyName,UINT nDefault=0);
 	bool IsLogonVisitor(void) const;
@@ -64,7 +64,7 @@ public:
 	bool IsEbDefaultEntLogo(void) const {return m_bEbDefaultEntLogo;}
 	//void LoadSetting(void);
 
-	CString m_sProductName;
+	mycp::tstring m_sProductName;
 
 	std::string m_sDefaultUrl;
 	int m_nEBServerVersion;
@@ -86,9 +86,9 @@ private:
 	COLORREF m_nFlatBgColor;
 	bool m_bColorGradient;
 	bool m_bColorFlat;
-	CString m_sAppPath;
-	CString m_sAppDataPath;
-	CString m_sUserMainPath;
+	mycp::tstring m_sAppPath;
+	mycp::tstring m_sAppDataPath;
+	mycp::tstring m_sUserMainPath;
 	bool m_bEbDefaultEntLogo;
 public:
 	virtual int ExitInstance();

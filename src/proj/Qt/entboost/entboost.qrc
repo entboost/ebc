@@ -1,0 +1,42 @@
+<RCC>
+    <qresource prefix="/res">
+        <file alias="color_select.bmp">res/color_select.bmp</file>
+        <file alias="fontawesome-webfont.ttf">res/fontawesome-webfont.ttf</file>
+        <file alias="mainframe.ico">res/mainframe.ico</file>
+        <file alias="entlogo">res/entlogo.png</file>
+        <file alias="imgerror">res/imgerror.png</file>
+        <file alias="imgquestion">res/imgquestion.png</file>
+        <file alias="imgtip">res/imgtip.png</file>
+        <file alias="imgwarning">res/imgwarning.png</file>
+    </qresource>
+    <qresource prefix="/img">
+        <file alias="defaultcontact.png">res/defaultcontact.png</file>
+        <file alias="defaultmember.png">res/defaultmember.png</file>
+        <file alias="defaultvisitor.png">res/defaultvisitor.png</file>
+        <file alias="btnstateonline.png">res/btnstateonline.png</file>
+        <file alias="btnstateaway.png">res/btnstateaway.png</file>
+        <file alias="btnstatebusy.png">res/btnstatebusy.png</file>
+        <file alias="tree_closed.png">res/tree_closed.png</file>
+        <file alias="tree_opened.png">res/tree_opened.png</file>
+        <file alias="imgdefaultdepartment.png">res/imgdefaultdepartment.png</file>
+        <file alias="imgdefaultgroup.png">res/imgdefaultgroup.png</file>
+        <file alias="imgdefaultorg.png">res/imgdefaultorg.png</file>
+        <file alias="imgdefaultproject.png">res/imgdefaultproject.png</file>
+        <file alias="imgdefaulttempgroup.png">res/imgdefaulttempgroup.png</file>
+        <file alias="imgstateforbid.png">res/imgstateforbid.png</file>
+        <file alias="mainframe.png">res/mainframe.png</file>
+        <file alias="workframe.png">res/workframe.png</file>
+        <file alias="menucall.png">res/menucall.png</file>
+        <file alias="menumsg.png">res/menumsg.png</file>
+        <file alias="menuadduser.png">res/menuadduser.png</file>
+        <file alias="defaultapp.png">res/defaultapp.png</file>
+    </qresource>
+    <qresource prefix="/qm">
+        <file alias="qt_zh_CN.qm">res/qt_zh_CN.qm</file>
+        <file alias="qt_zh_CN_widgets.qm">res/qt_zh_CN_widgets.qm</file>
+    </qresource>
+    <qresource prefix="/wav">
+        <file alias="incomingcall.wav">wav/incomingcall.wav</file>
+        <file alias="msg.wav">wav/msg.wav</file>
+    </qresource>
+</RCC>

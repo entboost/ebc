@@ -651,6 +651,7 @@ void CDlgFileManager::DeleteItemFile(HTREEITEM hItem)
 			if (bFileExist)
 				DeleteFile(pTreeItemInfo->m_sName.c_str());
 			m_treeTraned.DeleteItem(hItem);
+			m_pItemItemInfo.remove(pTreeItemInfo->m_sId);
 
 			CString sSql;
 			sSql.Format(_T("DELETE FROM msg_record_t WHERE msg_id=%lld"),pTreeItemInfo->m_sId);
@@ -672,7 +673,8 @@ BOOL CDlgFileManager::PreTranslateMessage(MSG* pMsg)
 			const tstring m_sPath(pTreeItemInfo->m_sName);
 			if (::PathFileExists(m_sPath.c_str()))
 			{
-				const tstring sPath = "/select, "+m_sPath;
+				tstring sPath = "/select, \""+m_sPath;
+				sPath += "\"";
 				ShellExecute(NULL, NULL, "explorer", sPath.c_str(), NULL, SW_SHOW);
 			}else
 			{

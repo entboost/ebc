@@ -70,7 +70,7 @@ public:
 	CefWindowHandle GetSafeHwnd(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser() ? g_handler->GetBrowser()->GetHost()->GetWindowHandle():NULL;}
 	void LoadURL(const std::string& sUrl) {if (g_handler.get()!=NULL && g_handler->GetBrowser()!=NULL && g_handler->GetBrowser()->GetMainFrame()!=NULL) g_handler->GetBrowser()->GetMainFrame()->LoadURL(sUrl);}
 	void LoadString(const std::string& sString, const std::string& sUrl) {if (g_handler.get()!=NULL && g_handler->GetBrowser() && g_handler->GetBrowser()->GetMainFrame()) g_handler->GetBrowser()->GetMainFrame()->LoadString(sString,sUrl);}
-	tstring GetLocationURL(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->GetMainFrame()->GetURL():"";}
+	std::string GetLocationURL(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->GetMainFrame()->GetURL():"";}
 	void ExecuteJavaScript(const std::string& code, const std::string& script_url, int start_line) {if (g_handler.get()!=NULL && g_handler->GetBrowser()) g_handler->GetBrowser()->GetMainFrame()->ExecuteJavaScript(code, script_url, start_line);}
 
 	bool CanGoBack(void) const {return g_handler.get()!=NULL && g_handler->GetBrowser()?g_handler->GetBrowser()->CanGoBack():false;}

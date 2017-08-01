@@ -365,7 +365,7 @@ protected:
 	LRESULT OnMessageEnterpriseInfo(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageGroupInfo(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageGroupDelete(WPARAM wParam, LPARAM lParam);
-	LRESULT OnMessageGroupEditError(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageGroupEditResponse(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageRemoveGroup(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageExitGroup(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageRequestJoin2Group(WPARAM wParam, LPARAM lParam);
@@ -373,7 +373,7 @@ protected:
 	LRESULT OnMessageRejectJoin2Group(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageMemberInfo(WPARAM wParam, LPARAM lParam);
 	//LRESULT OnMessageMemberDelete(WPARAM wParam, LPARAM lParam);
-	LRESULT OnMessageMemberEditError(WPARAM wParam, LPARAM lParam);
+	LRESULT OnMessageMemberEditResponse(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageRequestAddContact(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageRejectAddContact(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageAcceptAddContact(WPARAM wParam, LPARAM lParam);

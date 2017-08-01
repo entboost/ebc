@@ -1,7 +1,14 @@
-#ifdef WIN32
+ï»¿#ifdef _MSC_VER	// WIN32
 #pragma warning(disable:4819 4267)
 #endif
+
+#ifdef _MSC_VER	// WIN32
 #include "StdAfx.h"
+#endif
+#ifdef _QT_MAKE_
+#include <QTextCodec>
+#include <QFile>
+#endif
 #include "ebc_public.h"
 #include "md5.h"
 
@@ -12,7 +19,15 @@ namespace libEbc
 {
 long GetFileSize(const char* lpszFile)
 {
-	long result = 0;
+//#ifdef _QT_MAKE_
+//    QFile file(lpszFile);
+//    if ( !file.open(QFile::ReadOnly) ) {
+//        return -1;
+//    }
+//    const long result = (long)file.size();
+//    file.close();
+//#else
+    long result = 0;
 	FILE * f = fopen(lpszFile, "rb");
 	if (f != NULL)
 	{
@@ -25,8 +40,22 @@ long GetFileSize(const char* lpszFile)
 #endif
 		fclose(f);
 	}
-	return result;
+//#endif
+    return result;
 }
+#ifdef _QT_MAKE_
+
+qint64 GetFileSize(const QString &lpszFile)
+{
+    QFile file(lpszFile);
+    if ( !file.open(QFile::ReadOnly) ) {
+        return -1;
+    }
+    const qint64 result = file.size();
+    file.close();
+    return result;
+}
+#endif
 
 tstring GetFileName(const tstring & sPathName)
 {
@@ -41,6 +70,28 @@ tstring GetFileName(const tstring & sPathName)
 const unsigned int theOneMB = 1024*1024;
 bool GetFileMd5(const char* sFilePath,mycp::bigint& pOutFileSize,tstring& pOutFileMd5)
 {
+//#ifdef _QT_MAKE_
+//    QFile file(sFilePath);
+//    if ( !file.open(QFile::ReadOnly) ) {
+//        return false;
+//    }
+//    pOutFileSize = file.size();
+//    file.seek(0);
+//    entboost::MD5 md5;
+//    const unsigned int nPackSize = (unsigned int)(pOutFileSize>theOneMB?theOneMB:pOutFileSize);
+//    char * lpszBuffer = new char[nPackSize+1];
+//    while (true) {
+//        const size_t nReadSize = file.read(lpszBuffer,nPackSize);
+//        if (nReadSize==0) {
+//            break;
+//        }
+//        md5.update((const unsigned char*)lpszBuffer, nReadSize);
+//    }
+//    file.close();
+//    md5.finalize();
+//    pOutFileMd5 = md5.hex_digest();
+//    delete[] lpszBuffer;
+//#else
 	FILE * f = fopen(sFilePath, "rb");
 	if (f == NULL)
 	{
@@ -55,7 +106,7 @@ bool GetFileMd5(const char* sFilePath,mycp::bigint& pOutFileSize,tstring& pOutFi
 	pOutFileSize = ftello(f);
 	fseeko(f, 0, SEEK_SET);
 #endif
-	// »ñÈ¡ÎÄ¼şMD5
+	// è·å–æ–‡ä»¶MD5
 	entboost::MD5 md5;
 	const unsigned int nPackSize = pOutFileSize>theOneMB?theOneMB:pOutFileSize;
 	unsigned char * lpszBuffer = new unsigned char[nPackSize+1];
@@ -70,22 +121,136 @@ bool GetFileMd5(const char* sFilePath,mycp::bigint& pOutFileSize,tstring& pOutFi
 	md5.finalize();
 	pOutFileMd5 = md5.hex_digest();
 	delete[] lpszBuffer;
+//#endif
 	return true;
 }
+#ifdef _QT_MAKE_
+bool GetFileMd5(const QString &sFilePath,mycp::bigint& pOutFileSize,tstring& pOutFileMd5)
+{
+    QFile file(sFilePath);
+    if ( !file.open(QFile::ReadOnly) ) {
+        return false;
+    }
+    pOutFileSize = file.size();
+    file.seek(0);
+    entboost::MD5 md5;
+    const unsigned int nPackSize = (unsigned int)(pOutFileSize>theOneMB?theOneMB:pOutFileSize);
+    char * lpszBuffer = new char[nPackSize+1];
+    while (true) {
+        const size_t nReadSize = file.read(lpszBuffer,nPackSize);
+        if (nReadSize==0) {
+            break;
+        }
+        md5.update((const unsigned char*)lpszBuffer, nReadSize);
+    }
+    file.close();
+    md5.finalize();
+    pOutFileMd5 = md5.hex_digest();
+    delete[] lpszBuffer;
+    return true;
+}
+#endif
+
 void GetFileExt(const tstring & sFileName, tstring & sOutName, tstring & sOutExt)
 {
-	int find = sFileName.rfind(".");
-	if (find > 0)
-	{
+    const int find = sFileName.rfind(".");
+    if (find > 0) {
+        sOutExt = sFileName.substr(find+1);
+        if (sOutExt.find("/")!=std::string::npos || sOutExt.find("\\")!=std::string::npos) {
+            sOutName = sFileName;
+            sOutExt.clear();
+            return;
+        }
 		sOutName = sFileName.substr(0, find);
-		sOutExt = sFileName.substr(find+1);
-	}else
-	{
+    }
+    else {
 		sOutName = sFileName;
 	}
 }
 
+#ifdef _QT_MAKE_
+QString fileExt(const QString &filePath)
+{
+    QString fileExt;
+    const int lastExtIndex = filePath.lastIndexOf(".");
+    if (lastExtIndex>0) {
+        fileExt = filePath.mid(lastExtIndex);
+        if (fileExt.indexOf("/")>=0 || fileExt.indexOf("\\")>=0) {
+            fileExt.clear();
+        }
+    }
+    return fileExt;
+}
+QString GBK2UTF8(const QString &inStr)
+{
+    // GB2312ï¼ˆ1980å¹´ï¼‰ã€GBKï¼ˆ1995å¹´ï¼‰åˆ°GB18030ï¼ˆ2000å¹´ï¼‰
+    QTextCodec *gbk = QTextCodec::codecForName("GB18030");
+    QTextCodec *utf8 = QTextCodec::codecForName("UTF-8");
+    const QString g2u = utf8->toUnicode(gbk->fromUnicode(inStr));              // gbk  convert utf8
+//    const QString g2u = gbk->toUnicode(gbk->fromUnicode(inStr));              // gbk  convert utf8
+    return g2u;
+}
 
+QString UTF82GBK(const QString &inStr)
+{
+    QTextCodec *gbk = QTextCodec::codecForName("GB18030");
+//    QTextCodec *utf8 = QTextCodec::codecForName("UTF-8");
+    QString utf2gbk = gbk->toUnicode(inStr.toLocal8Bit());
+    return utf2gbk;
+}
+
+std::string gbk2utf8(const QString &inStr)
+{
+    return GBK2UTF8(inStr).toStdString();
+}
+
+QString utf82gbk(const std::string &inStr)
+{
+    const QString str = QString::fromStdString(inStr);
+    return UTF82GBK(str);
+}
+
+QImage imageToGray(const QImage &imageSrc)
+{
+    const int w = imageSrc.width();
+    const int h = imageSrc.height();
+    QImage imageGray(w,h,QImage::Format_RGB32);
+    for(int i=0; i<w; i++){
+        for(int j=0;j<h; j++){
+            QRgb pixel = imageSrc.pixel(i,j);
+            if (qAlpha(pixel)==0) {
+//                if (pixel==0) {
+                /// PNG èƒŒæ™¯é€æ˜ï¼Œè½¬æˆç™½è‰²
+                pixel = qRgb(255,255,255);
+            }
+            const int gray = qGray(pixel);
+            const QRgb grayPixel = qRgb(gray,gray,gray);
+            imageGray.setPixel(i,j,grayPixel);
+        }
+    }
+    return imageGray;
+}
+QImage imageAdd(const QImage &image1, const QImage &image2,int xoffset,int yoffset)
+{
+    /// å¤„ç†äºŒä¸ªå›¾ç‰‡å åŠ 
+    const int w1 = image1.width();
+    const int h1 = image1.height();
+    const int w2 = image2.width();
+    const int h2 = image2.height();
+    QImage imageGray = image1.copy();
+    for(int i=0; i<w2; i++){
+        if (xoffset+i>=w1) break;
+        for(int j=0;j<h2; j++){
+            QRgb pixel = image2.pixel(i,j);
+            if (qAlpha(pixel)==0) continue; /// PNG é€æ˜ä¸å¤„ç†
+            if (yoffset+j>=h1) break;
+            imageGray.setPixel(xoffset+i,yoffset+j,pixel);
+        }
+    }
+    return imageGray;
+}
+
+#else
 int   GetCodecClsid(const   WCHAR*   format,   CLSID*   pClsid)
 {
 	UINT     num   =   0;                     //   number   of   image   encoders
@@ -203,6 +368,8 @@ int bmp_2_png(const WCHAR * sBmpFile, const WCHAR * sJpgFile, long quality)
 	return stat == Gdiplus::Ok ? 0 : -1;
 	return   0; 
 }
+#endif
+
 bool ChangeTime(const char* sTimeString, time_t& pOutTime, int* pOutMS)
 {
 	int nMS = 0;
@@ -221,6 +388,8 @@ bool ChangeTime(const char* sTimeString, time_t& pOutTime, int* pOutMS)
 	return false;
 }
 
+#ifdef _QT_MAKE_
+#else
 tstring str_convert(const char * strSource, int sourceCodepage, int targetCodepage)
 {
 	int unicodeLen = MultiByteToWideChar(sourceCodepage, 0, strSource, -1, NULL, 0);
@@ -259,6 +428,8 @@ tstring UTF82ACP(const char* sString)
 {
 	return str_convert(sString,CP_UTF8,CP_ACP);
 }
+#endif
+
 const tstring & replace(tstring & strSource, const tstring & strFind, const tstring &strReplace)
 {
 	std::string::size_type pos=0;
@@ -272,6 +443,8 @@ const tstring & replace(tstring & strSource, const tstring & strFind, const tstr
 	return strSource;
 }
 
+#ifdef _QT_MAKE_
+#else
 BOOL ImageFromIDResource(UINT nID, LPCTSTR sTR, Image * & pImg)
 {
 	pImg = NULL;
@@ -290,7 +463,7 @@ BOOL ImageFromIDResource(UINT nID, LPCTSTR sTR, Image * & pImg)
     BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
     memcpy(pmem,lpRsrc,len);
     IStream* pstm;
-    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:»á×Ô¶¯ÊÍ·Å
+    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:ä¼šè‡ªåŠ¨é‡Šæ”¾
 	{
 		// load from stream
 		pImg = Gdiplus::Image::FromStream(pstm,FALSE);
@@ -301,7 +474,7 @@ BOOL ImageFromIDResource(UINT nID, LPCTSTR sTR, Image * & pImg)
 		GlobalUnlock(m_hMem);
 		GlobalFree(m_hMem);
 	}
-	// **²»ÄÜÊÍ·Å£¬·ñÔò»áµ¼ÖÂÍ¼Æ¬»Ò¶È»¯Ê§°Ü£»
+	// **ä¸èƒ½é‡Šæ”¾ï¼Œå¦åˆ™ä¼šå¯¼è‡´å›¾ç‰‡ç°åº¦åŒ–å¤±è´¥ï¼›
     //GlobalUnlock(m_hMem);
     //GlobalFree(m_hMem);
     FreeResource(lpRsrc);
@@ -325,7 +498,7 @@ BOOL ImageExFromIDResource(UINT nID, LPCTSTR sTR, CImageEx * & pImg)
     BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
     memcpy(pmem,lpRsrc,len);
     IStream* pstm;
-    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:»á×Ô¶¯ÊÍ·Å
+    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:ä¼šè‡ªåŠ¨é‡Šæ”¾
 	{
 		// load from stream
 		pImg = new CImageEx();
@@ -341,7 +514,7 @@ BOOL ImageExFromIDResource(UINT nID, LPCTSTR sTR, CImageEx * & pImg)
 		GlobalUnlock(m_hMem);
 		GlobalFree(m_hMem);
 	}
-	// **²»ÄÜÊÍ·Å£¬·ñÔò»áµ¼ÖÂÍ¼Æ¬»Ò¶È»¯Ê§°Ü£»
+	// **ä¸èƒ½é‡Šæ”¾ï¼Œå¦åˆ™ä¼šå¯¼è‡´å›¾ç‰‡ç°åº¦åŒ–å¤±è´¥ï¼›
     //GlobalUnlock(m_hMem);
     //GlobalFree(m_hMem);
     FreeResource(lpRsrc);
@@ -365,7 +538,7 @@ BOOL BitmapFromIDResource(UINT nID, LPCTSTR sTR, Bitmap * & pImg)
     BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
     memcpy(pmem,lpRsrc,len);
     IStream* pstm;
-    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:»á×Ô¶¯ÊÍ·Å
+    if (CreateStreamOnHGlobal(m_hMem,TRUE,&pstm)==S_OK)	// TRUE:ä¼šè‡ªåŠ¨é‡Šæ”¾
 	{
 		// load from stream
 		pImg = Gdiplus::Bitmap::FromStream(pstm,FALSE);
@@ -376,14 +549,14 @@ BOOL BitmapFromIDResource(UINT nID, LPCTSTR sTR, Bitmap * & pImg)
 		GlobalUnlock(m_hMem);
 		GlobalFree(m_hMem);
 	}
-	// **²»ÄÜÊÍ·Å£¬·ñÔò»áµ¼ÖÂÍ¼Æ¬»Ò¶È»¯Ê§°Ü£»
+	// **ä¸èƒ½é‡Šæ”¾ï¼Œå¦åˆ™ä¼šå¯¼è‡´å›¾ç‰‡ç°åº¦åŒ–å¤±è´¥ï¼›
     //GlobalUnlock(m_hMem);
     //GlobalFree(m_hMem);
     FreeResource(lpRsrc);
     return TRUE;
 }
 
-// ´ÓÄÚ´æ¼ÓÔØÍ¼Æ¬£¬Ê§°Ü·µ»ØNULL
+// ä»å†…å­˜åŠ è½½å›¾ç‰‡ï¼Œå¤±è´¥è¿”å›NULL
 Gdiplus::Image* LoadImageFromMemory(const void* memory, DWORD size)
 {
     Gdiplus::Image* pImage = NULL;
@@ -422,9 +595,9 @@ Gdiplus::Image * LoadImageFromFile(const TCHAR* file_name)
     {
         DWORD temp = 0;
 				DWORD file_size = ::GetFileSize(file_handle, &temp);
-        if (file_size && !temp)  // ²»´¦Àí´óÓÚ4GµÄÎÄ¼ş
+        if (file_size && !temp)  // ä¸å¤„ç†å¤§äº4Gçš„æ–‡ä»¶
         {
-            // ½«Í¼Æ¬ÎÄ¼ş¶Áµ½ÄÚ´æºó£¬ÔÙ´ÓÄÚ´æ´´½¨Bitmap
+            // å°†å›¾ç‰‡æ–‡ä»¶è¯»åˆ°å†…å­˜åï¼Œå†ä»å†…å­˜åˆ›å»ºBitmap
             unsigned char* buffer = new unsigned char[file_size];
             if (ReadFile(file_handle, buffer, file_size, &temp, NULL))
                 pImage = LoadImageFromMemory(buffer, temp);
@@ -442,9 +615,9 @@ Gdiplus::Bitmap * LoadBitmapFromFile(const TCHAR* file_name)
     {
         DWORD temp = 0;
 				DWORD file_size = ::GetFileSize(file_handle, &temp);
-        if (file_size && !temp)  // ²»´¦Àí´óÓÚ4GµÄÎÄ¼ş
+        if (file_size && !temp)  // ä¸å¤„ç†å¤§äº4Gçš„æ–‡ä»¶
         {
-            // ½«Í¼Æ¬ÎÄ¼ş¶Áµ½ÄÚ´æºó£¬ÔÙ´ÓÄÚ´æ´´½¨Bitmap
+            // å°†å›¾ç‰‡æ–‡ä»¶è¯»åˆ°å†…å­˜åï¼Œå†ä»å†…å­˜åˆ›å»ºBitmap
             unsigned char* buffer = new unsigned char[file_size];
             if (ReadFile(file_handle, buffer, file_size, &temp, NULL))
                 pImage = LoadBitmapFromMemory(buffer, temp);
@@ -454,6 +627,8 @@ Gdiplus::Bitmap * LoadBitmapFromFile(const TCHAR* file_name)
     }
     return pImage;
 }
+#endif
+
 int ParseString(const char * lpszString, const char * lpszInterval, std::vector<tstring> & pOut)
 {
 	const tstring sIn(lpszString);
@@ -471,7 +646,7 @@ int ParseString(const char * lpszString, const char * lpszInterval, std::vector<
 		}
 		if (find==nFindBegin)
 		{
-			pOut.push_back("");	// ¿Õ
+			pOut.push_back("");	// ç©º
 		}else
 		{
 			pOut.push_back(sIn.substr(nFindBegin, (find-nFindBegin)));
@@ -490,7 +665,7 @@ int ParseString(const char * lpszString, const char * lpszInterval, std::vector<
 	//		break;
 	//	}
 	//	if (find==0)
-	//		pOut.push_back("");	// ¿Õ
+	//		pOut.push_back("");	// ç©º
 	//	else
 	//		pOut.push_back(sIn.substr(0, find));
 	//	sIn = sIn.substr(find+strlen(lpszInterval));
@@ -507,30 +682,30 @@ bool IsFullNumber(const char* pString, size_t nLen)
 	}
 	return true;
 }
-//typedef char      s8;    //ÓĞ·ûºÅ8Î»ÕûÊı  
-//typedef short     s16;   //ÓĞ·ûºÅ16Î»ÕûÊı  
-//typedef int       s32;   //ÓĞ·ûºÅ32Î»ÕûÊı  
+//typedef char      s8;    //æœ‰ç¬¦å·8ä½æ•´æ•°  
+//typedef short     s16;   //æœ‰ç¬¦å·16ä½æ•´æ•°  
+//typedef int       s32;   //æœ‰ç¬¦å·32ä½æ•´æ•°  
 //struct WAVE_TAG  
 //{  
-//	s8     riff[4];            //"RIFF",×ÊÔ´½»»»ÎÄ¼ş±êÖ¾  
-//	s32    fsize;              //ÎÄ¼ş´óĞ¡(´ÓÏÂ¸öµØÖ·¿ªÊ¼µ½ÎÄ¼şÎ²µÄ×Ü×Ö½ÚÊı)  
-//	s8     wave[4];            //"WAVE",ÎÄ¼ş±êÖ¾  
+//	s8     riff[4];            //"RIFF",èµ„æºäº¤æ¢æ–‡ä»¶æ ‡å¿—  
+//	s32    fsize;              //æ–‡ä»¶å¤§å°(ä»ä¸‹ä¸ªåœ°å€å¼€å§‹åˆ°æ–‡ä»¶å°¾çš„æ€»å­—èŠ‚æ•°)  
+//	s8     wave[4];            //"WAVE",æ–‡ä»¶æ ‡å¿—  
 //};  
 //struct WAVE_FMT  
 //{  
-//	s8     fmt[4];             //"fmt ",²¨ĞÎ¸ñÊ½±êÖ¾   
-//	s32    chunsize;           //ÎÄ¼şÄÚ²¿¸ñÊ½ĞÅÏ¢´óĞ¡  
-//	s16    wformattag;         //ÒôÆµÊı¾İ±àÂë·½Ê½ 1PCM  
-//	s16    wchanles;           //ÉùµÀÊı 1,2  
-//	s32    dwsamplespersec;    //²ÉÑùÂÊ 441000  
-//	s32    dwavgbytespersec;   //²¨ĞÎÊı¾İ´«ÊäËÙÂÊ£¨Ã¿ÃëÆ½¾ù×Ö½ÚÊı£©  
-//	s16    wblockalign;        //Êı¾İµÄµ÷ÕûÊı£¨°´×Ö½Ú¼ÆËã£©  
-//	s16    wbitspersample;     //Ñù±¾Êı¾İÎ»Êı  
+//	s8     fmt[4];             //"fmt ",æ³¢å½¢æ ¼å¼æ ‡å¿—   
+//	s32    chunsize;           //æ–‡ä»¶å†…éƒ¨æ ¼å¼ä¿¡æ¯å¤§å°  
+//	s16    wformattag;         //éŸ³é¢‘æ•°æ®ç¼–ç æ–¹å¼ 1PCM  
+//	s16    wchanles;           //å£°é“æ•° 1,2  
+//	s32    dwsamplespersec;    //é‡‡æ ·ç‡ 441000  
+//	s32    dwavgbytespersec;   //æ³¢å½¢æ•°æ®ä¼ è¾“é€Ÿç‡ï¼ˆæ¯ç§’å¹³å‡å­—èŠ‚æ•°ï¼‰  
+//	s16    wblockalign;        //æ•°æ®çš„è°ƒæ•´æ•°ï¼ˆæŒ‰å­—èŠ‚è®¡ç®—ï¼‰  
+//	s16    wbitspersample;     //æ ·æœ¬æ•°æ®ä½æ•°  
 //};  
 //struct WAVE_DAT  
 //{  
-//	s8     data[4];            //"data",Êı¾İ±êÖ¾·û  
-//	s32    datasize;           //²ÉÑùÊı¾İ×Ü³¤¶È   
+//	s8     data[4];            //"data",æ•°æ®æ ‡å¿—ç¬¦  
+//	s32    datasize;           //é‡‡æ ·æ•°æ®æ€»é•¿åº¦   
 //};  
 //struct WAVE_HEAD  
 //{  
@@ -551,43 +726,59 @@ typedef struct eb_pcmwaveformat_tag {
     unsigned short	wBitsPerSample;
 } EB_PCMWAVEFORMAT;
 
+#ifdef _QT_MAKE_
+int GetWaveTimeLength(const QString &lpszWavFilePath)
+{
+    return GetWaveTimeLength(lpszWavFilePath.toLocal8Bit().constData());
+}
+#endif
 int GetWaveTimeLength(const char* lpszWavFilePath)
 {
+//#ifdef _QT_MAKE_
+//    const QString fileTemp(lpszWavFilePath);
+//    const QByteArray byteArray = fileTemp.toLocal8Bit();
+//    FILE * f = fopen(byteArray.constData(),"rb");
+//#else
 	FILE * f = fopen(lpszWavFilePath,"rb");
-	if (f==NULL)
+//#endif
+    if (f==0) {
 		return -1;
+    }
 
-	char style[4];//¶¨ÒåÒ»¸öËÄ×Ö½ÚµÄÊı¾İ£¬ÓÃÀ´´æ·ÅÎÄ¼şµÄÀàĞÍ£»
+    char style[4]; ///å®šä¹‰ä¸€ä¸ªå››å­—èŠ‚çš„æ•°æ®ï¼Œç”¨æ¥å­˜æ”¾æ–‡ä»¶çš„ç±»å‹ï¼›
 	fseek(f,8,SEEK_SET);
 	fread(style,1,4,f);
-	if(style[0]!='W'||style[1]!='A'||style[2]!='V'||style[3]!='E')//ÅĞ¶Ï¸ÃÎÄ¼şÊÇ·ñÎª"WAVE"ÎÄ¼ş¸ñÊ½
+	if(style[0]!='W'||style[1]!='A'||style[2]!='V'||style[3]!='E')//åˆ¤æ–­è¯¥æ–‡ä»¶æ˜¯å¦ä¸º"WAVE"æ–‡ä»¶æ ¼å¼
 	{
 		fclose(f);
 		return -2;
 	}
 
-	// WAV¸ñÊ½ÎÄ¼şËùÕ¼ÈİÁ¿£¨KB) = £¨È¡ÑùÆµÂÊ X Á¿»¯Î»Êı X ÉùµÀ£© X Ê±¼ä / 8 (×Ö½Ú= 8bit) £¬Ã¿Ò»·ÖÖÓWAV¸ñÊ½µÄÒôÆµÎÄ¼şµÄ´óĞ¡Îª10MB£¬Æä´óĞ¡²»ËæÒôÁ¿´óĞ¡¼°ÇåÎú¶ÈµÄ±ä»¯¶ø±ä»¯¡£
+    /// WAVæ ¼å¼æ–‡ä»¶æ‰€å å®¹é‡ï¼ˆKB) = ï¼ˆå–æ ·é¢‘ç‡ X é‡åŒ–ä½æ•° X å£°é“ï¼‰ X æ—¶é—´ / 8 (å­—èŠ‚= 8bit) ï¼Œ
+    /// æ¯ä¸€åˆ†é’ŸWAVæ ¼å¼çš„éŸ³é¢‘æ–‡ä»¶çš„å¤§å°ä¸º10MBï¼Œå…¶å¤§å°ä¸éšéŸ³é‡å¤§å°åŠæ¸…æ™°åº¦çš„å˜åŒ–è€Œå˜åŒ–ã€‚
 
-	EB_PCMWAVEFORMAT format; //¶¨ÒåPCMWAVEFORMAT½á¹¹¶ÔÏó£¬ÓÃÀ´ÅĞ¶ÏWAVEÎÄ¼ş¸ñÊ½£»
+    EB_PCMWAVEFORMAT format; /// å®šä¹‰PCMWAVEFORMATç»“æ„å¯¹è±¡ï¼Œç”¨æ¥åˆ¤æ–­WAVEæ–‡ä»¶æ ¼å¼ï¼›
 	fseek(f,20,SEEK_SET);
-	fread((char*)&format,1,sizeof(EB_PCMWAVEFORMAT),f);//»ñÈ¡¸Ã½á¹¹µÄÊı¾İ£»
+    fread((char*)&format,1,sizeof(EB_PCMWAVEFORMAT),f); ///è·å–è¯¥ç»“æ„çš„æ•°æ®ï¼›
 	if (format.wf.nAvgBytesPerSec==0)
 	{
 		fclose(f);
 		return -3;
 	}
 
-	// »ñÈ¡WAVEÎÄ¼ş data Êı¾İ±êÊ¶
+    /// è·å–WAVEæ–‡ä»¶ data æ•°æ®æ ‡è¯†
 	fseek(f,36,SEEK_SET);
 	fread(style,1,4,f);
-	if(style[0]!='d'||style[1]!='a'||style[2]!='t'||style[3]!='a')	//ÅĞ¶ÏÊÇ·ñ±ê×¼dataÎÄ¼ş£¬Èç¹ûÊÇÊ¹ÓÃ44×Ö½ÚÎÄ¼şÍ·£¬·ñÔòÊ¹ÓÃ46×Ö½ÚÎÄ¼şÍ·
+    ///åˆ¤æ–­æ˜¯å¦æ ‡å‡†dataæ–‡ä»¶ï¼Œå¦‚æœæ˜¯ä½¿ç”¨44å­—èŠ‚æ–‡ä»¶å¤´ï¼Œå¦åˆ™ä½¿ç”¨46å­—èŠ‚æ–‡ä»¶å¤´
+    if(style[0]!='d'||style[1]!='a'||style[2]!='t'||style[3]!='a') {
 		fseek(f,42,SEEK_SET);
+    }
 	//fseek(f,40,SEEK_SET);
-	////»ñÈ¡WAVEÎÄ¼şµÄÉùÒôÊı¾İµÄ´óĞ¡£»
+	////è·å–WAVEæ–‡ä»¶çš„å£°éŸ³æ•°æ®çš„å¤§å°ï¼›
 	unsigned long size = 0;
 	fread((char*)&size,1,4,f);
 
-	//¼ÆËãÎÄ¼şÊ±³¤
+    /// è®¡ç®—æ–‡ä»¶æ—¶é•¿
 	const int timeLength = size/format.wf.nAvgBytesPerSec;
 	fclose(f);
 	return timeLength;
@@ -650,16 +841,19 @@ tstring URLDecode(const char *sIn, bool bTranPlusSign)
 }
 tstring GetHostIp(const char * lpszHostName,const char* lpszDefault)
 {
+#ifdef _QT_MAKE_
+#else
+
 	try
 	{
 		struct hostent *host_entry;
 		//struct sockaddr_in addr;
-		/* ¼´Òª½âÎöµÄÓòÃû»òÖ÷»úÃû */
+		/* å³è¦è§£æçš„åŸŸåæˆ–ä¸»æœºå */
 		host_entry=gethostbyname(lpszHostName);
 		//printf("%s\n", dn_or_ip);
 		if (host_entry!=0)
 		{
-			//printf("½âÎöIPµØÖ·: ");
+			//printf("è§£æIPåœ°å€: ");
 			char lpszIpAddress[50];
 			sprintf(lpszIpAddress, "%d.%d.%d.%d",
 				(host_entry->h_addr_list[0][0]&0x00ff),
@@ -672,6 +866,10 @@ tstring GetHostIp(const char * lpszHostName,const char* lpszDefault)
 	{
 	}catch(...)
 	{}
-	return lpszDefault;
+#endif
+    return lpszDefault;
 }
+
+
+
 };

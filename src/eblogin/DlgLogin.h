@@ -8,8 +8,7 @@ class CLoginInfo
 {
 public:
 	typedef boost::shared_ptr<CLoginInfo> pointer;
-	static CLoginInfo::pointer create(const CString& sAccount, const CString& sPassword, bool bSafePwd)
-	{
+	static CLoginInfo::pointer create(const mycp::tstring& sAccount, const mycp::tstring& sPassword, bool bSafePwd) {
 		return CLoginInfo::pointer(new CLoginInfo(sAccount, sPassword, bSafePwd));
 	}
 
@@ -17,7 +16,7 @@ public:
 		: m_bSafePwd(false)
 	{
 	}
-	CLoginInfo(const CString& sAccount, const CString& sPassword, bool bSafePwd)
+	CLoginInfo(const mycp::tstring& sAccount, const mycp::tstring& sPassword, bool bSafePwd)
 		: m_sAccount(sAccount)
 		, m_sPassword(sPassword)
 		, m_bSafePwd(bSafePwd)
@@ -26,14 +25,15 @@ public:
 		, m_hItem(NULL)
 	{
 	}
-	CString m_sAccount;
-	CString m_sPassword;
+	mycp::tstring m_sAccount;
+	mycp::tstring m_sPassword;
 	bool m_bSafePwd;
 	EB_USER_LINE_STATE m_nLineState;
 	mycp::bigint m_nUserId;
 	mycp::bigint m_nPhone;
 	HTREEITEM m_hItem;
 };
+
 // CDlgLogin dialog
 #define USES_NEW_USER_CTRL
 
@@ -61,7 +61,7 @@ public:
 
 protected:
 	eb::bigint m_nDeployId;
-	CString m_sProductName;
+	mycp::tstring m_sProductName;
 	CString m_sOrgServer;
 	CMenu m_menuState;
 	CNewMenu m_menuSkin;
@@ -69,7 +69,7 @@ protected:
 	bool m_bAutoLogSuccess;
 
 	HICON m_hIcon;
-	CLockMap<CString, CLoginInfo::pointer> m_pLoginInfoList;
+	CLockMap<mycp::tstring, CLoginInfo::pointer> m_pLoginInfoList;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 #ifdef USES_NEW_USER_CTRL
 	bool m_bCanSearch;
@@ -130,7 +130,7 @@ protected:
 	CString m_sUserAccount;
 	CString m_sUserPassword;
 #ifdef USES_OAUTHKEY_LOGIN
-	CString m_sOAuthKey;
+	mycp::tstring m_sOAuthKey;
 #endif
 	afx_msg void OnBnClickedButtonVisitor();
 	afx_msg void OnBnClickedButtonSetting();

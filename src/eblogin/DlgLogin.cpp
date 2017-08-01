@@ -148,20 +148,17 @@ void CDlgLogin::OnBnClickedButtonLogin()
 	// TODO: Add your control notification handler code here
 	if (!UpdateData())
 		return;
-	if (m_sUserAccount.IsEmpty())
-	{
+	if (m_sUserAccount.IsEmpty()) {
 		m_editUser.SetFocus();
 		ShowError("请输入用户帐号！");
 		return;
 	}
-	if (m_sUserPassword.IsEmpty())
-	{
+	if (m_sUserPassword.IsEmpty()) {
 		m_editPassword.SetFocus();
 		ShowError("请输入帐号密码！");
 		return;
 	}
-	if (!StartClient())
-	{
+	if (!StartClient()) {
 		ShowError("本地服务启动失败，请重试！");
 		return;
 	}
@@ -201,7 +198,7 @@ void CDlgLogin::OnBnClickedButtonLogin()
 		mycp::tstring sLocalHostOAuthKey;
 		if (m_labelSavePwd.GetCheck())
 			GetLocalHostOAuthKey(sLocalHostOAuthKey);
-		if (!m_sOAuthKey.IsEmpty() && m_sOAuthKey==sLocalHostOAuthKey.c_str())
+		if (!m_sOAuthKey.empty() && m_sOAuthKey==sLocalHostOAuthKey)
 		{
 			ret = theEBAppClient.EB_LogonByAccount((LPCTSTR)m_sUserAccount,"",m_sReqCode.c_str(),sLocalHostOAuthKey.c_str(),m_nOutLineState);
 		}else
@@ -236,8 +233,8 @@ BOOL CALLBACK MyEnumFonts(CONST LOGFONTW* lplf, CONST TEXTMETRICW *lptm,DWORD dw
 void CDlgLogin::EbSetWindowText(void)
 {
 	CString stext;
-	if (!m_sProductName.IsEmpty())
-		stext.Format(_T("%s-登录窗口"),m_sProductName);
+	if (!m_sProductName.empty())
+		stext.Format(_T("%s-登录窗口"),m_sProductName.c_str());
 	else
 	{
 #ifdef USES_EBCOM_TEST
@@ -362,12 +359,12 @@ BOOL CDlgLogin::OnInitDialog()
 	//std::wstring sText = A2W_ACP(sEnterprise.c_str());
 	//MessageBoxW(this->GetSafeHwnd(),sText.c_str(),L"222",MB_OK);
 
-	const CString sEBCSetting = theApp.GetAppDataPath()+_T("\\ebc.ini");
-	if (::PathFileExists(sEBCSetting))
+	const mycp::tstring sEBCSetting = theApp.GetAppDataPath()+"\\ebc.ini";
+	if (::PathFileExists(sEBCSetting.c_str()))
 	{
 		TCHAR lpszBuffer[1024];
 		memset(lpszBuffer,0,sizeof(lpszBuffer));
-		::GetPrivateProfileString("system","server","",lpszBuffer,sizeof(lpszBuffer),sEBCSetting);
+		::GetPrivateProfileString("system","server","",lpszBuffer,sizeof(lpszBuffer),sEBCSetting.c_str());
 		m_sOrgServer = lpszBuffer;
 	}
 
@@ -510,10 +507,12 @@ BOOL CDlgLogin::OnInitDialog()
 		{
 			for (int i=0; i<pResltSet->rscount; i++)
 			{
-				const CString sAccount(pResltSet->rsvalues[i]->fieldvalues[0]->v.varcharVal.buffer);
-				if (sAccount.IsEmpty() || m_pLoginInfoList.exist(sAccount))
+				const char * buffer = pResltSet->rsvalues[i]->fieldvalues[0]->v.varcharVal.buffer;
+				const mycp::tstring sAccount(buffer==0?"":buffer);
+				if (sAccount.empty() || m_pLoginInfoList.exist(sAccount))
 					continue;
-				const CString sPassword(pResltSet->rsvalues[i]->fieldvalues[1]->v.varcharVal.buffer);
+				buffer = pResltSet->rsvalues[i]->fieldvalues[1]->v.varcharVal.buffer;
+				const mycp::tstring sPassword(buffer==0?"":buffer);
 				bool bSafePwd = pResltSet->rsvalues[i]->fieldvalues[2]->v.booleanVal;
 				EB_USER_LINE_STATE nLineState = (EB_USER_LINE_STATE)pResltSet->rsvalues[i]->fieldvalues[3]->v.tinyintVal;
 				CLoginInfo::pointer pLoginInfo = CLoginInfo::create(sAccount, sPassword, bSafePwd);
@@ -537,7 +536,7 @@ BOOL CDlgLogin::OnInitDialog()
 					//	m_sUserPassword = pLoginInfo->m_sPassword;
 					//}
 					//else 
-					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.size()==32)
 					{
 						m_sOAuthKey = pLoginInfo->m_sPassword;
 						m_sUserPassword = _T("********");
@@ -545,7 +544,7 @@ BOOL CDlgLogin::OnInitDialog()
 					else
 					{
 						m_sUserPassword = pLoginInfo->m_sPassword;
-						m_sOAuthKey = _T("");
+						m_sOAuthKey = "";
 					}
 #else
 					m_sUserPassword = pLoginInfo->m_sPassword;
@@ -583,8 +582,8 @@ BOOL CDlgLogin::OnInitDialog()
 
 	}else
 	{
-		const CString sAutoRunAccount = theApp.EBC_GetProfileString(_T("system"),_T("auto-run-account"));
-		if (!sAutoRunAccount.IsEmpty())
+		const mycp::tstring sAutoRunAccount = theApp.EBC_GetProfileString(_T("system"),_T("auto-run-account"));
+		if (!sAutoRunAccount.empty())
 		{
 			OnStnClickedStaticAutologin();
 			m_labelAutoLogin.SetCheck(TRUE);
@@ -593,16 +592,16 @@ BOOL CDlgLogin::OnInitDialog()
 			{
 				CLoginInfo::pointer pLoginInfo;
 				m_pLoginInfoList.find(sAutoRunAccount, pLoginInfo);
-				if (pLoginInfo.get()!=0 && !pLoginInfo->m_sAccount.IsEmpty() && !pLoginInfo->m_sPassword.IsEmpty())
+				if (pLoginInfo.get()!=0 && !pLoginInfo->m_sAccount.empty() && !pLoginInfo->m_sPassword.empty())
 				{
-					m_sUserAccount = pLoginInfo->m_sAccount;
+					m_sUserAccount = pLoginInfo->m_sAccount.c_str();
 #ifdef USES_OAUTHKEY_LOGIN
 					//if (theApp.m_nEBServerVersion==0)	// ** 兼容旧版本
 					//{
 					//	m_sUserPassword = pLoginInfo->m_sPassword;
 					//}
 					//else 
-					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+					if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.size()==32)
 					{
 						m_sOAuthKey = pLoginInfo->m_sPassword;
 						m_sUserPassword = _T("********");
@@ -610,7 +609,7 @@ BOOL CDlgLogin::OnInitDialog()
 					else
 					{
 						m_sUserPassword = pLoginInfo->m_sPassword;
-						m_sOAuthKey = _T("");
+						m_sOAuthKey = "";
 					}
 #else
 					m_sUserPassword = pLoginInfo->m_sPassword;
@@ -679,7 +678,7 @@ int CDlgLogin::GetExistAppCount(void) const
 		{
 			if (m_sMainExe.find(pe32.szExeFile) != std::string::npos)
 			{
-				std::string sExePath((LPCTSTR)theApp.GetAppPath());
+				std::string sExePath((LPCTSTR)theApp.GetAppPath().c_str());
 				std::string::size_type find = sExePath.find(":\\");
 				if (find!=std::string::npos)
 					sExePath = sExePath.substr(find+2);
@@ -1302,6 +1301,7 @@ LRESULT CDlgLogin::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 	unsigned long pForgetPwdUrl = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_FORGET_PWD_URL,&pForgetPwdUrl);
 	m_btnForgetPwd.ShowWindow(pForgetPwdUrl==NULL?SW_HIDE:SW_SHOW);
+	theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_FORGET_PWD_URL,pForgetPwdUrl);
 	unsigned long nEBServerVersion = 0;
 	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_EB_SERVER_VERSION,&nEBServerVersion);
 	theApp.m_nEBServerVersion = nEBServerVersion;
@@ -1343,8 +1343,8 @@ LRESULT CDlgLogin::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 		// 企业LOGO
 		unsigned long pEntLogoUrl = 0;
 		theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_ENT_LOGO_URL,&pEntLogoUrl);
-		const CString sImageTempIniPath = theApp.GetAppPath()+_T("\\img\\temp.ini");
-		const CString sEntImagePath = theApp.GetAppPath()+_T("\\img\\entlogo");			// 企业定制LOGO
+		const mycp::tstring sImageTempIniPath = theApp.GetAppPath()+"\\img\\temp.ini";
+		const mycp::tstring sEntImagePath = theApp.GetAppPath()+"\\img\\entlogo";			// 企业定制LOGO
 		if (pEntLogoUrl != NULL && strlen((const char*)pEntLogoUrl)>0)
 		{
 			// http://test-um.entboost.com/images/entlogo.png
@@ -1352,28 +1352,28 @@ LRESULT CDlgLogin::OnMessageAppIdSuccess(WPARAM wParam, LPARAM lParam)
 			theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_ENT_LOGO_URL,pEntLogoUrl);
 			char lpszEntLogoLastModified[64];
 			memset(lpszEntLogoLastModified,0,64);
-			::GetPrivateProfileString(_T("entlogo"),_T("last_modified"),_T(""),lpszEntLogoLastModified,64,sImageTempIniPath);
+			::GetPrivateProfileString(_T("entlogo"),_T("last_modified"),_T(""),lpszEntLogoLastModified,64,sImageTempIniPath.c_str());
 			CString sNewLastModified;
-			const CString sEntLogoImagePathTemp = theApp.GetAppPath()+_T("\\img\\entlogotemp");	// 先保存到临时中间文件
-			if (DownloadHttpFile(sEntLogoUrl,sEntLogoImagePathTemp,lpszEntLogoLastModified,sNewLastModified))
+			const mycp::tstring sEntLogoImagePathTemp = theApp.GetAppPath()+"\\img\\entlogotemp";	// 先保存到临时中间文件
+			if (DownloadHttpFile(sEntLogoUrl,sEntLogoImagePathTemp.c_str(),lpszEntLogoLastModified,sNewLastModified))
 			{
-				const CString sEntImagePath = theApp.GetAppPath()+_T("\\img\\entlogo");			// 企业定制LOGO
+				const mycp::tstring sEntImagePath2 = theApp.GetAppPath()+"\\img\\entlogo";			// 企业定制LOGO
 				theApp.FreeEntLogo();
-				CopyFile(sEntLogoImagePathTemp,sEntImagePath,FALSE);
-				theApp.SetEntLogo(sEntImagePath);
+				CopyFile(sEntLogoImagePathTemp.c_str(),sEntImagePath2.c_str(),FALSE);
+				theApp.SetEntLogo(sEntImagePath2.c_str());
 				this->Invalidate();
-				DeleteFile(sEntLogoImagePathTemp);
-				::WritePrivateProfileString(_T("entlogo"),_T("last_modified"),sNewLastModified,sImageTempIniPath);
+				DeleteFile(sEntLogoImagePathTemp.c_str());
+				::WritePrivateProfileString(_T("entlogo"),_T("last_modified"),sNewLastModified,sImageTempIniPath.c_str());
 			}
 		}else if (!theApp.IsEbDefaultEntLogo())
 		{
 			theApp.SetEntLogo(NULL);
 			this->Invalidate();
-			if (::PathFileExists(sEntImagePath))
+			if (::PathFileExists(sEntImagePath.c_str()))
 			{
 				// 删除企业LOGO，避免下次显示。
-				DeleteFile(sEntImagePath);
-				DeleteFile(sImageTempIniPath);
+				DeleteFile(sEntImagePath.c_str());
+				DeleteFile(sImageTempIniPath.c_str());
 			}
 		}
 
@@ -1787,9 +1787,9 @@ void CDlgLogin::DrawInfo(const CString & sAdText)
 	//MessageBoxW(this->GetSafeHwnd(),theFontFamily.c_str(),L"",MB_OK);
 	//MessageBoxA(m_sProductName,sEnterprise.c_str(),MB_OK);
 	const Gdiplus::PointF pointTitle(7,7);	// 10,10
-	if (!m_sProductName.IsEmpty())
+	if (!m_sProductName.empty())
 	{
-		graphics.DrawString(A2W_ACP(m_sProductName),-1,&fontEbTitle,pointTitle,&brushEbTitle);
+		graphics.DrawString(A2W_ACP(m_sProductName.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
 	}else if (sEnterprise.empty())
 		graphics.DrawString(L"恩布互联",-1,&fontEbTitle,pointTitle,&brushEbTitle);
 	else
@@ -1973,7 +1973,7 @@ void CDlgLogin::OnStateOnline()
 	}
 	m_nOutLineState = EB_LINE_STATE_ONLINE_NEW;
 	m_btnLineState.Load(IDB_PNG_BTN_STATE_ONLINE);
-	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState));
+	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState).c_str());
 	m_btnLineState.Invalidate();
 }
 
@@ -1985,7 +1985,7 @@ void CDlgLogin::OnStateAway()
 	}
 	m_nOutLineState = EB_LINE_STATE_AWAY;
 	m_btnLineState.Load(IDB_PNG_BTN_STATE_AWAY);
-	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState));
+	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState).c_str());
 	m_btnLineState.Invalidate();
 }
 
@@ -1997,7 +1997,7 @@ void CDlgLogin::OnStateBusy()
 	}
 	m_nOutLineState = EB_LINE_STATE_BUSY;
 	m_btnLineState.Load(IDB_PNG_BTN_STATE_BUSY);
-	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState));
+	this->SetToolTipText(IDC_BUTTON_LINESTATE,GetLineStateText(m_nOutLineState).c_str());
 	m_btnLineState.Invalidate();
 }
 
@@ -2165,8 +2165,8 @@ void CDlgLogin::OnBnClickedButtonSkin()
 		m_menuSkin.AppendMenu(MF_SEPARATOR);
 		for (int i=0; i<theColorSkinSize; i++)
 		{
-			m_menuSkin.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SKIN_1+i,theColorSkinsString[i]);
-			m_menuSkin.ModifyODMenu(theColorSkinsString[i],EB_COMMAND_SKIN_1+i,theColorSkinsValue[i],theColorSkinsValue[i]);
+			m_menuSkin.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SKIN_1+i,theColorSkinsString[i].c_str());
+			m_menuSkin.ModifyODMenu(theColorSkinsString[i].c_str(),EB_COMMAND_SKIN_1+i,theColorSkinsValue[i],theColorSkinsValue[i]);
 		}
 		//m_menuSkin.AppendMenu(MF_SEPARATOR);
 		//m_menuSkin.AppendMenu(MF_BYCOMMAND,EB_COMMAND_SKIN_FLAT,_T("扁平效果"));
@@ -2322,8 +2322,8 @@ BOOL CDlgLogin::PreTranslateMessage(MSG* pMsg)
 	}else if (pMsg->message == WM_KEYDOWN && pMsg->hwnd == m_editPassword.GetSafeHwnd())
 	{
 		// 手工输入密码，清空 m_sOAuthKey
-		if (!m_sOAuthKey.IsEmpty())
-			m_sOAuthKey = _T("");
+		if (!m_sOAuthKey.empty())
+			m_sOAuthKey.clear();
 #endif
 	}else if (pMsg->message == WM_KEYDOWN && pMsg->hwnd == m_editUser.GetSafeHwnd())
 	{
@@ -2414,14 +2414,14 @@ void CDlgLogin::DeleteItem(HTREEITEM hItem)
 		CLoginInfo* pLoginInfo = (CLoginInfo*)m_treeUsers.GetItemData(hItem);
 		if (pLoginInfo!=0)
 		{
-			const CString sUserAccount(pLoginInfo->m_sAccount);
+			const mycp::tstring sUserAccount(pLoginInfo->m_sAccount);
 
 			CString sUserDirectory;
-			sUserDirectory.Format(_T("%s\\users\\%s"),theApp.GetAppPath(),sUserAccount);
+			sUserDirectory.Format(_T("%s\\users\\%s"),theApp.GetAppPath().c_str(),sUserAccount.c_str());
 			if (::PathFileExists(sUserDirectory))
 			{
 				CString sText;
-				sText.Format(_T("确定删除本地：\r\n%s 帐号及所有聊天信息吗？"), sUserAccount);
+				sText.Format(_T("确定删除本地：\r\n%s 帐号及所有聊天信息吗？"), sUserAccount.c_str());
 				if (CDlgMessageBox::EbDoModal(this,"删除登录信息",sText,CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
 					return;
 				if (!DeleteDirectory(sUserDirectory))
@@ -2441,13 +2441,13 @@ void CDlgLogin::DeleteItem(HTREEITEM hItem)
 			}
 			if (theApp.m_pBoEB->use("eb"))
 			{
-				if (!sUserAccount.IsEmpty())
+				if (!sUserAccount.empty())
 				{
 					CString sSql;
 					if (pLoginInfo->m_nUserId>0)
-						sSql.Format(_T("delete from user_login_record_t where account='%s' OR user_id=%lld"), sUserAccount,pLoginInfo->m_nUserId);
+						sSql.Format(_T("delete from user_login_record_t where account='%s' OR user_id=%lld"), sUserAccount.c_str(),pLoginInfo->m_nUserId);
 					else
-						sSql.Format(_T("delete from user_login_record_t where account='%s'"), sUserAccount);
+						sSql.Format(_T("delete from user_login_record_t where account='%s'"), sUserAccount.c_str());
 					theApp.m_pBoEB->execsql(sSql);
 				}else if (pLoginInfo->m_nUserId>0)
 				{
@@ -2493,14 +2493,15 @@ void CDlgLogin::SelectItem(HTREEITEM hItem, bool bHideUserCtrl)
 			{
 				CString sOldAccount;
 				m_editUser.GetWindowText(sOldAccount);
-				if (sOldAccount.GetLength()==1 && pLoginInfo->m_sAccount.Find(sOldAccount)==0)
+				if (sOldAccount.GetLength()==1 && pLoginInfo->m_sAccount.find((LPCTSTR)sOldAccount)==0)
 					nSel = 1;
 				else
 				{
 					int nStartChar = 0;
 					int nEndChar = 0;
 					m_editUser.GetSel(nStartChar,nEndChar);
-					if (nStartChar>0 && sOldAccount.Left(nStartChar)==pLoginInfo->m_sAccount.Left(nStartChar))
+					if (nStartChar>0 && sOldAccount.Left(nStartChar)==pLoginInfo->m_sAccount.substr(0,nStartChar).c_str())
+					//if (nStartChar>0 && sOldAccount.Left(nStartChar)==pLoginInfo->m_sAccount.Left(nStartChar))
 					{
 						nSel = nStartChar;
 					}
@@ -2514,7 +2515,7 @@ void CDlgLogin::SelectItem(HTREEITEM hItem, bool bHideUserCtrl)
 			//	m_editPassword.SetWindowText(pLoginInfo->m_sPassword);
 			//}
 			//else 
-			if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.GetLength()==32)
+			if (pLoginInfo->m_bSafePwd && pLoginInfo->m_sPassword.size()==32)
 			{
 				m_sOAuthKey = pLoginInfo->m_sPassword;
 				m_editPassword.SetWindowText(_T("********"));
@@ -2598,11 +2599,11 @@ void CDlgLogin::OnEnChangeEditUsers()
 	bool bFindAccount = false;
 	if (!sAccount.IsEmpty())
 	{
-		CLockMap<CString, CLoginInfo::pointer>::iterator pIter = m_pLoginInfoList.begin();
+		CLockMap<mycp::tstring, CLoginInfo::pointer>::iterator pIter = m_pLoginInfoList.begin();
 		for (; pIter!=m_pLoginInfoList.end(); pIter++)
 		{
 			const CLoginInfo::pointer& pLoginInfo = pIter->second;
-			if (pLoginInfo->m_sAccount.Find(sAccount)==0)
+			if (pLoginInfo->m_sAccount.find((LPCTSTR)sAccount)==0)
 			{
 				bFindAccount = true;
 				if (m_treeUsers.GetSelectedItem()==pLoginInfo->m_hItem)
@@ -2648,7 +2649,7 @@ void CDlgLogin::OnTimer(UINT_PTR nIDEvent)
 
 void CDlgLogin::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (!theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.IsEmpty() || m_sProductName.Find(_T("恩布"))>=0)
+	if (!theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.empty() || m_sProductName.find("恩布")!=std::string::npos)
 	{
 		CPoint pos;
 		GetCursorPos(&pos);
@@ -2665,7 +2666,7 @@ void CDlgLogin::OnMouseMove(UINT nFlags, CPoint point)
 
 void CDlgLogin::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if (theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.IsEmpty() || m_sProductName.Find(_T("恩布"))>=0)
+	if (theApp.m_sDefaultUrl.empty() || !theApp.m_bLicenseUser || m_sProductName.empty() || m_sProductName.find("恩布")!=std::string::npos)
 	{
 		CPoint pos;
 		GetCursorPos(&pos);

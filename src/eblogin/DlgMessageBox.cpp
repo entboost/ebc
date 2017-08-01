@@ -109,8 +109,8 @@ BOOL CDlgMessageBox::OnInitDialog()
 		m_btnCancel.SetToolTipText(_T(""));
 		if (m_nAutoClose > 0)
 		{
-			CString sText;
-			sText.Format(_T("关闭（%d）"),m_nAutoClose);
+			char sText[64];
+			sprintf(sText, "关闭（%d）",m_nAutoClose);
 			m_btnCancel.SetWindowText(sText);
 		}else
 		{
@@ -118,8 +118,8 @@ BOOL CDlgMessageBox::OnInitDialog()
 		}
 	}else if (m_nAutoClose>0)
 	{
-		CString sText;
-		sText.Format(_T("取消（%d）"),m_nAutoClose);
+		char sText[64];
+		sprintf(sText, "取消（%d）",m_nAutoClose);
 		m_btnCancel.SetWindowText(sText);
 	}
 
@@ -157,7 +157,7 @@ BOOL CDlgMessageBox::OnInitDialog()
 	{
 		SetTimer(TIMERID_AUTO_CLOSE,1000,NULL);
 	}
-	this->SetWindowText(m_sTitle);
+	this->SetWindowText(m_sTitle.c_str());
 	this->SetForegroundWindow();
 	SetDlgChildFont(theDefaultDialogFontSize,theFontFace.c_str());
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -254,12 +254,12 @@ void CDlgMessageBox::DrawInfo(void)
 	// 写标题
 	if (m_bCloseOnlyMode)
 	{
-		if (!m_sTitle.IsEmpty())
+		if (!m_sTitle.empty())
 		{
 			const Gdiplus::Font fontEbTitle(&fontFamily, 13, FontStyleRegular, UnitPixel);
 			Gdiplus::SolidBrush brushEbTitle(Gdiplus::Color(12,12,12));
 			const Gdiplus::PointF pointTitle(x,y-2);
-			graphics.DrawString(A2W_ACP(m_sTitle),-1,&fontEbTitle,pointTitle,&brushEbTitle);
+			graphics.DrawString(A2W_ACP(m_sTitle.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
 			y += 22;
 		}else
 		{
@@ -270,7 +270,7 @@ void CDlgMessageBox::DrawInfo(void)
 		const Gdiplus::Font fontEbTitle(&fontFamily, 14, FontStyleBold, UnitPixel);
 		Gdiplus::SolidBrush brushEbTitle(Gdiplus::Color(255,255,255));
 		const Gdiplus::PointF pointTitle(12,12);
-		graphics.DrawString(A2W_ACP(m_sTitle),-1,&fontEbTitle,pointTitle,&brushEbTitle);
+		graphics.DrawString(A2W_ACP(m_sTitle.c_str()),-1,&fontEbTitle,pointTitle,&brushEbTitle);
 	}
 	// TEXT
 	//y += 22;
@@ -281,7 +281,7 @@ void CDlgMessageBox::DrawInfo(void)
 	Gdiplus::StringFormat formatAdText;
 	formatAdText.SetAlignment(Gdiplus::StringAlignmentNear);
 	formatAdText.SetLineAlignment(Gdiplus::StringAlignmentNear);
-	graphics.DrawString(A2W_ACP(m_sDescription),-1,&fontAdText,rectAdText,&formatAdText,&brushDescription);
+	graphics.DrawString(A2W_ACP(m_sDescription.c_str()),-1,&fontAdText,rectAdText,&formatAdText,&brushDescription);
 }
 
 //void CDlgMessageBox::OnBnClickedOk()
@@ -345,13 +345,13 @@ void CDlgMessageBox::OnTimer(UINT_PTR nIDEvent)
 		m_nAutoClose--;
 		if (m_nAutoClose>=0)
 		{
-			CString sText;
+			char sText[64];
 			if (m_bCloseOnlyMode)
 			{
-				sText.Format(_T("关闭（%d）"),m_nAutoClose);
+				sprintf(sText, "关闭（%d）",m_nAutoClose);
 			}else
 			{
-				sText.Format(_T("取消（%d）"),m_nAutoClose);
+				sprintf(sText, "取消（%d）",m_nAutoClose);
 			}
 			m_btnCancel.SetWindowText(sText);
 		}else

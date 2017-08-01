@@ -1584,7 +1584,8 @@ CDlgDialog::pointer CFrameWndInfoProxy::GetCallIdDialog(eb::bigint nCallId, bool
 {
 	if (theWantExitApp) return NullDlgDialog;
 	{
-		CFrameWndInfo::pointer pPrevFrameWndInfo;
+		/// ???
+		//CFrameWndInfo::pointer pPrevFrameWndInfo;
 		BoostWriteLock wtLock(m_pList.mutex());
 		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
 		for (; pIter!=m_pList.end(); pIter++)
@@ -1610,11 +1611,11 @@ CDlgDialog::pointer CFrameWndInfoProxy::GetCallIdDialog(eb::bigint nCallId, bool
 						//}
 						//this->ShowWindow(SW_HIDE);
 						return pFrameWndInfo->GetDialog();
-					}else if (pPrevFrameWndInfo.get()!=NULL)
-					{
-						pPrevFrameWndInfo->ShowHide(true);
-						if (m_pCallback!=NULL)
-							m_pCallback->OnFrameWndShow(pPrevFrameWndInfo,true);
+					//}else if (pPrevFrameWndInfo.get()!=NULL)
+					//{
+					//	pPrevFrameWndInfo->ShowHide(true);
+					//	if (m_pCallback!=NULL)
+					//		m_pCallback->OnFrameWndShow(pPrevFrameWndInfo,true);
 					}else
 						ShowFirstWnd();
 					RebuildBtnSize();
@@ -1814,13 +1815,25 @@ void CFrameWndInfoProxy::OnUserEmpInfo(const EB_MemberInfo* pMemberInfo, bool bS
 #endif
 void CFrameWndInfoProxy::OnRemoveGroup(eb::bigint nGroupId)
 {
-	BoostReadLock rdLock(m_pList.mutex());
-	CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
-	for (; pIter!=m_pList.end(); pIter++)
 	{
-		const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
-		if (pFrameWndInfo->GetDialog().get()!=NULL)
-			pFrameWndInfo->GetDialog()->OnRemoveGroup(nGroupId);
+		BoostReadLock rdLock(m_pList.mutex());
+		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pList.begin();
+		for (; pIter!=m_pList.end(); pIter++)
+		{
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
+			if (pFrameWndInfo->GetDialog().get()!=NULL)
+				pFrameWndInfo->GetDialog()->OnRemoveGroup(nGroupId);
+		}
+	}
+	{
+		BoostWriteLock wtLock(m_pHideList.mutex());
+		CLockList<CFrameWndInfo::pointer>::iterator pIter = m_pHideList.begin();
+		for (; pIter!=m_pHideList.end(); pIter++)
+		{
+			const CFrameWndInfo::pointer& pFrameWndInfo = *pIter;
+			if (pFrameWndInfo->GetDialog().get()!=NULL)
+				pFrameWndInfo->GetDialog()->OnRemoveGroup(nGroupId);
+		}
 	}
 }
 void CFrameWndInfoProxy::OnRemoveMember(eb::bigint nGroupId, eb::bigint nMemberId)

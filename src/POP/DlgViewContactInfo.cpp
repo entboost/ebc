@@ -247,7 +247,7 @@ void CDlgViewContactInfo::DrawInfo(void)
 			x = rectClient.Width()-65;
 			y = rectClient.Height()-25;
 			if (m_pContactInfo.m_nContactUserId!=theApp.GetLogonUserId() &&
-				(m_pContactInfo.m_nContactId==0 || (theApp.GetAuthContact() && m_pContactInfo.m_nContactUserId>0 && (m_pContactInfo.m_nContactType&EB_CONTACT_TYPE_AUTH)==0)))
+				(m_pContactInfo.m_nContactUserId==0 || (theApp.GetAuthContact() && m_pContactInfo.m_nContactUserId>0 && (m_pContactInfo.m_nContactType&EB_CONTACT_TYPE_AUTH)==0)))
 			{
 				// 非好友，申请“加为好友”
 				if (theApp.GetAuthContact() && !is_visitor_uid(m_pContactInfo.m_nContactUserId))

@@ -26,14 +26,31 @@
 
 namespace mycp {
 
-#ifdef _MSC_VER //WIN32
+#ifdef __MACH__
+#include <mach/mach_time.h>
+#define CLOCK_REALTIME 0
+#define CLOCK_MONOTONIC 0
+int clock_gettime(int clk_id, struct timespec *t){
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    uint64_t time;
+    time = mach_absolute_time();
+    double nseconds = ((double)time * (double)timebase.numer)/((double)timebase.denom);
+    double seconds = ((double)time * (double)timebase.numer)/((double)timebase.denom * 1e9);
+    t->tv_sec = seconds;
+    t->tv_nsec = nseconds;
+    return 0;
+}
+#endif
+
+#ifdef WIN32
 #include <Windows.h>
 #include <Mmsystem.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib")
 #endif
 #else
-#include <time.h>   
+#include <time.h>
 inline unsigned long timeGetTime()  
 {  
 	unsigned long uptime = 0;  

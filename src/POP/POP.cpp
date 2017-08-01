@@ -741,6 +741,80 @@ int CPOPApp::GetExistAppCount(void) const
 	return result;
 }
 
+
+//#define USES_HOOK_CREATEPROCESS
+#ifdef USES_HOOK_CREATEPROCESS
+#include "Core/inlinehook.h"
+const PROC oldproc_CreateProcessA = (PROC)CreateProcessA;
+const PROC oldproc_CreateProcessW = (PROC)CreateProcessW;
+
+//注意调用约定 WINAPI，否则会出现堆栈异常
+typedef BOOL(WINAPI *realCreateProcessWPtr)(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    BOOL bInheritHandles,
+    DWORD dwCreationFlags,
+    LPVOID lpEnvironment,
+    LPCWSTR lpCurrentDirectory,
+    LPSTARTUPINFOW lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation
+    );
+typedef BOOL(WINAPI *realCreateProcessAPtr)(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment,
+    LPCSTR lpCurrentDirectory, \
+    LPSTARTUPINFOA lpStartupInfo, \
+    LPPROCESS_INFORMATION lpProcessInformation);
+//realCreateProcessAPtr prealCreateProcessA;
+//realCreateProcessWPtr prealCreateProcessW;
+BOOL WINAPI MYCreateProcessW(LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    BOOL bInheritHandles,
+    DWORD dwCreationFlags,
+    LPVOID lpEnvironment,
+    LPCWSTR lpCurrentDirectory,
+    LPSTARTUPINFOW lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation
+)
+{
+	std::wstring strCommandLine(lpCommandLine==NULL?L"":lpCommandLine);
+	if (lpCommandLine!=NULL && std::string::npos != strCommandLine.find(L"echo NOT SANDBOXED"))
+	{
+		return TRUE;
+	}
+	else
+	{
+		return ((realCreateProcessWPtr)oldproc_CreateProcessW)(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	}
+}
+BOOL WINAPI MYCreateProcessA(
+    LPCSTR lpApplicationName,
+    LPSTR lpCommandLine,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    BOOL bInheritHandles,
+    DWORD dwCreationFlags,
+    LPVOID lpEnvironment,
+    LPCSTR lpCurrentDirectory,
+    LPSTARTUPINFOA lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation
+)
+{
+	std::string strCommandLine(lpCommandLine==NULL?"":lpCommandLine);
+	if (lpCommandLine!=NULL && std::string::npos != strCommandLine.find("echo NOT SANDBOXED"))
+	{
+		return TRUE;
+	}
+	else
+	{
+		return ((realCreateProcessAPtr)oldproc_CreateProcessA)(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	}
+}
+PHOOK_ENV theHookEnvCreateProcessA = NULL;
+PHOOK_ENV theHookEnvCreateProcessW = NULL;
+#endif // USES_HOOK_CREATEPROCESS
+
+
+
 CefRefPtr<ClientApp> theCefApp;
 ULONG_PTR theGdiplusToken=0;
 BOOL CPOPApp::InitInstance()
@@ -784,6 +858,10 @@ BOOL CPOPApp::InitInstance()
 	Gdiplus::GdiplusStartup(&theGdiplusToken, &gdiplusStartupInput, NULL);
 
 #ifdef USES_LIBCEF
+#ifdef USES_HOOK_CREATEPROCESS
+	theHookEnvCreateProcessA = HookFun((PVOID*)&oldproc_CreateProcessA, (PVOID)MYCreateProcessA);
+	theHookEnvCreateProcessW = HookFun((PVOID*)&oldproc_CreateProcessW, (PVOID)MYCreateProcessW);
+#endif
 	//CefMainArgs main_args(this->m_hInstance);
 	//void* sandbox_info = NULL;
 	//theCefApp = new ClientApp();
@@ -1364,190 +1442,190 @@ BOOL CPOPApp::InitInstance()
 		m_pBoUsers->execute("ALTER TABLE msg_record_t ADD read_flag TINYINT DEFAULT 1");
 	}
 
-	// ??? 1.16 同步旧数据，1.20以后版本删除；
-	// ** 判断是否存在旧数据，如果有，一次性同步数据，然后删除旧数据文件；
-	CString sOldUserBoPath = m_sUserMainPath+_T("\\bodb\\ebuser");
-	if (::PathFileExists(sOldUserBoPath))
-	{
-		// **存在旧数据，同步旧数据
-		const CString sOldBoPath = m_sUserMainPath+_T("\\bodb");
-		bo::CBodbHandler::pointer pBoUsers = bo::bodb_init(sOldBoPath);
-		if (pBoUsers.get() != NULL)
-		{
-			try
-			{
-				pBoUsers->setaccount("system","");
-				if (pBoUsers->use("ebuser"))
-				{
-					// ** 同步数据
-					CString sSql = _T("SELECT call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_account,from_name,from_type,company,title,tel,email FROM call_record_t LIMIT 50");
-					bo::PRESULTSET pResltSet = NULL;
-					pBoUsers->execsql(sSql, &pResltSet);
-					if (pResltSet != NULL)
-					{
-						for (int i=0; i<pResltSet->rscount; i++)
-						{
-							mycp::bigint sCallId = pResltSet->rsvalues[i]->fieldvalues[0]->v.bigintVal;
-							time_t m_tTime = pResltSet->rsvalues[i]->fieldvalues[1]->v.timestampVal.time;
-							m_tTime += (pResltSet->rsvalues[i]->fieldvalues[1]->v.timestampVal.timezone*60);
-
-							CTime pTime(m_tTime);
-							CString sTime = pTime.Format(_T("%Y-%m-%d %H:%M:%S"));
-
-							mycp::bigint sGroupCode = pResltSet->rsvalues[i]->fieldvalues[2]->v.bigintVal;
-							//pCallRecordInfo->m_sGroupCode = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[2]->v.varcharVal);
-							tstring sDepName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[3]->v.varcharVal);
-							mycp::bigint sEmpCode = pResltSet->rsvalues[i]->fieldvalues[4]->v.bigintVal;
-							//pCallRecordInfo->m_sMemberCode = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[4]->v.varcharVal);
-							mycp::bigint m_nFromUserId = pResltSet->rsvalues[i]->fieldvalues[5]->v.bigintVal;
-							mycp::bigint sPhone = pResltSet->rsvalues[i]->fieldvalues[6]->v.bigintVal;
-							tstring m_sFromAccount = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[7]->v.varcharVal);
-							tstring sFromName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[8]->v.varcharVal);
-							int nFromType = pResltSet->rsvalues[i]->fieldvalues[9]->v.tinyintVal;
-							tstring sCompany = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[10]->v.varcharVal);
-							tstring sTitle = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[11]->v.varcharVal);
-							//pCallRecordInfo->m_sPhone = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[12]->v.varcharVal);
-							tstring sTel = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[12]->v.varcharVal);
-							tstring sEmail = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[13]->v.varcharVal);
-
-							sSql.Format(_T("INSERT INTO call_record_t(call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,from_type,company,title,tel,email) ")\
-								_T("VALUES(%lld,'%s',%lld,'%s',%lld,%lld,%lld,'%s',%d,'%s','%s','%s','%s')"),
-								sCallId,sTime,sGroupCode,libEbc::ACP2UTF8(sDepName.c_str()).c_str(),sEmpCode,m_nFromUserId,sPhone,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),nFromType,
-								libEbc::ACP2UTF8(sCompany.c_str()).c_str(),libEbc::ACP2UTF8(sTitle.c_str()).c_str(),sTel.c_str(),sEmail.c_str());
-							theApp.m_pBoUsers->execute(sSql);
-						}
-						bo::bodb_free(pResltSet);
-						pResltSet = NULL;
-					}
-					sSql = _T("select msg_time,msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,dep_code FROM msg_record_t");
-					pBoUsers->execsql(sSql, &pResltSet);
-					if (pResltSet != NULL)
-					{
-						for (int i=0; i<pResltSet->rscount; i++)
-						{
-							time_t nMsgTime = pResltSet->rsvalues[i]->fieldvalues[0]->v.timestampVal.time;
-							const short nTimezone = pResltSet->rsvalues[i]->fieldvalues[0]->v.timestampVal.timezone;
-							nMsgTime += (nTimezone*60);
-							CTime pTime(nMsgTime);
-							CString sTime = pTime.Format(_T("%Y-%m-%d %H:%M:%S"));
-
-							const eb::bigint sMsgId = pResltSet->rsvalues[i]->fieldvalues[1]->v.bigintVal;
-							const tstring soffTime = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[2]->v.varcharVal);
-							const eb::bigint sFromAccount = pResltSet->rsvalues[i]->fieldvalues[3]->v.bigintVal;
-							const tstring sFromName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[4]->v.varcharVal);
-							const eb::bigint sToAccount = pResltSet->rsvalues[i]->fieldvalues[5]->v.bigintVal;
-							const tstring sToName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[6]->v.varcharVal);
-							const int nPrivate = pResltSet->rsvalues[i]->fieldvalues[7]->v.tinyintVal;
-							const int nMsgType = pResltSet->rsvalues[i]->fieldvalues[8]->v.tinyintVal;
-							const tstring sMsgName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[9]->v.varcharVal);
-							tstring sMsgText = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[10]->v.varcharVal);
-							if (MRT_TEXT==nMsgType)
-							{
-								bo::bodb_escape_string_out(sMsgText.string());
-								CSqliteCdbc::escape_string_in(sMsgText);
-							}
-							const eb::bigint sGroupCode = pResltSet->rsvalues[i]->fieldvalues[11]->v.bigintVal;
-
-							sSql.Format(_T("INSERT INTO msg_record_t(msg_time,msg_id,off_time,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text) ")\
-								_T("VALUES('%s',%lld,'%s',%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s')"),
-								sTime,sMsgId,soffTime.c_str(),sGroupCode,sFromAccount,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),sToAccount,
-								libEbc::ACP2UTF8(sToName.c_str()).c_str(),nPrivate,nMsgType,libEbc::ACP2UTF8(sMsgName.c_str()).c_str(),libEbc::ACP2UTF8(sMsgText.c_str()).c_str());
-							theApp.m_pBoUsers->execute(sSql);
-						}
-
-						bo::bodb_free(pResltSet);
-						pResltSet = NULL;
-					}
-				}
-			}catch(std::exception&)
-			{
-			}catch(...)
-			{
-			}
-			pBoUsers->close();
-			bo::bodb_exit(pBoUsers);
-			pBoUsers.reset();
-		}
-		DeleteFile(sOldUserBoPath+_T("\\ebuser.bdf"));
-		DeleteFile(sOldUserBoPath+_T("\\ebuser.bdf.bk"));
-		RemoveDirectory(sOldUserBoPath);
-		sOldUserBoPath = m_sUserMainPath+_T("\\bodb");
-		RemoveDirectory(sOldUserBoPath);
-	//}else
+	//// ??? 1.16 同步旧数据，1.20以后版本删除；
+	//// ** 判断是否存在旧数据，如果有，一次性同步数据，然后删除旧数据文件；
+	//CString sOldUserBoPath = m_sUserMainPath+_T("\\bodb\\ebuser");
+	//if (::PathFileExists(sOldUserBoPath))
 	//{
-	//	//// ???同步 1.15旧用户数据；1.17以后版本删除；
-	//	//sOldUserBoPath = m_sUserMainPath+_T("\\bodb\\userdatas");
-	//	//if (::PathFileExists(sOldUserBoPath))
-	//	//{
-	//	//	// 
-	//	//	CSqliteCdbc pOldSqlite;
-	//	//	if (pOldSqlite.open(libEbc::ACP2UTF8(sOldUserBoPath).c_str()))
-	//	//	{
-	//	//		CString sSql = _T("SELECT call_id,Datetime(call_time,'localtime'),dep_code,dep_name,emp_code,from_uid,from_phone,from_account,from_name,from_type,company,title,tel,email FROM call_record_t LIMIT 50");
-	//	//		int nCookie = 0;
-	//	//		pOldSqlite.select(sSql, nCookie);
-	//	//		cgcValueInfo::pointer pRecord = pOldSqlite.first(nCookie);
-	//	//		while (pRecord.get()!=NULL)
-	//	//		{
-	//	//			const mycp::bigint sCallId = pRecord->getVector()[0]->getBigIntValue();
-	//	//			const tstring sCallTime = pRecord->getVector()[1]->getStrValue();
-	//	//			const mycp::bigint sGroupCode = pRecord->getVector()[2]->getBigIntValue();
-	//	//			const tstring sGroupName = pRecord->getVector()[3]->getStrValue();
-	//	//			const mycp::bigint sEmpCode = pRecord->getVector()[4]->getBigIntValue();
-	//	//			const mycp::bigint m_nFromUserId = pRecord->getVector()[5]->getBigIntValue();
-	//	//			const mycp::bigint sPhone = pRecord->getVector()[6]->getBigIntValue();
-	//	//			//pCallRecordInfo->m_sFromAccount = pRecord->getVector()[7]->getStrValue();
-	//	//			const tstring sFromName = pRecord->getVector()[8]->getStrValue();
-	//	//			const int nFromType = pRecord->getVector()[9]->getIntValue();
-	//	//			const tstring sCompany = pRecord->getVector()[10]->getStrValue();
-	//	//			const tstring sTitle = pRecord->getVector()[11]->getStrValue();
-	//	//			const tstring sTel = pRecord->getVector()[12]->getStrValue();
-	//	//			const tstring sEmail = pRecord->getVector()[13]->getStrValue();
+	//	// **存在旧数据，同步旧数据
+	//	const CString sOldBoPath = m_sUserMainPath+_T("\\bodb");
+	//	bo::CBodbHandler::pointer pBoUsers = bo::bodb_init(sOldBoPath);
+	//	if (pBoUsers.get() != NULL)
+	//	{
+	//		try
+	//		{
+	//			pBoUsers->setaccount("system","");
+	//			if (pBoUsers->use("ebuser"))
+	//			{
+	//				// ** 同步数据
+	//				CString sSql = _T("SELECT call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_account,from_name,from_type,company,title,tel,email FROM call_record_t LIMIT 50");
+	//				bo::PRESULTSET pResltSet = NULL;
+	//				pBoUsers->execsql(sSql, &pResltSet);
+	//				if (pResltSet != NULL)
+	//				{
+	//					for (int i=0; i<pResltSet->rscount; i++)
+	//					{
+	//						mycp::bigint sCallId = pResltSet->rsvalues[i]->fieldvalues[0]->v.bigintVal;
+	//						time_t m_tTime = pResltSet->rsvalues[i]->fieldvalues[1]->v.timestampVal.time;
+	//						m_tTime += (pResltSet->rsvalues[i]->fieldvalues[1]->v.timestampVal.timezone*60);
 
-	//	//			sSql.Format(_T("INSERT INTO call_record_t(call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,from_type,company,title,tel,email) ")\
-	//	//				_T("VALUES(%lld,'%s',%lld,'%s',%lld,%lld,%lld,'%s',%d,'%s','%s','%s','%s')"),
-	//	//				sCallId,sCallTime.c_str(),sGroupCode,sGroupName.c_str(),sEmpCode,m_nFromUserId,sPhone,sFromName.c_str(),nFromType,
-	//	//				sCompany.c_str(),sTitle.c_str(),sTel.c_str(),sEmail.c_str());
-	//	//			theApp.m_pBoUsers->execute(sSql);
-	//	//			pRecord = pOldSqlite.next(nCookie);
-	//	//		}
-	//	//		pOldSqlite.reset(nCookie);
+	//						CTime pTime(m_tTime);
+	//						CString sTime = pTime.Format(_T("%Y-%m-%d %H:%M:%S"));
 
-	//	//		sSql.Format(_T("select Datetime(msg_time,'localtime'),msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,dep_code FROM msg_record_t"));
-	//	//		pOldSqlite.select(sSql, nCookie);
-	//	//		pRecord = pOldSqlite.first(nCookie);
-	//	//		while (pRecord.get()!=NULL)
-	//	//		{
-	//	//			const tstring sTime = pRecord->getVector()[0]->getStrValue();
-	//	//			const eb::bigint sMsgId = pRecord->getVector()[1]->getBigIntValue();
-	//	//			const tstring soffTime = pRecord->getVector()[2]->getStrValue();
-	//	//			const eb::bigint sFromAccount = pRecord->getVector()[3]->getBigIntValue();
-	//	//			const tstring sFromName(pRecord->getVector()[4]->getStrValue());
-	//	//			const eb::bigint sToAccount = pRecord->getVector()[5]->getBigIntValue();
-	//	//			const tstring sToName(pRecord->getVector()[6]->getStrValue());
-	//	//			const int nPrivate = pRecord->getVector()[7]->getIntValue();
-	//	//			const int nMsgType = pRecord->getVector()[8]->getIntValue();
-	//	//			const tstring sMsgName(pRecord->getVector()[9]->getStrValue());
-	//	//			const tstring sMsgText(pRecord->getVector()[10]->getStrValue());
-	//	//			const eb::bigint sGroupCode = pRecord->getVector()[11]->getBigIntValue();
+	//						mycp::bigint sGroupCode = pResltSet->rsvalues[i]->fieldvalues[2]->v.bigintVal;
+	//						//pCallRecordInfo->m_sGroupCode = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[2]->v.varcharVal);
+	//						tstring sDepName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[3]->v.varcharVal);
+	//						mycp::bigint sEmpCode = pResltSet->rsvalues[i]->fieldvalues[4]->v.bigintVal;
+	//						//pCallRecordInfo->m_sMemberCode = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[4]->v.varcharVal);
+	//						mycp::bigint m_nFromUserId = pResltSet->rsvalues[i]->fieldvalues[5]->v.bigintVal;
+	//						mycp::bigint sPhone = pResltSet->rsvalues[i]->fieldvalues[6]->v.bigintVal;
+	//						tstring m_sFromAccount = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[7]->v.varcharVal);
+	//						tstring sFromName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[8]->v.varcharVal);
+	//						int nFromType = pResltSet->rsvalues[i]->fieldvalues[9]->v.tinyintVal;
+	//						tstring sCompany = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[10]->v.varcharVal);
+	//						tstring sTitle = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[11]->v.varcharVal);
+	//						//pCallRecordInfo->m_sPhone = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[12]->v.varcharVal);
+	//						tstring sTel = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[12]->v.varcharVal);
+	//						tstring sEmail = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[13]->v.varcharVal);
 
-	//	//			sSql.Format(_T("INSERT INTO msg_record_t(msg_time,msg_id,off_time,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text) ")\
-	//	//				_T("VALUES('%s',%lld,'%s',%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s')"),
-	//	//				sTime.c_str(),sMsgId,soffTime.c_str(),sGroupCode,sFromAccount,sFromName.c_str(),sToAccount,
-	//	//				sToName.c_str(),nPrivate,nMsgType,sMsgName.c_str(),sMsgText.c_str());
-	//	//			theApp.m_pBoUsers->execute(sSql);
+	//						sSql.Format(_T("INSERT INTO call_record_t(call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,from_type,company,title,tel,email) ")\
+	//							_T("VALUES(%lld,'%s',%lld,'%s',%lld,%lld,%lld,'%s',%d,'%s','%s','%s','%s')"),
+	//							sCallId,sTime,sGroupCode,libEbc::ACP2UTF8(sDepName.c_str()).c_str(),sEmpCode,m_nFromUserId,sPhone,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),nFromType,
+	//							libEbc::ACP2UTF8(sCompany.c_str()).c_str(),libEbc::ACP2UTF8(sTitle.c_str()).c_str(),sTel.c_str(),sEmail.c_str());
+	//						theApp.m_pBoUsers->execute(sSql);
+	//					}
+	//					bo::bodb_free(pResltSet);
+	//					pResltSet = NULL;
+	//				}
+	//				sSql = _T("select msg_time,msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,dep_code FROM msg_record_t");
+	//				pBoUsers->execsql(sSql, &pResltSet);
+	//				if (pResltSet != NULL)
+	//				{
+	//					for (int i=0; i<pResltSet->rscount; i++)
+	//					{
+	//						time_t nMsgTime = pResltSet->rsvalues[i]->fieldvalues[0]->v.timestampVal.time;
+	//						const short nTimezone = pResltSet->rsvalues[i]->fieldvalues[0]->v.timestampVal.timezone;
+	//						nMsgTime += (nTimezone*60);
+	//						CTime pTime(nMsgTime);
+	//						CString sTime = pTime.Format(_T("%Y-%m-%d %H:%M:%S"));
 
-	//	//			pRecord = pOldSqlite.next(nCookie);
-	//	//		}
-	//	//		pOldSqlite.reset(nCookie);
+	//						const eb::bigint sMsgId = pResltSet->rsvalues[i]->fieldvalues[1]->v.bigintVal;
+	//						const tstring soffTime = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[2]->v.varcharVal);
+	//						const eb::bigint sFromAccount = pResltSet->rsvalues[i]->fieldvalues[3]->v.bigintVal;
+	//						const tstring sFromName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[4]->v.varcharVal);
+	//						const eb::bigint sToAccount = pResltSet->rsvalues[i]->fieldvalues[5]->v.bigintVal;
+	//						const tstring sToName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[6]->v.varcharVal);
+	//						const int nPrivate = pResltSet->rsvalues[i]->fieldvalues[7]->v.tinyintVal;
+	//						const int nMsgType = pResltSet->rsvalues[i]->fieldvalues[8]->v.tinyintVal;
+	//						const tstring sMsgName = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[9]->v.varcharVal);
+	//						tstring sMsgText = BODB_BUFFER_TEXT(pResltSet->rsvalues[i]->fieldvalues[10]->v.varcharVal);
+	//						if (MRT_TEXT==nMsgType)
+	//						{
+	//							bo::bodb_escape_string_out(sMsgText.string());
+	//							CSqliteCdbc::escape_string_in(sMsgText);
+	//						}
+	//						const eb::bigint sGroupCode = pResltSet->rsvalues[i]->fieldvalues[11]->v.bigintVal;
 
-	//	//		pOldSqlite.close();
-	//	//	}
-	//	//	DeleteFile(sOldUserBoPath);
-	//	//	sOldUserBoPath = m_sUserMainPath+_T("\\bodb");
-	//	//	RemoveDirectory(sOldUserBoPath);
-	//	//}
-	}
+	//						sSql.Format(_T("INSERT INTO msg_record_t(msg_time,msg_id,off_time,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text) ")\
+	//							_T("VALUES('%s',%lld,'%s',%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s')"),
+	//							sTime,sMsgId,soffTime.c_str(),sGroupCode,sFromAccount,libEbc::ACP2UTF8(sFromName.c_str()).c_str(),sToAccount,
+	//							libEbc::ACP2UTF8(sToName.c_str()).c_str(),nPrivate,nMsgType,libEbc::ACP2UTF8(sMsgName.c_str()).c_str(),libEbc::ACP2UTF8(sMsgText.c_str()).c_str());
+	//						theApp.m_pBoUsers->execute(sSql);
+	//					}
+
+	//					bo::bodb_free(pResltSet);
+	//					pResltSet = NULL;
+	//				}
+	//			}
+	//		}catch(std::exception&)
+	//		{
+	//		}catch(...)
+	//		{
+	//		}
+	//		pBoUsers->close();
+	//		bo::bodb_exit(pBoUsers);
+	//		pBoUsers.reset();
+	//	}
+	//	DeleteFile(sOldUserBoPath+_T("\\ebuser.bdf"));
+	//	DeleteFile(sOldUserBoPath+_T("\\ebuser.bdf.bk"));
+	//	RemoveDirectory(sOldUserBoPath);
+	//	sOldUserBoPath = m_sUserMainPath+_T("\\bodb");
+	//	RemoveDirectory(sOldUserBoPath);
+	////}else
+	////{
+	////	//// ???同步 1.15旧用户数据；1.17以后版本删除；
+	////	//sOldUserBoPath = m_sUserMainPath+_T("\\bodb\\userdatas");
+	////	//if (::PathFileExists(sOldUserBoPath))
+	////	//{
+	////	//	// 
+	////	//	CSqliteCdbc pOldSqlite;
+	////	//	if (pOldSqlite.open(libEbc::ACP2UTF8(sOldUserBoPath).c_str()))
+	////	//	{
+	////	//		CString sSql = _T("SELECT call_id,Datetime(call_time,'localtime'),dep_code,dep_name,emp_code,from_uid,from_phone,from_account,from_name,from_type,company,title,tel,email FROM call_record_t LIMIT 50");
+	////	//		int nCookie = 0;
+	////	//		pOldSqlite.select(sSql, nCookie);
+	////	//		cgcValueInfo::pointer pRecord = pOldSqlite.first(nCookie);
+	////	//		while (pRecord.get()!=NULL)
+	////	//		{
+	////	//			const mycp::bigint sCallId = pRecord->getVector()[0]->getBigIntValue();
+	////	//			const tstring sCallTime = pRecord->getVector()[1]->getStrValue();
+	////	//			const mycp::bigint sGroupCode = pRecord->getVector()[2]->getBigIntValue();
+	////	//			const tstring sGroupName = pRecord->getVector()[3]->getStrValue();
+	////	//			const mycp::bigint sEmpCode = pRecord->getVector()[4]->getBigIntValue();
+	////	//			const mycp::bigint m_nFromUserId = pRecord->getVector()[5]->getBigIntValue();
+	////	//			const mycp::bigint sPhone = pRecord->getVector()[6]->getBigIntValue();
+	////	//			//pCallRecordInfo->m_sFromAccount = pRecord->getVector()[7]->getStrValue();
+	////	//			const tstring sFromName = pRecord->getVector()[8]->getStrValue();
+	////	//			const int nFromType = pRecord->getVector()[9]->getIntValue();
+	////	//			const tstring sCompany = pRecord->getVector()[10]->getStrValue();
+	////	//			const tstring sTitle = pRecord->getVector()[11]->getStrValue();
+	////	//			const tstring sTel = pRecord->getVector()[12]->getStrValue();
+	////	//			const tstring sEmail = pRecord->getVector()[13]->getStrValue();
+
+	////	//			sSql.Format(_T("INSERT INTO call_record_t(call_id,call_time,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,from_type,company,title,tel,email) ")\
+	////	//				_T("VALUES(%lld,'%s',%lld,'%s',%lld,%lld,%lld,'%s',%d,'%s','%s','%s','%s')"),
+	////	//				sCallId,sCallTime.c_str(),sGroupCode,sGroupName.c_str(),sEmpCode,m_nFromUserId,sPhone,sFromName.c_str(),nFromType,
+	////	//				sCompany.c_str(),sTitle.c_str(),sTel.c_str(),sEmail.c_str());
+	////	//			theApp.m_pBoUsers->execute(sSql);
+	////	//			pRecord = pOldSqlite.next(nCookie);
+	////	//		}
+	////	//		pOldSqlite.reset(nCookie);
+
+	////	//		sSql.Format(_T("select Datetime(msg_time,'localtime'),msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,dep_code FROM msg_record_t"));
+	////	//		pOldSqlite.select(sSql, nCookie);
+	////	//		pRecord = pOldSqlite.first(nCookie);
+	////	//		while (pRecord.get()!=NULL)
+	////	//		{
+	////	//			const tstring sTime = pRecord->getVector()[0]->getStrValue();
+	////	//			const eb::bigint sMsgId = pRecord->getVector()[1]->getBigIntValue();
+	////	//			const tstring soffTime = pRecord->getVector()[2]->getStrValue();
+	////	//			const eb::bigint sFromAccount = pRecord->getVector()[3]->getBigIntValue();
+	////	//			const tstring sFromName(pRecord->getVector()[4]->getStrValue());
+	////	//			const eb::bigint sToAccount = pRecord->getVector()[5]->getBigIntValue();
+	////	//			const tstring sToName(pRecord->getVector()[6]->getStrValue());
+	////	//			const int nPrivate = pRecord->getVector()[7]->getIntValue();
+	////	//			const int nMsgType = pRecord->getVector()[8]->getIntValue();
+	////	//			const tstring sMsgName(pRecord->getVector()[9]->getStrValue());
+	////	//			const tstring sMsgText(pRecord->getVector()[10]->getStrValue());
+	////	//			const eb::bigint sGroupCode = pRecord->getVector()[11]->getBigIntValue();
+
+	////	//			sSql.Format(_T("INSERT INTO msg_record_t(msg_time,msg_id,off_time,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text) ")\
+	////	//				_T("VALUES('%s',%lld,'%s',%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s')"),
+	////	//				sTime.c_str(),sMsgId,soffTime.c_str(),sGroupCode,sFromAccount,sFromName.c_str(),sToAccount,
+	////	//				sToName.c_str(),nPrivate,nMsgType,sMsgName.c_str(),sMsgText.c_str());
+	////	//			theApp.m_pBoUsers->execute(sSql);
+
+	////	//			pRecord = pOldSqlite.next(nCookie);
+	////	//		}
+	////	//		pOldSqlite.reset(nCookie);
+
+	////	//		pOldSqlite.close();
+	////	//	}
+	////	//	DeleteFile(sOldUserBoPath);
+	////	//	sOldUserBoPath = m_sUserMainPath+_T("\\bodb");
+	////	//	RemoveDirectory(sOldUserBoPath);
+	////	//}
+	//}
 
 #ifdef USES_LIBCEF
 #ifdef USES_LIBCEF_USER_CACHE
@@ -1567,23 +1645,23 @@ BOOL CPOPApp::InitInstance()
 		deleteDir(m_sCefCachePath);
 		WritePrivateProfileString("default","clear_chrome_cache","0",sUserSettingIniFile);
 	}
-	// ??? 1.21 兼容旧版本，智能移第一个用户本地缓存，1.22以后版本删除该代码
-	const CString sSettingIniFile = GetSettingIniFile();
-	const bool bMoveFirstChromeCache = GetPrivateProfileInt("system","move_first_chrome_cache",1,sSettingIniFile)==1?true:false;
-	if (bMoveFirstChromeCache && !::PathFileExists(m_sCefCachePath))
-	{
-		WritePrivateProfileString("system","move_first_chrome_cache","0",sSettingIniFile);
-		char lpszBuffer[MAX_PATH];
-		SHGetSpecialFolderPath(::GetDesktopWindow(),lpszBuffer,CSIDL_APPDATA,FALSE);
-		CString sCefCachePathTemp;
-		sCefCachePathTemp.Format(_T("%s\\entboost\\cef_cache_path"),lpszBuffer);
-		if (::PathFileExists(sCefCachePathTemp))
-		{
-			//CreateDirectory(m_sCefCachePath,NULL);
-			//copyDir(sCefCachePathTemp,m_sCefCachePath);
-			deleteDir(sCefCachePathTemp);
-		}
-	}
+	//// ??? 1.21 兼容旧版本，智能移第一个用户本地缓存，1.22以后版本删除该代码
+	//const CString sSettingIniFile = GetSettingIniFile();
+	//const bool bMoveFirstChromeCache = GetPrivateProfileInt("system","move_first_chrome_cache",1,sSettingIniFile)==1?true:false;
+	//if (bMoveFirstChromeCache && !::PathFileExists(m_sCefCachePath))
+	//{
+	//	WritePrivateProfileString("system","move_first_chrome_cache","0",sSettingIniFile);
+	//	char lpszBuffer[MAX_PATH];
+	//	SHGetSpecialFolderPath(::GetDesktopWindow(),lpszBuffer,CSIDL_APPDATA,FALSE);
+	//	CString sCefCachePathTemp;
+	//	sCefCachePathTemp.Format(_T("%s\\entboost\\cef_cache_path"),lpszBuffer);
+	//	if (::PathFileExists(sCefCachePathTemp))
+	//	{
+	//		//CreateDirectory(m_sCefCachePath,NULL);
+	//		//copyDir(sCefCachePathTemp,m_sCefCachePath);
+	//		deleteDir(sCefCachePathTemp);
+	//	}
+	//}
 
 	CefSettings settings;
 #if !defined(CEF_USE_SANDBOX)
@@ -1778,6 +1856,19 @@ BOOL CPOPApp::InitInstance()
 
 int CPOPApp::ExitInstance()
 {
+#ifdef USES_HOOK_CREATEPROCESS
+	if (theHookEnvCreateProcessA!=NULL)
+	{
+		UnHookFun(theHookEnvCreateProcessA);             //取消HOOK
+		theHookEnvCreateProcessA = NULL;
+	}
+	if (theHookEnvCreateProcessW!=NULL)
+	{
+		UnHookFun(theHookEnvCreateProcessW);             //取消HOOK
+		theHookEnvCreateProcessW = NULL;
+	}
+#endif
+
 	//if (m_dlgAbout!=NULL)
 	//{
 	//	m_dlgAbout->DestroyWindow();
@@ -2992,13 +3083,15 @@ void CPOPApp::DeleteDbRecord(eb::bigint sId, bool bIsAccount)
 	CString sSql;
 	if (bIsAccount)
 	{
-		sSql.Format(_T("select msg_name FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) AND msg_type>=%d"),sId,sId,MRT_JPG);
+		sSql.Format(_T("select msg_name,msg_text FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) AND msg_type>=%d"),sId,sId,MRT_JPG);
 	}else
 	{
-		sSql.Format(_T("select msg_name FROM msg_record_t WHERE dep_code=%lld AND msg_type>=%d"),sId,MRT_JPG);
+		sSql.Format(_T("select msg_name,msg_text FROM msg_record_t WHERE dep_code=%lld AND msg_type>=%d"),sId,MRT_JPG);
 	}
 	CString sUserImagePath(GetUserImagePath());
 	sUserImagePath.MakeLower();
+	CString sUserFilePath(GetUserFilePath());
+	sUserFilePath.MakeLower();
 	USES_CONVERSION;
 	int nCookie = 0;
 	theApp.m_pBoUsers->select(sSql, nCookie);
@@ -3007,12 +3100,20 @@ void CPOPApp::DeleteDbRecord(eb::bigint sId, bool bIsAccount)
 	{
 		CString sMsgName(libEbc::UTF82ACP(pRecord->getVector()[0]->getStrValue().c_str()).c_str());
 		sMsgName.MakeLower();
-		// 判断是临时图片，语音，文件目录
-		if (sMsgName.Find(sUserImagePath)==0)
+		CString sMsgText(libEbc::UTF82ACP(pRecord->getVector()[1]->getStrValue().c_str()).c_str());
+		sMsgText.MakeLower();
+		/// 判断是临时图片，语音，文件目录
+		if ( !sMsgName.IsEmpty() && sMsgName.Find(sUserImagePath)==0)
 		{
-			// 删除临时目录图片
+			/// 删除临时目录图片
 			DeleteFile(sMsgName);
 		}
+		if ( !sMsgText.IsEmpty() && sMsgText.Find(sUserFilePath)==0)
+		{
+			/// 删除临时目录文件
+			DeleteFile(sMsgText);
+		}
+
 		pRecord = theApp.m_pBoUsers->next(nCookie);
 	}
 	theApp.m_pBoUsers->reset(nCookie);
@@ -3030,9 +3131,11 @@ void CPOPApp::DeleteDbRecord(eb::bigint sMsgId)
 {
 	// 先删除图片，语音，文件...
 	CString sSql;
-	sSql.Format(_T("select msg_name FROM msg_record_t WHERE msg_id=%lld AND msg_type>=%d"),sMsgId,MRT_JPG);
+	sSql.Format(_T("select msg_name,msg_text FROM msg_record_t WHERE msg_id=%lld AND msg_type>=%d"),sMsgId,MRT_JPG);
 	CString sUserImagePath(GetUserImagePath());
 	sUserImagePath.MakeLower();
+	CString sUserFilePath(GetUserFilePath());
+	sUserFilePath.MakeLower();
 	USES_CONVERSION;
 	int nCookie = 0;
 	theApp.m_pBoUsers->select(sSql, nCookie);
@@ -3041,11 +3144,18 @@ void CPOPApp::DeleteDbRecord(eb::bigint sMsgId)
 	{
 		CString sMsgName(libEbc::UTF82ACP(pRecord->getVector()[0]->getStrValue().c_str()).c_str());
 		sMsgName.MakeLower();
-		// 判断是临时图片，语音，文件目录
-		if (sMsgName.Find(sUserImagePath)==0)
+		CString sMsgText(libEbc::UTF82ACP(pRecord->getVector()[1]->getStrValue().c_str()).c_str());
+		sMsgText.MakeLower();
+		/// 判断是临时图片，语音，文件目录
+		if ( !sMsgName.IsEmpty() && sMsgName.Find(sUserImagePath)==0)
 		{
-			// 删除临时目录图片
+			/// 删除临时目录图片
 			DeleteFile(sMsgName);
+		}
+		if ( !sMsgText.IsEmpty() && sMsgText.Find(sUserFilePath)==0)
+		{
+			/// 删除临时目录文件
+			DeleteFile(sMsgText);
 		}
 		pRecord = theApp.m_pBoUsers->next(nCookie);
 	}

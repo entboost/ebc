@@ -29,7 +29,7 @@ public:
 
 	void ResetSelected(void);
 	void SetSingleSelect(bool b) {m_bSingleSelect = b;}
-	void SetSeledtedGroupId(eb::bigint v) {m_nSelectedGroupId = v;}
+	void SetSelectedGroupId(eb::bigint v) {m_nSelectedGroupId = v;}
 
 #ifdef USES_EBCOM_TEST
 	virtual void onMemberInfo(IEB_MemberInfo* pMemberInfo);

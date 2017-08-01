@@ -322,24 +322,25 @@ void CPanelFind::OnMove(int x, int y)
 BOOL CPanelFind::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	if (pMsg->message == WM_KEYDOWN)
-	{
+	if (pMsg->message == WM_KEYDOWN) {
 		const bool bControl = (GetKeyState(VK_CONTROL)&0x80)==0x80?true:false;
-		if (bControl)
-		{
-			if (pMsg->wParam=='B')
-			{
+		if (bControl) {
+			if (pMsg->wParam=='B') {
 				m_bFindUp = true;
 				Fire_OnFind();
 				return TRUE;
-			}else if (pMsg->wParam=='N')
-			{
+			}
+			else if (pMsg->wParam=='N') {
 				m_bFindUp = false;
 				Fire_OnFind();
 				return TRUE;
 			}
-		}else if (pMsg->wParam==VK_ESCAPE)
-		{
+		}
+		else if ( pMsg->wParam==VK_RETURN && pMsg->hwnd==m_editFindText.GetSafeHwnd() ) {
+			OnBnClickedButtonFinddown();
+			return TRUE;
+		}
+		else if (pMsg->wParam==VK_ESCAPE) {
 			OnBnClickedButtonClose();
 			return TRUE;
 		}

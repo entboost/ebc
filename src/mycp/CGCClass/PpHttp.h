@@ -167,10 +167,10 @@ protected:
 	//bool getParameters(std::vector<cgcKeyValue::pointer>& outParameters) const {return m_propertys.getSPropertys(outParameters);}
 #ifdef USES_ZLIB
 	uLong m_nZipCallBackDataSize;
-	static bool MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData);
-	static bool UnZipPostStringCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData);
-	static bool UnZipWriteFileCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData);
-	static bool UnZipWriteCurrentMultiPartCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData);
+	static bool MyZipDataCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData);
+	static bool UnZipPostStringCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData);
+	static bool UnZipWriteFileCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData);
+	static bool UnZipWriteCurrentMultiPartCallBack(uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData);
 #endif
 	/////////////////////////////////////////////
 	// Response

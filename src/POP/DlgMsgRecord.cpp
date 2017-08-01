@@ -220,21 +220,25 @@ BOOL CDlgMsgRecord::OnInitDialog()
 	m_labelViewAll.SetTextHotMove(false);
 	m_labelViewAll.SetWindowText(_T("全部"));
 	m_labelViewAll.SetChecked(true);
+	m_labelViewAll.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_labelViewAll.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_labelViewImage.SetTextTop(-1);
 	m_labelViewImage.SetAutoSize(false);
 	m_labelViewImage.SetTextHotMove(false);
 	m_labelViewImage.SetWindowText(_T("图片"));
+	m_labelViewImage.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_labelViewImage.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_labelViewFile.SetTextTop(-1);
 	m_labelViewFile.SetAutoSize(false);
 	m_labelViewFile.SetTextHotMove(false);
 	m_labelViewFile.SetWindowText(_T("文件"));
+	m_labelViewFile.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_labelViewFile.SetPreTextColor(theDefaultBtnWhiteColor);
 	m_labelViewAudio.SetTextTop(-1);
 	m_labelViewAudio.SetAutoSize(false);
 	m_labelViewAudio.SetTextHotMove(false);
 	m_labelViewAudio.SetWindowText(_T("语音"));
+	m_labelViewAudio.SetHotTextColor(theDefaultBtnWhiteColor);
 	m_labelViewAudio.SetPreTextColor(theDefaultBtnWhiteColor);
 
 	m_labelLineConversation.SetTextTop(-1);
@@ -446,7 +450,7 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 				sSql.Format(_T("select count(msg_id) FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) %s%s ORDER BY msg_time"),m_sAccount,m_sAccount,sMsgTypeSQLString,sSearchSQLString);
 			}else if (m_sGroupCode>0)
 			{
-				sSql.Format(_T("select count(msg_id) FROM msg_record_t WHERE dep_code=%lld %s%s ORDER BY msg_time"),m_sGroupCode,sMsgTypeSQLString,sSearchSQLString);
+				sSql.Format(_T("select count(msg_id) FROM msg_record_t WHERE dep_code=%lld %s%s"),m_sGroupCode,sMsgTypeSQLString,sSearchSQLString);
 			}else
 				return;
 			int nRecordCount = 0;
@@ -570,7 +574,7 @@ void CDlgMsgRecord::OnTimer(UINT_PTR nIDEvent)
 					m_btnMovePrev.EnableWindow(nOffsetPage>0);
 					m_btnMovePrev.Invalidate();
 					m_btnMoveNext.EnableWindow((nOffsetPage+1)<m_nRecordPages);
-					sToolTipText.Format(_T("下一页[%d/%d]"),nOffsetPage+2,m_nRecordPages);
+					sToolTipText.Format(_T("下一页[%d/%d]"),MIN(nOffsetPage+2,m_nRecordPages),m_nRecordPages);
 					m_btnMoveNext.SetToolTipText(sToolTipText);
 					m_btnMoveLast.EnableWindow((nOffsetPage+1)<m_nRecordPages);
 				}
@@ -971,9 +975,9 @@ void CDlgMsgRecord::WriteTitle(eb::bigint nMsgId,bool bPrivate,eb::bigint nFromU
 		pMsgTime.GetDay() != m_tLastMsgDayTime.GetDay())
 	{
 		m_tLastMsgDayTime = pMsgTime;
-		const CString sDayOfWeek = theDayOfWeek[m_tLastMsgDayTime.GetDayOfWeek()-1];
+		const mycp::tstring sDayOfWeek = theDayOfWeek[m_tLastMsgDayTime.GetDayOfWeek()-1];
 		CString sText;
-		sText.Format(_T("--------  %04d-%02d-%02d %s  --------"),m_tLastMsgDayTime.GetYear(),m_tLastMsgDayTime.GetMonth(),m_tLastMsgDayTime.GetDay(),sDayOfWeek);
+		sText.Format(_T("--------  %04d-%02d-%02d %s  --------"),m_tLastMsgDayTime.GetYear(),m_tLastMsgDayTime.GetMonth(),m_tLastMsgDayTime.GetDay(),sDayOfWeek.c_str());
 		m_pMrFrameInterface->AddLine(nMsgId);
 		m_pMrFrameInterface->SetAlignmentFormat(1);
 		m_pMrFrameInterface->WriteString((LPCTSTR)sText,theDefaultChatSystemColor);

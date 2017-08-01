@@ -10,9 +10,9 @@
 #include <zlib.h>
 #ifdef _MSC_VER	//WIN32
 #ifdef _DEBUG
-#pragma comment(lib,"zlibd.lib")
+#pragma comment(lib,"zlibstatd.lib")
 #else
-#pragma comment(lib,"zlib.lib")
+#pragma comment(lib,"zlibstat.lib")
 #endif
 #endif // WIN32
 
@@ -28,7 +28,7 @@
 // return false to cancel ZipApi
 #define ZIP_FLAG_LAST_SOURCE	1
 #define ZIP_FLAG_LAST_DATA		2
-typedef bool (*ZipDataCallBack) (uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned int nUserData);
+typedef bool (*ZipDataCallBack) (uLong nSourceIndex, const unsigned char* pData, uLong nSize, unsigned long nUserData);
 //const uLong ZIP_DEFAULT_PACK_SIZE1	= 16*1024;
 const uLong ZIP_DEFAULT_PACK_SIZE2	= 64*1024;
 const uLong ZIP_DEFAULT_PACK_SIZE3	= 640*1024;
@@ -211,7 +211,7 @@ inline int GZipFile2Data(FILE *source, uLong nSourceSize, unsigned char *dest, u
 {
 	return ZipFile2Data(source, nSourceSize, dest, pDestSize, level, 1);
 }
-inline int ZipFile2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned int nUserData, uLong* pOutSize=NULL, int level=Z_DEFAULT_COMPRESSION, int gzip=0)
+inline int ZipFile2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned long nUserData, uLong* pOutSize=NULL, int level=Z_DEFAULT_COMPRESSION, int gzip=0)
 {
 	int ret, flush;
 	unsigned have;
@@ -302,7 +302,7 @@ inline int ZipFile2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsi
 	delete[] out;
 	return Z_OK;
 }
-inline int GZipFile2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned int nUserData, uLong* pOutSize, int level=Z_DEFAULT_COMPRESSION, int gzip=0)
+inline int GZipFile2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned long nUserData, uLong* pOutSize, int level=Z_DEFAULT_COMPRESSION, int gzip=0)
 {
 	return ZipFile2Cb(source, nSourceSize, pCb, nUserData, pOutSize, level, 1);
 }
@@ -680,7 +680,7 @@ inline int UnGZipFile2Data(FILE *source, uLong nSourceSize, unsigned char *dest,
 {
 	return UnZipFile2Data(source, nSourceSize, dest, pDestSize, 1);
 }
-inline int UnZipFile2Cb(FILE *source, uLong nSourceSize, int gzip, unsigned int * pOutSize, ZipDataCallBack pCb, unsigned int nUserData)
+inline int UnZipFile2Cb(FILE *source, uLong nSourceSize, int gzip, unsigned int * pOutSize, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	assert(pCb != NULL);
 	int ret;
@@ -786,7 +786,7 @@ inline int UnZipFile2Cb(FILE *source, uLong nSourceSize, int gzip, unsigned int 
 	delete[] out;
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
-inline int UnGZipFile2Cb(FILE *source, uLong nSourceSize, unsigned int * pOutSize, ZipDataCallBack pCb, unsigned int nUserData)
+inline int UnGZipFile2Cb(FILE *source, uLong nSourceSize, unsigned int * pOutSize, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	return UnZipFile2Cb(source, nSourceSize, 1, pOutSize, pCb, nUserData);
 }
@@ -850,7 +850,7 @@ inline int GZipData(const unsigned char *source, uLong nSourceSize, unsigned cha
 }
 
 // * return false cancel
-inline int ZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip, int level, ZipDataCallBack pCb, unsigned int nUserData)
+inline int ZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip, int level, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	assert(pCb != NULL);
 	int ret, flush;
@@ -909,7 +909,7 @@ inline int ZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip, i
 	delete[] out;
 	return Z_OK;
 }
-inline int GZipDataCb(const unsigned char *source, uLong nSourceSize, int level, ZipDataCallBack pCb, unsigned int nUserData)
+inline int GZipDataCb(const unsigned char *source, uLong nSourceSize, int level, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	return ZipDataCb(source, nSourceSize, 1, level, pCb, nUserData);
 }
@@ -982,7 +982,7 @@ inline int UnGZipData(const unsigned char *source, uLong nSourceSize, unsigned c
 }
 
 // * return false cancel
-inline int UnZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip, unsigned int* pOutSize, ZipDataCallBack pCb, unsigned int nUserData)
+inline int UnZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip, unsigned int* pOutSize, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	assert(pCb != NULL);
 	int ret;
@@ -1056,7 +1056,7 @@ inline int UnZipDataCb(const unsigned char *source, uLong nSourceSize, int gzip,
 	delete[] out;
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
-inline int UnGZipDataCb(const unsigned char *source, uLong nSourceSize, unsigned int* pOutSize, ZipDataCallBack pCb, unsigned int nUserData)
+inline int UnGZipDataCb(const unsigned char *source, uLong nSourceSize, unsigned int* pOutSize, ZipDataCallBack pCb, unsigned long nUserData)
 {
 	return UnZipDataCb(source, nSourceSize, 1, pOutSize, pCb, nUserData);
 }
@@ -1166,7 +1166,7 @@ public:
 		}
 	}
 	bool IsLastDataFlag(void) const {return (m_strm->avail_out!=0)?true:false;}	// for callback user
-	int File2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned int nUserData, uLong nPackSize=0, uLong* pOutSize=NULL)
+	int File2Cb(FILE *source, uLong nSourceSize, ZipDataCallBack pCb, unsigned long nUserData, uLong nPackSize=0, uLong* pOutSize=NULL)
 	{
 		if (!IsInited()) return Z_ERRNO;
 		int ret, flush;

@@ -38,7 +38,7 @@ public:
 
 protected:
 	CDlgViewContactInfo* m_pViewContactInfo;
-	CLockMap<mycp::bigint,CTreeItemInfo::pointer> m_pGroupItemInfo;		// ugi->
+	CLockMap<mycp::bigint,CTreeItemInfo::pointer> m_pGroupItemInfo;		// ugid->
 	CLockMap<mycp::bigint,CTreeItemInfo::pointer> m_pContactItemInfo;	// con_id->
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	CTraButton m_btnDeleteTrack;

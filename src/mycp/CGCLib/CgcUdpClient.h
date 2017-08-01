@@ -50,8 +50,8 @@ private:
 	virtual bool isInvalidate(void) const;
 	virtual bool setRemoteAddr(const tstring & sRemoteAddr);
 
-	virtual bool doSetConfig(int nConfig, unsigned int nInValue);
-	virtual void doGetConfig(int nConfig, unsigned int* nOutValue) const;
+	virtual bool doSetConfig(int nConfig, unsigned long nInValue);
+	virtual void doGetConfig(int nConfig, unsigned long* nOutValue) const;
 
 	// UdpSocket_Handler
 	virtual void OnReceiveData(const mycp::asio::UdpSocket & pUdpSocket, const mycp::asio::UdpEndPoint::pointer& endpoint);

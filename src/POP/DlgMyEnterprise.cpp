@@ -1280,7 +1280,7 @@ void CDlgMyEnterprise::EmployeeInfo(const EB_MemberInfo* pMemberInfo, bool bChan
 	else
 		pEmpItemInfo->m_nExtData |= CTreeItemInfo::ITEM_EXT_DATA_FORBID_SPEECH;
 
-	if (theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
+	if (pDepItemInfo->m_nSubType<=EB_GROUP_TYPE_PROJECT && theApp.IsEnterpriseCreateUserId(pMemberInfo->m_nMemberUserId))
 		pEmpItemInfo->m_nSubType = 11;
 	else if (theEBAppClient.EB_IsGroupCreator(pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId))
 		pEmpItemInfo->m_nSubType = 10;
@@ -2125,7 +2125,7 @@ void CDlgMyEnterprise::OnTimer(UINT_PTR nIDEvent)
 		}
 	}else if (nIDEvent==TIMERID_UPDATE_GROUP_COUNT)
 	{
-		KillTimer(nIDEvent);
+		//KillTimer(nIDEvent);
 		{
 			BoostWriteLock wtlock(m_pUpdateGroupCountList.mutex());
 			CLockMap<eb::bigint,CTreeItemInfo::pointer>::iterator pIter = m_pUpdateGroupCountList.begin();
@@ -2135,6 +2135,9 @@ void CDlgMyEnterprise::OnTimer(UINT_PTR nIDEvent)
 				const CTreeItemInfo::pointer pGroupItem = pIter->second;
 				m_pUpdateGroupCountList.erase(pIter);
 				wtlock.unlock();
+				if (m_pUpdateGroupCountList.empty()) {
+					KillTimer(nIDEvent);
+				}
 				int nMemberSize = 0;
 				int nOnlineSize = 0;
 				theEBAppClient.EB_GetGroupMemberSize(nGroupId,0,nMemberSize,nOnlineSize);

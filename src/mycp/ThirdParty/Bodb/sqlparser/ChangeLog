@@ -1,0 +1,68 @@
+
+           sqlparser ChangeLog
+           -------------------
+  
+ 0.1.2 
+  * Support linux compile.
+  *          
+  
+ 0.1.1 (2010-04-08)
+	* INSERT [INTO] table_name ...;
+	* Add DEC[IMAL] DATATYPE;
+	* Add SQLCOM_DROP_DATABASE SQLCOM_DROP_TABLE
+	* Add SQLCOM_ALTER_TABLE
+	 	ALTER TABLE <table_name>
+	 		RENAME TO <new_table_name>
+	 		ADD [COLUMN] <column_definition>
+	 		? DROP [COLUMN] <column_name> [CASCADE]
+	 		ALTER [COLUMN] <column_name>
+	 			SET DEFAULT <default>
+	 			DROP DEFALLT
+	* Add CURRENT_TIMESTAMP function
+	
+
+ 0.1.0 (2010-02-23)
+	* CREATE DATABASE database_name
+  * USE database_name
+  * CREATE [{GLOBAL | LOCAL} TEMPORARY] TABLE table_name (create_definition,...)
+  * DATATYPE:
+	  	BOOLEAN
+	  	TINYINT SMALLINT INT[EGER] BIGINT
+	  	FLOAT[/REAL] DOUBLE NUMERIC
+	  	DATE TIME TIMESTAMP
+	  	CHAR[ACTER] VARCHAR CLOB
+	  	NCHAR NCHAR[ACTER] NVARCHAR NCLOB
+	  	BINARY VARBINARY BLOB
+  * DEFINITYION:
+  		CONSTRAINT constraint_name
+  		NOT NULL
+  		UNIQUE
+  		PRIMARY KEY
+  		DEFAULT
+  		UNSIGNED
+  		? REFERENCES
+  		? CHECK
+  * INSERT INTO:
+   		INSERT INTO table_name VALUES(...)
+  		INSERT INTO table_name (...) VALUES (...)
+  * UPDATE:
+   		UPDATE table_name SET field_name=value [WHERE ...]
+  		UPDATE table_name SET field_name=NULL[DEFAULT] [WHERE ...]
+  		? UPDATE table_name SET field_name=field_name*[...]
+  * DELETE:
+  		DELETE FROM table_name [WHERE ...]
+	* SELECT:
+			SELECT [DISTINCT] * FROM table_name [AS alias_name] [WHERE ...]
+			SELECT [DISTINCT] field1[,field2 ...] FROM table_name [AS alias_name] [WHERE ...]
+			SELECT [DISTINCT] field1[,field2 ...] FROM table_name [AS alias_name] [WHERE ...]
+			SELECT [DISTINCT] field1[,field2 ...] FROM table1 [AS alias_name] [,table2 ...] [WHERE ...]
+			? SELECT FUNC(...) FROM table_name
+			? OTHER SELECT ...
+	* WHERE:
+			WHERE field_name=[!=,<>,>=,>,<=,<]value
+			WHERE field_name IS_NOTNULL[IS_NULL]
+			? WHERE field_name BETWEEN value1 AND value2
+			? WHERE field_name=field_name*[...]
+			? WHERE (SELECT ...)
+			
+  		

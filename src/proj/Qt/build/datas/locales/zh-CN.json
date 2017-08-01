@@ -1,0 +1,717 @@
+﻿{
+  "base-dialog": {
+  	"title": { "background-height": 40 },
+    "setting-button": { "tooltip": "设置" },
+    "minimize-button": { "tooltip": "最小化" },
+    "maximize-button": { "tooltip": "最大化" },
+    "exit-button": { "tooltip": "退出" },
+    "ok-button": { "text": "确定" },
+    "yes-button": { "text": "是" },
+    "retry-button": { "text": "重试" },
+    "save-button": { "text": "保存" },
+    "open-button": { "text": "打开" },
+    "abort-button": { "text": "终止" },
+    "cancel-button": { "text": "取消" },
+    "close-button": {"text": "关闭", "tooltip": "关闭" },
+    "no-button": { "tooltip": "否" },
+    "ignore-button": { "tooltip": "忽略" },
+    "register-button": { "text": "注册" },
+    "request-contact": {"text": "申请", "tooltip": "点击发送申请好友请求" },
+    "add-contact-button": {"text": "加为好友", "tooltip": "点击申请添加好友" },
+    "send-msg-button": {"text": "发送消息", "tooltip": "点击发送消息" }
+  },
+  "line-state": {
+    "online": { "text": "在线", "tooltip": "在线" },
+    "away": { "text": "离开", "tooltip": "离开" },
+    "busy": { "text": "忙碌", "tooltip": "忙碌" },
+    "offline": { "text":"离线", "tooltip": "离线" }
+  },
+  "gender": {
+    "1": { "short": "男", "name": "男性" },
+    "2": { "short": "女", "name": "女性" }
+  },
+  "day-of-week": {
+  	"0": { "short":"周日", "name":"星期天" },
+  	"1": { "short":"周一", "name":"星期一" },
+  	"2": { "short":"周二", "name":"星期二" },
+  	"3": { "short":"周三", "name":"星期三" },
+  	"4": { "short":"周四", "name":"星期四" },
+  	"5": { "short":"周五", "name":"星期五" },
+  	"6": { "short":"周六", "name":"星期六" }
+  },
+  "group-name": {
+  	"0": { "short":"部门", "name":"部门", "member": "部门员工", "manager": "部门经理" },
+  	"1": { "short":"项目", "name":"项目组", "member": "项目成员", "manager": "项目经理" },
+  	"2": { "short":"群组", "name":"个人群组", "member": "群组成员", "manager": "群主" },
+  	"9": { "short":"讨论组", "name":"讨论组", "member": "讨论成员", "manager": "讨论组长" }
+  },
+  "web-engine-view" : {
+  	"zoom": "缩放",
+	  "context-menu": {
+	  	"back": { "text": "返回(&B)", "tooltip": "" },
+	  	"forward": { "text": "前进(&F)", "tooltip": "" },
+	  	"stop": { "text": "停止加载", "tooltip": "" },
+	  	"reload": { "text": "重新加载(&R)", "tooltip": "" },
+	  	
+	  	"open-link-in-new-tab": { "text": "在新标签页中打开链接(&T)", "tooltip": "" },
+	  	"open-link-in-new-window": { "text": "在新浏览器中打开链接(&W)", "tooltip": "" },
+	  	"download-link": { "text": "链接另存为(&K)...", "tooltip": "" },
+	  	"copy-link": { "text": "复制链接地址(&E)", "tooltip": "" },
+	  	
+	  	"download-image": { "text": "图片另存为(&V)...", "tooltip": "" },
+	  	"copy-image": { "text": "复制图片(&Y)", "tooltip": "" },
+	  	"copy-image-link": { "text": "复制图片地址(&O)", "tooltip": "" },
+	  	
+	  	"copy": { "text": "复制(&C)", "tooltip": "" },
+	  	
+	  	"saveas": { "text": "另存为(&A)...", "tooltip": "" },
+	  	"print": { "text": "打印(&P)...", "tooltip": "" },
+	  	
+	  	"find": { "text": "查找", "tooltip": "" },
+	  	"view-source": { "text": "查看网页源代码(&V)...", "tooltip": "" },
+	  	"inspect-element": { "text": "审查元素(&N)...", "tooltip": "" }
+		}
+  },
+  "context-menu": {
+  	"send-ecard": { "text": "发送名片", "tooltip": "" },
+  	"delete-session-msg": { "text": "删除消息通知(&D)", "tooltip": "" },
+  	
+  	"delete-session-chat": { "text": "删除会话记录(&D)", "tooltip": "" },
+  	"clear-session": { "text": "清空会话记录", "tooltip": "" },
+  	
+  	"add-contact": { "text": "添加联系人", "tooltip": "" },
+  	"edit-contact": { "text": "查看资料", "tooltip": "" },
+  	"move-contact-to": { "text": "移动至", "tooltip": "" },
+  	"delete-contact": { "text": "删除联系人", "tooltip": "" },
+  	"add-contact-group": { "text": "添加分组", "tooltip": "" },
+  	"rename-contact-group": { "text": "修改分组", "tooltip": "" },
+  	"delete-contact-group": { "text": "删除该组", "tooltip": "" },
+  	
+  	"system-manager": { "text": "管理中心", "tooltip": "" },
+  	"new-sub-group": { "text": "新建下级[GROUP_TYPE_NAME]", "tooltip": "" },
+  	
+  	"new-group": { "text": "新建[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-group": { "text": "修改[GROUP_TYPE_NAME]资料", "tooltip": "" },
+  	"delete-group": { "text": "解散该[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"exit-group": { "text": "退出该[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-my-member": { "text": "修改我的名片", "tooltip": "" },
+  	"edit-user-member": { "text": "修改成员名片", "tooltip": "" },
+  	"new-member": { "text": "新建[GROUP_TYPE_MEMBER]", "tooltip": "" },
+  	"del-member": { "text": "移除成员", "tooltip": "" },
+  	"open-chat": { "text": "打开会话(&C)", "tooltip": "" },
+  	"chat-record": { "text": "聊天记录", "tooltip": "" },
+  	"group-share": { "text": "群共享(&S)", "tooltip": "" },
+  	"member-add-admin": { "text": "加为管理员", "tooltip": "" },
+  	"member-del-admin": { "text": "取消管理员资格", "tooltip": "" },
+  	"group-add-forbid-speech": { "text": "群禁言", "tooltip": "" },
+  	"group-del-forbid-speech": { "text": "解除群禁言", "tooltip": "" },
+  	"member-del-forbid-speech": { "text": "解除禁言", "tooltip": "" },
+  	"member-forbid-speech": {
+  			"text": "禁言",
+  			"10": "10分钟",
+  			"60": "1小时",
+  			"720": "12小时",
+  			"1440": "1天",
+  			"0": "永久"
+		},
+  	"my-collection": { "text": "个人收藏", "tooltip": "" },
+  	"open-frame-list": { "text": "打开工作台", "tooltip": "" },
+    "logout": { "text": "注销", "tooltip": "注销" },
+    "quit": { "text": "退出", "tooltip": "退出" }
+  },
+  "name-text": {
+  	"mobile": "手机",
+  	"tel": "电话",
+  	"fax": "传真",
+  	"email": "邮箱",
+  	"url": "网站",
+  	"address": "地址",
+  	"no-apps": "没有集成应用",
+  	"mail-type-contact": "邮件联系人",
+  	"unname-group": "未命名分组",
+  	"default-group-name": "默认分组",
+  	"visitor": "游客",
+  	"text": "文本",
+  	"image": "图片",
+  	"yesterday": "昨天",
+  	"day": "天",
+  	"hour": "小时",
+  	"minute": "分钟"
+  },
+  "color-skin": {
+  	"select-color": {"text": "选择色调...","tooltip":"" },
+  	"colors": [
+	  	{"name": "紫色", "r": 163, "g": 73, "b": 164},  
+			{"name": "靛青", "r": 63, "g": 72, "b": 204},   
+			{"name": "蓝色", "r": 0, "g": 162, "b": 232},   
+			{"name": "绿色", "r": 34, "g": 177, "b": 76},   
+			{"name": "褐色", "r": 185, "g": 122, "b": 87},  
+			{"name": "橙色", "r": 255, "g": 127, "b": 39},  
+			{"name": "红色", "r": 237, "g": 28, "b": 36},   
+			{"name": "玫瑰色", "r": 255, "g": 174, "b": 201},
+			{"name": "蓝灰色", "r": 112, "g": 146, "b": 190},
+			{"name": "深灰色", "r": 96, "g": 96, "b": 96}    
+  	]
+  },
+  "login-dialog": {
+  	"window-size": { "width": 288, "height": 588 },
+    "window-text": "[PRODUCT_NAME]-登录界面",
+    "edit-account": { "bg-text": "请输入帐号/邮箱" },
+    "edit-password": { "bg-text": "密码" },
+    "checkbox-savepwd": { "text": "记住密码" },
+    "checkbox-autorun": { "text": "开机启动" },
+    "button-logon": { "text": "登录", "tooltip": "点击登录" },
+    "button-visitor-logon": { "text": "游客登录", "tooltip": "点击游客进入" },
+    "button-delete-account": { "tooltip": "删除帐号信息" },
+    "button-register": {
+      "text": "我要注册",
+      "tooltip": "点击注册新帐号"
+    },
+    "button-forget-pwd": {
+      "text": "忘记密码",
+      "tooltip": "点击重置密码"
+    },
+    "button-connect-setting": {
+      "text": "连接设置",
+      "tooltip": "点击设置服务器地址"
+    }
+  },
+  "message-tip-dialog": {
+    "title": "消息提醒",
+    "button-ignore-item": { "tooltip": "忽略" },
+    "button-ignore-all": { "text":"忽略全部", "tooltip": "" },
+    "button-view-all": { "text":"查看全部", "tooltip": "" }
+  },
+  "group-info-dialog": {
+  	"title": "[GROUP_TYPE_NAME]资料",
+    "label-group-name": { "text": "[GROUP_TYPE_NAME]：" },
+    "edit-group-name": { "bg-text": "**[GROUP_TYPE_NAME]名称**"},
+    "label-manager": { "text": "[GROUP_TYPE_MANAGER]：" },
+    "label-manager-user-name": { "tooltip": "点击设置[GROUP_TYPE_MANAGER]" },
+    "label-tel": { "text": "电      话：" },
+    "label-fax": { "text": "传      真：" },
+    "label-email": { "text": "邮      箱：" },
+    "label-url": { "text": "网      址：" },
+    "label-address": { "text": "地      址：" },
+    "label-display-index": { "text": "显示排序：" },
+    "label-description": { "text": "备      注：" }
+  },
+  "member-info-dialog": {
+    "title": "[GROUP_TYPE_MEMBER]资料",
+    "label-user-head": { "tooltip": "点击更换头像" },
+    "label-account": { "text": "帐号：" },
+    "edit-account": {
+      "tooltip": "登录帐号",
+      "bg-text": "**请输入登录帐号**"
+    },
+    "label-group-name": { "text": "[GROUP_TYPE_NAME]：" },
+    "label-user-name": { "text": "姓      名：" },
+    "edit-user-name": {
+      "tooltip": "用户名称",
+      "bg-text": "**请输入用户名称姓名**"
+    },
+    "label-job-title": { "text": "职      位：" },
+    "label-gender": { "text": "性      别：" },
+    "label-job-position": { "text": "岗位级别：" },
+    "label-birthday": { "text": "生      日：" },
+    "date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+    "label-tel": { "text": "电      话：" },
+    "label-phone": { "text": "手      机：" },
+    "label-fax": { "text": "传      真：" },
+    "label-email": { "text": "邮      箱：" },
+    "label-display-index": { "text": "显示排序：" },
+    "label-address": { "text": "地      址：" },
+    "label-description": { "text": "个性签名：" },
+
+    "edit-account": { "tooltip": "请输入注册新帐号！", "bg-text": "请输入注册新帐号"}
+  },
+  "request-add-contact-dialog": {
+    "title": "申请添加好友",
+    "edit-description": {
+      "tooltip": "",
+      "bg-text": "请输入添加好友验证信息"
+    }
+  },
+  "contact-info-dialog": {
+    "title": "联系人资料",
+    "label-contact": { "text": "联  系  人：" },
+    "edit-contact": {
+      "tooltip": "联系人帐号",
+      "bg-text": "**请输入联系人帐号**"
+    },
+    "label-group-name": { "text": "分      组：" },
+    "label-user-name": { "text": "姓      名：" },
+    "edit-user-name": {
+      "tooltip": "用户名称",
+      "bg-text": "**请输入联系人姓名"
+    },
+    "label-phone": { "text": "手      机：" },
+    "label-enterprise": { "text": "公      司：" },
+    "label-job-title": { "text": "职      位：" },
+    "label-url": { "text": "网      址：" },
+    "label-tel": { "text": "电      话：" },
+    "label-email": { "text": "邮      箱：" },
+    "label-fax": { "text": "传      真：" },
+    "label-address": { "text": "地      址：" },
+    "label-description": { "text": "备      注：" },
+    "button-add-contact": { "text": "加为好友","tooltip": "点击申请添加好友" }
+  },
+  "register-dialog": {
+    "title": "注册新帐号",
+    "label-account": { "text": "登录帐号：" },
+    "label-password": { "text": "登录密码：" },
+    "label-confirm": { "text": "确认密码：" },
+    "label-user-name": { "text": "用户名称：" },
+    "label-ent-name": { "text": "公司名称：" },
+    "edit-account": { "tooltip": "请输入注册新帐号！", "bg-text": "请输入注册新帐号"}
+  },
+  "on-appid-response": {
+  	"not-support-version" : {"title": "", "text": "系统不支持当前版本：<br>请更新客户端后重试！"},
+  	"timeout-error": { "title": "验证APPID", "text": "服务器连接超时，请退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" },
+  	"other-error": { "title": "验证APPID", "text": "系统APPID验证失败，请退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" }
+
+  },
+  "on-group-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "新建成功：<br>[GROUP_NAME]([GROUP_ID])"},
+  	"edit-state-ok" : {"title": "", "text": "修改成功：<br>[GROUP_NAME]([GROUP_ID])"},
+  	"not-auth-error" : {"title": "", "text": "没有权限：<br>请联系管理员！"},
+  	"other-error" : {"title": "", "text": "操作失败,请重试或联系公司客服：<br>错误代码: [STATE_CODE]"}
+  },
+  "on-member-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "新建成功！"},
+  	"edit-state-ok" : {"title": "", "text": "修改成功！"},
+  	"oauth-forward" : {"title": "", "text": "邀请成员成功：<br>等待对方通过验证！"},
+  	"not-auth-error" : {"title": "", "text": "没有权限：<br>请联系管理员！"},
+  	"account-already-exist" : {"title": "", "text": "帐号已经存在：<br>请重新输入！"},
+  	"another-ent-account" : {"title": "", "text": "其他企业员工帐号：<br>请重新输入！"},
+  	"other-error" : {"title": "", "text": "操作失败,请重试或联系公司客服：<br>错误代码: [STATE_CODE]"}
+  },
+  "on-register-response": {
+  	"ok-send-mail" : {"title": "", "text": "注册成功：<br>请及时查阅邮件，完成帐号验证！"},
+  	"ok-login" : {"title": "", "text": "注册成功：\r\n请使用 \"[ACCOUNT]\" 或 \"[USERID]\" 登录！"},
+  	"not-auth-error": {"title": "", "text": "没有权限：<br>请重试或联系公司客服！"},
+  	"number-not-auth" : {"title": "", "text": "不支持全数字帐号注册：<br>请更换帐号后重试！"},
+  	"content-big-length" : {"title": "", "text": "字段内容超过最大长度：<br>请重新输入！"},
+  	"error" : {"title": "", "text": "注册失败：<br>请重试或联系公司客服！"},
+  	"account-already-exist" : {"title": "", "text": "帐号已经存在：<br>请更换帐号后重试！"},
+  	"enterprise-already-exist" : {"title": "", "text": "公司名称已经被注册：<br>请确认后重试！"},
+  	"appid-key-error" : {"title": "", "text": "APPID KEY错误：<br>请重试或联系公司客服！"},
+  	"disable-register-account" : {"title": "", "text": "禁止用户注册功能：<br>请联系公司客服！"},
+  	"disable-register-ent" : {"title": "", "text": "禁止企业注册功能：<br>请联系公司客服！"},
+  	"disable-register-account" : {"title": "", "text": "禁止用户注册功能：<br>请联系公司客服！"},
+  	"other-error" : {"title": "", "text": "注册失败,请重试或联系公司客服：<br>错误代码: [STATE_CODE]"}
+  },
+  "on-logon-response": {
+  	"unauth-error" : {"title": "", "text": "帐号未激活，请查收邮件，完成注册！<br>错误代码: [STATE_CODE]"},
+  	"account-freeze" : {"title": "", "text": "帐号已经被临时冻结，请联系公司客服！<br>错误代码: [STATE_CODE]"},
+  	"max-retry-error" : {"title": "", "text": "错误次数太多，帐号被临时锁住，请稍候再试！<br>错误代码: [STATE_CODE]"},
+  	"not-auth-error" : {"title": "", "text": "没有权限错误！<br>错误代码: [STATE_CODE]"},
+  	"account-not-exist" : {"title": "", "text": "帐号不存在，请重新输入！<br>错误代码: [STATE_CODE]"},
+  	"acc-pwd-error" : {"title": "", "text": "帐号或密码错误，请重新输入！<br>错误代码: [STATE_CODE]"},
+  	"logon-timeout" : {"title": "", "text": "登录超时，请重新登录！<br>错误代码: [STATE_CODE]"},
+  	"appid-key-error" : {"title": "登录失败", "text": "系统APPID KEY错误，需要重新验证！<br>错误代码: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "登录失败，请重试！<br>错误代码: [STATE_CODE]"}
+	},
+  "on-send-file": {
+  	"group-forbid-speech" : {"title": "", "text": "群禁言中：<br>不能发送群文件！"},
+  	"forbid-speech" : {"title": "", "text": "你被禁言中：<br>不能发送群文件！"},
+  	"not-auth-error" : {"title": "", "text": "你被禁言中：<br>不能发送群文件！"},
+  	"file-big-long" : {"title": "", "text": "当前文件大小超出系统最大配额：<br>请发送更小文件，或联系公司客服！"},
+  	"timeout-error" : {"title": "", "text": "文件发送超时：<br>请重新发送！"},
+  	"not-member-error" : {"title": "", "text": "没有其他群组成员：<br>不能发送文件！"},
+  	"other-error" : {"title": "", "text": "文件发送失败，请检查后重试！<br>错误代码: [STATE_CODE]"}
+ 
+  },
+
+  "on-call-response": {
+  	"account-not-exist" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 不存在！"},
+  	"user-offline" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 离线状态！"},
+  	"unauth-error" : {"title": "", "text": "帐号：<br>[USER_ACCOUNT]([USER_ID]) 未通过验证！"},
+  	"account-freeze" : {"title": "", "text": "帐号：<br>[USER_ACCOUNT]([USER_ID]) 已被临时冻结！"},
+  	"max-retry-error" : {"title": "", "text": "错误次数太频繁：<br>帐号已被临时锁住，请稍候再试！"},
+  	"user-busy" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 忙！"},
+  	"timeout-error" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 会话超时！"},
+  	"user-hangup" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 取消会话！"},
+  	"account-disable-offcall" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 不在线，对方屏蔽接收离线消息功能！"},
+  	"account-disable-extcall" : {"title": "", "text": "用户：<br>[USER_ACCOUNT]([USER_ID]) 屏蔽外部聊天功能！"},
+  	"oauth-forward" : {"title": "", "text": "操作成功，等待对方：<br>[USER_ACCOUNT]([USER_ID]) 通过验证！"},
+  	"other-error" : {"title": "", "text": "请求会话：br>[USER_ACCOUNT]([USER_ID]) 失败<br>错误代码: [STATE_CODE]"}
+  },
+  "on-editinfo-response": {
+  	"modify-password-ok" : {"title": "", "text": "密码修改成功：<br>请重新登录。"},
+  	"modify-password-error" : {"title": "", "text": "密码修改失败，请重试！<br>错误代码: [STATE_CODE]"},
+  	"state-ok" : {"title": "", "text": "个人资料修改成功！"},
+  	"acc-pwd-error" : {"title": "", "text": "密码错误，请重新输入！<br>错误代码: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "个人资料修改失败，请重试！<br>错误代码: [STATE_CODE]"}
+  },
+  "my-center-dialog": {
+    "title": "个人中心",
+    "button-account-info": { "text": "帐号信息", "tooltip": ""},
+    "button-my-setting": { "text": "个人设置", "tooltip": "" },
+    "button-modify-password": { "text": "修改密码", "tooltip": "" },
+    "account-info-widget" : {
+    	"label-account": { "text": "帐      号：" },
+    	"label-name": { "text": "名      称：" },
+    	"label-gender": { "text": "性      别：" },
+    	"label-birthday": { "text": "生      日：" },
+    	"date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+    	"label-phone": { "text": "手      机：" },
+    	"label-tel": { "text": "电      话：" },
+    	"label-email": { "text": "邮      箱" },
+    	"label-url": { "text": "主      页：" },
+    	"label-area": { "text": "地      区" },
+    	"label-address": { "text": "地      址：" },
+    	"label-zipcode": { "text": "邮      箱：" },
+    	"label-description": { "text": "备      注：" }
+    },
+    "modify-password-widget" : {
+    	"label-current-password": { "text": "当前密码：" },
+    	"label-new-password": { "text": "新密码：" },
+    	"label-confirm-password": { "text": "确认密码：" }
+    },
+    "button-default-member": { "text": "默认名片", "tooltip": "显示默认名片信息" }
+  },
+  "select-user-dialog": {
+    "title": "选择用户",
+    "button-group": { "text": "部门", "tooltip": ""},
+    "button-contact": { "text": "联系人", "tooltip": "" },
+    "button-enterprise": { "text": "公司", "tooltip": "" },
+    "edit-search": { "bg-text": "搜索：用户、帐号、联系人", "tooltip": "输入查找关键字" },
+    "label-selected": { "text": "已选择用户：" },
+    "button-add": { "tooltip": "添加" },
+    "button-delete": { "tooltip": "删除" }
+  },
+  "change-head-dialog": {
+    "title": "更换头像",
+    "button-default": { "text": "默认头像", "tooltip": ""},
+    "button-custom": { "text": "自定义头像", "tooltip": "" },
+    "button-open-file": { "text": "本地图片", "tooltip": "点击选择本地图片文件" },
+    "button-ok": { "text": "更换头像" },
+    "open-file-dialog": { "caption": "选择本地图片文件", "filter":"图片文件" },
+    "label-image-file-tip": { "text": "图片文件" },
+    "label-image-result-tip": { "text": "头像效果" }
+  },
+  "connect-setting-dialog": {
+    "title": "连接设置",
+    "label-server-address": { "text": "服务器地址：" },
+    "edit-server-address": {
+      "tooltip": "格式：IP:PORT（域名:PORT）；例如：192.168.10.100:18012",
+      "bg-text": "留空默认连接公有云环境！"
+    }
+  },
+  "pop-tip-dialog": {
+  	"0": { "title": "验证消息", "button": {"text": "我的消息", "tooltip": "点击进入我的消息" } },
+  	"1": { "title": "通知消息", "button": {"text": "我的消息", "tooltip": "点击进入我的消息" } },
+  	"2": { "title": "广播消息", "button": {"text": "我的消息", "tooltip": "点击进入我的消息" } },
+  	"type-bc-message": "广播消息\n[MESSAGE_TITLE]",
+  	"type-request-join-to-group": "验证消息：\n[USER_ACCOUNT]申请加入群组[GROUP_ID]",
+  	"type-invite-join-to-group": "验证消息：\n[USER_ACCOUNT]邀请加入群组[GROUP_ID]",
+  	"type-group-message": "验证消息：\n帐号\"[USER_ACCOUNT]\" 群组\"[GROUP_ID]\"",
+  	"type-request-add-contact": "验证消息：\n[USER_ACCOUNT]申请加为好友",
+  	"type-rejest-add-contact": "通知消息：\n[USER_ACCOUNT]拒绝加为好友",
+  	"request-add-to-group": "<font color=\"#6c6c6c\">用户：[USER_ACCOUNT]<br>申请加入群组：[GROUP_ID]<br>附加消息：[DESCRIPTION]</font>",
+  	"invite-add-to-group": "<font color=\"#6c6c6c\">用户：[USER_ACCOUNT]<br>邀请你加入群组：[GROUP_NAME]<br>附加消息：[DESCRIPTION]</font>",
+  	"request-add-contact": "<font color=\"#6c6c6c\">用户：[USER_ACCOUNT]<br>申请加为好友<br>附加消息：[DESCRIPTION]</font>",
+  	"reject-add-contact": "<font color=\"#6c6c6c\">用户：[USER_ACCOUNT]<br>拒绝加为好友<br>附加消息：[DESCRIPTION]</font>",
+  	"accept-add-contact": "<font color=\"#6c6c6c\">用户：[CONTACT_NAME]<br>添加好友成功</font>"
+  },
+  "chat-msg-text": {
+  	"visitor": "游客",
+  	"text": "文本",
+  	"image": "图片",
+  	"voice": "语音",
+  	"map-pos": "地图位置",
+  	"user-ecard": "个人名片",
+  	"user-data": "用户自定义数据",
+  	"file": "文件",
+  	"download": "下载",
+  	"group-share": "群共享",
+
+  	"history-msg-separate": "-------- 以上是历史消息  --------",
+  	"file-not-exist": "文件不存在",
+  	"file-saveas-ok": "文件另存成功",
+  	"voice-msg": "语音消息",
+  	"voice-msg-not-exist": "语音消息不存在",
+  	"voice-msg-format-error": "语音消息格式错误",
+
+  	"save2-cloud-ok": "成功存入个人云盘！",
+  	"save2-cloud-error": "存入个人云盘失败！([STATE_CODE])",
+  	"down-file-ok": "成功下载文件",
+  	"receive-file-ok": "成功接收文件",
+  	"send-file-ok": "成功接收文件",
+  	"send-group-file": "上传群共享文件",
+  	"send-off-file-ok": "成功发送离线文件",
+  	"change-p2p-sending": "对方在线，使用P2P点对点发送",
+  	"send-file": "发送文件",
+  	"cancel-file": "取消文件",
+  	"dest-send-off-file": "对方发送离线文件",
+  	"dest-send-file": "对方发送文件",
+  	"dest-reject-file": "对方拒绝接收文件",
+  	"dest-receive-file": "对方已经接收文件",
+  	"user-reject-file": "拒绝接收文件",
+  	"user-receive-file": "已经接收文件",
+  	"on-user-exit": "对方已经退出本次会话！",
+  	"on-alerting-call": "对方已经退出本次会话，正在重新邀请，请稍候...！",
+  	
+  	"max-capacity-error": "超过最大消息长度！",
+  	"group-forbid-speech": "群禁言中！",
+  	"forbid-speech": "你被禁言中！",
+  	"your-forbid-speech": "你被禁言",
+  	"your-forbid-speech-forever": "你被永久禁言：",
+  	"your-delete-forbid-speech": "你已被解除禁言：",
+  	"group-delete-forbid-speech": "已经解除群禁言：",
+  	"group-forbid-speech-tip": "群禁言中，群管理员可以发言：",
+  	"excess-quota-error": "发送不成功，对方离线消息空间已满！",
+  	"not-member-error": "没有其他群组成员，不能发送聊天信息！",
+  	"send-rich-error": "发送失败，请重试！错误代码: [STATE_CODE]"
+  },
+  "withdraw-msg-response": {
+  	"state-ok": "请求撤回了一条消息！",
+  	"state-ok-update": "[撤回一条消息]",
+  	"other-error": "发送时间超过2分钟的消息：<br>不能撤回！",
+  	"msg-receipt-dest": "对方撤回了一条消息！",
+  	"msg-receipt-group": "[USER_NAME] 撤回了一条消息！"
+  },
+  "message-show": {
+  	"disable-group-share-tip": "禁用群共享：<br>请使用一对一聊天窗口发送文件！",
+  	"forbid-send-ecard-tip": "禁言限制中：<br>不能发送名片！",
+  	"forbid-send-file-tip": "禁言限制中：<br>不能发送文件！",
+  	"add-user-not-auth": "没有管理员权限：<br>不能邀请好友！",
+  	"file-exclusive-error": "文件被占用：<br>请关闭文件后重试！",
+  	"collect-msg-ok": "消息收藏成功！",
+  	"collect-msg-not-auth": "没有操作权限：<br>消息收藏失败！",
+  	"collect-msg-error": "消息不存在或者已经被删除：<br>消息收藏失败！",
+  	"withdraw-msg-ok": "[撤回一条消息]",
+  	"withdraw-msg-dest": "[USER_NAME] 撤回了一条消息！",
+  	"withdraw-msg-error": "发送时间超过2分钟的消息：<br>不能撤回！",
+  	"new-email-tip":"新邮件:",
+  	"unread-email-tip":"你一共有 [%1] 封未读邮件！<br>点击查看！",
+  	"clear-chrome-cache-ok":"成功清除 Chrome 浏览器本地缓存",
+  	"group-empty-error": "[GROUP_TYPE_NAME]名称不能为空：<br>请输入！",
+  	"remove-from-group": "你被管理员移除出：<br>[GROUP_NAME]([GROUP_ID])",
+  	"delete-group": "[GROUP_NAME] ([GROUP_ID])<br>已经被解散！",
+  	"delete-has-sub-group": "存在下级子部门：<br>不能删除[GROUP_TYPE_NAME]资料！",
+  	"delete-group-has-member": "[GROUP_TYPE_MEMBER]不为空：<br>不能删除！",
+  	"member-exit-group": "[USER_NAME]([USER_ACCOUNT])<br>已经退出：[GROUP_NAME]([GROUP_ID])",
+  	"delete-logon-account-error": "删除用户数据失败：<br>请重试！",
+  	"account-empty-error": "帐号不能为空：<br>请输入帐号！",
+  	"user-name-empty-error": "用户名称不能为空：<br>请重新输入！",
+  	"contact-name-empty-error": "联系人姓名不能为空：<br>请重新输入！",
+  	"not-support-auth-contact": "暂时未开放添加好友验证功能：<br>请联系管理员！",
+  	"account-exist-error": "[USER_ACCOUNT]帐号已经存在<br>请重新输入！",
+  	"account-format-error": "帐号格式错误：<br>请重新输入！",
+  	"password-empty": "密码不能为空：<br>请输入密码！",
+  	"current-pwd-empty": "当前密码不能为空：<br>请输入！",
+  	"new-pwd-empty": "新密码不能为空：<br>请输入！",
+  	"confirm-pwd-empty": "确认密码不能为空：<br>请输入！",
+  	"password-not-equal": "密码不一致：<br>请重新输入！",
+  	"password-equal-warning": "新密码跟当前密码一样：<br>请重新输入！",
+  	"ebum-start-error": "本地服务启动失败：<br>请重试！",
+  	"open-image-error": "打开图片文件失败：<br>请重试！",
+  	"image-save-error": "图片转换保存失败：<br>请重试！",
+  	"head-image-too-large": "头像文件超过 500KB：<br>请重新选择！"
+  },
+  "message-box": {
+  	"delete-contact-empty-group": { "title": "删除分组", "text": "确定删除：<br>\"[GROUP_NAME]\" 分组吗？" },
+  	"delete-contact-group": { "title": "删除分组", "text": "确定删除：<br>\"[GROUP_NAME]\" 并将该分组所有联系人移到默认分组吗？" },
+  	"delete-download-file": { "title": "删除文件", "text": "确定删除文件：<br>\"[FILE_NAME]\" 和下载记录吗？" },
+  	"delete-chat-file": { "title": "删除文件", "text": "确定删除文件：<br>\"[FILE_NAME]\" 和聊天记录吗？" },
+  	"clear-session": { "title": "清空会话记录", "text": "确定清空：<br>所有会话记录和聊天记录（包括临时图片和文件）吗？" },
+  	"clear-group-chat-record": { "title": "清空聊天记录", "text": "确定清空：\"[GROUP_NAME]\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"clear-user-chat-record": { "title": "清空聊天记录", "text": "确定清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"clear-session-group-chat-record": { "title": "清空聊天记录", "text": "已经删除会话记录，确定同时清空：\"[GROUP_NAME]\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"clear-session-user-chat-record": { "title": "清空聊天记录", "text": "已经删除会话记录，确定同时清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"creator-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_MANAGER]退出，将会解散当前[GROUP_TYPE_NAME]<br>确定解散：<br>\"[GROUP_NAME]\" 吗？" },
+  	"member-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "确定退出：<br>\"[GROUP_NAME]\" 吗？" },
+  	"tran-file-exit-chat": { "title": "退出聊天会话", "text": "正在传输文件：<br>确定退出吗？" },
+  	"delete-chat-msg": { "title": "删除聊天消息", "text": "确定删除当前聊天消息吗？" },
+  	"clear-all-history": { "title": "清除所有浏览记录", "text": "确定要清除：<br>所有浏览记录吗？" },
+  	"clear-chrome-cache": { "title": "清除 Chrome 本地缓存", "text": "确定要清除：<br>本程序内置 Chrome 浏览器本地缓存吗？" },
+  	"delete-member": { "title": "移除成员", "text": "确定移除：<br>\"[USER_ACCOUNT]([USER_ID])\" 吗？" },
+  	"delete-auth-contact": { "title": "删除联系人", "text": "确定删除联系人：<br>\"[USER_NAME]([USER_ACCOUNT])\" 同时从对方联系人列表中消失吗？" },
+  	"delete-contact": { "title": "删除联系人", "text": "确定删除联系人：<br>\"[USER_NAME]([USER_ACCOUNT])\" 吗？" },
+  	"exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "确定退出：<br>\"[GROUP_NAME]([GROUP_ID])\" 吗？" },
+  	"delete-group": { "title": "解散[GROUP_TYPE_NAME]", "text": "确定解散：<br>\"[GROUP_NAME]([GROUP_ID])\" 吗？" },
+  	"change-server": { "title": "修改服务器地址", "text": "需要重新加载验证流程才能生效：<br>确定立即加载吗？" },
+  	"delete-logon-account": { "title": "删除登录信息", "text": "确定删除本地：<br>\"[USER_ACCOUNT]([USER_ID])\" 帐号及所有聊天信息吗？" },
+  	"not-support-visitor": { "title": "", "text": "当前系统不支持游客登录：<br>请联系公司客服！" },
+  	"ebc-file-error": { "title": "", "text": "当前安装目录文件损坏：<br>请重新安装或联系公司客服！" }
+  },
+  "main-frame": {
+  	"window-size": { "0": {"width": 1180, "height": 668}, "1" : {"width": 288, "height": 568} },
+    "window-text": "[PRODUCT_NAME]-登录界面",
+    "label-user-head": { "tooltip": "点击打开个人中心" },
+    "edit-user-description": { "bg-text": "[个人签名]", "tooltip": "点击修改个人签名" },
+    "up-button-my-center": { "tooltip": "个人中心" },
+    "up-button-file-manager": { "tooltip": "文件管理" },
+    "up-button-my-share": { "tooltip": "个人云盘" },
+    "up-button-apps": { "tooltip": "集成应用" },
+    "edit-search": { "bg-text": "搜索用户、浏览记录、集成应用(/)", "tooltip": "搜索" },
+    "mid-button-my-group": { "tooltip": "我的部门（群和讨论组）" },
+    "mid-button-my-contact": { "tooltip": "联系人" },
+    "mid-button-my-session": { "tooltip": "最近会话" },
+    "mid-button-my-ent": { "tooltip": "公司组织架构" },
+    "mid-button-my-app": { "tooltip": "集成应用" },
+    "button-call": { "text": "", "tooltip": "打开会话" },
+    "button-edit": { "text": "", "tooltip": "修改我的名片" },
+    "button-select": { "text": "", "tooltip": "添加" },
+    "button-add-contact": { "text": "", "tooltip": "添加到我的联系人" },
+    "button-delete-session": { "text": "", "tooltip": "删除会话记录" }
+  },
+  "emotion-select-dialog": {
+    "title": "默认表情"
+  },
+  "find-text-frame": {
+    "edit-search": { "bg-text": "在当前页查找" },
+    "button-up": { "tooltip": "上一个" },
+    "button-down": { "tooltip": "下一个" },
+    "button-close": { "tooltip": "关闭查找栏" }
+  },
+  "search-bar": {
+    "button-back": { "tooltip": "转到上一页" },
+    "button-forward": { "tooltip": "转到下一页" },
+    "button-refresh": { "tooltip": "重新加载当前页" },
+    "button-stop": { "tooltip": "停止加载当前页" },
+    "button-options": { "tooltip": "选项" },
+    "options-menu" : {
+  		"save-url-history": { "text": "保存当前浏览记录", "tooltip": "" },
+  		"clear-all-history": { "text": "清除所有浏览记录...", "tooltip": "" },
+  		"clear-chrome-cache": { "text": "清除 Chrome 本地缓存...", "tooltip": "" }
+   	}
+  },
+  "search-result": {
+    "context-menu" : {
+    	"copy": { "text": "复制(&C)", "tooltip": "" },
+   	  "delete": { "text": "删除(&D)", "tooltip": "" },
+   	  "open-chat": { "text": "打开会话", "tooltip": "" }
+   	}
+  },
+  "file-manager": {
+  	"title" : "文件管理",
+  	"button-traning-file": { "text": "正在传输","tooltip": "" },
+  	"button-traned-file": { "text": "接收文件","tooltip": "" },
+  	"edit-search": { "bg-text": "搜索文件","tooltip": "" },
+  	"button-refresh": { "text": "刷新","tooltip": "" },
+  	"button-delete-file": { "tooltip": "删除文件" },
+  	"button-open-file": { "tooltip": "打开文件" },
+  	"button-open-dir": { "tooltip": "打开目录" }
+ 	},
+  "tran-file": {
+  	"title" : "文件传输",
+  	"button-save-cloud": { "text": "存到云盘","tooltip": "保存到我的云盘" },
+  	"button-save-as": {
+  		"text": "另存","tooltip": "保存文件到指定目录",
+  		"file-dialog": { "caption": "文件另存", "filter": "所有文件" }
+  	},
+  	"button-save": { "text": "保存","tooltip": "保存文件到默认目录" },
+  	"button-reject": { "text": "拒绝","tooltip": "拒绝接收文件" },
+  	"button-reject-cancel": { "text": "取消","tooltip": "停止接收文件" },
+  	"button-off-send": { "text": "离线发送","tooltip": "发送离线文件" },
+  	"button-cancel-send": { "text": "取消","tooltip": "取消发送" },
+  	"button-cancel-down": { "text": "取消","tooltip": "取消下载文件" }
+ 	},
+  "user-info": {
+  	"title": "电子名片",
+    "label-user-name": { "text": "姓名：" },
+    "label-account": { "text": "帐号：" },
+    "label-tel": { "text": "电话：" },
+    "label-phone": { "text": "手机：" },
+    "label-email": { "text": "邮箱：" },
+    "label-job-title": { "text": "职务：" },
+    "label-group-name": { "text": "部门：" },
+    "label-enterprise": { "text": "公司：" },
+    "label-address": { "text": "地址：" },
+    "button-add-contact": { "text": "加为好友","tooltip": "点击申请添加好友" }
+  },
+  "user-list": {
+  	"title": "群成员"
+  },
+  "chat-record": {
+  	"title": "聊天记录",
+  	"button-view-all": { "text": "全部", "tooltip": "" },
+  	"button-view-image": { "text": "图片", "tooltip": "" },
+  	"button-view-file": { "text": "文件", "tooltip": "" },
+  	"button-view-audio": { "text": "语音", "tooltip": "" },
+  	"button-view-text": { "text": "文本", "tooltip": "" },
+  	"edit-search": { "bg-text": "搜索本地聊天记录", "tooltip": "" },
+  	"button-clear-all": { "text": "清空记录", "tooltip": "删除当前会话所有本地聊天记录" },
+  	"checkbox-online-msg": { "text": "查看漫游消息", "tooltip": "查看漫游消息（在线聊天记录）" },
+  	"date-search": { "format": "yyyy年MM月dd日" },
+  	"button-move-first": { "tooltip": "第一页" },
+  	"button-move-prev": { "tooltip": "上一页" },
+  	"button-move-next": { "tooltip": "下一页" },
+  	"button-move-last": { "tooltip": "最后一页" }
+  },
+  "work-frame": {
+  	"user-list": { "text": "群成员", "tooltip": "成员列表" },
+  	"about-blank": { "text": "新标签页" },
+    "button-showhide-show": { "tooltip": "显示应用导航栏" },
+    "button-showhide-hide": { "tooltip": "隐藏应用导航栏" },
+    "button-add": { "tooltip": "打开新标签页" }
+  },
+  "frame-list": {
+  	"window-size": { "width": 1180, "height": 668 },
+  	"work-frame" : {"text": "工作台", "tooltip": "工作台" },
+  	"main-frame" : {"text": "联系人", "tooltip": "" },
+    "button-showhide-show": { "tooltip": "展开面板" },
+    "button-showhide-hide": { "tooltip": "收起面板" },
+    "context-menu" :
+    	{
+    		"show-icon-only": { "text": "仅显示图标", "tooltip": "" },
+    		"open-work-frame": { "text": "打开工作台", "tooltip": "" }
+    	}
+  },
+  "chat-base-dialog": {
+  	"button-add-user": { "tooltip": "邀请多人聊天" },
+  	"button-send-file": { "tooltip": "发送文件" },
+  	"button-video-chat": { "tooltip": "开始视频通话" },
+  	"button-group-video": { "tooltip": "申请加入视频会议" },
+  	"button-group-share": { "tooltip": "打开群共享" },
+  	"button-chat-apps": { "tooltip": "集成应用" },
+  	"button-exit-chat": { "tooltip": "退出会话" }
+  },
+  "chat-input-widget": {
+  	"button-emotion": { "tooltip": "发送表情" },
+  	"button-msg-record": { "tooltip": "查看消息记录" },
+  	"button-close": { "text": "关闭(&C)",  "tooltip": "关闭" },
+  	"button-send": {
+  		"text": "发送(&S)",
+  		"tooltip": { "1": "按Enter键发送消息，按Ctrl+Enter换行", "2": "按Ctrl+Enter键发送消息，按Enter换行" },
+  		"switch-menu" : { "1": "按Enter键发送消息", "2": "按Ctrl+Enter键发送消息" }
+  	}  	
+  },
+  "chat-toolbar": {
+  	"selected-text": {
+  		"copy": { "text": "复制", "tooltip": "复制选择文本到粘贴板" },
+  		"saveas": {
+  			"text": "另存为...", "tooltip": "选择文本另存到文件",
+  			"file-dialog": { "caption": "保存到文本文件", "filter": "文本文件" }
+  		}
+  	},
+  	"point-image": {
+  		"open": { "text": "打开", "tooltip": "打开图片" },
+  		"open-dir": { "text": "打开目录", "tooltip": "打开图片文件存放目录" },
+  		"copy": { "text": "复制", "tooltip": "复制图片到粘贴板" },
+  		"saveas": {
+  			"text": "另存为...", "tooltip": "图片另存为" ,
+  			"file-dialog": { "caption": "图片另存到文件", "filter": "图片文件" }
+  		}
+  	},
+  	"point-file": {
+  		"open": { "text": "打开", "tooltip": "打开文件" },
+  		"open-dir": { "text": "打开目录", "tooltip": "打开文件存放目录" },
+  		"copy": { "text": "复制", "tooltip": "复制文件到粘贴板" },
+  		"saveas": {
+  			"text": "另存为...", "tooltip": "文件另存为" ,
+  			"file-dialog": { "caption": "文件另存", "filter": "所有文件" }
+  		}
+  	},
+  	"point-user-head": {
+  		"delete": { "text": "删除", "tooltip": "删除本地聊天消息" },
+  		"collect": { "text": "收藏", "tooltip": "添加消息到个人收藏" },
+  		"withdraw": { "text": "撤回", "tooltip": "撤回消息" }
+  	}
+
+  }
+  
+}

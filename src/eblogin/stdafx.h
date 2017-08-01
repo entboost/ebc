@@ -23,12 +23,12 @@
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
 
+#ifdef _MSC_VER
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 
 
 #include <afxdisp.h>        // MFC Automation classes
-
 
 
 #ifndef _AFX_NO_OLE_SUPPORT
@@ -44,8 +44,10 @@
 #include <Gdiplus.h>
 using namespace Gdiplus;
 #pragma comment(lib,"gdiplus.lib")
+#endif
 
 #include "bodb2.h"
+#ifndef _QT_MAKE_
 #include "Tools/SplitterControl.h"
 #include "Tools/NewMenu.h"
 //#include "Tools/MenuXP.h"
@@ -57,6 +59,7 @@ using namespace Gdiplus;
 #include "Tools/HoverComboBox.h"
 #include "Tools/BitComboBox.h"
 #include "Tools/ImageEx.h"
+#endif
 #include "../include/ebc_public.h"
 #include "../include/EbDialogBase.h"
 #include "../include/colorconver.h"

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
     MYCP is a HTTP and C++ Web Application Server.
     Copyright (C) 2009-2010  Akee Yang <akee.yang@gmail.com>
 
@@ -122,9 +122,9 @@ protected:
 	virtual const CgcClientHandler * doGetResponseHandler(void) const {return getHandler();}
 	virtual void doSetDisableSotpParser(bool newv) {m_bDisableSotpparser = newv;}
 
-	virtual bool doSetConfig(int nConfig, unsigned int nInValue);
-	virtual void doGetConfig(int nConfig, unsigned int* nOutValue) const;
-	virtual void doFreeConfig(int nConfig, unsigned int nInValue) const;
+	virtual bool doSetConfig(int nConfig, unsigned long nInValue);
+	virtual void doGetConfig(int nConfig, unsigned long* nOutValue) const;
+	virtual void doFreeConfig(int nConfig, unsigned long nInValue) const;
 
 	virtual void doSetIoService(mycp::asio::IoService::pointer pIoService, bool bExitStop = false) {m_ipService = pIoService; m_bExitStopIoService=bExitStop;}
 	virtual void doResetIoService(void) {m_ipService.reset();}
@@ -158,9 +158,9 @@ protected:
 	bigint m_nSrcId;
 	uint32 m_nRtpCbUserData;
 	uint32 m_nTranSpeedLimit;
-	uint32 m_nDefaultSleep1;	// Ã¿8¸ö°ü£¬µÈ´ıÊ±¼ä£¬64KB£¬Ä¬ÈÏ50ms
-	uint32 m_nDefaultSleep2;	// Ã¿50¸ö°ü£¬µÈ´ıÊ±¼ä£¬64KB£¬Ä¬ÈÏ500ms
-	uint16 m_nDefaultPackageSize;	// Ä¬ÈÏ1100×Ö½Ú£¬Ã¿Ôö¼Ó64KB£¬Ôö¼Ó512
+	uint32 m_nDefaultSleep1;	// æ¯8ä¸ªåŒ…ï¼Œç­‰å¾…æ—¶é—´ï¼Œ64KBï¼Œé»˜è®¤50ms
+	uint32 m_nDefaultSleep2;	// æ¯50ä¸ªåŒ…ï¼Œç­‰å¾…æ—¶é—´ï¼Œ64KBï¼Œé»˜è®¤500ms
+	uint16 m_nDefaultPackageSize;	// é»˜è®¤1100å­—èŠ‚ï¼Œæ¯å¢åŠ 64KBï¼Œå¢åŠ 512
 	cgcRemote::pointer m_pOwnerRemote;
 	virtual void doSetRtpSourceId(bigint nSrcId) {m_nSrcId = nSrcId;}
 	virtual bigint doGetRtpSourceId(void) const {return m_nSrcId;}

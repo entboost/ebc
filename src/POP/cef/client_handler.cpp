@@ -21,7 +21,7 @@
 #include "include/cef_path_util.h"
 #include "include/cef_process_util.h"
 #include "include/cef_trace.h"
-#if (CEF_VERSION==2526)
+#if (CEF_VERSION>=2357)
 #include "include/cef_parser.h"
 #else
 #include "include/cef_url.h"
@@ -842,7 +842,7 @@ void ClientHandler::OnBeforeDownload(
 
 inline int64 GetNextBigFileId(void)
 {
-	static int theIndex = 0;
+	static unsigned int theIndex = 0;
 	return (time(0)%89999999)*10000000+((++theIndex)%10000)*10000+(rand()%10000);
 }
 
@@ -855,7 +855,11 @@ void ClientHandler::OnDownloadUpdated(
   //callback->Cancel();
   //callback->Pause();
   //callback->Resume();
-  const uint32 nFileId = download_item->GetId();
+#if (CEF_VERSION==2357 || CEF_VERSION==2623)
+	const mycp::uint32 nFileId = download_item->GetId();
+#else
+	const uint32 nFileId = download_item->GetId();
+#endif
   if (m_bCloseAll)
   {
 	  CefDownloadInfo::pointer pDownloadInfo;
@@ -1179,7 +1183,7 @@ bool ClientHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser,
 	return false;
 }
 
-#if (CEF_VERSION==2526)
+#if (CEF_VERSION>=2357)
 bool ClientHandler::OnBeforePopup(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -1400,6 +1404,12 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   {
 	  m_pHandler->OnLoadError(errorCode, errorText.c_str(), failedUrl.c_str());
   }
+	//if (browser.get()!=NULL)
+	//	browser->StopLoad();
+
+ // // Don't display an error for downloaded files.
+	//if (errorCode == ERR_ABORTED)
+ //   return;
 
   // Display a load error message.
   std::stringstream ss;
@@ -1713,7 +1723,11 @@ void ClientHandler::OnClearAll(void)
 	//if (m_pHandler!=NULL)
 	{
 		BoostReadLock rdLock(m_pFileDownloadList.mutex());
+#if (CEF_VERSION==2357 || CEF_VERSION==2623)
+		CLockMap<mycp::uint32,CefDownloadInfo::pointer>::iterator pIter = m_pFileDownloadList.begin();
+#else
 		CLockMap<uint32,CefDownloadInfo::pointer>::iterator pIter = m_pFileDownloadList.begin();
+#endif
 		for (; pIter!=m_pFileDownloadList.end(); pIter++)
 		{
 			const CefDownloadInfo::pointer& pDownloadInfo = pIter->second;

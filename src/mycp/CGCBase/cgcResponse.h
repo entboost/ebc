@@ -38,8 +38,8 @@ public:
 	virtual int sendResponse(const char * pResponseData, size_t nResponseSize) = 0;
 	virtual unsigned long setNotResponse(int nHoldSecond = 0) = 0;
 	//virtual unsigned long holdResponse(int nHoldSecond = 60) = 0;
-	virtual bool setConfigValue(int nConfigItem, unsigned int nConfigValue) {return false;}
-	virtual bool getConfigValue(int nConfigItem, unsigned int* pOutConfigValue) const {return false;}
+        virtual bool setConfigValue(int /*nConfigItem*/, unsigned int /*nConfigValue*/) {return false;}
+        virtual bool getConfigValue(int /*nConfigItem*/, unsigned int* /*pOutConfigValue*/) const {return false;}
 };
 
 const cgcResponse::pointer cgcNullResponse;

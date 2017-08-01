@@ -31,8 +31,8 @@ public:
 	static void GetScreenSize(int & pWidth, int & pHeight);
 
 	BOOL m_bDeleteThis;	// default true
-	CString m_sTitle;
-	CString m_sDescription;
+	mycp::tstring m_sTitle;
+	mycp::tstring m_sDescription;
 	IMAGE_TYPE m_nImageType;
 	int m_nAutoClose;
 	bool m_bCloseOnlyMode;

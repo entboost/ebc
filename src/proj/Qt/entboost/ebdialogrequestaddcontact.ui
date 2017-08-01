@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EbDialogRequestAddContact</class>
+ <widget class="QDialog" name="EbDialogRequestAddContact">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLabel" name="labelHeadImage">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>30</y>
+     <width>54</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>head image</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelUserInfo">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>130</y>
+     <width>54</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>user info</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="plainTextEditDescription">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>40</y>
+     <width>201</width>
+     <height>121</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -56,7 +56,7 @@ public:
 		if (!theTestInit)
 		{
 			theTestInit = true;
-			SSL_CTX * handle_ = ::SSL_CTX_new(::SSLv2_client_method());	// 返回0
+			SSL_CTX * handle_ = SSL_CTX_new(SSLv2_client_method());	// return 0
 			if (handle_==NULL)
 			{
 				SSL_library_init();	// *** 初始化SSL环境，解决组件在线更新 context error 异常问题；
@@ -149,7 +149,7 @@ public:
 			);
 #endif
 	}
-	void disconnect(void)
+	void disconnect(bool resetHandler=true)
 	{
 		close(true);
 		try
@@ -168,6 +168,9 @@ public:
 
 		m_datas.clear();
 		m_unused.clear();
+		if (resetHandler)
+			m_handler.reset();
+
 	}
 	void close(bool bDeleteSocket=false)
 	{
@@ -365,7 +368,8 @@ private:
 			}
 		}
 	}
-	void read_some_handler(mycp::asio::ReceiveBuffer::pointer newBuffer, const boost::system::error_code& error, std::size_t size)
+	void read_some_handler(const mycp::asio::ReceiveBuffer::pointer& newBuffer, const boost::system::error_code& error, std::size_t size)
+	//void read_some_handler(mycp::asio::ReceiveBuffer::pointer newBuffer, const boost::system::error_code& error, std::size_t size)
 	{
 		if (m_socket == 0) return;
 		// ???返回2错误；
@@ -422,7 +426,7 @@ public:
 	virtual ~TcpClient(void)
 	{
 		disconnect();
-		m_handler.reset();
+		//m_handler.reset();
 	}
 private:
 #ifdef USES_OPENSSL

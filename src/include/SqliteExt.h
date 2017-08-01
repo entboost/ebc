@@ -5,7 +5,7 @@
 #include <CGCBase/cgcvalueinfo.h>
 #include <sqlite3.h>
 //#include <boost/thread/shared_mutex.hpp>
-#ifdef WIN32
+#ifdef _MSC_VER //WIN32
 #ifdef _DEBUG
 #pragma comment(lib,"sqlite3sd.lib")
 #else
@@ -120,7 +120,7 @@ private:
 const int escape_in_size = 1;
 const mycp::tstring escape_in[] = {"''"};
 const mycp::tstring escape_out[] = {"'"};
-//const int escape_old_out_size = 2;	// ?¼æÈÝ¾É°æ±¾
+//const int escape_old_out_size = 2;	// ?å…¼å®¹æ—§ç‰ˆæœ¬
 //const mycp::tstring escape_old_in[] = {"&lsquo;","&pge0;"};
 //const mycp::tstring escape_old_out[] = {"'","\\"};
 
@@ -177,7 +177,7 @@ public:
 		for (int i=0; i<escape_in_size; i++)
 			replace(str, escape_out[i], escape_in[i]);
 	}
-	static void escape_string_out(mycp::tstring & str)
+        static void escape_string_out(mycp::tstring & )
 	{
 		//for (int i=0; i<escape_old_out_size; i++)
 		//	replace(str, escape_old_in[i], escape_old_out[i]);
@@ -236,10 +236,10 @@ public:
 	virtual time_t lasttime(void) const {return m_tLastTime;}
 
 	//static int sqlite_callback(
-	//	void* pv,    /* ÓÉ sqlite3_exec() µÄµÚËÄ¸ö²ÎÊý´«µÝ¶øÀ´ */
-	//	int argc,        /* ±íµÄÁÐÊý */
-	//	char** argv,    /* Ö¸Ïò²éÑ¯½á¹ûµÄÖ¸ÕëÊý×é, ¿ÉÒÔÓÉ sqlite3_column_text() µÃµ½ */
-	//	char** col        /* Ö¸Ïò±íÍ·ÃûµÄÖ¸ÕëÊý×é, ¿ÉÒÔÓÉ sqlite3_column_name() µÃµ½ */
+	//	void* pv,    /* ç”± sqlite3_exec() çš„ç¬¬å››ä¸ªå‚æ•°ä¼ é€’è€Œæ¥ */
+	//	int argc,        /* è¡¨çš„åˆ—æ•° */
+	//	char** argv,    /* æŒ‡å‘æŸ¥è¯¢ç»“æžœçš„æŒ‡é’ˆæ•°ç»„, å¯ä»¥ç”± sqlite3_column_text() å¾—åˆ° */
+	//	char** col        /* æŒ‡å‘è¡¨å¤´åçš„æŒ‡é’ˆæ•°ç»„, å¯ä»¥ç”± sqlite3_column_name() å¾—åˆ° */
 	//	)
 	//{
 	//	return 0;
@@ -250,7 +250,7 @@ public:
 		if (!isopen()) return -1;
 
 		//rc = sqlite3_exec(db, "BEGIN;", 0, 0, &zErrMsg); 
-		////Ö´ÐÐSQLÓï¾ä 
+		////æ‰§è¡ŒSQLè¯­å¥ 
 		//rc = sqlite3_exec(db, "COMMIT;", 0, 0, &zErrMsg);
 
 		mycp::bigint ret = 0;
@@ -283,7 +283,7 @@ public:
 		{
 			int nrow = 0, ncolumn = 0;  
 			char *zErrMsg = 0;
-			char **azResult = 0; //¶þÎ¬Êý×é´æ·Å½á¹û  
+			char **azResult = 0; //äºŒç»´æ•°ç»„å­˜æ”¾ç»“æžœ  
 			const int rc = sqlite3_get_table( m_pSqlite , selectSql , &azResult , &nrow , &ncolumn , &zErrMsg );
 			if ( rc!=SQLITE_OK )
 			{
@@ -293,7 +293,7 @@ public:
 			}
 			if (azResult != NULL && nrow>0 && ncolumn>0)
 			{
-				outCookie = (int)azResult;
+                                outCookie = (int)(long)azResult;
 				m_results.insert(outCookie, CDBC_RESULTSET(azResult, nrow, ncolumn));
 				rows = nrow;
 			}else
@@ -318,7 +318,7 @@ public:
 			int nrow = 0, ncolumn = 0;  
 			char *zErrMsg = 0;
 			//const int rc = sqlite3_get_table( m_pSqlite , selectSql , 0, &nrow , &ncolumn , &zErrMsg );
-			char **azResult = 0; //¶þÎ¬Êý×é´æ·Å½á¹û  
+			char **azResult = 0; //äºŒç»´æ•°ç»„å­˜æ”¾ç»“æžœ  
 			const int rc = sqlite3_get_table( m_pSqlite , selectSql , &azResult , &nrow , &ncolumn , &zErrMsg );
 			if ( rc!=SQLITE_OK )
 			{
@@ -380,7 +380,7 @@ public:
 		}
 	}
 
-	virtual bool auto_commit(bool autocommit)
+        virtual bool auto_commit(bool /*autocommit*/)
 	{
 		if (!isopen()) return false;
 		try

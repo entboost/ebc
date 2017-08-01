@@ -51,12 +51,12 @@ BOOL CDlgSetting::OnInitDialog()
 	this->SetToolTipText(IDC_EDIT_SERVER,_T("格式：IP:PORT（域名:PORT）；例如：192.168.10.100:18012"));
 
 	//
-	const CString sEBCSetting = theApp.GetAppDataPath()+_T("\\ebc.ini");
-	if (::PathFileExists(sEBCSetting))
+	const mycp::tstring sEBCSetting = theApp.GetAppDataPath()+"\\ebc.ini";
+	if (::PathFileExists(sEBCSetting.c_str()))
 	{
 		TCHAR lpszBuffer[1024];
 		memset(lpszBuffer,0,sizeof(lpszBuffer));
-		::GetPrivateProfileString("system","server","",lpszBuffer,sizeof(lpszBuffer),sEBCSetting);
+		::GetPrivateProfileString("system","server","",lpszBuffer,sizeof(lpszBuffer),sEBCSetting.c_str());
 		m_sServer = lpszBuffer;
 		m_editServer.SetWindowText(lpszBuffer);
 	}
@@ -131,8 +131,8 @@ void CDlgSetting::OnBnClickedOk()
 	m_editServer.GetWindowText(m_sServer);
 	if (sOldServer!=m_sServer)
 	{
-		const CString sEBCSetting = theApp.GetAppDataPath()+_T("\\ebc.ini");
-		::WritePrivateProfileString("system","server",m_sServer,sEBCSetting);
+		const mycp::tstring sEBCSetting = theApp.GetAppDataPath()+"\\ebc.ini";
+		::WritePrivateProfileString("system","server",m_sServer,sEBCSetting.c_str());
 	}
 	this->OnOK();
 }
@@ -204,7 +204,7 @@ void CDlgSetting::DrawInfo(void)
 	const Gdiplus::Font fontEbTip(&fontFamily, 12, FontStyleRegular, UnitPixel);
 	Gdiplus::SolidBrush brushTip(Gdiplus::Color(128,128,128));
 	const std::string sEnterprise = theSetting.GetEnterprise();
-	if (sEnterprise.find("恩布")==std::string::npos || (!theApp.m_sProductName.IsEmpty() && theApp.m_sProductName.Find(_T("恩布"))<0))
+	if (sEnterprise.find("恩布")==std::string::npos || (!theApp.m_sProductName.empty() && theApp.m_sProductName.find("恩布")==std::string::npos))
 		graphics.DrawString(L"留空默认连接公有云环境！",-1,&fontEbTip,PointF(122,83),&brushTip);
 	else
 		graphics.DrawString(L"留空默认连接恩布公有云环境！",-1,&fontEbTip,PointF(122,83),&brushTip);

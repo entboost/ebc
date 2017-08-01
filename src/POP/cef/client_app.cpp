@@ -8,6 +8,7 @@
 
 // This file is shared by cefclient and cef_unittests so don't include using
 // a qualified path.
+#include "client_handler.h"
 #include "client_app.h"  // NOLINT(build/include)
 
 #include <string>
@@ -26,6 +27,26 @@ ClientApp::~ClientApp()
 {
 }
 
+void ClientApp::OnBeforeCommandLineProcessing(const CefString & process_type, CefRefPtr<CefCommandLine> command_line)
+{
+	// chromium从43(3.2357)开始就不默认支持NPAPI，以下启用支持npapi
+	// ** NPAPI拷贝到plugins文件夹，PPAPI拷贝到PepperFlash文件夹
+#if (CEF_VERSION>=2357)
+	command_line->AppendSwitch("--enable-npapi");
+	//command_line->AppendSwitch("--enable-ppapi");	// ?
+	//command_line->AppendSwitch("--enable-pdf-extension");
+#endif
+
+	//command_line->AppendSwitch("--disable-web-security");//关闭同源策略
+	command_line->AppendSwitch("--enable-system-flash");	///使用系统flash（使用PepperFlash/pepflashplayer.dll不需要这个）
+	//command_line->AppendSwitch("process-per-site");	// 此参数解决多窗口问题（没有作用）
+	//command_line->AppendSwitchWithValue("register-pepper-plugins", "PepperFlash/pepflashplayer.dll;application/x-shockwave-flash");	// * 加载失败
+	////加载flash插件
+	//command_line->AppendSwitchWithValue("--ppapi-flash-path", "PepperFlash/pepflashplayer.dll");	// *单独加载可以使用，但Flash: 显示版本不对
+	////manifest.json中的version
+	//command_line->AppendSwitchWithValue("--ppapi-flash-version", "21.0.0.213");										// *测试过，替换其他版本的pepflashplayer.dll也能正常使用
+}
+
 void ClientApp::OnRegisterCustomSchemes(
     CefRefPtr<CefSchemeRegistrar> registrar) {
   // Default schemes that support cookies.
@@ -39,7 +60,7 @@ void ClientApp::OnContextInitialized() {
   //CreateBrowserDelegates(browser_delegates_);
 
   // Register cookieable schemes with the global cookie manager.
-#if (CEF_VERSION==2526)
+#if (CEF_VERSION>=2357)
   CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager(NULL);
   DCHECK(manager.get());
   manager->SetSupportedSchemes(cookieable_schemes_, NULL);

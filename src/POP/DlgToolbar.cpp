@@ -99,7 +99,7 @@ int CDlgToolbar::SetMoveEnterData(EB_MR_CTRL_DATA_TYPE nDataType, const std::str
 		CString sSql;
 		sSql.Format(_T("select from_uid,read_flag,msg_type FROM msg_record_t WHERE msg_id=%lld LIMIT 1"),m_nMsgId);
 		int nCookie = 0;
-		const mycp::bigint nRet = theApp.m_pBoUsers->select(sSql, nCookie);
+		theApp.m_pBoUsers->select(sSql, nCookie);
 		cgcValueInfo::pointer pRecord = theApp.m_pBoUsers->last(nCookie);
 		if (pRecord.get()!=NULL)
 		{
@@ -690,7 +690,8 @@ void CDlgToolbar::OnBnClickedBtn2()
 		{
 			if (::PathFileExists(m_sMoveEnterString.c_str()))
 			{
-				const tstring sPath = "/select, "+m_sMoveEnterString;
+				tstring sPath = "/select, \""+m_sMoveEnterString;
+				sPath += "\"";
 				//COpenAppUrlInfo * pOpenAppUrlInfo = new COpenAppUrlInfo("explorer",sPath.string(),"");
 				//theApp.m_pMainWnd->PostMessage(EB_COMMAND_OPEN_APP_URL,(WPARAM)pOpenAppUrlInfo,(LPARAM)0);
 				ShellExecute(NULL, NULL, "explorer", sPath.c_str(), NULL, SW_SHOW);
@@ -965,7 +966,7 @@ void CDlgToolbar::OnBnClickedBtn6()
 	if (m_nMsgFromUserId==theApp.GetLogonUserId() && m_nMsgType!=MRT_RESOURCE && (m_nMsgReadFlag&EBC_READ_FLAG_WITHDRAW)==0 && m_pCallInfo.GetCallId()>0)
 	{
 		HideReset();
-		theEBAppClient.EB_RequestWithdawMsg(m_pCallInfo.GetCallId(), m_nMsgId);
+		theEBAppClient.EB_RequestWithdrawMsg(m_pCallInfo.GetCallId(), m_nMsgId);
 	}
 }
 void CDlgToolbar::OnBnClickedBtn7()

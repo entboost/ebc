@@ -40,7 +40,7 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	CTraButton m_btnSave2CloutDrive;
+	CTraButton m_btnSave2CloudDrive;
 	CTraButton m_btnSaveas;
 	CTraButton m_btnSave;
 	CTraButton m_btnReject;

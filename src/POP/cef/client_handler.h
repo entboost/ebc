@@ -12,13 +12,14 @@
 #include <set>
 #include <string>
 
+#define CEF_VERSION 2623	// 2526(xp”–Œ Ã‚),2357,2272(default)
+
 #include "include/base/cef_lock.h"
 #include "include/cef_client.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
 #include "cefhandler.h"
 
-#define CEF_VERSION 2272	// 2526
 //#define USES_MESSAGE_ROUTER
 
 #if defined(OS_LINUX)
@@ -210,19 +211,18 @@ class ClientHandler : public CefClient,
                           CefEventHandle os_event) OVERRIDE;
 
   // CefLifeSpanHandler methods
-#if (CEF_VERSION==2526)
-  bool OnBeforePopup(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& target_url,
-      const CefString& target_frame_name,
-      CefLifeSpanHandler::WindowOpenDisposition target_disposition,
-      bool user_gesture,
-      const CefPopupFeatures& popupFeatures,
-      CefWindowInfo& windowInfo,
-      CefRefPtr<CefClient>& client,
-      CefBrowserSettings& settings,
-      bool* no_javascript_access) OVERRIDE;
+#if (CEF_VERSION>=2357)
+  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefFrame> frame,
+                             const CefString& target_url,
+                             const CefString& target_frame_name,
+														 CefLifeSpanHandler::WindowOpenDisposition target_disposition,
+                             bool user_gesture,
+                             const CefPopupFeatures& popupFeatures,
+                             CefWindowInfo& windowInfo,
+                             CefRefPtr<CefClient>& client,
+                             CefBrowserSettings& settings,
+                             bool* no_javascript_access);
 #else
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                              CefRefPtr<CefFrame> frame,

@@ -101,8 +101,8 @@ void CDlgRDWindows::OnSize(UINT nType, int cx, int cy)
 		m_btnMin.MoveWindow(btnx, 1,const_minbtn_width,const_minbtn_height);
 
 	//const int offset = 5;
-	//theEBAppClient.EB_MoveRemoteDesktopWindow(m_nCallId,m_nUserId,offset,36,cx-offset*2,cy-36-offset,TRUE);
-	theEBAppClient.EB_MoveRemoteDesktopWindow(m_nCallId,m_nUserId,0,0,cx,cy,TRUE);
+	//theEBAppClient.EB_MoveRemoteDesktopWindow(m_nCallId,m_nUserId,offset,36,cx-offset*2,cy-36-offset,true);
+	theEBAppClient.EB_MoveRemoteDesktopWindow(m_nCallId,m_nUserId,0,0,cx,cy,true);
 }
 
 void CDlgRDWindows::OnPaint()

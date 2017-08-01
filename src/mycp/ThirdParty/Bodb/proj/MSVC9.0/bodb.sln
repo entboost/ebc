@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bodb", "bodb.vcproj", "{F35825E0-D8D1-4B71-AAFD-4A04A40BB453}"
+	ProjectSection(ProjectDependencies) = postProject
+		{73C51D11-3744-4217-ABCC-CA690F4F8275} = {73C51D11-3744-4217-ABCC-CA690F4F8275}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bodbclient", "bodbclient.vcproj", "{BEA67C89-8963-4CA2-AD49-E4F0EB929294}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F35825E0-D8D1-4B71-AAFD-4A04A40BB453} = {F35825E0-D8D1-4B71-AAFD-4A04A40BB453}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlparser", "sqlparser.vcproj", "{73C51D11-3744-4217-ABCC-CA690F4F8275}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F35825E0-D8D1-4B71-AAFD-4A04A40BB453}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F35825E0-D8D1-4B71-AAFD-4A04A40BB453}.Debug|Win32.Build.0 = Debug|Win32
+		{F35825E0-D8D1-4B71-AAFD-4A04A40BB453}.Release|Win32.ActiveCfg = Release|Win32
+		{F35825E0-D8D1-4B71-AAFD-4A04A40BB453}.Release|Win32.Build.0 = Release|Win32
+		{BEA67C89-8963-4CA2-AD49-E4F0EB929294}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BEA67C89-8963-4CA2-AD49-E4F0EB929294}.Debug|Win32.Build.0 = Debug|Win32
+		{BEA67C89-8963-4CA2-AD49-E4F0EB929294}.Release|Win32.ActiveCfg = Release|Win32
+		{BEA67C89-8963-4CA2-AD49-E4F0EB929294}.Release|Win32.Build.0 = Release|Win32
+		{73C51D11-3744-4217-ABCC-CA690F4F8275}.Debug|Win32.ActiveCfg = Debug|Win32
+		{73C51D11-3744-4217-ABCC-CA690F4F8275}.Debug|Win32.Build.0 = Debug|Win32
+		{73C51D11-3744-4217-ABCC-CA690F4F8275}.Release|Win32.ActiveCfg = Release|Win32
+		{73C51D11-3744-4217-ABCC-CA690F4F8275}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

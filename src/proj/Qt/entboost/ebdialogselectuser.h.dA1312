@@ -1,0 +1,63 @@
+#ifndef EBDIALOGSELECTUSER_H
+#define EBDIALOGSELECTUSER_H
+
+#include <ebclientapp.h>
+#include <EbDialogBase.h>
+#include <QLabel>
+#include <ebcallback.h>
+#include <ebwidgetiteminfo.h>
+
+namespace Ui {
+class EbDialogSelectUser;
+}
+class EbWidgetMyGroup;
+class EbWidgetMyContact;
+class EbWidgetMyEnterprise;
+
+class EbDialogSelectUser : public EbDialogBase
+        , public CEBSearchCallback
+        , public EbSelectedUserCallback
+{
+    Q_OBJECT
+
+public:
+    explicit EbDialogSelectUser(QWidget *parent = 0);
+    ~EbDialogSelectUser();
+
+    void updateLocaleInfo(void);
+    void timerCheckState(void);
+
+public slots:
+    void onSelectedItemInfo(const EbWidgetItemInfo::pointer&);
+    void onItemEnteredSelected(QListWidgetItem *item);
+    void updateClickedButton(const QObject *sender);
+    void onClickedButtonMyGroup(void);
+    void onClickedButtonMyContact(void);
+    void onClickedButtonMyEnterprise(void);
+    void updateSelectedCount(void);
+    void onClickedButtonDelete(void);
+    void onLoadEnterpriseInfo(void);
+
+protected:
+    virtual void resizeEvent(QResizeEvent *);
+
+    /// CEBSearchCallback
+    virtual void onGroupInfo(const EB_GroupInfo* pGroupInfo,const EB_EnterpriseInfo* pEnterpriseInfo, unsigned long dwParam);
+    virtual void onMemberInfo(const EB_GroupInfo* pGroupInfo, const EB_MemberInfo* pMemberInfo, unsigned long dwParam);
+    virtual void onContactInfo(const EB_ContactInfo* pContactInfo, unsigned long dwParam);
+    /// EbSelectedUserCallback
+    virtual bool isSelectedUser(const EbWidgetItemInfo::pointer &itemInfo);
+
+private:
+    Ui::EbDialogSelectUser *ui;
+    CLockMap<eb::bigint,EbWidgetItemInfo::pointer> m_selectedList;
+    QLabel * m_labelMyGroupIcon;
+    QLabel * m_labelMyContactIcon;
+    QLabel * m_labelMyEnterpriseIcon;
+    EbWidgetMyGroup * m_widgetMyGroup;
+    EbWidgetMyContact * m_widgetMyContact;
+    const EB_EnterpriseInfo * m_enterpriseInfo;
+    EbWidgetMyEnterprise * m_widgetMyEnterprise;
+};
+
+#endif // EBDIALOGSELECTUSER_H

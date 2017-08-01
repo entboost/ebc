@@ -94,7 +94,7 @@ public:
 	void OnReceivingFile(const CCrFileInfo * pCrFileInfo,CString* sOutFirstMsg);
 	void OnReceivedFile(const CCrFileInfo * pCrFileInfo);
 	void OnFilePercent(const CChatRoomFilePercent * pChatRoomFilePercent);
-	void OnSave2CloutDrive(const CCrFileInfo * pCrFileInfo,int nStateValue);
+	void OnSave2CloudDrive(const CCrFileInfo * pCrFileInfo,int nStateValue);
 	void RDRequestResponse(const EB_RemoteDesktopInfo* pVideoInfo,int nStateValue);
 	void RDAckResponse(const EB_RemoteDesktopInfo* pVideoInfo,int nStateValue);
 	void RDRequest(const EB_RemoteDesktopInfo* pVideoInfo);

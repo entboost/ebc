@@ -152,7 +152,7 @@ bool CgcUdpClient::setRemoteAddr(const tstring & sRemoteAddr)
 	}
 	return false;
 }
-bool CgcUdpClient::doSetConfig(int nConfig, unsigned int nInValue)
+bool CgcUdpClient::doSetConfig(int nConfig, unsigned long nInValue)
 {
 	if (!CgcBaseClient::doSetConfig(nConfig,nInValue))
 		return false;
@@ -186,7 +186,7 @@ bool CgcUdpClient::doSetConfig(int nConfig, unsigned int nInValue)
 	}
 	return true;
 }
-void CgcUdpClient::doGetConfig(int nConfig, unsigned int* nOutValue) const
+void CgcUdpClient::doGetConfig(int nConfig, unsigned long* nOutValue) const
 {
 	CgcBaseClient::doGetConfig(nConfig,nOutValue);
 	switch (nConfig)
