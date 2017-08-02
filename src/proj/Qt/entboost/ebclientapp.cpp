@@ -12,6 +12,7 @@
 #include "ebdialoggroupinfo.h"
 #include "ebdialogviewecard.h"
 #include "ebdialogcontactinfo.h"
+#include "ebwebenginedownloadrequested.h"
 
 EbClientApp::pointer theApp;
 EbcLocales theLocales;
@@ -57,6 +58,7 @@ EbClientApp::EbClientApp(QObject *parent)
     , m_receiver(0)
     , m_dialogEmotionSelect(0)
     , m_dialogViewECard(0)
+    , m_webWngineDownloadRequested(0)
 
 {
     // ? for test
@@ -90,6 +92,10 @@ EbClientApp::~EbClientApp(void)
     if (m_dialogViewECard!=0) {
         delete m_dialogViewECard;
         m_dialogViewECard = 0;
+    }
+    if (m_webWngineDownloadRequested!=0) {
+        delete m_webWngineDownloadRequested;
+        m_webWngineDownloadRequested = 0;
     }
 }
 
@@ -841,6 +847,9 @@ bool EbClientApp::initApp(void)
     m_appDataImageTempLocation = m_appDataLocation + "/image_temp";
     checkCreateDir(m_appDataImageTempLocation);
 
+    if (m_webWngineDownloadRequested==0) {
+        m_webWngineDownloadRequested = new EbWebEngineDownloadRequested(this);
+    }
     return true;
 }
 void EbClientApp::exitApp(bool bResetEbumOnly)

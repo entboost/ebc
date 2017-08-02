@@ -125,9 +125,16 @@ void EbWidgetMyContact::onUGDelete(const EB_UGInfo *ugInfo)
                 defaultGroupItemInfo->m_dwItemData++;
 
                 /// 移到默认分组去；
-//                sContactText.Format(_T("%s"), pContactItemInfo->m_sName.c_str());
-//                pContactItemInfo->m_hItem = m_treeContacts.InsertItem(sContactText,pDefaultGroupItemInfo->m_hItem);
-//                m_treeContacts.SetItemData(pContactItemInfo->m_hItem,(DWORD)pContactItemInfo.get());
+                const QString sContactText = pContactItemInfo->m_sName.c_str();
+                EbTreeWidgetItem * contactWidgetItem = new EbTreeWidgetItem(defaultGroupItemInfo->m_hItem, QStringList(sContactText));
+                pContactItemInfo->m_hItem = contactWidgetItem;
+                pContactItemInfo->m_headMd5.clear();
+                EB_ContactInfo contactInfo;
+                if (theApp->m_ebum.EB_GetContactInfo1(pContactItemInfo->m_sId, &contactInfo)) {
+                    pContactItemInfo->updateContactInfo(&contactInfo);
+                }
+                contactWidgetItem->m_itemInfo = pContactItemInfo;
+                defaultGroupItemInfo->m_hItem->addChild(contactWidgetItem);
             }
         }
         if (defaultGroupItemInfo.get()!=0) {
@@ -142,8 +149,8 @@ void EbWidgetMyContact::onUGDelete(const EB_UGInfo *ugInfo)
             else {
                 groupText = QString("%1 (%2)").arg(defaultGroupItemInfo->m_sName.c_str()).arg((int)defaultGroupItemInfo->m_dwItemData);
             }
-//            const QString groupText = QString("%1 (%2)").arg(defaultGroupItemInfo->m_sName.c_str()).arg((int)defaultGroupItemInfo->m_dwItemData);
-            defaultGroupItemInfo->m_hItem->setText(0,groupText);
+            defaultGroupItemInfo->m_hItem->setText(0, groupText);
+            defaultGroupItemInfo->m_hItem->sortChildren(0, Qt::AscendingOrder);
         }
     }
 
@@ -238,7 +245,7 @@ void EbWidgetMyContact::onContactInfo(const EB_ContactInfo *contactInfo)
         pGroupItemInfo->m_hItem->setText(0, groupText);
     }
     if (pGroupItemInfo->m_dwItemData>1) {
-        pGroupItemInfo->m_hItem->sortChildren( 0,Qt::AscendingOrder );
+        pGroupItemInfo->m_hItem->sortChildren(0, Qt::AscendingOrder);
     }
 }
 
@@ -456,7 +463,7 @@ void EbWidgetMyContact::contextMenuEvent(QContextMenuEvent *e)
     if (!m_contextMenu->updateMenuItem(itemInfo)) {
         return;
     }
-    m_contextMenu->exec( e->globalPos() );
+    m_contextMenu->popup(e->globalPos());
 }
 
 void EbWidgetMyContact::deleteGroupItem(QTreeWidgetItem *groupItem)

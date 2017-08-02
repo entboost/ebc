@@ -2,21 +2,23 @@
 #ifndef __stldef_h__
 #define __stldef_h__
 
+#include "cgcSmartString.h"
+using namespace mycp;
 #include <list>
 #include <map>
 #include <algorithm>
-#include <string>
+//#include <string>
 #include <fstream>
 #ifndef TSTRING_DEFINED
 #define TSTRING_DEFINED
 #ifdef _UNICODE
-typedef std::wstring tstring;
+//typedef std::wstring tstring;
 typedef std::wfstream tfstream;
 //#ifndef TCHAR
 //#define TCHAR wchar_t
 //#endif // TCHAR
 #else
-typedef std::string tstring;
+//typedef std::string tstring;
 typedef std::fstream tfstream;
 //#ifndef TCHAR
 //#define TCHAR char

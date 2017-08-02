@@ -4,8 +4,6 @@
 #include <QWebEngineView>
 #include <QMenu>
 #include <stl/lockmap.h>
-#include <ebwebenginedownloaditem.h>
-//#include <QWebEngineDownloadItem>
 
 class EbWebEnginePage;
 
@@ -27,10 +25,6 @@ public slots:
     void onTriggeredActionPrint(void);
     void onTriggeredActionInspectElement(void);
     void onTriggeredActionPageTriggerAction(void);
-    void onDownloadRequested(QWebEngineDownloadItem *item);
-    void onDownloadFinished(const EbWebEngineDownloadItem *item);
-//    void onDownLoadStateChanged(QWebEngineDownloadItem::DownloadState state);
-//    void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
     void onLinkHovered(const QString &url);
 protected:
@@ -46,7 +40,6 @@ private:
     QMenu * m_menu;
     QString m_linkHoveredUrl;
     CLockMap<QWebEnginePage::WebAction,QAction*> m_actions;
-    CLockMap<quint32,EbWebEngineDownloadItem::pointer> m_downloads;
 };
 
 #endif // EBWEBENGINEVIEW_H

@@ -17,8 +17,12 @@ EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
     ui->setupUi(this);
     /// 设置初始大小
     this->resize(588,452);
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint|Qt::WindowMinimizeButtonHint|Qt::CustomizeWindowHint);
+#else
     /// 去掉标题栏
     this->setWindowFlags( Qt::FramelessWindowHint );
+#endif
 
     const int const_title_height = 80;
     this->showTitleBackground( const_title_height );

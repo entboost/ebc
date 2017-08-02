@@ -167,7 +167,8 @@ SOURCES += main.cpp\
     ebdialogmemberinfo.cpp \
     ebdialogmessagetip.cpp \
     ebdialogmycenter.cpp \
-    ebdialogpoptip.cpp
+    ebdialogpoptip.cpp \
+    ebwebenginedownloadrequested.cpp
 
 HEADERS  += ../../../include/ebc_public.h \
     ebclientapp.h \
@@ -240,7 +241,8 @@ HEADERS  += ../../../include/ebc_public.h \
     ebdialogmemberinfo.h \
     ebdialogmessagetip.h \
     ebdialogmycenter.h \
-    ebdialogpoptip.h
+    ebdialogpoptip.h \
+    ebwebenginedownloadrequested.h
 
 FORMS    += ebmessagebox.ui \
     ebdialogfilemanager.ui \

@@ -11,7 +11,7 @@ EbWidgetSearchResult::EbWidgetSearchResult(EB_SEARCH_FROM_FLAG fromFlag, QWidget
   , m_itemHeight(0)
 {
     ///
-    this->setWindowFlags( Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint );
+    this->setWindowFlags(Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint );
 //    this->setStyleSheet("QWidget:{border: none;}");
 
     m_listWidgetResults = new EbListWidget(this);
@@ -273,7 +273,7 @@ void EbWidgetSearchResult::contextMenuEvent(QContextMenuEvent *e)
     default:
         return;
     }
-    this->m_menu->exec(e->globalPos());
+    this->m_menu->popup(e->globalPos());
 //    QWidget::contextMenuEvent(e);
 }
 

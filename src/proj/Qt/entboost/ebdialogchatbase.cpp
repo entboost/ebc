@@ -868,7 +868,7 @@ void EbDialogChatBase::onClickedButtonChatApps()
         action->setEnabled(false);
     }
 
-    m_menuChatApps->exec( cursor().pos() );
+    m_menuChatApps->popup(cursor().pos());
 }
 
 void EbDialogChatBase::exitChat(bool hangup)

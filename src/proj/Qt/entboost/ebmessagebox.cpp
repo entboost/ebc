@@ -20,14 +20,18 @@ EbMessageBox::EbMessageBox(QWidget *parent) :
 {
     ui->setupUi(this);
     /// 去掉标题栏
+#ifdef __MACH__
     this->setWindowFlags( Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+#else
+    this->setWindowFlags( Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+#endif
 //    this->setWindowFlags( Qt::Dialog|Qt::FramelessWindowHint |Qt::WindowSystemMenuHint|Qt::WindowMinimizeButtonHint );
 //    // 设置位置，显示在上面
 //    this->showTitleBackground(theDefaultBgColorTitleHeight);
 
-    QFont font = ui->labelText->font();
-    font.setPointSize(10);
-    ui->labelText->setFont(font);
+//    QFont font = ui->labelText->font();
+//    font.setPointSize(10);
+//    ui->labelText->setFont(font);
     ui->labelText->setWordWrap(true);
 //    背景透明
     ui->labelText->setStyleSheet("QLabel{background-color:rgb(0,0,0,0); color: rgb(64,64,64); border-radius: 0px;}");

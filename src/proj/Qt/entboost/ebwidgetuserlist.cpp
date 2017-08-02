@@ -225,7 +225,7 @@ void EbWidgetUserList::contextMenuEvent(QContextMenuEvent *e)
     if (!m_contextMenu->updateMenuItem(itemInfo)) {
         return;
     }
-    m_contextMenu->exec( e->globalPos() );
+    m_contextMenu->popup(e->globalPos());
 }
 
 void EbWidgetUserList::timerEvent(QTimerEvent *event)

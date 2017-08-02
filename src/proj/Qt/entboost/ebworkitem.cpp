@@ -49,7 +49,7 @@ void EbWorkItem::setAppUrl(bool saveUrl,const QString &sUrl, const QString &sPos
     }
 }
 
-void EbWorkItem::setFunInfo(const EB_SubscribeFuncInfo &subFuncInfo, bool bOpenNewClose)
+void EbWorkItem::setFunInfo(const EB_SubscribeFuncInfo &subFuncInfo, bool /*bOpenNewClose*/)
 {
     if (m_pushButtonTop!=0) {
         m_pushButtonTop->setText( subFuncInfo.m_sFunctionName.c_str() );
@@ -57,10 +57,10 @@ void EbWorkItem::setFunInfo(const EB_SubscribeFuncInfo &subFuncInfo, bool bOpenN
     m_subFuncInfo = subFuncInfo;
     EbIconHelper::Instance()->SetIcon( m_subFuncInfo.m_nSubscribeId, m_labelImage, 10 );
 
-//    if (m_widgetWorkView.get()!=0) {
-//        m_widgetWorkView->m_funcInfo = pFuncInfo;
-////        m_pAppWindow->m_bOpenNewClose = bOpenNewClose;
-//    }
+    if (m_widgetWorkView.get()!=0) {
+        m_widgetWorkView->m_funcInfo = subFuncInfo;
+//        m_pAppWindow->m_bOpenNewClose = bOpenNewClose;
+    }
 }
 
 QWidget *EbWorkItem::parent() const
@@ -95,6 +95,7 @@ void EbWorkItem::buildButton(bool saveUrl,int topHeight, QWidget *parent)
     }
     else if ( isItemType(WORK_ITEM_WEB_BROWSER) && m_widgetWorkView.get()==0 ) {
         m_widgetWorkView = EbWidgetWorkView::create( saveUrl,m_appUrl,m_postData,parent );
+        m_widgetWorkView->m_funcInfo = m_subFuncInfo;
         this->connect( m_widgetWorkView.get(),SIGNAL(titleChanged(const EbWidgetWorkView*,QString)),this,SLOT(onTitleChanged(const EbWidgetWorkView*,QString)) );
         this->connect( m_widgetWorkView.get(),SIGNAL(iconChanged(const EbWidgetWorkView*,QIcon)),this,SLOT(onIconChanged(const EbWidgetWorkView*,QIcon)) );
         parent->connect( m_widgetWorkView.get(),SIGNAL(urlChanged(const EbWidgetWorkView*,QUrl)),parent,SLOT(onUrlChanged(const EbWidgetWorkView*,QUrl)) );

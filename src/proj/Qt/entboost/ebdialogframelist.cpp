@@ -207,7 +207,7 @@ void EbDialogFrameList::onWorkItemSizeChange(bool ,int size)
 
 void EbDialogFrameList::contextMenuEvent(QContextMenuEvent *e)
 {
-    m_menuContext->exec( e->globalPos() );
+    m_menuContext->popup(e->globalPos());
     EbDialogBase::contextMenuEvent(e);
 }
 

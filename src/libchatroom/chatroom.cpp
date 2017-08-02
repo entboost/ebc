@@ -268,9 +268,10 @@ public:
 	{
 		if (m_pProcessThread.get() == NULL)
 		{
-			boost::thread_attributes attrs;
-            attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-			m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CThreadRequestReceiveFileInfo::SendThreadCallBack, this)));
+            m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CThreadRequestReceiveFileInfo::SendThreadCallBack, this)));
+//			boost::thread_attributes attrs;
+//            attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//			m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CThreadRequestReceiveFileInfo::SendThreadCallBack, this)));
 		}
 	}
 #ifdef _QT_MAKE_

@@ -292,6 +292,11 @@ EbContextMenu::~EbContextMenu()
     m_actionList.clear();
 }
 
+void EbContextMenu::popup(const QPoint &pos)
+{
+    m_menuContext->popup(pos);
+}
+
 QAction * EbContextMenu::exec(const QPoint &pos)
 {
     return m_menuContext->exec(pos);

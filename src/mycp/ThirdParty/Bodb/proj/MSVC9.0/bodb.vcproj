@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\;..\..\;&quot;$(BOOST_ROOT)&quot;"
+				AdditionalIncludeDirectories="..\..\..\..\;..\..\;&quot;$(BOOST_ROOT)&quot;;$(NOINHERIT)"
 				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

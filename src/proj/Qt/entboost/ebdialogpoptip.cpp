@@ -13,7 +13,11 @@ EbDialogPopTip::EbDialogPopTip(TipType type, QWidget *parent) :
     m_workView->setOpenLinkInNewTabAddUrlEnable(true);
     this->resize(250, 180);
 
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::FramelessWindowHint);
+#else
     this->setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
+#endif
     this->setDoubleClickMaxEnable(true);
     this->showTitleBackground(32);
     this->setOkCancelButtonSize(QSize(55, 19));

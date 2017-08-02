@@ -606,7 +606,7 @@ void EbFrameList::closeItem(const EbDialogChatBase *chatBase)
             if (chatBase==frameInfo->dialogChatBase().get()) {
                 /// * 找到要关闭 ITEM
                 frameInfoClose = frameInfo;
-                m_hide.add(frameInfo);
+//                m_hide.add(frameInfo);    /// **不加入hide列表，有新会话时，重新处理界面
                 m_list.erase(pIter++);
                 if (!frameInfoClose->isChecked()) {
                     /// 不是当前显示 checked，直接跳出

@@ -246,7 +246,7 @@ void EbFrameChatToolBar::onClickedButton1(bool /*checked*/)
         const QFileInfo fileInfo(fileName);
         const QString filePath( fileInfo.absolutePath() );
         if ( !fileInfo.exists() ) {
-            QDesktopServices::openUrl( QUrl(filePath, QUrl::TolerantMode) );
+            QDesktopServices::openUrl( QUrl::fromLocalFile(filePath) );
         }
         else {
 #ifdef WIN32
@@ -254,7 +254,8 @@ void EbFrameChatToolBar::onClickedButton1(bool /*checked*/)
             const QString param = "/select, \""+fileName+"\"";
             QProcess::startDetached( "explorer "+param );
 #else
-            QDesktopServices::openUrl( QUrl(filePath, QUrl::TolerantMode) );
+            QDesktopServices::openUrl( QUrl::fromLocalFile(filePath) );
+//            QDesktopServices::openUrl( QUrl(filePath, QUrl::TolerantMode) );
 #endif
         }
         break;

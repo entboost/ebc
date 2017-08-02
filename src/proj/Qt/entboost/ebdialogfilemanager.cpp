@@ -10,8 +10,12 @@ EbDialogFileManager::EbDialogFileManager(QWidget *parent) :
     ui(new Ui::EbDialogFileManager)
 {
     ui->setupUi(this);
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint|Qt::WindowMinMaxButtonsHint|Qt::CustomizeWindowHint);
+#else
     /// 去掉标题栏
     this->setWindowFlags( Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+#endif
     this->showTitleBackground( theLocales.titleBackgroundHeight() );
 
     ui->pushButtonTraningFile->setCheckable(true);
@@ -321,8 +325,9 @@ void EbDialogFileManager::onClickedButtonOpenDir()
 
     QString filePath(ebitem->m_itemInfo->m_sName.c_str());
     const QFileInfo fileInfo(filePath);
+    const QString filePathDir( fileInfo.absolutePath() );
     if ( !fileInfo.exists() ) {
-        QDesktopServices::openUrl( QUrl(filePath, QUrl::TolerantMode) );
+        QDesktopServices::openUrl( QUrl::fromLocalFile(filePathDir) );
     }
     else {
 #ifdef WIN32
@@ -330,7 +335,7 @@ void EbDialogFileManager::onClickedButtonOpenDir()
         const QString param = "/select, \""+filePath+"\"";
         QProcess::startDetached("explorer "+param);
 #else
-        QDesktopServices::openUrl( QUrl(filePath, QUrl::TolerantMode) );
+        QDesktopServices::openUrl( QUrl::fromLocalFile(filePathDir) );
 #endif
     }
 }
@@ -359,6 +364,7 @@ void EbDialogFileManager::onClickedButtonDeleteFile()
             title = theLocales.getLocalText("message-box.delete-chat-file.title","Delete File");
             text = theLocales.getLocalText("message-box.delete-chat-file.text","Confirm delete:<br>[FILE_NAME] chat file?");
         }
+        text.replace("[FILE_NAME]", filePath);
         if (EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
             return;
         }

@@ -102,6 +102,11 @@ void EbFrameItem::buildButton(int leftWidth, QWidget *parent)
         m_pushButtonLeft->setCheckable(true);
         m_pushButtonLeft->raise();
         if (showedLeft) {
+//            const int width = m_pushButtonLeft->fontMetrics().width(m_itemText);
+//            if (m_pushButtonLeft->geometry().width()-32>width)
+//                m_pushButtonLeft->setStyleSheet("text-align : center;");
+//            else
+//                m_pushButtonLeft->setStyleSheet("text-align : left;");
             m_pushButtonLeft->setText(m_itemText);
         }
     }

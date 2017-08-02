@@ -23,7 +23,6 @@ class EbWidgetSearchResult;
 class EbDialogFileManager;
 class EbDialogPopTip;
 
-//#define USES_EVENT_DATE_TIMER
 class EbDialogMainFrame : public EbDialogBase
 {
     Q_OBJECT
@@ -155,12 +154,7 @@ private:
     void onLogonError(QEvent *e);
     void onOnlineAnother(QEvent *e);
 
-#ifdef USES_EVENT_DATE_TIMER
-    void checkEventData(void);
-#else
     bool checkEventData(QEvent *e);
-#endif
-
     void checkOneSecond(void);
     void checkCallExit(void);
     void saveCallRecord(eb::bigint callId, eb::bigint groupId, const EB_AccountInfo &fromAccountInfo);
@@ -179,7 +173,6 @@ private:
     EbDialogMessageTip *m_pDlgMsgTip;
     EbDialogPopTip *m_dialogBroadcaseMsg;
     EbDialogFileManager *m_dialogFileManager;
-//    std::vector<EB_SubscribeFuncInfo> m_subscribeFuncList;
     EbWidgetMyGroup *m_widgetMyGroup;
     EbWidgetMyContact *m_widgetMyContact;
     EbWidgetMySession *m_widgetMySession;
@@ -189,11 +182,6 @@ private:
     EbWidgetSearchResult *m_widgetSearchResult;
 //    bool m_canSearch;
     bool m_canUpdateSearchFirst;
-#ifdef USES_EVENT_DATE_TIMER
-    int m_checkEventData;
-    CLockListPtr<QEvent*> m_eventList;
-    CLockMap<QEvent*,bool> m_eventMap;
-#endif
     int m_timerOneSecond;
     QSystemTrayIcon * m_trayIcon;
     bool m_requestLogout;

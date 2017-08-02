@@ -51,7 +51,6 @@ EbDialogLogin::EbDialogLogin(QWidget *parent)
 
 {
     ui->setupUi(this);
-
     /// 设置初始大小
     const int const_dialog_login_width = theLocales.getLocalInt("login-dialog.window-size.width", 288);
     const int const_dialog_login_height = theLocales.getLocalInt("login-dialog.window-size.height", 588);
@@ -731,7 +730,7 @@ void EbDialogLogin::onClickedPushButtonSetting(void)
     }
 
     const QPoint pos(0,ui->pushButtonSetting->geometry().height());
-    m_menuSetting->exec(ui->pushButtonSetting->mapToGlobal(pos));
+    m_menuSetting->popup(ui->pushButtonSetting->mapToGlobal(pos));
 }
 
 void EbDialogLogin::onClickedEntLogo()

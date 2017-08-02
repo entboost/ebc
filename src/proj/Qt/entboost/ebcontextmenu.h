@@ -21,6 +21,7 @@ public:
     EbContextMenu(Type type, QWidget * parent=0);
     virtual ~EbContextMenu(void);
 
+    void popup(const QPoint & pos);
     QAction * exec(const QPoint & pos);
     QAction * setMenuActionVisible(int commandId, bool visible);
     bool updateMenuItem(const EbWidgetItemInfo::pointer &itemInfo);

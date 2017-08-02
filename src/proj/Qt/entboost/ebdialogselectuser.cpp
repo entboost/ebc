@@ -47,9 +47,12 @@ EbDialogSelectUser::EbDialogSelectUser(QWidget *parent) :
     ui->setupUi(this);
     /// 设置初始大小
     this->resize(548,452);
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint|Qt::CustomizeWindowHint);
+#else
     /// 去掉标题栏
-    this->setWindowFlags( Qt::FramelessWindowHint );
-//    this->setWindowFlags( Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+    this->setWindowFlags(Qt::FramelessWindowHint );
+#endif
 
     const int const_title_height = 80;
     this->showTitleBackground( const_title_height );

@@ -1459,9 +1459,10 @@ int CUserManagerApp::SetDevAppId(mycp::bigint sAppId, const tstring& sAppKey,boo
 	if (m_pProcessThread.get() == NULL)
 	{
 		m_bKilled = false;
-		boost::thread_attributes attrs;
-		attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CUserManagerApp::process_thread_svr, this)));
+        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CUserManagerApp::process_thread_svr, this)));
+//		boost::thread_attributes attrs;
+//		attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CUserManagerApp::process_thread_svr, this)));
 	}
 
 	if (bReLoadAppOnlineKey || m_userStatus == US_Invalidate || m_userStatus == US_Logout || m_userStatus == US_LogonError)

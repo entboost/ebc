@@ -30,8 +30,6 @@ using namespace entboost;
 //#include <QtWebEngine/QtWebEngine>
 
 /// 使用这个某些事件参数，才能返回处理结果
-//#define USES_CORE_EVENT
-
 inline bool checkCreateDir(const QString & dirName)
 {
     QDir pDir1(dirName);
@@ -44,6 +42,7 @@ inline bool checkCreateDir(const QString & dirName)
 class EbDialogEmotionSelect;
 class EbDialogMainFrame;
 class EbDialogViewECard;
+class EbWebEngineDownloadRequested;
 
 class EbClientApp : public QObject
 {
@@ -255,10 +254,11 @@ private:
     QRect m_deskRect;
     QRect m_screenRect;
 
-    EbDialogMainFrame * m_mainWnd;
-    QObject* m_receiver;
-    EbDialogEmotionSelect* m_dialogEmotionSelect;
-    EbDialogViewECard * m_dialogViewECard;
+    EbDialogMainFrame *m_mainWnd;
+    QObject *m_receiver;
+    EbDialogEmotionSelect *m_dialogEmotionSelect;
+    EbDialogViewECard *m_dialogViewECard;
+    EbWebEngineDownloadRequested *m_webWngineDownloadRequested;
 };
 
 extern EbClientApp::pointer theApp;

@@ -57,7 +57,7 @@ namespace bo
 		static CDatabase::pointer create(const CDatabaseInfo::pointer& dbinfo);
 
 		void setpath(const tstring & path);
-		const std::string & getpath(void) const;
+		const tstring & getpath(void) const;
 		bool isopened(void) const;
 		bool open(void);
 		void close(void);

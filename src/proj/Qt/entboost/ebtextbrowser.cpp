@@ -129,7 +129,7 @@ void EbTextBrowser::insertPlainTextEb(const QString &text,const QColor & color)
     }
 }
 
-void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInfo *pCrMsgInfo, EB_STATE_CODE nState, QString *sOutFirstMsg1, QString *sOutFirstMsg2)
+void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo *pCrMsgInfo, EB_STATE_CODE nState, QString *sOutFirstMsg1, QString *sOutFirstMsg2)
 {
     const EB_ChatRoomRichMsg * pRichMsg = pCrMsgInfo->m_pRichMsg;
     const mycp::bigint msgId = pRichMsg->GetMsgId();
@@ -152,7 +152,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
 //    const eb::bigint sSender = pCrMsgInfo->m_sSendFrom;
     CEBString sFromName;
     CEBString sToName;
-    getFromToName( bReceive,pCrMsgInfo->m_sSendFrom,pCrMsgInfo->m_sSendTo,sFromName,sToName );
+    getFromToName( receive,pCrMsgInfo->m_sSendFrom,pCrMsgInfo->m_sSendTo,sFromName,sToName );
 //    if (bReceive) {
 //        if (m_callInfo->m_pCallInfo.m_sGroupCode==0) {
 //            if (m_callInfo->m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType==EB_ACCOUNT_TYPE_VISITOR) {
@@ -194,9 +194,9 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
         sprintf(sDBMsgTimeValue, "Datetime('%s','utc'),", pRichMsg->m_sMsgTime.c_str());
     }
     QString sWindowText;
-    const bool writeLeft = bReceive;
+    const bool writeLeft = receive;
     writeTitle( writeLeft,msgId,pCrMsgInfo->m_bPrivate,pCrMsgInfo->m_sSendFrom,sFromName,pCrMsgInfo->m_sSendTo,sToName,tMsgTime,0,&sWindowText );
-    addChatMsgBlock( msgId,bReceive );
+    addChatMsgBlock( msgId,receive );
 
     const int nReadFlag = 1;
     //const int nReadFlag = this->GetParent()->IsWindowVisible()?1:0;
@@ -297,7 +297,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
             const EB_RICH_SUB_TYPE nSubType = (EB_RICH_SUB_TYPE)pCrMsgInfo->m_pRichMsg->GetSubType();
             bool bIsFile = true;
             EB_MSG_RECORD_TYPE nRecordType = MRT_JPG;
-            if (bReceive || nState==EB_STATE_FORWARD_MSG) {
+            if (receive || nState==EB_STATE_FORWARD_MSG) {
                 static unsigned int static_index = 0;
                 static_index++;
                 if (nSubType == EB_RICH_SUB_TYPE_JPG) {
@@ -396,7 +396,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
                 /// 名片信息
                 /// *** 这里要解析并显示名片信息
                 QString sCardMessage;
-                if (writeCardDataMessage( bReceive,msgId, sObjectSaveData, &sCardMessage ) ) {
+                if (writeCardDataMessage( receive,msgId, sObjectSaveData, &sCardMessage ) ) {
                     if (sOutFirstMsg2!=0 && sOutFirstMsg2->length()<const_max_length) {
                         /// %s[个人名片]
                         *sOutFirstMsg2 += sCardMessage;
@@ -420,7 +420,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
             }
             else {
                 QString sFileName;
-                writeFileMessage(msgId, 0, sObjectFileName, 0, false, &sFileName);
+                writeFileMessage(receive, msgId, 0, sObjectFileName, 0, false, &sFileName);
                 if (sOutFirstMsg1!=0 && nOutMsgLength<const_max_length) {
                     /// 《file-name》文件
                     const QString sTemp = QString("《%1》%2").arg(sFileName).arg(theLocales.getLocalText("chat-msg-text.file","File"));
@@ -442,7 +442,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool bReceive, const CCrRichInf
 
 void EbTextBrowser::onReceivingFile(bool offLineUser, const CCrFileInfo *fileInfo)
 {
-    const eb::bigint sendFromUserId = fileInfo->m_sSendFrom;
+//    const eb::bigint sendFromUserId = fileInfo->m_sSendFrom;
     if (m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
         /// %s 上传群共享文件：%s
         const mycp::bigint msgId = fileInfo->m_nMsgId;
@@ -455,11 +455,11 @@ void EbTextBrowser::onReceivingFile(bool offLineUser, const CCrFileInfo *fileInf
         getFromToName( true,fileInfo->m_sSendFrom,0,fromUserName,toUserName );
         writeTitle( true,msgId,false,fileInfo->m_sSendFrom,fromUserName,0,"",tMsgTime,0 );
         this->addChatMsgBlock( msgId,true );
-        writeFileMessage(fileInfo->m_nMsgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize);
+        writeFileMessage(true, fileInfo->m_nMsgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize);
     }
 }
 
-void EbTextBrowser::addFileMsg(bool bReceive, const CCrFileInfo *fileInfo)
+void EbTextBrowser::addFileMsg(bool receive, const CCrFileInfo *fileInfo)
 {
 //    const EB_STATE_CODE nState = fileInfo->GetStateCode();
     if (fileInfo->m_sSendFrom==0 && fileInfo->m_sSendTo==0) {
@@ -473,17 +473,17 @@ void EbTextBrowser::addFileMsg(bool bReceive, const CCrFileInfo *fileInfo)
     }
     CEBString fromUserName;
     CEBString toUserName;
-    getFromToName( bReceive,fileInfo->m_sSendFrom,fileInfo->m_sSendTo,fromUserName,toUserName );
-    if (bReceive && m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
+    getFromToName( receive,fileInfo->m_sSendFrom,fileInfo->m_sSendTo,fromUserName,toUserName );
+    if (receive && m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
         /// 成功下载
         writeTitle( false,msgId,false,fileInfo->m_sSendTo,toUserName,fileInfo->m_sSendFrom,fromUserName,tMsgTime,EBC_READ_FLAG_RECEIPT );
         this->addChatMsgBlock( msgId,false );
     }
-    else if (bReceive && this->m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
-        writeTitle(bReceive, msgId, false, fileInfo->m_sSendFrom, fromUserName, fileInfo->m_sSendTo, toUserName, tMsgTime, EBC_READ_FLAG_RECEIPT);
-        this->addChatMsgBlock(msgId, bReceive);
+    else if (receive && this->m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
+        writeTitle(receive, msgId, false, fileInfo->m_sSendFrom, fromUserName, fileInfo->m_sSendTo, toUserName, tMsgTime, EBC_READ_FLAG_RECEIPT);
+        this->addChatMsgBlock(msgId, receive);
     }
-    else if ((!bReceive && fileInfo->m_sSendFrom!=theApp->logonUserId())) {
+    else if ((!receive && fileInfo->m_sSendFrom!=theApp->logonUserId())) {
         writeTitle( true,msgId,false,fileInfo->m_sSendFrom,fromUserName,fileInfo->m_sSendTo,toUserName,tMsgTime,0 );
         this->addChatMsgBlock( msgId,true );
     }
@@ -496,7 +496,7 @@ void EbTextBrowser::addFileMsg(bool bReceive, const CCrFileInfo *fileInfo)
     bool bUpdateMsgReceiptData = false;
     bool bUploadGroupFile = false;
     bool showFileNameOnly = true;
-    if (bReceive && m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
+    if (receive && m_callInfo->isGroupCall() && fileInfo->m_sResId>0) {
         /// 成功下载
         sWindowText = theLocales.getLocalText("chat-msg-text.down-file-ok","Download File Ok");
     }
@@ -507,14 +507,14 @@ void EbTextBrowser::addFileMsg(bool bReceive, const CCrFileInfo *fileInfo)
 //        theApp->m_ebum.EB_GetMemberNameByUserId(m_callInfo->groupId(),fileInfo->m_sSendFrom,memberName);
 //        sWindowText = memberName.c_str();
     }
-    else if (bReceive) {
+    else if (receive) {
         if (fileInfo->m_sResId>0)   /// 成功下载文件
             sWindowText = theLocales.getLocalText("chat-msg-text.down-file-ok","Download File Ok");
         else    /// 成功接收文件
             sWindowText = theLocales.getLocalText("chat-msg-text.receive-file-ok","Receive File Ok");
     }
     else if (fileInfo->m_sReceiveAccount==theApp->logonUserId()) {
-        if (fileInfo->m_bOffFile) {
+        if (fileInfo->m_bOffFile || m_callInfo->m_bOffLineUser) {
             /// 成功发送离线文件
             sWindowText = theLocales.getLocalText("chat-msg-text.send-off-file-ok","Send Off File Ok");
         }
@@ -558,7 +558,7 @@ void EbTextBrowser::addFileMsg(bool bReceive, const CCrFileInfo *fileInfo)
         this->writeVoiceMessage(fileInfo->m_sFileName);
     }
     else {
-        writeFileMessage(msgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize, showFileNameOnly);
+        writeFileMessage(receive, msgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize, showFileNameOnly);
     }
 
     if (bUpdateMsgReceiptData) {
@@ -1202,7 +1202,7 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
     //CString sMsgTime;
     //time_t nLocalMsgTime = 0;
     tstring sToWriteString;
-    bool bReceive = false;
+    bool receive = false;
     int nCookie = 0;
     mycp::bigint nLastWithdrawMsgId = 0;
     const mycp::bigint nRet = theApp->m_sqliteUser->select(sql, nCookie);
@@ -1230,7 +1230,7 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
             this->insertPlainTextEb( QString::fromStdString(sToWriteString.string()),QColor(64,64,64) );
             sToWriteString.clear();
         }
-        bReceive = sFromAccount!=theApp->logonUserId()?true:false;
+        receive = sFromAccount!=theApp->logonUserId()?true:false;
         //// 兼容旧版本
         //if (sFromName.empty())
         //	sFromName = sFromAccount;
@@ -1238,9 +1238,9 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         //	sToName = sToAccount;
         time_t nMsgTime = 0;
         libEbc::ChangeTime(sMsgTime.c_str(),nMsgTime);
-        const bool writeLeft = bReceive;
+        const bool writeLeft = receive;
         writeTitle( writeLeft,msgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag );
-        addChatMsgBlock( msgId,bReceive );
+        addChatMsgBlock( msgId,receive );
         if ((nReadFlag&EBC_READ_FLAG_WITHDRAW)==EBC_READ_FLAG_WITHDRAW) {
             if (nLastWithdrawMsgId!=msgId) {
                 nLastWithdrawMsgId = msgId;
@@ -1276,7 +1276,7 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
             break;
         case MRT_CARD_INFO:
             /// 名片信息
-            writeCardDataMessage( bReceive,msgId, sMsgText.c_str() );
+            writeCardDataMessage( receive,msgId, sMsgText.c_str() );
             break;
         case MRT_USER_DATA:
             /// 用户自定义数据
@@ -1294,13 +1294,13 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
             const QString sFileName = sMsgName.c_str();
             const mycp::bigint nResourceId = cgc_atoi64(sMsgText.substr(0,nFind).c_str());
             const mycp::bigint nFileSize = cgc_atoi64(sMsgText.substr(nFind+1).c_str());
-            writeFileMessage(msgId, nResourceId, sFileName, nFileSize);
+            writeFileMessage(receive, msgId, nResourceId, sFileName, nFileSize);
             break;
         }
         case MRT_FILE: {
             /// 文件
             const QString sFileName = sMsgText.c_str();
-            writeFileMessage(msgId, 0, sFileName, 0);
+            writeFileMessage(receive, msgId, 0, sFileName, 0);
             break;
         }
         default:
@@ -1538,7 +1538,7 @@ void EbTextBrowser::writeTitle(bool writeLeft,eb::bigint msgId, bool bPrivate, e
 
 }
 
-void EbTextBrowser::writeFileMessage(eb::bigint msgId, eb::bigint resourceId, const QString &filePath,
+void EbTextBrowser::writeFileMessage(bool receive, eb::bigint msgId, eb::bigint resourceId, const QString &filePath,
                                      eb::bigint fileSizeOrg, bool showNameOnly, QString *pOutMsgText)
 {
     moveTextBrowserToEnd();
@@ -1591,7 +1591,7 @@ void EbTextBrowser::writeFileMessage(eb::bigint msgId, eb::bigint resourceId, co
         sprintf(fileText,"%s%s (%lldByte)",textTemp,fileName.c_str(),fileSize);
     else if (resourceId>0)
         sprintf(fileText,"%s%s",textTemp,fileName.c_str());
-    if (resourceId>0) {
+    if (!receive && m_callInfo->isGroupCall() && resourceId>0) {
         this->insertPlainText(fileText);
     }
     else {
@@ -1599,7 +1599,7 @@ void EbTextBrowser::writeFileMessage(eb::bigint msgId, eb::bigint resourceId, co
         this->insertHtml(text);
     }
 
-    if (resourceId>0) {
+    if (!receive && m_callInfo->isGroupCall() && resourceId>0) {
         /// 下载
         const QString text = QString(" <a href=\"%1:///0,%2,%3\">%4</a> ")
                 .arg(theDownloadResource).arg(resourceId).arg(fileName.c_str())

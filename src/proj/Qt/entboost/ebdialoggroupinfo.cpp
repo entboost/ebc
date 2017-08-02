@@ -12,7 +12,11 @@ EbDialogGroupInfo::EbDialogGroupInfo(QWidget *parent) :
     connect( m_labelManagerUserName,SIGNAL(clicked()),this,SLOT(onClickedLabelManagerUserName()) );
     this->resize(612,340);
     /// 去掉标题栏
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint|Qt::CustomizeWindowHint);
+#else
     this->setWindowFlags( Qt::FramelessWindowHint );
+#endif
     this->showTitleBackground( theLocales.titleBackgroundHeight() );
 }
 

@@ -10,8 +10,12 @@ EbDialogContactInfo::EbDialogContactInfo(QWidget *parent) :
 {
     ui->setupUi(this);
     this->resize(612,410);
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint|Qt::CustomizeWindowHint);
+#else
     /// 去掉标题栏
     this->setWindowFlags( Qt::FramelessWindowHint );
+#endif
     this->showTitleBackground( theLocales.titleBackgroundHeight() );
 
     ui->pushButtonAddContact->setObjectName("RequestAddContact");

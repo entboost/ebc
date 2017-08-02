@@ -4,7 +4,6 @@
 #include <QWebEngineContextMenuData>
 #include <QWebEngineHistory>
 #include <QWebEngineProfile>
-#include <QFileDialog>
 #include <ebclientapp.h>
 #include <ebwebenginepage.h>
 
@@ -19,7 +18,6 @@ EbWebEngineView::EbWebEngineView(QWidget* parent)
     EbWebEnginePage * pPage = new EbWebEnginePage(this);
     this->setPage( pPage );
     connect( (QWebEnginePage*)pPage,SIGNAL(linkHovered(QString)),this,SLOT(onLinkHovered(QString)) );
-    connect( pPage->profile(),SIGNAL(downloadRequested(QWebEngineDownloadItem*)),this,SLOT(onDownloadRequested(QWebEngineDownloadItem*)) );
 
     /// 没用
 //    QAction * action = this->pageAction( QWebEnginePage::Back );
@@ -34,7 +32,6 @@ EbWebEngineView::EbWebEngineView(QWidget* parent)
 EbWebEngineView::~EbWebEngineView()
 {
     m_actions.clear();
-    m_downloads.clear();
 }
 
 EbWebEnginePage *EbWebEngineView::page() const
@@ -121,7 +118,7 @@ void EbWebEngineView::contextMenuEvent(QContextMenuEvent * e)
     setActionVisible( QWebEnginePage::ViewSource,true );
     setActionVisible( QWebEnginePage::InspectElement,true );
 
-    m_menu->exec( e->globalPos() );
+    m_menu->popup(e->globalPos());
     //    QWebEngineView::contextMenuEvent(e);
 }
 
@@ -165,53 +162,6 @@ void EbWebEngineView::onTriggeredActionPageTriggerAction()
     const QAction * action = (QAction*)sender();
     const QWebEnginePage::WebAction webAction = (QWebEnginePage::WebAction)action->data().toInt();
     this->page()->triggerAction( webAction );
-}
-
-void EbWebEngineView::onDownloadRequested(QWebEngineDownloadItem * download)
-{
-    /// memeType	"application/x-mimearchive"	QString
-//    const QString memeType = download->mimeType();
-//    const QWebEngineDownloadItem::DownloadType downloadType = download->type();
-//    if (m_downloads.exist(download->id())) {
-//        download->accept();
-//        return;
-//    }
-    const QString path = download->path();
-    const QString fileExt = libEbc::fileExt(path);
-//    const QString caption = theLocales.getLocalText("change-head-dialog.saveas-file-dialog.caption","Save As");
-//    const QString filterImageFile = theLocales.getLocalText("change-head-dialog.open-file-dialog.filter","Image Files");
-    /// Optios=0 会提示文件存在 ConfirmOverwrite
-    const QString newPath = QFileDialog::getSaveFileName(this, QString(), path, QString(), 0, 0);
-    if (newPath.isEmpty()) {
-        download->cancel();
-    }
-    else {
-        if (!fileExt.isEmpty() && newPath.lastIndexOf(fileExt)<0) {
-            /// 加上扩展名
-            download->setPath(newPath+fileExt);
-        }
-        else {
-            download->setPath(newPath);
-        }
-        EbWebEngineDownloadItem::pointer pDownloadItem;
-        if ( !m_downloads.find(download->id(),pDownloadItem) ) {
-            pDownloadItem = EbWebEngineDownloadItem::create(download);
-            m_downloads.insert( download->id(),pDownloadItem );
-        }
-        /// 下载状态
-        connect( download,SIGNAL(finished()),pDownloadItem.get(),SLOT(onDownloadFinished()) );
-        connect( download,SIGNAL(stateChanged(QWebEngineDownloadItem::DownloadState)),pDownloadItem.get(),SLOT(onDownLoadStateChanged(QWebEngineDownloadItem::DownloadState)) );
-        connect( download,SIGNAL(downloadProgress(qint64,qint64)),pDownloadItem.get(),SLOT(onDownloadProgress(qint64,qint64)) );
-        /// 下载完成通知
-        connect( pDownloadItem.get(),SIGNAL(downloadFinished(const EbWebEngineDownloadItem*)),this,SLOT(onDownloadFinished(const EbWebEngineDownloadItem*)) );
-//        QFile::remove(newPath);
-        download->accept();
-    }
-}
-
-void EbWebEngineView::onDownloadFinished(const EbWebEngineDownloadItem * download)
-{
-    m_downloads.remove(download->downloadId());
 }
 
 void EbWebEngineView::onLinkHovered(const QString &url)

@@ -231,7 +231,7 @@ void EbWidgetChatInput::onClickedPushButtonSendSwitch()
         m_actionSwitchSend1->setCheckable(true);
         connect( m_actionSwitchSend1, SIGNAL(triggered()), this, SLOT(onTriggeredSendSwitch1()) );
     }
-    m_menuSendSwitch->exec( cursor().pos() );
+    m_menuSendSwitch->popup(cursor().pos());
 }
 
 void EbWidgetChatInput::onTriggeredSendSwitch0()

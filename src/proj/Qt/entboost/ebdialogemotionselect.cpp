@@ -29,7 +29,11 @@ EbDialogEmotionSelect::EbDialogEmotionSelect(QWidget *parent) :
     const QSize const_dialog_size(const_dialog_width,const_dialog_height);
     this->resize(const_dialog_size);
     /// 去掉标题栏 & 和设置标题高度
-    this->setWindowFlags( Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+#ifdef __MACH__
+    this->setWindowFlags(Qt::Dialog|Qt::FramelessWindowHint );
+#else
+    this->setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint );
+#endif
     this->showTitleBackground( titleHeight );
 
     updateLocaleInfo();

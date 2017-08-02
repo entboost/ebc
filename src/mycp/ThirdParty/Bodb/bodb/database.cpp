@@ -25,6 +25,7 @@
 #include "dataheadinfo.h"
 #include "data2headinfo.h"
 #include "resultset.h"
+#include "../stl/cgcSmartString.h"
 
 #ifdef WIN32
 #include "Windows.h"
@@ -46,7 +47,7 @@ namespace bo
 	{
 		m_path = path;
 	}
-	const std::string & CDatabase::getpath(void) const
+	const tstring & CDatabase::getpath(void) const
 	{
 		return m_path;
 	}
@@ -111,7 +112,7 @@ namespace bo
 		dbfilename.append(_T(".bdf"));
 
 		namespace fs = boost::filesystem;
-		boosttpath pathFilename(dbfilename);
+		boosttpath pathFilename(dbfilename.string());
 		//boosttpath pathFilename(dbfilename, fs::native);
 		if (!boost::filesystem::exists(pathFilename))
 		{

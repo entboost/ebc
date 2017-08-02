@@ -36,9 +36,6 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
   , m_widgetSearchResult(0)
 //  , m_canSearch(false)
   , m_canUpdateSearchFirst(false)
-#ifdef USES_EVENT_DATE_TIMER
-  , m_checkEventData(0)
-#endif
   , m_timerOneSecond(0)
   , m_trayIcon(0)
   , m_requestLogout(false)
@@ -153,11 +150,16 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
 //                      "QLineEdit:enabled{color:#19649F}"
 //                      "QLineEdit:disabled{color:#666666}");
         /// 显示“个人中心/文件管理/个人云盘/集成应用”四个按钮
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyCenter,QChar(0xf007),11);
-//        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyCenter,QChar(0xf2c0),11);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonFileManager,QChar(0xf019),11);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyShare,QChar(0xf0c2),11);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonApps,QChar(0xf009),11);
+#ifdef Q_OS_WIN32
+        int const_text_icon_size = 11;
+#else
+        int const_text_icon_size = 12;
+#endif
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyCenter,QChar(0xf007),const_text_icon_size);
+//        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyCenter,QChar(0xf2c0),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonFileManager,QChar(0xf019),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyShare,QChar(0xf0c2),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonApps,QChar(0xf009),const_text_icon_size);
         ui->pushButtonMyCenter->setObjectName("MainButton");
         ui->pushButtonFileManager->setObjectName("MainButton");
         ui->pushButtonMyShare->setObjectName("MainButton");
@@ -195,11 +197,16 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
         ui->labelSearchIcon->setObjectName("SearchIcon");
 
         /// 显示“我的部门/联系人/最近会话/公司组织结构/集成应用”
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyGroup,QChar(0xf0c0),14);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyContact,QChar(0xf007),14);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMySession,QChar(0xf075),14);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyEnterprise,QChar(0xf19c),14);
-        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyApp,QChar(0xf00a),14);
+#ifdef Q_OS_WIN32
+        const_text_icon_size = 14;
+#else
+        const_text_icon_size = 15;
+#endif
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyGroup,QChar(0xf0c0),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyContact,QChar(0xf007),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMySession,QChar(0xf075),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyEnterprise,QChar(0xf19c),const_text_icon_size);
+        EbIconHelper::Instance()->SetIcon(ui->pushButtonMyApp,QChar(0xf00a),const_text_icon_size);
         ui->pushButtonMyGroup->setCheckable(true);
         ui->pushButtonMyContact->setCheckable(true);
         ui->pushButtonMySession->setCheckable(true);
@@ -266,9 +273,6 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
     connect( ui->pushButtonMySession,SIGNAL(clicked()),this,SLOT(onClickedPushButtonMySession()) );
     connect( ui->pushButtonMyEnterprise,SIGNAL(clicked()),this,SLOT(onClickedPushButtonMyEnterprise()) );
     connect( ui->pushButtonMyApp,SIGNAL(clicked()),this,SLOT(onClickedPushButtonMyApp()) );
-#ifdef USES_EVENT_DATE_TIMER
-    m_checkEventData = this->startTimer(10);
-#endif
     m_timerOneSecond = this->startTimer(1000);
 }
 
@@ -287,13 +291,6 @@ void EbDialogMainFrame::refreshSkin(void)
 
 EbDialogMainFrame::~EbDialogMainFrame()
 {
-#ifdef USES_EVENT_DATE_TIMER
-    m_eventList.clear(true,false);
-    if (m_checkEventData!=0) {
-        killTimer(m_checkEventData);
-        m_checkEventData = 0;
-    }
-#endif
     if (m_timerOneSecond!=0) {
         killTimer(m_timerOneSecond);
         m_timerOneSecond = 0;
@@ -407,19 +404,7 @@ void EbDialogMainFrame::resizeEvent(QResizeEvent *e)
 void EbDialogMainFrame::customEvent(QEvent *e)
 {
     if (e->type()>=QEvent::User) {
-#ifdef USES_EVENT_DATE_TIMER
-        m_eventList.add(e);
-        bool result = false;
-        while (!m_eventMap.find(e,result)) {
-            QCoreApplication::processEvents();
-            QThread::msleep (3);
-        }
-        return;
-#else   /// USES_EVENT_DATE_TIMER
-
         checkEventData(e);
-
-#endif /// USES_EVENT_DATE_TIMER
     }
 }
 
@@ -1227,189 +1212,176 @@ void EbDialogMainFrame::onOnlineAnother(QEvent *e)
     onTriggeredActionLogout();
 }
 
-#ifdef USES_EVENT_DATE_TIMER
-void EbDialogMainFrame::checkEventData()
-#else
 bool EbDialogMainFrame::checkEventData(QEvent * e)
-#endif
 {
-#ifdef USES_EVENT_DATE_TIMER
-    QEvent* e = NULL;
-    while ( (e=m_eventList.front())!=0) {
-#endif
-        bool result = true;
-        const QEvent::Type eventType = e->type();
-        switch ((EB_COMMAND_ID)eventType) {
-        case EB_WM_BROADCAST_MSG:
-            onBroadcastMsg(e);
-            break;
-        case EB_WM_AREA_INFO:
-            onAreaInfo(e);
-            break;
-        case EB_WM_USER_STATE_CHANGE:
-            onUserStateChange(e);
-            break;
-        case EB_WM_USER_HEAD_CHANGE:
-            onMemberHeadChange(e);
-            break;
-        case EB_WM_CONTACT_HEAD_CHANGE:
-            onContactHeadChange(e);
-            break;
+    bool result = true;
+    const QEvent::Type eventType = e->type();
+    switch ((EB_COMMAND_ID)eventType) {
+    case EB_WM_BROADCAST_MSG:
+        onBroadcastMsg(e);
+        break;
+    case EB_WM_AREA_INFO:
+        onAreaInfo(e);
+        break;
+    case EB_WM_USER_STATE_CHANGE:
+        onUserStateChange(e);
+        break;
+    case EB_WM_USER_HEAD_CHANGE:
+        onMemberHeadChange(e);
+        break;
+    case EB_WM_CONTACT_HEAD_CHANGE:
+        onContactHeadChange(e);
+        break;
         /// 聊天消息
-        case CR_WM_MSG_RECEIPT:
-            onMsgReceipt(e);
-            break;
-        case CR_WM_SEND_RICH:
-            onSendRich(e);
-            break;
-        case CR_WM_RECEIVE_RICH:
-            result = onReceiveRich(e);
-            break;
-        case CR_WM_SENDING_FILE:
-            onSendingFile(e);
-            break;
-        case CR_WM_SENT_FILE:
-            onSentFile(e);
-            break;
-        case CR_WM_CANCEL_FILE:
-            onCancelFile(e);
-            break;
-        case CR_WM_RECEIVING_FILE:
-            result = onReceivingFile(e);
-            break;
-        case CR_WM_RECEIVED_FILE:
-            onReceivedFile(e);
-            break;
-        case CR_WM_FILE_PERCENT:
-            onFilePercent(e);
-            break;
-        case CR_WM_SAVE2CLOUD_DRIVE:
-            onSave2Cloud(e);
-            break;
+    case CR_WM_MSG_RECEIPT:
+        onMsgReceipt(e);
+        break;
+    case CR_WM_SEND_RICH:
+        onSendRich(e);
+        break;
+    case CR_WM_RECEIVE_RICH:
+        result = onReceiveRich(e);
+        break;
+    case CR_WM_SENDING_FILE:
+        onSendingFile(e);
+        break;
+    case CR_WM_SENT_FILE:
+        onSentFile(e);
+        break;
+    case CR_WM_CANCEL_FILE:
+        onCancelFile(e);
+        break;
+    case CR_WM_RECEIVING_FILE:
+        result = onReceivingFile(e);
+        break;
+    case CR_WM_RECEIVED_FILE:
+        onReceivedFile(e);
+        break;
+    case CR_WM_FILE_PERCENT:
+        onFilePercent(e);
+        break;
+    case CR_WM_SAVE2CLOUD_DRIVE:
+        onSave2Cloud(e);
+        break;
         /// 聊天会话
-        case EB_WM_CALL_CONNECTED:
-            onCallConnected(e);
-            break;
-        case EB_WM_CALL_ERROR:
-            onCallError(e);
-            break;
-        case EB_WM_CALL_HANGUP:
-            onCallHangup(e);
-            break;
-        case EB_WM_CALL_ALERTING:
-            onCallAlerting(e);
-            break;
-        case EB_WM_CALL_INCOMING:
-            onCallIncoming(e);
-            break;
-            ///  联系人
-        case EB_WM_UG_INFO:
-            onUGInfo(e);
-            break;
-        case EB_WM_UG_DELETE:
-            onUGDelete(e);
-            break;
-        case EB_WM_CONTACT_DELETE:
-            onContactDelete(e);
-            break;
-        case EB_WM_CONTACT_INFO:
-            onContactInfo(e);
-            break;
-        case EB_WM_CONTACT_STATE_CHANGE:
-            onContactStateChanged(e);
-            break;
-        case EB_WM_ACCEPT_ADDCONTACT:
-            onAcceptAddContact(e);
-            break;
-        case EB_WM_REJECT_ADDCONTACT:
-            onRejectAddContact(e);
-            break;
-        case EB_WM_REQUEST_ADDCONTACT:
-            onRequestAddContact(e);
-            break;
-            //// 组织结构
-        case EB_WM_EDITINFO_RESPONSE:
-            onEditInfoResponse(e);
-            break;
-        case EB_WM_MEMBER_EDIT_RESPONSE:
-            onMemberEditResponse(e);
-            break;
-        case EB_WM_MEMBER_DELETE:
-            onMemberDelete(e);
-            break;
-        case EB_WM_MEMBER_INFO:
-            onMemberInfo(e);
-            break;
-        case EB_WM_REJECT_ADD2GROUP:
-            onRejectAdd2Group(e);
-            break;
-        case EB_WM_INVITE_ADD2GROUP:
-            onInviteAdd2Group(e);
-            break;
-        case EB_WM_REQUEST_ADD2GROUP:
-            onRequestAdd2Group(e);
-            break;
-        case EB_WM_EXIT_GROUP:
-            onExitGroup(e);
-            break;
-        case EB_WM_REMOVE_GROUP:
-            onRemoveGroup(e);
-            break;
-        case EB_WM_GROUP_EDIT_RESPONSE:
-            onGroupEditResponse(e);
-            break;
-        case EB_WM_GROUP_DELETE:
-            onGroupDelete(e);
-            break;
-        case EB_WM_GROUP_INFO:
-            onGroupInfo(e);
-            break;
-        case EB_WM_ENTERPRISE_INFO:
-            onEnterpriseInfo(e);
-            break;
-            //// 登录
-        case EB_WM_LOGON_SUCCESS:
-            onLogonSuccess(e);
-            break;
-        case EB_WM_LOGON_TIMEOUT:
-            onLogonTimeout(e);
-            break;
-        case EB_WM_LOGON_ERROR:
-            onLogonError(e);
-            break;
-        case EB_WM_ONLINE_ANOTHER:
-            onOnlineAnother(e);
-            break;
-        default:
-            break;
-        }
-
-        /// 返回结果
-        if (eventType>=CR_WM_ENTER_ROOM && eventType<=CR_WM_EVENT_RESULT) {
-            CCrInfo * aCrInfo = (CCrInfo*)e;
-            QObject * receiver = aCrInfo->receiver();
-            if (receiver!=0) {
-                CCrInfo * event = new CCrInfo();
-                event->SetQEventType((QEvent::Type)CR_WM_EVENT_RESULT);
-                event->setReceiveResult(aCrInfo->receiveKey(),result?0:-1);
-                QCoreApplication::postEvent(receiver,event);
-            }
-        }
-        else if (eventType>=EB_WM_APPID_SUCCESS && eventType<=EB_WM_EVENT_RESULT) {
-            EB_Event * aEvent = (EB_Event*)e;
-            QObject * receiver = aEvent->receiver();
-            if (receiver!=0) {
-                EB_Event * event = new EB_Event((QEvent::Type)EB_WM_EVENT_RESULT);
-                event->setReceiveResult(aEvent->receiveKey(),result?0:-1);
-                QCoreApplication::postEvent(receiver,event);
-            }
-        }
-#ifdef USES_EVENT_DATE_TIMER
-        m_eventMap.insert(e,result);
+    case EB_WM_CALL_CONNECTED:
+        onCallConnected(e);
+        break;
+    case EB_WM_CALL_ERROR:
+        onCallError(e);
+        break;
+    case EB_WM_CALL_HANGUP:
+        onCallHangup(e);
+        break;
+    case EB_WM_CALL_ALERTING:
+        onCallAlerting(e);
+        break;
+    case EB_WM_CALL_INCOMING:
+        onCallIncoming(e);
+        break;
+        ///  联系人
+    case EB_WM_UG_INFO:
+        onUGInfo(e);
+        break;
+    case EB_WM_UG_DELETE:
+        onUGDelete(e);
+        break;
+    case EB_WM_CONTACT_DELETE:
+        onContactDelete(e);
+        break;
+    case EB_WM_CONTACT_INFO:
+        onContactInfo(e);
+        break;
+    case EB_WM_CONTACT_STATE_CHANGE:
+        onContactStateChanged(e);
+        break;
+    case EB_WM_ACCEPT_ADDCONTACT:
+        onAcceptAddContact(e);
+        break;
+    case EB_WM_REJECT_ADDCONTACT:
+        onRejectAddContact(e);
+        break;
+    case EB_WM_REQUEST_ADDCONTACT:
+        onRequestAddContact(e);
+        break;
+        //// 组织结构
+    case EB_WM_EDITINFO_RESPONSE:
+        onEditInfoResponse(e);
+        break;
+    case EB_WM_MEMBER_EDIT_RESPONSE:
+        onMemberEditResponse(e);
+        break;
+    case EB_WM_MEMBER_DELETE:
+        onMemberDelete(e);
+        break;
+    case EB_WM_MEMBER_INFO:
+        onMemberInfo(e);
+        break;
+    case EB_WM_REJECT_ADD2GROUP:
+        onRejectAdd2Group(e);
+        break;
+    case EB_WM_INVITE_ADD2GROUP:
+        onInviteAdd2Group(e);
+        break;
+    case EB_WM_REQUEST_ADD2GROUP:
+        onRequestAdd2Group(e);
+        break;
+    case EB_WM_EXIT_GROUP:
+        onExitGroup(e);
+        break;
+    case EB_WM_REMOVE_GROUP:
+        onRemoveGroup(e);
+        break;
+    case EB_WM_GROUP_EDIT_RESPONSE:
+        onGroupEditResponse(e);
+        break;
+    case EB_WM_GROUP_DELETE:
+        onGroupDelete(e);
+        break;
+    case EB_WM_GROUP_INFO:
+        onGroupInfo(e);
+        break;
+    case EB_WM_ENTERPRISE_INFO:
+        onEnterpriseInfo(e);
+        break;
+        //// 登录
+    case EB_WM_LOGON_SUCCESS:
+        onLogonSuccess(e);
+        break;
+    case EB_WM_LOGON_TIMEOUT:
+        onLogonTimeout(e);
+        break;
+    case EB_WM_LOGON_ERROR:
+        onLogonError(e);
+        break;
+    case EB_WM_ONLINE_ANOTHER:
+        onOnlineAnother(e);
+        break;
+    default:
+        break;
     }
-#else
-        return result;
-#endif
+
+    /// 返回结果
+    if (eventType>=CR_WM_ENTER_ROOM && eventType<=CR_WM_EVENT_RESULT) {
+        CCrInfo * aCrInfo = (CCrInfo*)e;
+        QObject * receiver = aCrInfo->receiver();
+        if (receiver!=0) {
+            CCrInfo * event = new CCrInfo();
+            event->SetQEventType((QEvent::Type)CR_WM_EVENT_RESULT);
+            event->setReceiveResult(aCrInfo->receiveKey(),result?0:-1);
+            QCoreApplication::postEvent(receiver,event);
+        }
+    }
+    else if (eventType>=EB_WM_APPID_SUCCESS && eventType<=EB_WM_EVENT_RESULT) {
+        EB_Event * aEvent = (EB_Event*)e;
+        QObject * receiver = aEvent->receiver();
+        if (receiver!=0) {
+            EB_Event * event = new EB_Event((QEvent::Type)EB_WM_EVENT_RESULT);
+            event->setReceiveResult(aEvent->receiveKey(),result?0:-1);
+            QCoreApplication::postEvent(receiver,event);
+        }
+    }
+    return result;
 }
 
 
@@ -1596,8 +1568,7 @@ void EbDialogMainFrame::contextMenuEvent(QContextMenuEvent * e)
 {
     createMenuData();
     m_actionMyCollection->setEnabled( theApp->myCollectionSugId()>0 );
-
-    m_menuContext->exec(e->globalPos());
+    m_menuContext->popup(e->globalPos());
 //    EbDialogBase::contextMenuEvent(e);
 }
 
@@ -1638,11 +1609,6 @@ bool EbDialogMainFrame::eventFilter(QObject *obj, QEvent *e)
 
 void EbDialogMainFrame::timerEvent(QTimerEvent *event)
 {
-#ifdef USES_EVENT_DATE_TIMER
-    if (m_checkEventData!=0 && event->timerId()==m_checkEventData) {
-        checkEventData();
-    }
-#endif
     if (m_timerOneSecond!=0 && event->timerId()==m_timerOneSecond) {
         checkOneSecond();
     }
@@ -1677,7 +1643,7 @@ void EbDialogMainFrame::onClickedPushButtonSetting(void)
     }
 
     const QPoint pos(0,ui->pushButtonSetting->geometry().height());
-    m_menuSetting->exec(ui->pushButtonSetting->mapToGlobal(pos));
+    m_menuSetting->popup(ui->pushButtonSetting->mapToGlobal(pos));
 }
 
 void EbDialogMainFrame::onTriggeredActionSelectColor(void)
@@ -1842,7 +1808,7 @@ void EbDialogMainFrame::onClickedPushButtonApps()
     }
     else {
         QList<QAction*> actions = m_menuApps->actions();
-        for ( int i=0;i<actions.size(); i++ ) {
+        for (int i=0; i<actions.size(); i++) {
             m_menuApps->removeAction( actions.at(i) );
         }
     }
@@ -1867,7 +1833,7 @@ void EbDialogMainFrame::onClickedPushButtonApps()
         action->setEnabled(false);
     }
     const QPoint pos(0,ui->pushButtonApps->geometry().height());
-    m_menuApps->exec(ui->pushButtonApps->mapToGlobal(pos));
+    m_menuApps->popup(ui->pushButtonApps->mapToGlobal(pos));
 }
 
 void EbDialogMainFrame::onTriggeredActionApps()
@@ -3149,7 +3115,7 @@ EbDialogChatBase::pointer EbDialogMainFrame::getDialogChatBase(const EbcCallInfo
             pDlgDialog = m_pDlgFrameList->getDialogChatBase(pEbCallInfo->m_pCallInfo.m_sOldCallId,false,bAutoCall);
         }
         if (pDlgDialog.get()!=0) {
-            // 找到old call id
+            /// 找到old call id
             pDlgDialog->setCallInfo(pEbCallInfo);
         }
     }
