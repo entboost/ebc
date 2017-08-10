@@ -52,15 +52,15 @@ EbDialogChatBase::EbDialogChatBase(const EbcCallInfo::pointer& pCallInfo,QWidget
     y += 22;
     ui->labelDescription->setGeometry( x,y,width()-x-1,22);
     /// 显示 “邀请好友/发送文件/...” 按钮
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonAddUser,QChar(0xf234),14);
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonSendFile,QChar(0xf07c),14);
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonVideo,QChar(0xf03d),14);
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonGroupShare,QChar(0xf0c2),14);
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonChatApps,QChar(0xf009),14);
-    EbIconHelper::Instance()->SetIcon(ui->pushButtonExitChat,QChar(0xf08b),14);   // f05c
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonAddUser, QChar(0xf234), 14);
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonSendFile, QChar(0xf07c), 14);
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonVideoChat, QChar(0xf03d), 14);
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonGroupShare, QChar(0xf0c2), 14);
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonChatApps, QChar(0xf009), 14);
+    EbIconHelper::Instance()->SetIcon(ui->pushButtonExitChat, QChar(0xf08b), 14);   // f05c
     ui->pushButtonAddUser->setObjectName("DialogChatButton");
     ui->pushButtonSendFile->setObjectName("DialogChatButton");
-    ui->pushButtonVideo->setObjectName("DialogChatButton");
+    ui->pushButtonVideoChat->setObjectName("DialogChatButton");
     ui->pushButtonGroupShare->setObjectName("DialogChatButton");
     ui->pushButtonChatApps->setObjectName("DialogChatButton");
     ui->pushButtonExitChat->setObjectName("DialogChatButton");
@@ -69,8 +69,7 @@ EbDialogChatBase::EbDialogChatBase(const EbcCallInfo::pointer& pCallInfo,QWidget
     const QSize const_chat_base_button_size(36,26);
     bool showAddUserButton = this->isGroupChat()?false:true;
     if (this->isGroupChat()) {
-        switch (m_nGroupType)
-        {
+        switch (m_nGroupType) {
         case EB_GROUP_TYPE_GROUP:
         case EB_GROUP_TYPE_TEMP:
             showAddUserButton = true;
@@ -89,12 +88,19 @@ EbDialogChatBase::EbDialogChatBase(const EbcCallInfo::pointer& pCallInfo,QWidget
     }
     ui->pushButtonSendFile->setGeometry( x,y,const_chat_base_button_size.width(),const_chat_base_button_size.height() );
     connect( ui->pushButtonSendFile,SIGNAL(clicked()),this,SLOT(onClickedButtonSendFile()) );
-    ui->pushButtonVideo->hide();
+#ifdef _EB_USES_VIDEO_ROOM
+    x += const_chat_base_button_size.width();
+    ui->pushButtonVideoChat->setGeometry( x,y,const_chat_base_button_size.width(),const_chat_base_button_size.height() );
+    connect( ui->pushButtonVideoChat,SIGNAL(clicked()),this,SLOT(onClickedButtonVideoChat()) );
+#else
+    ui->pushButtonVideoChat->hide();
+#endif
+
+#ifdef _EB_USES_REMOTE_DESKTOP
+    ///
+#else
     ui->pushButtonGroupShare->hide();
-//    x += const_chat_base_button_size.width();
-//    ui->pushButtonVideo->setGeometry( x,y,const_chat_base_button_size.width(),const_chat_base_button_size.height() );
-//    x += const_chat_base_button_size.width();
-//    ui->pushButtonGroupShare->setGeometry( x,y,const_chat_base_button_size.width(),const_chat_base_button_size.height() );
+#endif
     x += const_chat_base_button_size.width();
     ui->pushButtonChatApps->setGeometry( x,y,const_chat_base_button_size.width(),const_chat_base_button_size.height() );
     connect( ui->pushButtonChatApps,SIGNAL(clicked()),this,SLOT(onClickedButtonChatApps()) );
@@ -143,6 +149,9 @@ EbDialogChatBase::EbDialogChatBase(const EbcCallInfo::pointer& pCallInfo,QWidget
 
 EbDialogChatBase::~EbDialogChatBase()
 {
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onExitChat(false);
+    }
 //    if (m_dialogSelectUser!=0) {
 //        delete m_dialogSelectUser;
 //        m_dialogSelectUser = 0;
@@ -165,10 +174,10 @@ void EbDialogChatBase::updateLocaleInfo()
     ui->pushButtonAddUser->setToolTip( theLocales.getLocalText("chat-base-dialog.button-add-user.tooltip","add user") );
     ui->pushButtonSendFile->setToolTip( theLocales.getLocalText("chat-base-dialog.button-send-file.tooltip","send user") );
     if ( m_callInfo->isGroupCall() ) {
-        ui->pushButtonVideo->setToolTip( theLocales.getLocalText("chat-base-dialog.button-group-video.tooltip","group video") );
+        ui->pushButtonVideoChat->setToolTip( theLocales.getLocalText("chat-base-dialog.button-group-video.tooltip","group video") );
     }
     else {
-        ui->pushButtonVideo->setToolTip( theLocales.getLocalText("chat-base-dialog.button-video-chat.tooltip","video chat") );
+        ui->pushButtonVideoChat->setToolTip( theLocales.getLocalText("chat-base-dialog.button-video-chat.tooltip","video chat") );
     }
     ui->pushButtonGroupShare->setToolTip( theLocales.getLocalText("chat-base-dialog.button-group-share.tooltip","group share") );
     ui->pushButtonChatApps->setToolTip( theLocales.getLocalText("chat-base-dialog.button-chat-apps.tooltip","chat apps") );
@@ -673,13 +682,171 @@ void EbDialogChatBase::onSave2Cloud(const CCrFileInfo *fileInfo)
     else {
         /// 《%s》存入个人云盘失败（%d）！
         sWindowText = QString("%1: %2").arg(sFileName.c_str()).arg(theLocales.getLocalText("chat-msg-text.save2-cloud-error","Save To Cloud Error"));
-        sWindowText.replace( "[STATE_CODE]",QString::number((int)nState) );
+        sWindowText.replace( "[STATE_CODE]", QString::number((int)nState) );
     }
-    m_textBrowserMessage->addLineString(fileInfo->m_nMsgId,sWindowText);
+    m_textBrowserMessage->addLineString(fileInfo->m_nMsgId, sWindowText);
     if (m_widgetChatRight!=0) {
         if (nState==0)
             m_widgetChatRight->deleteTranFile(fileInfo->m_nMsgId);
     }
+}
+
+void EbDialogChatBase::onVRequestResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
+{
+    if (m_callInfo->isGroupCall()) {
+        /// 打开本地视频加入视频会议...
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.group-video-reqeust-ok","Join videos..."));
+    }
+    else {
+        /// 邀请对方视频通话...
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.video-reqeust-ok","Open video..."));
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVRequestResponse(pVideoInfo, nStateValue);
+    }
+}
+
+void EbDialogChatBase::onVAckResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
+{
+    if (!m_callInfo->isGroupCall()) {
+        /// 接受对方视频通话，视频通话中...
+        if (nStateValue==EB_STATE_OK)
+            m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.video-ack-ok","Video chat..."));
+        else {
+//            return;
+        }
+    }
+    else if (nStateValue==EB_STATE_OK) {
+        bool pVideoProcessing = false;
+        bool pFileProcessing = false;
+        bool pDesktopProcessing = false;
+        if (m_widgetChatRight!=0) {
+            m_widgetChatRight->getProcessing(pVideoProcessing, pFileProcessing, pDesktopProcessing);
+        }
+        if (!pVideoProcessing) {
+            /// 成功申请视频会议，可以“打开视频”加入视频会议，然后“退出会议”！
+            m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.group-video-ack-ok","Group video chat..."));
+        }
+    }
+    else {
+        /// 申请视频会议失败！
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.group-video-ack-error","Group video error"));
+        return;
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVAckResponse(pVideoInfo, nStateValue);
+    }
+}
+
+void EbDialogChatBase::onVideoRequest(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    if (m_callInfo->isGroupCall()) {
+        /// [MEMBER_NAME] 打开本地视频加入视频会议...
+        tstring sMemberName;
+        theApp->m_ebum.EB_GetMemberNameByUserId(m_callInfo->groupId(), pUserVideoInfo->m_sUserAccount, sMemberName);
+        QString text = theLocales.getLocalText("chat-msg-text.member-video-reqeust", "Member open video...");
+        text.replace("[MEMBER_NAME]", sMemberName.c_str());
+        m_textBrowserMessage->addLineString(0, text);
+    }
+    else {
+        /// 对方邀请视频通话...
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.dest-video-reqeust","Dest request video..."));
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVideoRequest(pVideoInfo, pUserVideoInfo);
+    }
+    /// ??
+    this->activateWindow();
+//    if (this->IsWindowVisible())
+//        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
+}
+
+void EbDialogChatBase::onVideoAccept(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    if (m_callInfo->isGroupCall()) {
+        /// [MEMBER_NAME] 打开我的视频会议视频...
+        tstring sMemberName;
+        theApp->m_ebum.EB_GetMemberNameByUserId(m_callInfo->groupId(), pUserVideoInfo->m_sUserAccount, sMemberName);
+        QString text = theLocales.getLocalText("chat-msg-text.member-video-accept", "Member open accept video...");
+        text.replace("[MEMBER_NAME]", sMemberName.c_str());
+        m_textBrowserMessage->addLineString(0, text);
+    }
+    else {
+        /// 对方接受视频通话，视频通话中...
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.dest-video-accept","Dest accept video..."));
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVideoAccept(pVideoInfo, pUserVideoInfo);
+    }
+    /// ??
+    this->activateWindow();
+//    if (this->IsWindowVisible())
+//        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
+}
+
+void EbDialogChatBase::onVideoCancel(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    if (m_callInfo->isGroupCall()) {
+        /// [MEMBER_NAME] 退出视频会议
+        tstring sMemberName;
+        theApp->m_ebum.EB_GetMemberNameByUserId(m_callInfo->groupId(), pUserVideoInfo->m_sUserAccount, sMemberName);
+        QString text = theLocales.getLocalText("chat-msg-text.member-video-exit", "Member exit video");
+        text.replace("[MEMBER_NAME]", sMemberName.c_str());
+        m_textBrowserMessage->addLineString(0, text);
+    }
+    else {
+        /// 对方拒绝视频通话
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.dest-video-reject","Dest reject video"));
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVideoCancel(pVideoInfo, pUserVideoInfo);
+    }
+    /// ??
+    this->activateWindow();
+//    if (this->IsWindowVisible())
+//        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
+}
+
+void EbDialogChatBase::onVideoTimeout(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    if (!m_callInfo->isGroupCall()) {
+        /// 请求视频通话超时
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.video-request-timeout","Video request timeout"));
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVideoCancel(pVideoInfo, pUserVideoInfo);
+    }
+    /// ??
+    this->activateWindow();
+//    if (this->IsWindowVisible())
+//        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
+}
+
+void EbDialogChatBase::onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    if (!m_callInfo->isGroupCall()) {
+        /// 视频通话结束
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.video-end","Video chat end"));
+    }
+    else if (theApp->logonUserId()==pUserVideoInfo->m_sUserAccount) {
+        /// 关闭本地视频会议视频
+        m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.local-video-close","Local video close"));
+    }
+    else {
+        /// [MEMBER_NAME] 关闭视频会议视频
+        tstring sMemberName;
+        theApp->m_ebum.EB_GetMemberNameByUserId(m_callInfo->groupId(), pUserVideoInfo->m_sUserAccount, sMemberName);
+        QString text = theLocales.getLocalText("chat-msg-text.member-video-close", "Member video close");
+        text.replace("[MEMBER_NAME]", sMemberName.c_str());
+        m_textBrowserMessage->addLineString(0, text);
+    }
+    if (m_widgetChatRight!=0) {
+        m_widgetChatRight->onVideoEnd(pVideoInfo, pUserVideoInfo);
+    }
+    /// ??
+    this->activateWindow();
+//    if (this->IsWindowVisible())
+//        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
 }
 
 void EbDialogChatBase::onClickedInputClose()
@@ -788,6 +955,18 @@ void EbDialogChatBase::onClickedButtonSendFile()
         const QString &filePath = paths.at(i);
         m_widgetChatInput->sendFile(filePath, false);
     }
+}
+
+void EbDialogChatBase::onClickedButtonVideoChat()
+{
+#ifdef _EB_USES_VIDEO_ROOM
+    if (m_callInfo->isGroupCall()) {
+        theApp->m_ebum.EB_VideoAck(m_callInfo->callId(), true, 0);
+    }
+    else {
+        theApp->m_ebum.EB_VideoRequest(m_callInfo->callId(), EB_VIDEO_BOTH);
+    }
+#endif  /// _EB_USES_VIDEO_ROOM
 }
 
 void EbDialogChatBase::onTriggeredActionSendECard()
@@ -968,7 +1147,15 @@ bool EbDialogChatBase::requestClose(bool checkOnly)
         bool pDesktopProcessing = false;
         m_widgetChatRight->getProcessing(pVideoProcessing,pFileProcessing,pDesktopProcessing);
 
-        if (pFileProcessing) {
+        if (pVideoProcessing) {
+            const QString title = theLocales.getLocalText("message-box.video-chat-exit-chat.title","Exit Chat");
+            const QString text = theLocales.getLocalText("message-box.video-chat-exit-chat.text","Confirm exit chat?");
+            if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
+                this->m_widgetChatInput->setFocusInput();
+                return false;
+            }
+        }
+        else if (pFileProcessing) {
             const QString title = theLocales.getLocalText("message-box.tran-file-exit-chat.title","Exit Chat");
             const QString text = theLocales.getLocalText("message-box.tran-file-exit-chat.text","Confirm exit chat?");
             if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
@@ -976,47 +1163,17 @@ bool EbDialogChatBase::requestClose(bool checkOnly)
                 return false;
             }
         }
-
-//        if (pVideoProcessing && pFileProcessing) {
-//            if (CDlgMessageBox::EbDoModal(this,"退出会话",_T("正在视频通话和传输文件：\t\n确定退出吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
-//            {
-//                return;
-//            }
-//        }
-//        else if (pVideoProcessing) {
-//            if (CDlgMessageBox::EbDoModal(this,"退出会话",_T("正在视频通话：\t\n确定退出吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
-//            {
-//                return;
-//            }
-//        }
-//        else if (pFileProcessing) {
-//            if (CDlgMessageBox::EbDoModal(this,"退出会话",_T("正在传输文件：\t\n确定退出吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
-//            {
-//                return;
-//            }
-//        }
 //        if (pDesktopProcessing) {
 //            if (CDlgMessageBox::EbDoModal(this,"退出会话",_T("正在远程桌面中：\t\n确定退出吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)
 //            {
 //                return;
 //            }
 //        }
-        m_widgetChatRight->exitChat(false);
+        m_widgetChatRight->onExitChat(false);
         if (checkOnly) {
             return true;
         }
     }
-//    if (m_waitForSelectUserDialog) {
-//        m_deleteSelectUserDialog = true;
-//        EbDialogSelectUser * temp = m_dialogSelectUser;
-//        m_dialogSelectUser = 0;
-//        temp->hide();
-//        delete temp;
-//        while (m_waitForSelectUserDialog) {
-//            QCoreApplication::processEvents();
-//            QThread::msleep (5);
-//        }
-//    }
     theApp->m_ebum.EB_CallExit( this->m_callInfo->callId() );
     theApp->m_pCallList.remove( this->m_callInfo->callId() );
     return true;

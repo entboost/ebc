@@ -926,6 +926,11 @@ public:
 	bool EB_GetMemberInfoByAccount2(EB_MemberInfo* pOutMemberInfo,const char* sMemberAccount) const;
 	bool EB_GetMemberInfoByAccount2(EB_MemberInfo* pOutMemberInfo,EB_GroupInfo* pOutGroupInfo,const char* sMemberAccount) const;
 
+    /****
+    功能：判断成员是否存在（不存在不可能是本地没有缓存）
+    ====================================================================*/
+    bool EB_IsExistLocalMemberInfo(eb::bigint nMemberId) const;
+
 	/****
 	功能：获取群组（部门）成员信息
 	====================================================================*/
@@ -1070,8 +1075,11 @@ public:
 	/****
 	功能：获取本地视频设备名称列表
 	====================================================================*/
-	static void EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDeviceList);
-
+#ifdef _QT_MAKE_
+    static void EB_GetVideoDeviceList(std::vector<QString>& pOutVideoDeviceList);
+#else
+    static void EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDeviceList);
+#endif
 	/****
 	功能：获取默认视频媒体类型
 	====================================================================*/
@@ -1129,7 +1137,7 @@ public:
 	返回：返回本地用户视频编号 -1表示失败
 	====================================================================*/
 #ifdef _QT_MAKE_
-	int EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,QObject* hVideoWndParent, void* pUserData=0);
+    int EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,QWidget* hVideoWndParent, void* pUserData=0);
 #else
 	int EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,HWND hVideoWndParent, void* pUserData=0);
 #endif
@@ -1144,7 +1152,7 @@ public:
 	参数：void* pParam 音频数据回调参数
 	====================================================================*/
 #ifdef _QT_MAKE_
-	bool EB_OpenUserVideo(eb::bigint nCallId,eb::bigint nUserId,QObject* hVideoWndParent, void* pUserData=0);
+    bool EB_OpenUserVideo(eb::bigint nCallId,eb::bigint nUserId, QWidget *hVideoWndParent, void* pUserData=0);
 #else
 	bool EB_OpenUserVideo(eb::bigint nCallId,eb::bigint nUserId,HWND hVideoWndParent, void* pUserData=0);
 #endif

@@ -79,11 +79,11 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
 #ifdef __MACH__
     QMenuBar *menuBar = new QMenuBar(0);
     QMenu *wnd = menuBar->addMenu( theLocales.getLocalText("menu-bar.window.text", "Window") );
-    QAction * actionMinimize = wnd->addAction( theLocales.getLocalText("base-dialog.minimize-button.text", "Minimize") );
+    QAction *actionMinimize = wnd->addAction( theLocales.getLocalText("base-dialog.minimize-button.text", "Minimize") );
     actionMinimize->setToolTip( theLocales.getLocalText("base-dialog.minimize-button.tooltip", "") );
     connect( actionMinimize, SIGNAL(triggered()), this, SLOT(onClickedPushButtonSysMin()) );
 
-    QAction * minAction = new QAction(tr("Min"), this);
+    QAction *minAction = new QAction(tr("Min"), this);
     minAction->setShortcut(QKeySequence(tr("Ctrl+M")));
     wnd->addAction(minAction);
 #endif
@@ -410,7 +410,7 @@ void EbDialogMainFrame::customEvent(QEvent *e)
 
 void EbDialogMainFrame::onUGInfo(QEvent *e)
 {
-    const EB_UGInfo* pUGInfo = (const EB_UGInfo*)e;
+    const EB_UGInfo *pUGInfo = (const EB_UGInfo*)e;
     if (m_widgetMyContact!=0) {
         m_widgetMyContact->onUGInfo(pUGInfo);
     }
@@ -418,7 +418,7 @@ void EbDialogMainFrame::onUGInfo(QEvent *e)
 
 void EbDialogMainFrame::onUGDelete(QEvent *e)
 {
-    const EB_UGInfo* pUGInfo = (const EB_UGInfo*)e;
+    const EB_UGInfo *pUGInfo = (const EB_UGInfo*)e;
     if (m_widgetMyContact!=0) {
         m_widgetMyContact->onUGDelete(pUGInfo);
     }
@@ -426,7 +426,7 @@ void EbDialogMainFrame::onUGDelete(QEvent *e)
 
 void EbDialogMainFrame::onContactDelete(QEvent *e)
 {
-    const EB_ContactInfo* contactInfo = (const EB_ContactInfo*)e;
+    const EB_ContactInfo *contactInfo = (const EB_ContactInfo*)e;
     if (m_widgetMyContact!=0) {
         m_widgetMyContact->onContactDelete(contactInfo);
     }
@@ -434,17 +434,20 @@ void EbDialogMainFrame::onContactDelete(QEvent *e)
 
 void EbDialogMainFrame::onContactInfo(QEvent *e)
 {
-    const EB_ContactInfo* contactInfo = (const EB_ContactInfo*)e;
+    const EB_ContactInfo *contactInfo = (const EB_ContactInfo*)e;
     if (m_widgetMyContact!=0) {
-        m_widgetMyContact->onContactInfo(contactInfo);
+        m_widgetMyContact->onContactInfo(contactInfo, false);
     }
 }
 
 void EbDialogMainFrame::onContactStateChanged(QEvent *e)
 {
-    const EB_ContactInfo* contactInfo = (const EB_ContactInfo*)e;
+    const EB_ContactInfo *contactInfo = (const EB_ContactInfo*)e;
     if (m_widgetMyContact!=0) {
-        m_widgetMyContact->onContactInfo(contactInfo);
+        m_widgetMyContact->onContactInfo(contactInfo, true);
+    }
+    if (m_widgetMySession!=0) {
+        m_widgetMySession->onContactStateChanged(contactInfo);
     }
     const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp->defaultUIStyleType();
     if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT) {
@@ -460,15 +463,15 @@ void EbDialogMainFrame::onContactStateChanged(QEvent *e)
 }
 void EbDialogMainFrame::onAcceptAddContact(QEvent *e)
 {
-    const EB_ContactInfo* contactInfo = (const EB_ContactInfo*)e;
+    const EB_ContactInfo *contactInfo = (const EB_ContactInfo*)e;
     if (m_widgetMyContact!=0) {
-        m_widgetMyContact->onContactInfo(contactInfo);
+        m_widgetMyContact->onContactInfo(contactInfo, false);
     }
     if (theApp->groupMsgSubId()>0) {
         /// <font color=\"#6c6c6c\">用户：%s<br/>添加好友成功</font>
         QString text = theLocales.getLocalText("pop-tip-dialog.accept-add-contact","User accept add contact");
         text.replace("[CONTACT_NAME]", contactInfo->m_sName.c_str());
-        EbDialogPopTip * dlg = EbDialogPopTip::create(EbDialogPopTip::NoticeMessage);
+        EbDialogPopTip *dlg = EbDialogPopTip::create(EbDialogPopTip::NoticeMessage);
         dlg->setPopTipMessage(text, 0, QVariant("tab_type=sys_msg"));
         dlg->show();
     }
@@ -476,8 +479,8 @@ void EbDialogMainFrame::onAcceptAddContact(QEvent *e)
 
 void EbDialogMainFrame::onRejectAddContact(QEvent *e)
 {
-    const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)e;
-    const EB_APMsgInfo* pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
+    const EB_AccountInfo *pRequestAccountInfo = (const EB_AccountInfo*)e;
+    const EB_APMsgInfo *pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
     const CEBString sRequestAccount(pRequestAccountInfo->GetAccount());
     const CEBString sDescription(pApMsgInfo->m_sMsgContent);
     const eb::bigint nGroupId = pApMsgInfo->m_nGroupId;
@@ -517,7 +520,7 @@ void EbDialogMainFrame::onRejectAddContact(QEvent *e)
         QString text = theLocales.getLocalText("pop-tip-dialog.reject-add-contact","User Reject add contact");
         text.replace("[USER_ACCOUNT]", sRequestAccount.c_str());
         text.replace("[DESCRIPTION]", sDescription.c_str());
-        EbDialogPopTip * dlg = EbDialogPopTip::create(EbDialogPopTip::NoticeMessage);
+        EbDialogPopTip *dlg = EbDialogPopTip::create(EbDialogPopTip::NoticeMessage);
         dlg->setPopTipMessage(text, 0, QVariant("tab_type=sys_msg"));
         dlg->show();
     }
@@ -525,8 +528,8 @@ void EbDialogMainFrame::onRejectAddContact(QEvent *e)
 
 void EbDialogMainFrame::onRequestAddContact(QEvent *e)
 {
-    const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)e;
-    const EB_APMsgInfo* pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
+    const EB_AccountInfo *pRequestAccountInfo = (const EB_AccountInfo*)e;
+    const EB_APMsgInfo *pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
     const CEBString sRequestAccount(pRequestAccountInfo->GetAccount());
     const CEBString sDescription(pApMsgInfo->m_sMsgContent);
     const eb::bigint nGroupId = pApMsgInfo->m_nGroupId;
@@ -566,7 +569,7 @@ void EbDialogMainFrame::onRequestAddContact(QEvent *e)
         QString text = theLocales.getLocalText("pop-tip-dialog.request-add-contact","User Reqeust add contact");
         text.replace("[USER_ACCOUNT]", sRequestAccount.c_str());
         text.replace("[DESCRIPTION]", sDescription.c_str());
-        EbDialogPopTip * dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
+        EbDialogPopTip *dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
         dlg->setPopTipMessage(text, 0, QVariant("tab_type=sys_msg"));
         dlg->show();
     }
@@ -574,7 +577,7 @@ void EbDialogMainFrame::onRequestAddContact(QEvent *e)
 
 void EbDialogMainFrame::onEditInfoResponse(QEvent *e)
 {
-    const EB_Event * pEvent = (EB_Event*)e;
+    const EB_Event *pEvent = (EB_Event*)e;
     const EB_STATE_CODE nState = (EB_STATE_CODE)pEvent->GetEventParameter();
     if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState) {
         return;
@@ -589,7 +592,7 @@ void EbDialogMainFrame::onEditInfoResponse(QEvent *e)
         EbMessageBox::doShow( NULL, title, QChar::Null, text, EbMessageBox::IMAGE_INFORMATION,default_warning_auto_close );
         return;
     }
-    else if (nEditInfoFlag==1) {	/// *** 修改密码
+    else if (nEditInfoFlag==1) {	/// ** *修改密码
         if (nState==EB_STATE_OK) {
             char sSql[256];
             sprintf(sSql,"update user_login_record_t set password='' where user_id=%lld",theApp->logonUserId());
@@ -630,7 +633,7 @@ void EbDialogMainFrame::onEditInfoResponse(QEvent *e)
 
 void EbDialogMainFrame::onMemberEditResponse(QEvent *e)
 {
-    const EB_MemberInfo* pMemberInfo = (const EB_MemberInfo*)e;
+    const EB_MemberInfo *pMemberInfo = (const EB_MemberInfo*)e;
     const EB_STATE_CODE stateCode = (EB_STATE_CODE)pMemberInfo->GetEventParameter();
     QString text;
     EbMessageBox::IMAGE_TYPE imageType = EbMessageBox::IMAGE_WARNING;
@@ -703,7 +706,7 @@ void EbDialogMainFrame::setWindowTitleAndTrayInfo(void)
 
 void EbDialogMainFrame::onMemberInfo(QEvent *e)
 {
-    const EB_MemberInfo * memberInfo = (EB_MemberInfo*)e;
+    const EB_MemberInfo *memberInfo = (EB_MemberInfo*)e;
     const bool bIsMyDefaultMember = (memberInfo->GetEventParameter()==1)?true:false;
     const bool bIsMyGroupMember = (memberInfo->GetEventBigParameter()==1)?true:false;
     if (m_widgetMyEnterprise!=0) {
@@ -750,8 +753,8 @@ void EbDialogMainFrame::onRejectAdd2Group(QEvent *e)
 
 void EbDialogMainFrame::onInviteAdd2Group(QEvent *e)
 {
-    const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)e;
-    const EB_APMsgInfo* pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
+    const EB_AccountInfo *pRequestAccountInfo = (const EB_AccountInfo*)e;
+    const EB_APMsgInfo *pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
     const CEBString sRequestAccount(pRequestAccountInfo->GetAccount());
     const eb::bigint nGroupId = pApMsgInfo->m_nGroupId;
     const CEBString sDescription(pApMsgInfo->m_sMsgContent);
@@ -802,7 +805,7 @@ void EbDialogMainFrame::onInviteAdd2Group(QEvent *e)
         text.replace("[USER_ACCOUNT]", sRequestAccount.c_str());
         text.replace("[GROUP_NAME]", sGroupName);
         text.replace("[DESCRIPTION]", sDescription.c_str());
-        EbDialogPopTip * dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
+        EbDialogPopTip *dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
         dlg->setPopTipMessage(text, 0, QVariant("tab_type=sys_msg"));
         dlg->show();
     }
@@ -810,8 +813,8 @@ void EbDialogMainFrame::onInviteAdd2Group(QEvent *e)
 
 void EbDialogMainFrame::onRequestAdd2Group(QEvent *e)
 {
-    const EB_AccountInfo* pRequestAccountInfo = (const EB_AccountInfo*)e;
-    const EB_APMsgInfo* pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
+    const EB_AccountInfo *pRequestAccountInfo = (const EB_AccountInfo*)e;
+    const EB_APMsgInfo *pApMsgInfo = (const EB_APMsgInfo*)pRequestAccountInfo->GetEventData();
     const CEBString sRequestAccount(pRequestAccountInfo->GetAccount());
     const CEBString sDescription(pApMsgInfo->m_sMsgContent);
     const eb::bigint nGroupId = pApMsgInfo->m_nGroupId;
@@ -851,7 +854,7 @@ void EbDialogMainFrame::onRequestAdd2Group(QEvent *e)
         text.replace("[USER_ACCOUNT]", sRequestAccount.c_str());
         text.replace("[GROUP_ID]", QString::number(nGroupId));
         text.replace("[DESCRIPTION]", sDescription.c_str());
-        EbDialogPopTip * dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
+        EbDialogPopTip *dlg = EbDialogPopTip::create(EbDialogPopTip::AuthMessage);
         dlg->setPopTipMessage(text, 0, QVariant("tab_type=sys_msg"));
         dlg->show();
     }
@@ -859,8 +862,8 @@ void EbDialogMainFrame::onRequestAdd2Group(QEvent *e)
 
 void EbDialogMainFrame::onExitGroup(QEvent *e)
 {
-    const EB_GroupInfo* groupInfo = (const EB_GroupInfo*)e;
-    const EB_MemberInfo* memberInfo = (const EB_MemberInfo*)groupInfo->GetEventData();
+    const EB_GroupInfo *groupInfo = (const EB_GroupInfo*)e;
+    const EB_MemberInfo *memberInfo = (const EB_MemberInfo*)groupInfo->GetEventData();
     const eb::bigint sExitUserId(memberInfo->m_nMemberUserId);
 
     /// 删除本地群组聊天记录
@@ -930,8 +933,8 @@ void EbDialogMainFrame::onExitGroup(QEvent *e)
 }
 void EbDialogMainFrame::onRemoveGroup(QEvent *e)
 {
-    const EB_GroupInfo* groupInfo = (const EB_GroupInfo*)e;
-    const EB_MemberInfo* pMemberInfo = (const EB_MemberInfo*)groupInfo->GetEventData();
+    const EB_GroupInfo *groupInfo = (const EB_GroupInfo*)e;
+    const EB_MemberInfo *pMemberInfo = (const EB_MemberInfo*)groupInfo->GetEventData();
 
     /// 删除本地群组聊天记录
     theApp->deleteDbRecord(groupInfo->m_sGroupCode,false);
@@ -983,13 +986,13 @@ void EbDialogMainFrame::onRemoveGroup(QEvent *e)
         }
     }
     if (groupInfo->m_sEnterpriseCode>0 && m_widgetMyEnterprise!=0) {
-        /// * 不能填 true
+        /// *不能填 true
         m_widgetMyEnterprise->deleteMemberInfo(groupInfo,pMemberInfo->m_sMemberCode,false);
     }
 }
 void EbDialogMainFrame::onGroupEditResponse(QEvent *e)
 {
-    const EB_GroupInfo* groupInfo = (const EB_GroupInfo*)e;
+    const EB_GroupInfo *groupInfo = (const EB_GroupInfo*)e;
     const EB_STATE_CODE stateCode = (EB_STATE_CODE)groupInfo->GetEventParameter();
     QString text;
     EbMessageBox::IMAGE_TYPE imageType = EbMessageBox::IMAGE_WARNING;
@@ -1024,7 +1027,7 @@ void EbDialogMainFrame::onGroupEditResponse(QEvent *e)
 }
 void EbDialogMainFrame::onGroupDelete(QEvent *e)
 {
-    const EB_GroupInfo* groupInfo = (const EB_GroupInfo*)e;
+    const EB_GroupInfo *groupInfo = (const EB_GroupInfo*)e;
     const eb::bigint groupId = groupInfo->m_sGroupCode;
 //    bool bIsMyDepartment = (pGroupInfo->GetEventParameter()==1)?true:false;
     if (m_widgetMyEnterprise!=0) {
@@ -1063,7 +1066,7 @@ void EbDialogMainFrame::onGroupDelete(QEvent *e)
 
 void EbDialogMainFrame::onGroupInfo(QEvent *e)
 {
-    const EB_GroupInfo * groupInfo = (EB_GroupInfo*)e;
+    const EB_GroupInfo *groupInfo = (EB_GroupInfo*)e;
 
     if (m_widgetMyEnterprise!=0) {
         m_widgetMyEnterprise->onGroupInfo(groupInfo);
@@ -1087,7 +1090,7 @@ void EbDialogMainFrame::onGroupInfo(QEvent *e)
 
 void EbDialogMainFrame::onEnterpriseInfo(QEvent *e)
 {
-    const EB_EnterpriseInfo * pEvent = (EB_EnterpriseInfo*)e;
+    const EB_EnterpriseInfo *pEvent = (EB_EnterpriseInfo*)e;
     theApp->setEnterpriseCreateUserId(pEvent->m_nCreateUserId);
     if (m_widgetMyEnterprise!=0) {
         m_widgetMyEnterprise->onEnterpriseInfo(pEvent);
@@ -1101,9 +1104,9 @@ void EbDialogMainFrame::onEnterpriseInfo(QEvent *e)
     changeTrayTooltip();
 }
 
-void EbDialogMainFrame::onLogonSuccess(QEvent * e)
+void EbDialogMainFrame::onLogonSuccess(QEvent *e)
 {
-    const EB_AccountInfo * pAccountInfo = (EB_AccountInfo*)e;
+    const EB_AccountInfo *pAccountInfo = (EB_AccountInfo*)e;
     if (pAccountInfo==NULL) {
         // from
     }
@@ -1162,7 +1165,7 @@ void EbDialogMainFrame::onLogonTimeout(QEvent *e)
 }
 void EbDialogMainFrame::onLogonError(QEvent *e)
 {
-    const EB_AccountInfo * pAccountInfo = (EB_AccountInfo*)e;
+    const EB_AccountInfo *pAccountInfo = (EB_AccountInfo*)e;
     const EB_STATE_CODE stateCode = (EB_STATE_CODE)pAccountInfo->GetEventParameter();
 
     QString sErrorText;
@@ -1205,14 +1208,14 @@ void EbDialogMainFrame::onLogonError(QEvent *e)
 
 void EbDialogMainFrame::onOnlineAnother(QEvent *e)
 {
-//    const EB_Event * pEvent = (EB_Event*)e;
+//    const EB_Event *pEvent = (EB_Event*)e;
 //    const int nOnlineAnotherType = (int)pEvent->GetEventParameter();
     /// 0=已经在其他地方登录，退出当前连接；
     /// 1=修改密码，退出当前连接；
     onTriggeredActionLogout();
 }
 
-bool EbDialogMainFrame::checkEventData(QEvent * e)
+bool EbDialogMainFrame::checkEventData(QEvent *e)
 {
     bool result = true;
     const QEvent::Type eventType = e->type();
@@ -1231,6 +1234,28 @@ bool EbDialogMainFrame::checkEventData(QEvent * e)
         break;
     case EB_WM_CONTACT_HEAD_CHANGE:
         onContactHeadChange(e);
+        break;
+        /// 视频聊天
+    case EB_WM_V_REQUEST_RESPONSE:
+        onVRequestResponse(e);
+        break;
+    case EB_WM_V_ACK_RESPONSE:
+        onVAckResponse(e);
+        break;
+    case EB_WM_VIDEO_REQUEST:
+        onVideoRequest(e);
+        break;
+    case EB_WM_VIDEO_ACCEPT:
+        onVideoAccept(e);
+        break;
+    case EB_WM_VIDEO_REJECT:
+        onVideoReject(e);
+        break;
+    case EB_WM_VIDEO_TIMEOUT:
+        onVideoTimeout(e);
+        break;
+    case EB_WM_VIDEO_CLOSE:
+        onVideoClose(e);
         break;
         /// 聊天消息
     case CR_WM_MSG_RECEIPT:
@@ -1363,20 +1388,20 @@ bool EbDialogMainFrame::checkEventData(QEvent * e)
 
     /// 返回结果
     if (eventType>=CR_WM_ENTER_ROOM && eventType<=CR_WM_EVENT_RESULT) {
-        CCrInfo * aCrInfo = (CCrInfo*)e;
-        QObject * receiver = aCrInfo->receiver();
+        CCrInfo *aCrInfo = (CCrInfo*)e;
+        QObject *receiver = aCrInfo->receiver();
         if (receiver!=0) {
-            CCrInfo * event = new CCrInfo();
+            CCrInfo *event = new CCrInfo();
             event->SetQEventType((QEvent::Type)CR_WM_EVENT_RESULT);
             event->setReceiveResult(aCrInfo->receiveKey(),result?0:-1);
             QCoreApplication::postEvent(receiver,event);
         }
     }
     else if (eventType>=EB_WM_APPID_SUCCESS && eventType<=EB_WM_EVENT_RESULT) {
-        EB_Event * aEvent = (EB_Event*)e;
-        QObject * receiver = aEvent->receiver();
+        EB_Event *aEvent = (EB_Event*)e;
+        QObject *receiver = aEvent->receiver();
         if (receiver!=0) {
-            EB_Event * event = new EB_Event((QEvent::Type)EB_WM_EVENT_RESULT);
+            EB_Event *event = new EB_Event((QEvent::Type)EB_WM_EVENT_RESULT);
             event->setReceiveResult(aEvent->receiveKey(),result?0:-1);
             QCoreApplication::postEvent(receiver,event);
         }
@@ -1512,7 +1537,7 @@ void EbDialogMainFrame::saveCallRecord(eb::bigint callId, eb::bigint groupId, co
         }
     }
 
-    /// ** 必须放前面
+    /// * *必须放前面
     if (m_widgetMySession!=0) {
         EbCallRecordInfo::pointer pCallRecordInfo = EbCallRecordInfo::create();
         pCallRecordInfo->m_sCallId = callId;
@@ -1531,7 +1556,7 @@ void EbDialogMainFrame::saveCallRecord(eb::bigint callId, eb::bigint groupId, co
         pCallRecordInfo->m_bRead = false;
         m_widgetMySession->insertCallRecord(pCallRecordInfo,true);
     }
-    /// ** 必须放后面
+    /// * *必须放后面
     sprintf( sql, "INSERT INTO call_record_t(call_id,dep_code,dep_name,emp_code,from_uid,from_phone,from_name,"
                   "from_type,company,title,tel,email) "
                   "VALUES(%lld,%lld,'%s',%lld,%lld,%lld,'%s',%d,'%s','%s','%s','%s')",
@@ -1554,7 +1579,7 @@ void EbDialogMainFrame::mouseDoubleClickEvent(QMouseEvent *event)
     EbDialogBase::mouseDoubleClickEvent(event);
 }
 
-void EbDialogMainFrame::keyPressEvent(QKeyEvent * e)
+void EbDialogMainFrame::keyPressEvent(QKeyEvent *e)
 {
     if ( e->key()==Qt::Key_Escape && ui->lineEditUserDescription->hasFocus()) {
         const QString oldDescription( theApp->m_ebum.EB_GetDescription().c_str() );
@@ -1564,7 +1589,7 @@ void EbDialogMainFrame::keyPressEvent(QKeyEvent * e)
     EbDialogBase::keyPressEvent(e);
 }
 
-void EbDialogMainFrame::contextMenuEvent(QContextMenuEvent * e)
+void EbDialogMainFrame::contextMenuEvent(QContextMenuEvent *e)
 {
     createMenuData();
     m_actionMyCollection->setEnabled( theApp->myCollectionSugId()>0 );
@@ -1575,7 +1600,7 @@ void EbDialogMainFrame::contextMenuEvent(QContextMenuEvent * e)
 bool EbDialogMainFrame::eventFilter(QObject *obj, QEvent *e)
 {
     if ( obj==m_lineEditSearch && e->type()==QEvent::KeyPress ) {
-        const QKeyEvent * event = (QKeyEvent*)e;
+        const QKeyEvent *event = (QKeyEvent*)e;
         switch (event->key()) {
         case Qt::Key_Backspace:
         case Qt::Key_Delete:
@@ -1589,7 +1614,7 @@ bool EbDialogMainFrame::eventFilter(QObject *obj, QEvent *e)
     else if (obj==ui->lineEditUserDescription) {
         bool checkUpdateDescription = e->type()==QEvent::FocusOut?true:false;
         if (!checkUpdateDescription && e->type()==QEvent::KeyPress) {
-            const QKeyEvent * event = (QKeyEvent*)e;
+            const QKeyEvent *event = (QKeyEvent*)e;
             if (event->key()==Qt::Key_Return || event->key()==Qt::Key_Enter) {
                 checkUpdateDescription = true;
 //                ui->labelLineState->setFocus();   /// 感觉没有作用
@@ -1618,7 +1643,7 @@ void EbDialogMainFrame::timerEvent(QTimerEvent *event)
 void EbDialogMainFrame::onClickedPushButtonSetting(void)
 {
     createMenuData();
-    /// ** set menu checked and uncheck
+    /// * *set menu checked and uncheck
     int nFindColorIndex = 0;
     const std::vector<EbColorInfo::pointer>& colors = theLocales.colors();
     for (size_t i=0; i<colors.size(); i++) {
@@ -1631,7 +1656,7 @@ void EbDialogMainFrame::onClickedPushButtonSetting(void)
     bool bFindColoeChecked = false;
     const QList<QAction*> actionList = m_menuSetting->actions();
     for ( int i=0; i!=actionList.size(); ++i ) {
-        QAction* action = actionList.at(i);
+        QAction *action = actionList.at(i);
         bool bOk = false;
         if (!bFindColoeChecked && action->data().toInt(&bOk)==nFindColorIndex && bOk ) {
             action->setChecked(true);
@@ -1648,7 +1673,7 @@ void EbDialogMainFrame::onClickedPushButtonSetting(void)
 
 void EbDialogMainFrame::onTriggeredActionSelectColor(void)
 {
-    QAction* pAction = dynamic_cast<QAction*>( sender() );
+    QAction *pAction = dynamic_cast<QAction*>( sender() );
     pAction->setChecked(true);
     const int nColorIndex = pAction->data().toInt();
     const std::vector<EbColorInfo::pointer>& colors = theLocales.colors();
@@ -1695,7 +1720,7 @@ void EbDialogMainFrame::onClickedLineState()
     bool bFindColoeChecked = false;
     const QList<QAction*> actionList = m_menuLineState->actions();
     for ( int i=0; i!=actionList.size(); ++i ) {
-        QAction* action = actionList.at(i);
+        QAction *action = actionList.at(i);
         bool bOk = false;
         if (!bFindColoeChecked && action->data().toInt(&bOk)==(int)lineState && bOk ) {
             action->setChecked(true);
@@ -1713,7 +1738,7 @@ void EbDialogMainFrame::onClickedLineState()
 
 void EbDialogMainFrame::onClickedMenuLineState()
 {
-    QAction* pAction = dynamic_cast<QAction*>( sender() );
+    QAction *pAction = dynamic_cast<QAction*>( sender() );
     pAction->setChecked(true);
     const EB_USER_LINE_STATE lineState = (EB_USER_LINE_STATE)pAction->data().toInt();
     if (lineState>=EB_LINE_STATE_BUSY) {
@@ -1822,14 +1847,14 @@ void EbDialogMainFrame::onClickedPushButtonApps()
             const EB_SubscribeFuncInfo & funcInfo = funcList[i];
             const QImage image = theApp->funcImage(&funcInfo);
             const QIcon icon( QPixmap::fromImage(image).scaled(const_default_menu_image_size,Qt::IgnoreAspectRatio, Qt::SmoothTransformation) );
-            QAction * action = m_menuApps->addAction( icon, funcInfo.m_sFunctionName.c_str() );
+            QAction *action = m_menuApps->addAction( icon, funcInfo.m_sFunctionName.c_str() );
             action->setToolTip( funcInfo.m_sDescription.c_str() );
             action->setData( QVariant(funcInfo.m_nSubscribeId) );
             connect( action, SIGNAL(triggered()), this, SLOT(onTriggeredActionApps()) );
         }
     }
     else {
-        QAction * action = m_menuApps->addAction( theLocales.getLocalText("name-text.no-apps","No Apps") );
+        QAction *action = m_menuApps->addAction( theLocales.getLocalText("name-text.no-apps","No Apps") );
         action->setEnabled(false);
     }
     const QPoint pos(0,ui->pushButtonApps->geometry().height());
@@ -1869,7 +1894,7 @@ void EbDialogMainFrame::onClickedPushButtonMyApp(void)
     updateMyButton(ui->pushButtonMyApp);
 }
 
-void EbDialogMainFrame::updateMyButton(const QPushButton* fromButton)
+void EbDialogMainFrame::updateMyButton(const QPushButton *fromButton)
 {
     ui->pushButtonMyGroup->setChecked(ui->pushButtonMyGroup==fromButton?true:false);
     if (m_widgetMyGroup!=0) {
@@ -1911,7 +1936,7 @@ void EbDialogMainFrame::openUrl(bool bSaveBrowseTitle, const QString &sAppUrl, c
 {
     /// 主面板应用；
     CreateFrameList ( false );
-    EbDialogWorkFrame * workFrame = m_pDlgFrameList->showWorkFrame();
+    EbDialogWorkFrame *workFrame = m_pDlgFrameList->showWorkFrame();
     workFrame->addUrl( bSaveBrowseTitle, sAppUrl, sPostData, nInsertOffset );
     m_pDlgFrameList->showFrameList();
 }
@@ -1957,7 +1982,7 @@ bool EbDialogMainFrame::openSubscribeFuncWindow(const EB_SubscribeFuncInfo &subF
 //                    m_pAutoOpenFuncWindow->ShowWindow(SW_SHOW);
 //            }else
 //            {
-//                CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
+//                CWnd *pParent = CWnd::FromHandle(::GetDesktopWindow());
 //                m_pAutoOpenFuncWindow = CDlgFuncWindow::pointer(new CDlgFuncWindow(pParent,false));
 //                m_pAutoOpenFuncWindow->m_nFuncBrowserType = pSubscribeFuncInfo.m_nBrowserType;
 //                m_pAutoOpenFuncWindow->m_sTitle = pSubscribeFuncInfo.m_sFunctionName;
@@ -1974,8 +1999,8 @@ bool EbDialogMainFrame::openSubscribeFuncWindow(const EB_SubscribeFuncInfo &subF
 //            }
 //        }else
 //        {
-//            CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
-//            CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
+//            CWnd *pParent = CWnd::FromHandle(::GetDesktopWindow());
+//            CDlgFuncWindow *pFuncWindow = new CDlgFuncWindow(pParent,true);
 //            pFuncWindow->m_nFuncBrowserType = pSubscribeFuncInfo.m_nBrowserType;
 //            pFuncWindow->m_sTitle = pSubscribeFuncInfo.m_sFunctionName;
 //            pFuncWindow->m_sFuncUrl = sFullFuncurl;
@@ -1992,7 +2017,7 @@ bool EbDialogMainFrame::openSubscribeFuncWindow(const EB_SubscribeFuncInfo &subF
     else if ( subFuncInfo.m_nFunctionMode==EB_FUNC_MODE_MAINFRAME ) {
         /// 主面板应用；
         CreateFrameList ( false );
-        EbDialogWorkFrame * workFrame = m_pDlgFrameList->showWorkFrame();
+        EbDialogWorkFrame *workFrame = m_pDlgFrameList->showWorkFrame();
         workFrame->addUrl( false, sFullFuncurl, "", subFuncInfo, false );
         m_pDlgFrameList->showFrameList();
     }
@@ -2065,7 +2090,7 @@ void EbDialogMainFrame::onSearchEditKeyPressEnter(const QString &text)
 //        }
 
         if ( !bIsEmail &&
-             (text.indexOf(".")>0 ||	/// * 非邮件，带 . 默认处理成链接（www.)
+             (text.indexOf(".")>0 ||	/// *非邮件，带 . 默认处理成链接（www.)
               text.indexOf("/")>0 ||	/// (http:// https://)
               text.indexOf("=")>0 ||	/// URL
               text=="about:blank") )
@@ -2177,7 +2202,7 @@ void EbDialogMainFrame::createMenuData(void)
      if (m_menuSetting == 0) {
         m_menuSetting = new QMenu(this);
         const QString selectText = theLocales.getLocalText("color-skin.select-color.text","选择色调");
-        QAction * pSelectColorAction = m_menuSetting->addAction( QIcon(":/res/color_select.bmp"), selectText );
+        QAction *pSelectColorAction = m_menuSetting->addAction( QIcon(":/res/color_select.bmp"), selectText );
         pSelectColorAction->setCheckable(true);
         pSelectColorAction->setToolTip( theLocales.getLocalText("color-skin.select-color.tooltip","") );
         pSelectColorAction->setData( QVariant((int)0) );
@@ -2189,7 +2214,7 @@ void EbDialogMainFrame::createMenuData(void)
             const EbColorInfo::pointer& colorInfo = colors[i];
             QPixmap pixmap(16,16);
             pixmap.fill( colorInfo->color() );
-            QAction * pAction = m_menuSetting->addAction( QIcon(pixmap), colorInfo->name() );
+            QAction *pAction = m_menuSetting->addAction( QIcon(pixmap), colorInfo->name() );
             pAction->setCheckable(true);
             pAction->setData( QVariant((int)(i+1)) );
             connect( pAction, SIGNAL(triggered()), this, SLOT(onTriggeredActionSelectColor()) );
@@ -2206,19 +2231,19 @@ void EbDialogMainFrame::createMenuData(void)
     if (m_menuLineState==0) {
         m_menuLineState = new QMenu(this);
         /// 在线
-        QAction * onlineAction = m_menuLineState->addAction( QIcon(":/img/btnstateonline.png"),
+        QAction *onlineAction = m_menuLineState->addAction( QIcon(":/img/btnstateonline.png"),
                                                              theLocales.getLocalText("line-state.online.text","在线"));
         onlineAction->setCheckable(true);
         onlineAction->setData( QVariant((int)EB_LINE_STATE_ONLINE_NEW) );
         connect( onlineAction, SIGNAL(triggered()), this, SLOT(onClickedMenuLineState()) );
         /// 离开
-        QAction * awayAction = m_menuLineState->addAction( QIcon(":/img/btnstateaway.png"),
+        QAction *awayAction = m_menuLineState->addAction( QIcon(":/img/btnstateaway.png"),
                                                              theLocales.getLocalText("line-state.away.text","离开"));
         awayAction->setCheckable(true);
         awayAction->setData( QVariant((int)EB_LINE_STATE_AWAY) );
         connect( awayAction, SIGNAL(triggered()), this, SLOT(onClickedMenuLineState()) );
         /// 忙碌
-        QAction * busyAction = m_menuLineState->addAction( QIcon(":/img/btnstatebusy.png"),
+        QAction *busyAction = m_menuLineState->addAction( QIcon(":/img/btnstatebusy.png"),
                                                            theLocales.getLocalText("line-state.busy.text","忙碌"));
         busyAction->setCheckable(true);
         busyAction->setData( QVariant((int)EB_LINE_STATE_BUSY) );
@@ -2228,7 +2253,7 @@ void EbDialogMainFrame::createMenuData(void)
     if (m_menuContext==0) {
         m_menuContext = new QMenu(this);
         /// 打开工作台
-        QAction * openFrameListAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.open-frame-list.text","Open Frame"));
+        QAction *openFrameListAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.open-frame-list.text","Open Frame"));
         connect( openFrameListAction, SIGNAL(triggered()), this, SLOT(onTriggeredActionOpenWorkFrame()) );
         /// ----------------------
         m_menuContext->addSeparator();
@@ -2238,10 +2263,10 @@ void EbDialogMainFrame::createMenuData(void)
         /// ----------------------
         m_menuContext->addSeparator();
         /// 注销
-        QAction * logoutAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.logout.text","Logout"));
+        QAction *logoutAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.logout.text","Logout"));
         connect( logoutAction, SIGNAL(triggered()), this, SLOT(onTriggeredActionLogout()) );
         /// 退出
-        QAction * quitAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.quit.text","Exit"));
+        QAction *quitAction = m_menuContext->addAction( theLocales.getLocalText("context-menu.quit.text","Exit"));
         connect( quitAction, SIGNAL(triggered()), this, SLOT(onTriggeredActionExitApp()) );
     }
 }
@@ -2345,7 +2370,7 @@ void EbDialogMainFrame::addSubUnreadMsg( mycp::bigint subId, bool sendToWorkFram
 {
     m_widgetMainAppBar->addSubscribeMsg( subId );
     if (sendToWorkFrame && m_pDlgFrameList!=0 ) {
-        EbDialogWorkFrame * workFrame = m_pDlgFrameList->getWorkFrame();
+        EbDialogWorkFrame *workFrame = m_pDlgFrameList->getWorkFrame();
         if ( workFrame!=0 ) {
             workFrame->addSubUnreadMsg(subId);
         }
@@ -2356,7 +2381,7 @@ void EbDialogMainFrame::setSubUnreadMsg( mycp::bigint subId, size_t unreadMsgCou
 {
     m_widgetMainAppBar->setSubscribeMsgCount( subId, unreadMsgCount );
     if (sendToWorkFrame && m_pDlgFrameList!=0 ) {
-        EbDialogWorkFrame * workFrame = m_pDlgFrameList->getWorkFrame();
+        EbDialogWorkFrame *workFrame = m_pDlgFrameList->getWorkFrame();
         if ( workFrame!=0 ) {
             workFrame->setSubUnreadMsg(subId, unreadMsgCount);
         }
@@ -2365,10 +2390,10 @@ void EbDialogMainFrame::setSubUnreadMsg( mycp::bigint subId, size_t unreadMsgCou
 
 void EbDialogMainFrame::onBroadcastMsg(QEvent *e)
 {
-    const EB_AccountInfo* pAccountInfo = (const EB_AccountInfo*)e;
+    const EB_AccountInfo *pAccountInfo = (const EB_AccountInfo*)e;
     const eb::bigint nFromUserid = pAccountInfo->GetUserId();
     const tstring sFromAccount(pAccountInfo->GetAccount());
-    const EB_APMsgInfo* pApMsgInfo = (const EB_APMsgInfo*)pAccountInfo->GetEventData();
+    const EB_APMsgInfo *pApMsgInfo = (const EB_APMsgInfo*)pAccountInfo->GetEventData();
     const eb::bigint nMsgId = pApMsgInfo->m_nMsgId;
     const int nBCMsgSubType = pApMsgInfo->m_nMsgType;
     const tstring sMsgName(pApMsgInfo->m_sMsgName);
@@ -2426,7 +2451,7 @@ void EbDialogMainFrame::onBroadcastMsg(QEvent *e)
             //const tstring theEBSParseString0_to("&nbsp;");
             std::vector<tstring> pList;
             if (libEbc::ParseString(sMsgContent.c_str(),theEBSParseString0_from.c_str(),pList)<2) {
-                theApp->m_ebum.EB_AckMsg(nMsgId,5);	/// * 删除无用数据
+                theApp->m_ebum.EB_AckMsg(nMsgId,5);	/// *删除无用数据
                 return;
             }
             const eb::bigint nId = eb_atoi64(pList[0].c_str());			/// id->planid,taskid,...
@@ -2444,7 +2469,7 @@ void EbDialogMainFrame::onBroadcastMsg(QEvent *e)
             std::vector<tstring> pList;
             if (libEbc::ParseString(sMsgContent.c_str(),",",pList)<2)
             {
-                theApp->m_ebum.EB_AckMsg(nMsgId,5);     /// * 删除无用数据
+                theApp->m_ebum.EB_AckMsg(nMsgId,5);     /// *删除无用数据
                 return;
             }
             const eb::bigint subId = eb_atoi64(pList[0].c_str());
@@ -2497,7 +2522,7 @@ void EbDialogMainFrame::onBroadcastMsg(QEvent *e)
 
 void EbDialogMainFrame::onAreaInfo(QEvent *e)
 {
-    const EB_AreaInfo* pAreaInfo = (const EB_AreaInfo*)e;
+    const EB_AreaInfo *pAreaInfo = (const EB_AreaInfo*)e;
     const int nParameter = (int)pAreaInfo->GetEventParameter();
     switch (nParameter) {
     case 1:
@@ -2516,7 +2541,7 @@ void EbDialogMainFrame::onAreaInfo(QEvent *e)
 
 void EbDialogMainFrame::onUserStateChange(QEvent *e)
 {
-    const EB_MemberInfo * memberInfo = (EB_MemberInfo*)e;
+    const EB_MemberInfo *memberInfo = (EB_MemberInfo*)e;
 //    const bool bIsOwnerMember = pEvent->GetEventParameter()==1?true:false;
 
     /// 更新界面用户状况改变
@@ -2526,6 +2551,10 @@ void EbDialogMainFrame::onUserStateChange(QEvent *e)
     if ( m_widgetMyGroup!=0 ) {
         m_widgetMyGroup->onMemberInfo(memberInfo,true);
     }
+    if ( m_widgetMySession!=0 ) {
+        m_widgetMySession->onMemberInfo(memberInfo,true);
+    }
+
     const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp->defaultUIStyleType();
     if (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT) {
         /// **跑下面
@@ -2542,7 +2571,7 @@ void EbDialogMainFrame::onUserStateChange(QEvent *e)
 
 void EbDialogMainFrame::onMemberHeadChange(QEvent *e)
 {
-    const EB_MemberInfo * memberInfo = (const EB_MemberInfo*)e;
+    const EB_MemberInfo *memberInfo = (const EB_MemberInfo*)e;
     const bool bIsOwnerMember = (memberInfo->GetEventParameter()==1)?true:false;
 
     // 更新聊天会话列表图标
@@ -2577,7 +2606,7 @@ void EbDialogMainFrame::onMemberHeadChange(QEvent *e)
 
 void EbDialogMainFrame::onContactHeadChange(QEvent *e)
 {
-    const EB_ContactInfo* pContactInfo = (const EB_ContactInfo*)e;
+    const EB_ContactInfo *pContactInfo = (const EB_ContactInfo*)e;
     if (m_widgetMyContact!=0) {
         m_widgetMyContact->onContactHeadChange(pContactInfo);
     }
@@ -2594,9 +2623,127 @@ void EbDialogMainFrame::onContactHeadChange(QEvent *e)
     }
 }
 
+void EbDialogMainFrame::onVRequestResponse(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_STATE_CODE nState = (EB_STATE_CODE)pVideoInfo->GetEventParameter();
+    if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState) {
+        return;
+    }
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
+        return;
+    }
+    pEbCallInfo->m_tLastTime = time(0);
+    if (nState==EB_STATE_NOT_AUTH_ERROR) {
+        /// 禁止视频会议功能权限：\r\n请联系公司客服！
+        const QString text = theLocales.getLocalText("message-show.video-not-auth-error","Disable group video");
+        EbMessageBox::doShow( NULL, "", QChar::Null, text, EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
+    }
+    else if (nState==EB_STATE_EXCESS_QUOTA_ERROR) {
+        /// 超过视频会议用户数量：\r\n请联系公司客服！
+        const QString text = theLocales.getLocalText("message-show.video-excess-quota-error","Video excess quota error");
+        EbMessageBox::doShow( NULL, "", QChar::Null, text, EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
+    }
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo);
+    chatBase->onVRequestResponse(pVideoInfo, nState);
+}
+
+void EbDialogMainFrame::onVAckResponse(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_STATE_CODE nState = (EB_STATE_CODE)pVideoInfo->GetEventParameter();
+    if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState) {
+        return;
+    }
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
+        return;
+    }
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo->callId());
+    if (chatBase.get()!=0) {
+        chatBase->onVAckResponse(pVideoInfo, nState);
+    }
+}
+
+void EbDialogMainFrame::onVideoRequest(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
+        return;
+    }
+    pEbCallInfo->m_tLastTime = time(0);
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo);
+    chatBase->onVideoRequest(pVideoInfo, pUserVideoInfo);
+}
+
+void EbDialogMainFrame::onVideoAccept(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
+        return;
+    }
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo->callId());
+    if (chatBase.get()!=0) {
+        chatBase->onVideoAccept(pVideoInfo, pUserVideoInfo);
+    }
+}
+
+void EbDialogMainFrame::onVideoReject(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventData();
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
+        return;
+    }
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo->callId());
+    if (chatBase.get()!=0) {
+        chatBase->onVideoCancel(pVideoInfo, pUserVideoInfo);
+    }
+}
+
+void EbDialogMainFrame::onVideoTimeout(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId,pEbCallInfo)) {
+        return;
+    }
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo->callId());
+    if (chatBase.get()!=0) {
+        chatBase->onVideoTimeout(pVideoInfo, pUserVideoInfo);
+    }
+}
+
+void EbDialogMainFrame::onVideoClose(QEvent *e)
+{
+    const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    EbcCallInfo::pointer pEbCallInfo;
+    if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId,pEbCallInfo)) {
+        return;
+    }
+
+    EbDialogChatBase::pointer chatBase = getDialogChatBase(pEbCallInfo->callId());
+    if (chatBase.get()!=0) {
+        chatBase->onVideoEnd(pVideoInfo, pUserVideoInfo);
+    }
+}
+
 void EbDialogMainFrame::onMsgReceipt(QEvent *e)
 {
-    const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)e;
+    const CCrRichInfo *pCrMsgInfo = (const CCrRichInfo*)e;
     const eb::bigint sCallId = pCrMsgInfo->GetCallId();
     /// 0:成功 4:撤回消息，6:个人收藏，7:群收藏
     const int nAckType = (int)pCrMsgInfo->GetEventParameter();
@@ -2624,7 +2771,7 @@ void EbDialogMainFrame::onMsgReceipt(QEvent *e)
 
 void EbDialogMainFrame::onSendRich(QEvent *e)
 {
-    const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)e;
+    const CCrRichInfo *pCrMsgInfo = (const CCrRichInfo*)e;
     const EB_STATE_CODE nState = pCrMsgInfo->GetStateCode();
     if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState)
         return; // 0;
@@ -2647,7 +2794,7 @@ void EbDialogMainFrame::onSendRich(QEvent *e)
 
 bool EbDialogMainFrame::onReceiveRich(QEvent *e)
 {
-    const CCrRichInfo * pCrMsgInfo = (const CCrRichInfo*)e;
+    const CCrRichInfo *pCrMsgInfo = (const CCrRichInfo*)e;
     const eb::bigint nFromUserid = pCrMsgInfo->m_sSendFrom;
     const eb::bigint sCallId = pCrMsgInfo->GetCallId();
     EbcCallInfo::pointer pEbCallInfo;
@@ -2708,7 +2855,7 @@ bool EbDialogMainFrame::onReceiveRich(QEvent *e)
 
 void EbDialogMainFrame::onSendingFile(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const EB_STATE_CODE state = (EB_STATE_CODE)fileInfo->GetStateCode();
     if (EB_STATE_APPID_KEY_ERROR==state || EB_STATE_APP_ONLINE_KEY_TIMEOUT==state) {
         return;
@@ -2731,7 +2878,7 @@ void EbDialogMainFrame::onSendingFile(QEvent *e)
     case EB_STATE_FILE_ALREADY_EXIST:
             //return 0;	/// 不能返回，后面处理
     case EB_STATE_OK:
-    case EB_STATE_WAITING_PROCESS:	/// ** 等待处理
+    case EB_STATE_WAITING_PROCESS:	/// * *等待处理
             break;
     case EB_STATE_NOT_AUTH_ERROR: {
         /// 没有权限：\r\n请联系管理员！
@@ -2789,7 +2936,7 @@ void EbDialogMainFrame::onSendingFile(QEvent *e)
 
 void EbDialogMainFrame::onSentFile(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const EB_STATE_CODE nState = (EB_STATE_CODE)fileInfo->GetStateCode();
     if (EB_STATE_APPID_KEY_ERROR==nState || EB_STATE_APP_ONLINE_KEY_TIMEOUT==nState) {
         return;
@@ -2821,7 +2968,7 @@ void EbDialogMainFrame::onSentFile(QEvent *e)
         }
         else {
             if ( fileInfo->m_sReceiveAccount!=theApp->logonUserId() ) {
-                /// * 对方接收消息回执
+                /// *对方接收消息回执
                 const eb::bigint nFromUserId = fileInfo->m_sReceiveAccount;
                 const eb::bigint nMsgId = fileInfo->m_nMsgId;
                 theApp->updateMsgReceiptData(nMsgId, nFromUserId, 0);
@@ -2833,7 +2980,7 @@ void EbDialogMainFrame::onSentFile(QEvent *e)
 
 void EbDialogMainFrame::onCancelFile(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const int lParam = (int)fileInfo->GetEventParameter();
     const bool bChangeP2PSending = lParam==1?true:false;
     const eb::bigint callId = fileInfo->GetCallId();
@@ -2884,8 +3031,8 @@ void EbDialogMainFrame::onCancelFile(QEvent *e)
 //            }
 
 //            /// 显示消息
-//            CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
-//            CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
+//            CWnd *pParent = CWnd::FromHandle(::GetDesktopWindow());
+//            CDlgFuncWindow *pFuncWindow = new CDlgFuncWindow(pParent,true);
 //            pFuncWindow->m_pEbCallInfo = pEbCallInfo;
 //            pFuncWindow->m_bDisableContextMenu = true;
 //            pFuncWindow->m_bBroadcastMsg = true;
@@ -2904,7 +3051,7 @@ void EbDialogMainFrame::onCancelFile(QEvent *e)
 
 bool EbDialogMainFrame::onReceivingFile(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const eb::bigint resourceId = fileInfo->m_sResId;
     const int lParam = (int)fileInfo->GetEventParameter();
     if (resourceId>0 && fileInfo->GetCallId()==0) {
@@ -2960,8 +3107,8 @@ bool EbDialogMainFrame::onReceivingFile(QEvent *e)
             m_pDlgMsgTip->addMsgTip(chatBase->fromImage(), pEbCallInfo->groupId(),pEbCallInfo->fromUserId(),sFirstMsg);
         }
         /// 显示消息
-//        CWnd * pParent = CWnd::FromHandle(::GetDesktopWindow());
-//        CDlgFuncWindow * pFuncWindow = new CDlgFuncWindow(pParent,true);
+//        CWnd *pParent = CWnd::FromHandle(::GetDesktopWindow());
+//        CDlgFuncWindow *pFuncWindow = new CDlgFuncWindow(pParent,true);
 //        pFuncWindow->m_pEbCallInfo = pEbCallInfo;
 //        pFuncWindow->m_bDisableContextMenu = true;
 //        pFuncWindow->m_bBroadcastMsg = true;
@@ -2980,7 +3127,7 @@ bool EbDialogMainFrame::onReceivingFile(QEvent *e)
 
 void EbDialogMainFrame::onReceivedFile(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const int lParam = (int)fileInfo->GetEventParameter();
     const eb::bigint callId = fileInfo->GetCallId();
     const eb::bigint resourceId = fileInfo->m_sResId;
@@ -3028,7 +3175,7 @@ void EbDialogMainFrame::onReceivedFile(QEvent *e)
 
 void EbDialogMainFrame::onFilePercent(QEvent *e)
 {
-    const CChatRoomFilePercent * filePercent = (const CChatRoomFilePercent*)e;
+    const CChatRoomFilePercent *filePercent = (const CChatRoomFilePercent*)e;
     const eb::bigint sCallId = filePercent->GetCallId();
     const eb::bigint sResId = filePercent->m_sResId;
     if (sResId>0 && sCallId==0) {
@@ -3049,7 +3196,7 @@ void EbDialogMainFrame::onFilePercent(QEvent *e)
 
 void EbDialogMainFrame::onSave2Cloud(QEvent *e)
 {
-    const CCrFileInfo * fileInfo = (const CCrFileInfo*)e;
+    const CCrFileInfo *fileInfo = (const CCrFileInfo*)e;
     const EB_STATE_CODE stateCode = (EB_STATE_CODE)fileInfo->GetStateCode();
     if (EB_STATE_APPID_KEY_ERROR==stateCode || EB_STATE_APP_ONLINE_KEY_TIMEOUT==stateCode) {
         return;
@@ -3145,7 +3292,7 @@ EbDialogChatBase::pointer EbDialogMainFrame::getDialogChatBase(const EbcCallInfo
 //                    }
                 }
             }
-            QWidget * pParent = (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT||theApp->isHideMainFrame())?m_pDlgFrameList:(QWidget*)this;
+            QWidget *pParent = (nDefaultUIStyleType==EB_UI_STYLE_TYPE_CHAT||theApp->isHideMainFrame())?m_pDlgFrameList:(QWidget*)this;
             pDlgDialog = EbDialogChatBase::create(pEbCallInfo,pParent);
             pDlgDialog->setVisible(false);
             pDlgDialog->setModal(false);
@@ -3188,7 +3335,7 @@ EbDialogChatBase::pointer EbDialogMainFrame::getDialogChatBase(const EbcCallInfo
         }
 
 //        // **不能添加，否则会发生异常；
-//        //CDlgFuncWindow * pOldFuncWindow = NULL;
+//        //CDlgFuncWindow *pOldFuncWindow = NULL;
 //        //if (pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
 //        //{
 //        //	theApp.m_pTempGroupMsg.find(pEbCallInfo->m_pCallInfo.m_sGroupCode,pOldFuncWindow,true);
@@ -3231,7 +3378,7 @@ EbDialogChatBase::pointer EbDialogMainFrame::getDialogChatBase(eb::bigint nCallI
 void EbDialogMainFrame::onCallConnected(QEvent *e)
 {
 //    sndPlaySound(NULL,SND_NODEFAULT);
-    const EB_CallInfo* pConnectInfo = (const EB_CallInfo*)e;
+    const EB_CallInfo *pConnectInfo = (const EB_CallInfo*)e;
     const int nConnectFlag = (int)pConnectInfo->GetEventParameter();
     const eb::bigint sCallId = pConnectInfo->GetCallId();
     EB_AccountInfo pFromAccountInfo;
@@ -3272,7 +3419,7 @@ void EbDialogMainFrame::onCallConnected(QEvent *e)
             EbDialogChatBase::pointer pDlgDialog = getDialogChatBase(pEbCallInfo,bShow,bOwnerCall);
             if (bOwnerCall && !bAutoCall) {
 //                /// **关闭聊天提示窗口2
-//                CDlgFuncWindow * pOldFuncWindow = NULL;
+//                CDlgFuncWindow *pOldFuncWindow = NULL;
 //                if (pEbCallInfo->m_pCallInfo.m_sGroupCode>0)
 //                    theApp.m_pTempGroupMsg.find(pEbCallInfo->m_pCallInfo.m_sGroupCode,pOldFuncWindow,true);
 //                else
@@ -3347,7 +3494,7 @@ void EbDialogMainFrame::onCallConnected(QEvent *e)
 
 void EbDialogMainFrame::onCallError(QEvent *e)
 {
-    const EB_CallInfo * callInfo = (EB_CallInfo*)e;
+    const EB_CallInfo *callInfo = (EB_CallInfo*)e;
 //    sndPlaySound(NULL,SND_NODEFAULT);
     const EB_STATE_CODE stateCode = (EB_STATE_CODE)callInfo->GetEventParameter();
     if (EB_STATE_APPID_KEY_ERROR==stateCode ||
@@ -3430,7 +3577,7 @@ void EbDialogMainFrame::onCallError(QEvent *e)
 void EbDialogMainFrame::onCallHangup(QEvent *e)
 {
 //    sndPlaySound(NULL,SND_NODEFAULT);
-    const EB_CallInfo * pCallInfo = (EB_CallInfo*)e;
+    const EB_CallInfo *pCallInfo = (EB_CallInfo*)e;
     const bool bOwner = (bool)(pCallInfo->GetEventParameter()==1);
 
     bool bRemoveCall = bOwner;
@@ -3450,7 +3597,7 @@ void EbDialogMainFrame::onCallHangup(QEvent *e)
 
 void EbDialogMainFrame::onCallAlerting(QEvent *e)
 {
-    const EB_CallInfo * pCallInfo = (EB_CallInfo*)e;
+    const EB_CallInfo *pCallInfo = (EB_CallInfo*)e;
     const int const_dlg_width = 380;
     const int const_dlg_height = 262;
     const QRect& screenRect = theApp->screenRect();
@@ -3483,7 +3630,7 @@ void EbDialogMainFrame::onCallAlerting(QEvent *e)
 
 void EbDialogMainFrame::onCallIncoming(QEvent *e)
 {
-    const EB_CallInfo * pCallInfo = (EB_CallInfo*)e;
+    const EB_CallInfo *pCallInfo = (EB_CallInfo*)e;
 //    QSound::play( ":/wav/incomingcall.wav" );
 //    CString sSoundFile;
 //    sSoundFile.Format(_T("%s/wav/incomingcall.wav"), theApp.GetAppDataPath());
@@ -3492,7 +3639,7 @@ void EbDialogMainFrame::onCallIncoming(QEvent *e)
     const int const_dlg_height = 262;
     const QRect& screenRect = theApp->screenRect();
 
-    const EB_AccountInfo* pFromAccount = (const EB_AccountInfo*)pCallInfo->GetEventData();
+    const EB_AccountInfo *pFromAccount = (const EB_AccountInfo*)pCallInfo->GetEventData();
 
     const eb::bigint sCallId = pCallInfo->GetCallId();
     //EbcCallInfo::pointer pCallInfo = theEBAppClient.GetCallInfo(sCallId);;

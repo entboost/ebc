@@ -163,15 +163,17 @@ int CPOPCChatManager::Start(const CCgcAddress & address, const tstring & sAppNam
     m_bKilled = false;
     if (bBuildResponseThread && m_pResponseThread.get() == NULL)
     {
-        boost::thread_attributes attrs;
-        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-        m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCChatManager::cm_response_thread_svr, this)));
+        m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPOPCChatManager::cm_response_thread_svr, this)));
+//        boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//        m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCChatManager::cm_response_thread_svr, this)));
     }
     if (bBuildProcessThread && m_pProcessThread.get() == NULL)
     {
-        boost::thread_attributes attrs;
-        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCChatManager::cm_process_thread_svr, this)));
+        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPOPCChatManager::cm_process_thread_svr, this)));
+//        boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCChatManager::cm_process_thread_svr, this)));
     }
     return 0;
 }

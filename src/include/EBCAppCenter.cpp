@@ -58,12 +58,14 @@ int CEBCAppCenter::Start(const CCgcAddress & address, const tstring & sAppName, 
 	sotp()->doStartActiveThread(EB_MAX_HEART_BEAT_SECOND);
 
 	m_bKilled = false;
-	boost::thread_attributes attrs;
-    attrs.set_stack_size(CGC_THREAD_STACK_MIN);
 	//if (m_pResponseThread == NULL)
 	//	m_pResponseThread = new boost::thread(attrs,boost::bind(response_thread_svr, (void*)this));
-	if (m_pProcessThread.get() == NULL)
-		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CEBCAppCenter::process_thread_svr, this)));
+    if (m_pProcessThread.get() == 0) {
+        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEBCAppCenter::process_thread_svr, this)));
+//        boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CEBCAppCenter::process_thread_svr, this)));
+    }
 	return 0;
 }
 bool CEBCAppCenter::IsStart(void) const

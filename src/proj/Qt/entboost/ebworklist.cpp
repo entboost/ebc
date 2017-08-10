@@ -53,6 +53,19 @@ EbWidgetUserList *EbWorkList::widgetUserList() const
     return 0;
 }
 
+EbWidgetVideoFrame *EbWorkList::widgetVideoFrame() const
+{
+    AUTO_CONST_RLOCK(m_list);
+    CLockList<EbWorkItem::pointer>::const_iterator pIter = m_list.begin();
+    for (; pIter!=m_list.end(); pIter++) {
+        const EbWorkItem::pointer& frameInfo = *pIter;
+        if ( frameInfo->isItemType(EbWorkItem::WORK_ITEM_VIDEO_FRAME) ) {
+            return frameInfo->widgetVideoFrame();
+        }
+    }
+    return 0;
+}
+
 EbWidgetChatRecord *EbWorkList::widgetChatRecord() const
 {
     AUTO_CONST_RLOCK(m_list);

@@ -213,8 +213,8 @@ void EbWidgetMySession::insertCallRecord(const EbCallRecordInfo::pointer &pCallR
     else {
         sItemText = QString("%1 [%2]").arg(pCallRecordInfo->m_sFromName.c_str()).arg(sCallTime);
         /// 获取用户头像
-        fromImage = theApp->userHeadImage(pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sMemberCode,pCallRecordInfo->m_sFromAccount);
-        if (pCallRecordInfo->m_sMemberCode>0)
+//        fromImage = theApp->userHeadImage(pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sMemberCode,pCallRecordInfo->m_sFromAccount);
+        if (pCallRecordInfo->m_sMemberCode>0 && theApp->m_ebum.EB_IsExistLocalMemberInfo(pCallRecordInfo->m_sMemberCode))
             itemInfo = EbWidgetItemInfo::create(EbWidgetItemInfo::ITEM_TYPE_MEMBER,-1);
         else
             itemInfo = EbWidgetItemInfo::create(EbWidgetItemInfo::ITEM_TYPE_CONTACT,-1);
@@ -225,14 +225,43 @@ void EbWidgetMySession::insertCallRecord(const EbCallRecordInfo::pointer &pCallR
     itemInfo->m_sortFlag = EbWidgetItemInfo::SORT_BY_TIME;
     itemInfo->m_time = pCallRecordInfo->m_tTime;
 
-    const QIcon icon = QIcon( QPixmap::fromImage(fromImage).scaled(const_tree_icon_size,Qt::IgnoreAspectRatio, Qt::SmoothTransformation) );
-    EbListWidgetItem * pItem0 = new EbListWidgetItem( icon,sItemText,m_listWidget );
+    EbListWidgetItem * pItem0 = 0;
+    if (fromImage.width()>0) {
+        const QIcon icon = QIcon( QPixmap::fromImage(fromImage).scaled(const_tree_icon_size,Qt::IgnoreAspectRatio, Qt::SmoothTransformation) );
+        pItem0 = new EbListWidgetItem( icon,sItemText,m_listWidget );
+    }
+    else {
+        pItem0 = new EbListWidgetItem( sItemText,m_listWidget );
+    }
     pCallRecordInfo->m_listItem = pItem0;
     pItem0->setToolTip(sItemText);
     itemInfo->m_listItem = pItem0;
     pItem0->m_itemInfo = itemInfo;
     m_listWidget->insertItem(0,pItem0);
     m_pCallRecordInfo.insert(pItem0,pCallRecordInfo);
+    if (itemInfo->m_nItemType==EbWidgetItemInfo::ITEM_TYPE_MEMBER) {
+        EB_MemberInfo memberInfo;
+        if (theApp->m_ebum.EB_GetMemberInfoByMemberCode(&memberInfo, pCallRecordInfo->m_sMemberCode) ||
+            theApp->m_ebum.EB_GetMemberInfoByUserId2(&memberInfo, pCallRecordInfo->m_nFromUserId)) {
+            itemInfo->updateMemberInfo(&memberInfo, true);
+        }
+        else {
+            fromImage = theApp->userHeadImage(pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sMemberCode,pCallRecordInfo->m_sFromAccount);
+            const QIcon icon = QIcon( QPixmap::fromImage(fromImage).scaled(const_tree_icon_size,Qt::IgnoreAspectRatio, Qt::SmoothTransformation) );
+            pItem0->setIcon(icon);
+        }
+    }
+    else if (itemInfo->m_nItemType==EbWidgetItemInfo::ITEM_TYPE_CONTACT) {
+        EB_ContactInfo contactInfo;
+        if (theApp->m_ebum.EB_GetContactInfo2(itemInfo->m_nUserId, &contactInfo)) {
+            itemInfo->updateContactInfo(&contactInfo);
+        }
+        else {
+            fromImage = theApp->userHeadImage(pCallRecordInfo->m_nFromUserId,pCallRecordInfo->m_sMemberCode,pCallRecordInfo->m_sFromAccount);
+            const QIcon icon = QIcon( QPixmap::fromImage(fromImage).scaled(const_tree_icon_size,Qt::IgnoreAspectRatio, Qt::SmoothTransformation) );
+            pItem0->setIcon(icon);
+        }
+    }
     if (sort) {
         m_listWidget->sortItems(Qt::DescendingOrder);
     }
@@ -273,6 +302,27 @@ EbCallRecordInfo::pointer EbWidgetMySession::callRecordInfo(eb::bigint groupId, 
         }
     }
     return EbCallRecordInfoNull;
+}
+
+void EbWidgetMySession::onMemberInfo(const EB_MemberInfo *memberInfo, bool changeLineState)
+{
+    if (!changeLineState) {
+        return;
+    }
+    EbCallRecordInfo::pointer recordInfo = callRecordInfo(0, memberInfo->m_nMemberUserId, 0);
+    if (recordInfo.get()!=0 && recordInfo->m_listItem!=0) {
+        EbListWidgetItem * item = (EbListWidgetItem*)recordInfo->m_listItem;
+        item->m_itemInfo->updateMemberInfo(memberInfo);
+    }
+}
+
+void EbWidgetMySession::onContactStateChanged(const EB_ContactInfo *contactInfo)
+{
+    EbCallRecordInfo::pointer recordInfo = callRecordInfo(0, contactInfo->m_nContactUserId, 0);
+    if (recordInfo.get()!=0 && recordInfo->m_listItem!=0) {
+        EbListWidgetItem * item = (EbListWidgetItem*)recordInfo->m_listItem;
+        item->m_itemInfo->updateContactInfo(contactInfo);
+    }
 }
 
 void EbWidgetMySession::onDeleteSession(const EbWidgetItemInfo::pointer &itemInfo)

@@ -15,7 +15,7 @@ QPushButton#DialogChatButton:hover{background-color:rgb(128,128,128,50); color: 
 /* Send Button “发送” 按钮 */
 QPushButton#SendButton{background-color:rgb([EB_MAIN_RGB]); color: white; border-radius: 2px;}
 QPushButton#SendButton:hover{background-color:rgb([EB_MAIN_RGB],180); color: white;}
-QPushButton#SendButton:pressed{background-color:rgb([EB_MAIN_RGB]); border-style: inset; }
+QPushButton#SendButton:pressed{background-color:rgb([EB_MAIN_RGB]);  }
 /* 聊天列表左边 切换按钮 */
 QPushButton#LeftSwitchButton{background-color:rgb(0,0,0,0); color: rgb(255,255,255,200); padding-left: 32px; border-radius: 0px;}
 QPushButton#LeftSwitchButton:hover{background-color:rgb(255,255,255,100); color: rgb(255,255,255); }
@@ -40,7 +40,7 @@ QPushButton#IgnoreItem:hover{background-color:rgb(0,0,0,0); color: rgb(237,28,36
 /* MessageTip 消息提醒 “忽略全部/查看全部” 按钮 */
 QPushButton#MessageTipButton{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]); border-radius: 2px;}
 QPushButton#MessageTipButton:hover{background-color:rgb([EB_MAIN_RGB]); color: white;}
-QPushButton#MessageTipButton:pressed{background-color:rgb([EB_MAIN_RGB]); color: white; border-style: inset; }
+QPushButton#MessageTipButton:pressed{background-color:rgb([EB_MAIN_RGB]); color: white;  }
 /* MessageTip 消息提醒 "消息列表" */
 QListWidget#MessageTipList{background-color:rgb(0,0,0,0);border: none;}
 QListWidget#MessageTipList::Item{height:40px;}
@@ -84,57 +84,61 @@ QTreeWidget::branch:!has-children:!has-siblings:adjoins-item{border-image:none;i
 /* "visitor/register/forget password/connect setting" */
 QPushButton#BorderButton{background-color:rgb(0,0,0,0); color: rgb(64,64,64); border-radius: 0px;}
 QPushButton#BorderButton:hover{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);border:1px solid rgb([EB_MAIN_RGB])}
-QPushButton#BorderButton:pressed{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]); border-style: inset; }
+QPushButton#BorderButton:pressed{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);  }
 
 /* 申请加为好友 按钮，默认字主颜色，鼠标移动背景主颜色，字白色 */
 QPushButton#RequestAddContact{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]); border-radius: 2px;}
 QPushButton#RequestAddContact:hover{background-color:rgb([EB_MAIN_RGB],180); color: rgb(255,255,255);}
 
+/* 视频面板按钮 默认字黑色，鼠标移动背景主颜色，字白色 */
+QPushButton#VideoButton{background-color:rgb(0,0,0,0); color: rgb(0,0,0); border-radius: 0px;}
+QPushButton#VideoButton:hover{background-color:rgb([EB_MAIN_RGB],180); color: rgb(255,255,255);}
+
 /* 搜索条按钮 按钮字主颜色 */
 QPushButton#SearchBarButton{background-color:rgb(0,0,0,0); color: rgb(128,128,128); border-radius: 0px; border: none;}
 QPushButton#SearchBarButton:hover{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);}
-QPushButton#SearchBarButton:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QPushButton#SearchBarButton:pressed{background-color:rgb(0,0,0,0); }
 /* 搜索条关闭 x 按钮 */
 QPushButton#SearchBarCloseButton{background-color:rgb(0,0,0,0); color: rgb(128,128,128); border-radius: 0px; border: none;}
 QPushButton#SearchBarCloseButton:hover{background-color:rgb(0,0,0,0); color: rgb(237,28,36);}
-QPushButton#SearchBarCloseButton:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QPushButton#SearchBarCloseButton:pressed{background-color:rgb(0,0,0,0); }
 
 /* 窗口右上角“关闭”按钮，字白色 */
 QPushButton#SysCloseButton{background-color:rgb(0,0,0,0); color: white; border-radius: 0px; border: none;}
 QPushButton#SysCloseButton:hover{background-color:rgb(237,28,36); color: white;}
-QPushButton#SysCloseButton:pressed{background-color:rgb(237,28,36); border-style: inset;}
+QPushButton#SysCloseButton:pressed{background-color:rgb(237,28,36); }
 /* 窗口右上角“关闭2”按钮 字黑色 */
 QPushButton#SysClose2Button{background-color:rgb(0,0,0,0); color: rgb(128,128,128); border-radius: 0px;}
 QPushButton#SysClose2Button:hover{background-color:rgb(237,28,36); color: white;}
-QPushButton#SysClose2Button:pressed{background-color:rgb(237,28,36); border-style: inset;}
+QPushButton#SysClose2Button:pressed{background-color:rgb(237,28,36); }
 
 /* 窗口右上角“设置/最小化/最大化”透明按钮 */
 QPushButton#SysTransButton{background-color:rgb(0,0,0,0); color: white; border-radius: 0px;}
 QPushButton#SysTransButton:hover{background-color:rgb(255,255,255,100); color: white;}
-QPushButton#SysTransButton:pressed{background-color:rgb(255,255,255,100); border-style: inset; }
+QPushButton#SysTransButton:pressed{background-color:rgb(255,255,255,100);  }
 /* 窗口右上角“设置/最小化/最大化”透明+颜色按钮 */
 QPushButton#SysTrans2Button{background-color:rgb(0,0,0,0); color: rgb(128,128,128); border-radius: 0px;}
 QPushButton#SysTrans2Button:hover{background-color:rgb([EB_MAIN_RGB],180); color: white;}
-QPushButton#SysTrans2Button:pressed{background-color:rgb([EB_MAIN_RGB],180); border-style: inset; }
+QPushButton#SysTrans2Button:pressed{background-color:rgb([EB_MAIN_RGB],180);  }
 
 /* “显示/隐藏”左边按钮 字透明 */
 QPushButton#SwitchButton{background-color:rgb(0,0,0,0); color: rgb(0,0,0,0); border-radius: 0px;}
 QPushButton#SwitchButton:hover{background-color:rgb(0,0,0,0); color: rgb(242,242,242);}
-QPushButton#SwitchButton:pressed{background-color:rgb(0,0,0,0); border-style: inset; }
+QPushButton#SwitchButton:pressed{background-color:rgb(0,0,0,0); }
 /* “显示/隐藏”左边按钮 字黑色 */
 QPushButton#SwitchButton2{background-color:rgb(0,0,0,0); color: rgb(0,0,0,0); border-radius: 0px;}
 QPushButton#SwitchButton2:hover{background-color:rgb(0,0,0,0); color: rgb(32,32,32);}
-QPushButton#SwitchButton2:pressed{background-color:rgb(0,0,0,0); border-style: inset; }
+QPushButton#SwitchButton2:pressed{background-color:rgb(0,0,0,0); }
 
 /* Ok Button 如“登录/确定/...”,“发送” */
 QPushButton#OkButton{background-color:rgb([EB_MAIN_RGB]); color: white; border-radius: 4px;}
 QPushButton#OkButton:hover{background-color:rgb([EB_MAIN_RGB],180); color: white;}
-QPushButton#OkButton:pressed{background-color:rgb([EB_MAIN_RGB]); border-style: inset; }
+QPushButton#OkButton:pressed{background-color:rgb([EB_MAIN_RGB]); }
 
 /* Cancel Button 如“取消/关闭/...”,"打开本地图片" */
 QPushButton#CancelButton{background-color:rgb(0,0,0,0); color: rgb(32,32,32);border:1px solid rgb(224,224,224); border-radius: 4px;}
 QPushButton#CancelButton:hover{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);border:1px solid rgb([EB_MAIN_RGB]);}
-QPushButton#CancelButton:pressed{background-color:rgb(0,0,0,0); border-style: inset; }
+QPushButton#CancelButton:pressed{background-color:rgb(0,0,0,0); }
 
 /* 主界面上方，四功能按钮*/
 QPushButton#MainButton{background-color:rgb(0,0,0,0); color: white;border-radius: 0px;}
@@ -143,17 +147,17 @@ QPushButton#MainButton:hover{background-color:rgb(0,0,0,0); color: white;border:
 /* “删除”帐号X按钮 */
 QPushButton#DeleteButton{background-color:rgb(0,0,0,0); color: rgb(32,32,32); border-radius: 2px;}
 QPushButton#DeleteButton:hover{background-color:rgb(237,28,36); color: rgb(255,255,255);}
-QPushButton#DeleteButton:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QPushButton#DeleteButton:pressed{background-color:rgb(237,28,36); }
 
 /* “打开会话”call按钮 */
 QPushButton#CallButton{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB],80); border-radius: 0px;}
 QPushButton#CallButton:hover{background-color:rgb([EB_MAIN_RGB],30); color: rgb([EB_MAIN_RGB]);border:1px solid rgb([EB_MAIN_RGB],40);}
-QPushButton#CallButton:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QPushButton#CallButton:pressed{background-color:rgb([EB_MAIN_RGB],30); }
 
 /* “打开会话”call按钮 */
 QPushButton#CallDelButton{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB],80); border-radius: 0px;}
 QPushButton#CallDelButton:hover{background-color:rgb([EB_MAIN_RGB],30); color: rgb(237,28,36);border:1px solid rgb([EB_MAIN_RGB],40);}
-QPushButton#CallDelButton:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QPushButton#CallDelButton:pressed{background-color:rgb(0,0,0,0); }
 
 /* 聊天记录 "全部/图片/文件/语音"　按钮 */
 QPushButton#MsgCheckButton{background-color:rgb(0,0,0,0); color: rgb(0,0,0); border-radius: 2px;}
@@ -182,7 +186,7 @@ QLabel#TitleCheckIcon:hover{background-color:rgb(0,0,0,0);color:rgb([EB_MAIN_RGB
 /* QLabel “在线状态”  */
 QLabel#LineState{background-color:rgb(0,0,0,0); border-radius: 0px;}
 QLabel#LineState:hover{background-color:rgb(255,255,255,200); border:1px solid rgb(255,255,255);}
-QLabel#LineState:pressed{background-color:rgb(0,0,0,0); border-style: inset;}
+QLabel#LineState:pressed{background-color:rgb(255,255,255,200); }
 
 /* “用户名称” */
 QLabel#MainUserName{background-color:rgb(0,0,0,0); color:white; font-size:13px; font-weight:bold;}
@@ -190,7 +194,7 @@ QLabel#MainUserName{background-color:rgb(0,0,0,0); color:white; font-size:13px; 
 /* 图标按钮，如登录界面，帐号输入框后面的 icon 小按钮“”*/
 QLabel#IconLabel{background-color:rgb(0,0,0,0); color: rgb(128,128,128); border-radius: 0px;}
 QLabel#IconLabel:hover{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);}
-QLabel#IconLabel:pressed{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]); border-style: inset; }
+QLabel#IconLabel:pressed{background-color:rgb(0,0,0,0); color: rgb([EB_MAIN_RGB]);  }
 
 /* QLabel “搜索ICON” */
 QLabel#SearchIcon{background-color:rgb(0,0,0,0); color:rgb(234,234,234);}

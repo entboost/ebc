@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 #include "pop_sotpclient.h"
 #include "eb_objects.h"
@@ -9,7 +9,7 @@ class CEBRtpManager;
 class CEBRtpHangler
 {
 public:
-	virtual void OnProcessTimer(const CEBRtpManager* pLCOwner) {}	// 1Ãë¶¨Ê±ÊÂ¼ş
+	virtual void OnProcessTimer(const CEBRtpManager* pLCOwner) {}	// 1ç§’å®šæ—¶äº‹ä»¶
 	virtual void OnTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo,const CEBRtpManager* pLCOwner) {}
 	virtual void OnInvalidateSession(int nResultCode,const CEBRtpManager* pLCOwner) {}
 	virtual void OnResultValue(int nResultValue,const CEBRtpManager* pLCOwner) {}
@@ -49,8 +49,8 @@ public:
 	void SendCloseSession(void);
 
 	mycp::bigint m_nP2PTryOwnerAccount;
-	int m_nOnP2POk;	// -1=³õÊ¼ 0=µÈÓÚssl pwd 1=p2p ok
-	int m_nP2PData;	// 1ÊÇÄÚÍø£»
+	int m_nOnP2POk;	// -1=åˆå§‹ 0=ç­‰äºssl pwd 1=p2p ok
+	int m_nP2PData;	// 1æ˜¯å†…ç½‘ï¼›
 	void SetDestAddress(int nUserIndex,const std::string& sToAddress);
 	int SendP2PRequest(mycp::bigint nFromUid,mycp::bigint nChatId,mycp::bigint nToAccount,const tstring& sLocapIp,int nRequestData);
 	int SendP2PResponse(mycp::bigint nFromUid,mycp::bigint nChatId,mycp::bigint nToAccount,const tstring& sLocapIp,int nResponseData,CPOPSotpRequestInfo::pointer pRequestInfo = NullPOPSotpRequestInfo);

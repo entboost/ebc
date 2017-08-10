@@ -29,7 +29,6 @@ using namespace entboost;
 #include <boost/shared_ptr.hpp>
 //#include <QtWebEngine/QtWebEngine>
 
-/// 使用这个某些事件参数，才能返回处理结果
 inline bool checkCreateDir(const QString & dirName)
 {
     QDir pDir1(dirName);
@@ -96,6 +95,8 @@ public:
     const QString &userFilePath(void) const {return m_userFilePath;}
     const QString &userSettingIniFile(void) const {return m_userSettingIniFile;}
 
+    void setLocalVideoIndex(int index);
+    int localVideoIndex(int defaultIndex=0) const;
 //    void setMainColor(QRgb v,bool bUpdateDatabase);
     void setMainColor(unsigned char r, unsigned char g, unsigned char b, bool bUpdateDatabase);
     void setMainColor(const QColor& pColor, bool bUpdateDatabase);

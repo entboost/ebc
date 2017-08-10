@@ -1,9 +1,12 @@
 ﻿{
+	"menu-bar": {
+		"window": { "text": "窗口", "tooltip": "" }
+	},
   "base-dialog": {
   	"title": { "background-height": 40 },
     "setting-button": { "tooltip": "设置" },
-    "minimize-button": { "tooltip": "最小化" },
-    "maximize-button": { "tooltip": "最大化" },
+    "minimize-button": { "text": "最小化", "tooltip": "最小化" },
+    "maximize-button": { "text": "最大化", "tooltip": "最大化" },
     "exit-button": { "tooltip": "退出" },
     "ok-button": { "text": "确定" },
     "yes-button": { "text": "是" },
@@ -223,7 +226,8 @@
     "label-address": { "text": "地      址：" },
     "label-description": { "text": "个性签名：" },
 
-    "edit-account": { "tooltip": "请输入注册新帐号！", "bg-text": "请输入注册新帐号"}
+    "edit-account": { "tooltip": "请输入注册新帐号！", "bg-text": "请输入注册新帐号"},
+    "button-default-member": { "text-0":"设为默认名片", "text-1":"当前默认名片", "tooltip": "默认名片用于聊天窗口显示电子名片" }
   },
   "request-add-contact-dialog": {
     "title": "申请添加好友",
@@ -349,6 +353,7 @@
     "button-account-info": { "text": "帐号信息", "tooltip": ""},
     "button-my-setting": { "text": "个人设置", "tooltip": "" },
     "button-modify-password": { "text": "修改密码", "tooltip": "" },
+    "button-video-setting": { "text": "视频设置", "tooltip": "" },
     "account-info-widget" : {
     	"label-account": { "text": "帐      号：" },
     	"label-name": { "text": "名      称：" },
@@ -368,6 +373,11 @@
     	"label-current-password": { "text": "当前密码：" },
     	"label-new-password": { "text": "新密码：" },
     	"label-confirm-password": { "text": "确认密码：" }
+    },
+    "video-setting-widget" : {
+    	"combo-video-devices": { "tooltip": "选择视频设备，打开预览视频，保存默认视频通话设备。" },
+    	"button-open": { "text": "打开", "tooltip": "打开本地预览视频" },
+    	"button-close": { "text": "关闭", "tooltip": "关闭本地视频" }
     },
     "button-default-member": { "text": "默认名片", "tooltip": "显示默认名片信息" }
   },
@@ -428,6 +438,22 @@
   	"group-share": "群共享",
 
   	"history-msg-separate": "-------- 以上是历史消息  --------",
+  	"group-video-reqeust-ok": "打开本地视频加入视频会议...",
+  	"video-reqeust-ok": "邀请对方视频通话...",
+  	"group-video-ack-ok": "成功申请视频会议，可以“打开视频”加入视频会议，然后“退出会议”！",
+  	"group-video-ack-error": "申请视频会议失败！",
+  	"video-ack-ok": "接受对方视频通话，视频通话中...",
+  	"member-video-request": "[MEMBER_NAME] 打开视频会议视频...",
+  	"dest-video-request": "对方邀请视频通话...",
+  	"member-video-accept": "[MEMBER_NAME] 打开我的视频会议视频...",
+  	"dest-video-accept": "对方接受视频通话，视频通话中...",
+  	"member-video-exit": "[MEMBER_NAME] 退出视频会议",
+  	"dest-video-reject": "对方拒绝视频通话",
+  	"video-request-timeout": "请求视频通话超时",
+  	"member-video-close": "[MEMBER_NAME] 关闭视频会议视频",
+  	"local-video-close": "关闭本地视频会议视频",
+  	"video-end": "视频通话结束",
+  	
   	"file-not-exist": "文件不存在",
   	"file-saveas-ok": "文件另存成功",
   	"voice-msg": "语音消息",
@@ -438,7 +464,7 @@
   	"save2-cloud-error": "存入个人云盘失败！([STATE_CODE])",
   	"down-file-ok": "成功下载文件",
   	"receive-file-ok": "成功接收文件",
-  	"send-file-ok": "成功接收文件",
+  	"send-file-ok": "成功发送文件",
   	"send-group-file": "上传群共享文件",
   	"send-off-file-ok": "成功发送离线文件",
   	"change-p2p-sending": "对方在线，使用P2P点对点发送",
@@ -473,6 +499,11 @@
   	"msg-receipt-group": "[USER_NAME] 撤回了一条消息！"
   },
   "message-show": {
+  	"video-not-auth-error": "禁止视频会议功能权限：<br>请联系公司客服！",
+  	"video-excess-quota-error": "超过视频会议用户数量：<br>请联系公司客服！",
+  	"video-devices-empty-tip": "本地找不到视频设备：<br>请检查设备后重试一次！",
+  	"open-video-device-error": "打开视频摄像头失败：<br>请检查摄像头是否被占用或其他硬件故障！",
+  	"open-mic-device-error": "打开麦克风失败：<br>请检查麦克风是否被占用或其他硬件故障！",
   	"disable-group-share-tip": "禁用群共享：<br>请使用一对一聊天窗口发送文件！",
   	"forbid-send-ecard-tip": "禁言限制中：<br>不能发送名片！",
   	"forbid-send-file-tip": "禁言限制中：<br>不能发送文件！",
@@ -485,7 +516,7 @@
   	"withdraw-msg-dest": "[USER_NAME] 撤回了一条消息！",
   	"withdraw-msg-error": "发送时间超过2分钟的消息：<br>不能撤回！",
   	"new-email-tip":"新邮件:",
-  	"unread-email-tip":"你一共有 [%1] 封未读邮件！<br>点击查看！",
+  	"unread-email-tip":"你一共有 [%1] 封未读邮件！\n点击查看！",
   	"clear-chrome-cache-ok":"成功清除 Chrome 浏览器本地缓存",
   	"group-empty-error": "[GROUP_TYPE_NAME]名称不能为空：<br>请输入！",
   	"remove-from-group": "你被管理员移除出：<br>[GROUP_NAME]([GROUP_ID])",
@@ -523,6 +554,7 @@
   	"clear-session-user-chat-record": { "title": "清空聊天记录", "text": "已经删除会话记录，确定同时清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
   	"creator-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_MANAGER]退出，将会解散当前[GROUP_TYPE_NAME]<br>确定解散：<br>\"[GROUP_NAME]\" 吗？" },
   	"member-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "确定退出：<br>\"[GROUP_NAME]\" 吗？" },
+  	"video-chat-exit-chat": { "title": "退出聊天会话", "text": "正在视频通话：<br>确定退出吗？" },
   	"tran-file-exit-chat": { "title": "退出聊天会话", "text": "正在传输文件：<br>确定退出吗？" },
   	"delete-chat-msg": { "title": "删除聊天消息", "text": "确定删除当前聊天消息吗？" },
   	"clear-all-history": { "title": "清除所有浏览记录", "text": "确定要清除：<br>所有浏览记录吗？" },
@@ -642,6 +674,16 @@
   	"button-move-next": { "tooltip": "下一页" },
   	"button-move-last": { "tooltip": "最后一页" }
   },
+  "video-frame": {
+  	"title": "视频面板",
+  	"button-on-group": { "text": "打开视频", "tooltip": "打开本地视频" },
+  	"button-end-group": { "text": "关闭视频", "tooltip": "关闭本地视频" },
+  	"button-group-join": { "text": "加入会议", "tooltip": "加入视频会议" },
+  	"button-group-exit": { "text": "退出会议", "tooltip": "退出视频会议" },
+  	"button-accept": { "text": "接受", "tooltip": "接受视频通话" },
+  	"button-end": { "text": "结束", "tooltip": "结束视频通话" },
+  	"button-reject": { "text": "拒绝", "tooltip": "拒绝视频通话" }
+  },
   "work-frame": {
   	"user-list": { "text": "群成员", "tooltip": "成员列表" },
   	"about-blank": { "text": "新标签页" },
@@ -664,8 +706,8 @@
   "chat-base-dialog": {
   	"button-add-user": { "tooltip": "邀请多人聊天" },
   	"button-send-file": { "tooltip": "发送文件" },
-  	"button-video-chat": { "tooltip": "开始视频通话" },
-  	"button-group-video": { "tooltip": "申请加入视频会议" },
+  	"button-video-chat": { "tooltip": "开始视频通话（语音聊天）" },
+  	"button-group-video": { "tooltip": "申请加入视频会议（多人语音）" },
   	"button-group-share": { "tooltip": "打开群共享" },
   	"button-chat-apps": { "tooltip": "集成应用" },
   	"button-exit-chat": { "tooltip": "退出会话" }

@@ -20,6 +20,10 @@
 #include "EBAppClient.h"
 //#include <CGCLib/CGCLib.h>
 
+#ifdef USES_VIDEOROOM
+#include "ebmm.h"
+#endif
+
 #ifndef WIN32
 #include "../include/boost_ini.h"
 #endif
@@ -847,8 +851,7 @@ void CUserManagerApp::DoProcess(void)
 //#endif
 			}
 
-			switch (pProcessMsgInfo->GetProcessMsgType())
-			{
+            switch (pProcessMsgInfo->GetProcessMsgType()) {
 			//case CProcessMsgInfo::PROCESS_MSG_TYPE_CHECK_MEMBER_HEAD:
 			//	{
 			//		const CEBMemberInfo::pointer& pEmployeeInfo = pProcessMsgInfo->m_pEmployeeInfo;
@@ -1102,6 +1105,30 @@ long CUserManagerApp::waitEventResult(unsigned long resultKey, int waitMaxSecond
     return result;
 }
 
+class EBUM_Event : public QEvent
+{
+public:
+    enum EventType {
+        Event_None,
+        Event_Open_Video,
+        Event_VRequestResponse,
+        Event_VAckResponse,
+        Event_FVRequest,
+        Event_FVAck,
+        Event_FVEnd
+    };
+    EBUM_Event(EventType type, QEvent::Type e=QEvent::User)
+        : QEvent(e)
+        , m_type(type)
+    {
+    }
+    CPOPSotpRequestInfo::pointer m_pSotpRequestInfo;
+    CPOPSotpResponseInfo::pointer m_pSotpResponseInfo;
+    CEBCallInfo::pointer m_pCallInfo;
+    EventType type(void) const {return m_type;}
+private:
+    EventType m_type;
+};
 void CUserManagerApp::customEvent(QEvent *e)
 {
     const QEvent::Type eventType = e->type();
@@ -1113,6 +1140,55 @@ void CUserManagerApp::customEvent(QEvent *e)
         const EB_Event * event = (EB_Event*)e;
         m_eventResult.insert(event->receiveKey(),event->GetEventParameter());
     }
+    else if (eventType==QEvent::User) {
+        doEBUMEvent(e);
+    }
+}
+
+void CUserManagerApp::doEBUMEvent(QEvent *e)
+{
+    EBUM_Event *event = (EBUM_Event*)e;
+    switch (event->type()) {
+    case EBUM_Event::Event_Open_Video: {
+        const CEBCallInfo::pointer &pCallInfo = event->m_pCallInfo;
+        if (pCallInfo.get()==0) {
+            break;
+        }
+        if (event->m_pSotpRequestInfo.get()==0) {
+            break;
+        }
+        const mycp::bigint userId = event->m_pSotpRequestInfo->m_pRequestList.getParameterValue("user-id",(mycp::bigint)0);
+        if (userId==0) break;
+        const bool localVideo = userId==m_pMyAccountInfo->GetUserId()?true:false;
+        QWidget *hVideoWndParent = (QWidget*)event->m_pSotpRequestInfo->m_pRequestList.getParameterValue("video-parent",(mycp::bigint)0);
+        void *pAudioParam = (void*)event->m_pSotpRequestInfo->m_pRequestList.getParameterValue("audio-param",(mycp::bigint)0);
+        const unsigned long  resultKey = (unsigned long)event->m_pSotpRequestInfo->m_pRequestList.getParameterValue("result-key",(mycp::bigint)0);
+        bool bVideoError = false;
+        OpenUserVideo(pCallInfo, userId, localVideo, hVideoWndParent, pAudioParam, bVideoError);
+        if (resultKey!=0) {
+            m_eventResult.insert(resultKey, bVideoError?0:1);
+        }
+        break;
+    }
+    case EBUM_Event::Event_VAckResponse:
+        OnVAckResponse(event->m_pSotpRequestInfo, event->m_pSotpResponseInfo);
+        break;
+    case EBUM_Event::Event_VRequestResponse:
+        OnVRequestResponse(event->m_pSotpRequestInfo, event->m_pSotpResponseInfo);
+        break;
+    case EBUM_Event::Event_FVRequest:
+        OnFVRequest(event->m_pSotpRequestInfo, event->m_pSotpResponseInfo);
+        break;
+    case EBUM_Event::Event_FVAck:
+        OnFVAck(event->m_pSotpRequestInfo, event->m_pSotpResponseInfo);
+        break;
+    case EBUM_Event::Event_FVEnd:
+        OnFVEnd(event->m_pSotpRequestInfo, event->m_pSotpResponseInfo);
+        break;
+    default:
+        break;
+    }
+
 }
 #endif
 
@@ -3714,12 +3790,11 @@ int CUserManagerApp::VideoEnd(mycp::bigint sCallId)
 		// 当前没有视频用户ＩＤ
 		return 1;
 	}
-	if (pCallInfo->m_sGroupCode==0)
-	{
-		// 一对一，关闭所有
+    if (pCallInfo->m_sGroupCode==0) {
+        /// 一对一，关闭所有
 		DoVideoDisonnecte(pCallInfo,true);
-	}else
-	{
+    }
+    else {
 #ifdef USES_VIDEOROOM
 
 		BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
@@ -8658,7 +8733,12 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
 			m_tReLogonTime = 0;
 	}
 }
+
+#ifdef _QT_MAKE_
+static void MY_MMAudioVoiceCallBack(mycp::bigint nUserId, int nCallBackType, unsigned long lParam, unsigned int wParam, void* pUserData)
+#else
 static void MY_MMAudioVoiceCallBack(mycp::bigint nUserId, int nCallBackType, unsigned int lParam, unsigned int wParam, void* pUserData)
+#endif
 {
 #ifdef USES_VIDEOROOM
 	const tag_VideoStreamData * pAudiooStreamData = (const tag_VideoStreamData*)pUserData;
@@ -8770,8 +8850,11 @@ void CUserManagerApp::CreateVideoRoom(const CEBCallInfo::pointer& pCallInfo)
 			BoostWriteLock wtLock(pCallInfo->m_mutexVideoRoom);
 			if (pCallInfo->m_pVideoRoom.get() == NULL)
 			{
-				SetMicroBoostLevel(0.0);			// 设置麦克风加强为0
-				SetStereoMix(TRUE);					// 设置混音器静音
+#ifdef _QT_MAKE_
+#else
+                SetMicroBoostLevel(0.0);			/// 设置麦克风加强为0
+                SetStereoMix(TRUE);					/// 设置混音器静音
+#endif
 				pCallInfo->m_pVideoRoom = Cebmm::create();
 				pCallInfo->m_pVideoRoom->Start(sRealAudioServer.c_str(), sRealVideoServer.c_str(), 0);
 				pCallInfo->m_pVideoRoom->SetCallBack(MY_MMAudioVoiceCallBack,&pCallInfo->m_pAudioStreamData);
@@ -8788,7 +8871,9 @@ void CUserManagerApp::CreateVideoRoom(const CEBCallInfo::pointer& pCallInfo)
 
 }
 #ifdef _QT_MAKE_
-void CUserManagerApp::OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::bigint nVideoUserId, bool bLocalUser,QObject* hVideoWndParent, void* pAudioParam, bool& pOutVideoError)
+void CUserManagerApp::OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,
+                                    mycp::bigint nVideoUserId, bool bLocalUser,
+                                    QWidget *hVideoWndParent, void* pAudioParam, bool& pOutVideoError)
 #else
 void CUserManagerApp::OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::bigint nVideoUserId, bool bLocalUser,HWND hVideoWndParent, void* pAudioParam, bool& pOutVideoError)
 #endif
@@ -8820,26 +8905,24 @@ void CUserManagerApp::OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::
 		if (!bLocalUser)
 		{
 			//pCallInfo->m_pVideoRoom->VR_AddMeLooks(nVideoUserId);
-			if (pCallInfo->m_nVideoType == EB_VIDEO_AUDIO)
-			{
+            if (pCallInfo->m_nVideoType == EB_VIDEO_AUDIO) {
 				pCallInfo->m_pVideoRoom->AddAudioSink(nVideoUserId);
-			}else if (pCallInfo->m_nVideoType == EB_VIDEO_BOTH)
-			{
+            }
+            else if (pCallInfo->m_nVideoType == EB_VIDEO_BOTH) {
 				pCallInfo->m_pVideoRoom->AddAudioSink(nVideoUserId);
 				pCallInfo->m_pVideoRoom->AddVideoSink(nVideoUserId, hVideoWndParent);
-				if (hVideoWndParent!=NULL)
-				{
+                if (hVideoWndParent!=0) {
 					pCallInfo->m_pDestUidVideo.insert(nVideoUserId, hVideoWndParent);
 					pCallInfo->m_pVideoRoom->StartVideoGraph(nVideoUserId);
 				}
 			}
-		}else if (bLocalUser)// && !m_pVideoDevices.empty())
+        }
+        else if (bLocalUser)    /// && !m_pVideoDevices.empty())
 		{
-			if (pCallInfo->m_nVideoType == EB_VIDEO_AUDIO)
-			{
+            if (pCallInfo->m_nVideoType == EB_VIDEO_AUDIO) {
 				pCallInfo->m_pVideoRoom->StartAudioCapture();
-			}else if (pCallInfo->m_nVideoType == EB_VIDEO_BOTH)
-			{
+            }
+            else if (pCallInfo->m_nVideoType == EB_VIDEO_BOTH) {
 				pCallInfo->m_pVideoRoom->StartVideoCapture(hVideoWndParent);
 				pCallInfo->m_pVideoRoom->StartVideoGraph(nVideoUserId);
 				pCallInfo->m_pVideoRoom->StartAudioCapture();
@@ -8889,8 +8972,11 @@ bool CUserManagerApp::SetAudioOpenClose(const CEBCallInfo::pointer& pCallInfo,my
 	const bool bLocalUser = nVideoUserId==this->m_pMyAccountInfo->GetUserId();
 	if (bLocalUser)
 	{
+#ifdef _QT_MAKE_
+#else
 		if (bOpen)
 			SetMicrophoneValue(FALSE,-1.0);		// 取消麦克风静音
+#endif
 
 		pCallInfo->m_pVideoRoom->SetLocalAudioPlay(bOpen);
 		pCallInfo->m_pVideoRoom->SetLocalAudioSend(bOpen);
@@ -8905,9 +8991,11 @@ bool CUserManagerApp::SetAudioOpenClose(const CEBCallInfo::pointer& pCallInfo,my
 	{
 		// **OK
 		pCallInfo->m_pVideoRoom->SetSinkAudioPlay(nVideoUserId,bOpen);
-		if (bOpen)
-		{
+        if (bOpen) {
+#ifdef _QT_MAKE_
+#else
 			SetSystemVolume(FALSE,-1.0);		// 取消播放器静音
+#endif
 			//pCallInfo->m_pVideoRoom->AddAudioSink(nVideoUserId);
 		}else
 		{
@@ -8926,53 +9014,18 @@ void CUserManagerApp::DoVideoDisonnecte(eb::bigint sCallId, bool bSendVAck)
 		DoVideoDisonnecte(pCallInfo, bSendVAck);
 	}
 }
-#define USES_DEBUG_LOG_2017_05_15
-#ifdef USES_DEBUG_LOG_2017_05_15
-FILE * theFileLog = NULL;
-#endif
 
 void CUserManagerApp::DoVideoDisonnecte(const CEBCallInfo::pointer& pCallInfo, bool bSendVAck)
 {
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "CUserManagerApp::DoVideoDisonnecte...\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
-
 #ifdef USES_VIDEOROOM
 	pCallInfo->reset_video();
 #endif
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "reset_video() ok\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
-
 	//if (!bSendVAck) return;
 	const bool bMyInVideo = pCallInfo->m_pVideoUserIdList.exist(m_pMyAccountInfo->GetUserId());
 	if (bMyInVideo && pCallInfo->m_sGroupCode>0)
 	{
 		this->VideoAck(pCallInfo->GetCallId(),false,0);
 	}
-
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "CUserManagerApp::DoVideoDisonnecte ok\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
-
 }
 void CUserManagerApp::DoVideoConnected(const CEBCallInfo::pointer& pCallInfo)
 {
@@ -9001,7 +9054,7 @@ void CUserManagerApp::DoVideoConnected(const CEBCallInfo::pointer& pCallInfo)
 		}else
 		{
 #ifdef _QT_MAKE_
-			QObject* hVideoWndParent = NULL;
+            QWidget* hVideoWndParent = NULL;
 #else
 			HWND hVideoWndParent = NULL;
 #endif
@@ -9014,7 +9067,7 @@ void CUserManagerApp::DoVideoConnected(const CEBCallInfo::pointer& pCallInfo)
 #endif
 }
 #ifdef _QT_MAKE_
-int CUserManagerApp::OpenLocalVideo(eb::bigint sCallId,QObject* hVideoWndParent,void* pAudioParam)
+int CUserManagerApp::OpenLocalVideo(eb::bigint sCallId, QWidget *hVideoWndParent,void* pAudioParam)
 #else
 int CUserManagerApp::OpenLocalVideo(eb::bigint sCallId,HWND hVideoWndParent,void* pAudioParam)
 #endif
@@ -9026,15 +9079,31 @@ int CUserManagerApp::OpenLocalVideo(eb::bigint sCallId,HWND hVideoWndParent,void
 	}
 	//if (pCallInfo->m_nLocalVideoId == 0) return 0;
 	if (pCallInfo->m_nVideoType == EB_VIDEO_UNKNOWN) return 0;
-	bool bVideoError = false;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_Open_Video, QEvent::User);
+    event->m_pCallInfo = pCallInfo;
+    event->m_pSotpRequestInfo = CPOPSotpRequestInfo::create(0);
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("user-id", m_pMyAccountInfo->GetUserId()));
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("video-parent", (mycp::bigint)hVideoWndParent));
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("audio-param", (mycp::bigint)pAudioParam));
+    const unsigned long resultKey = (unsigned long)event+(unsigned long)hVideoWndParent;
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("result-key", (mycp::bigint)resultKey));
+    QCoreApplication::postEvent(this, event);
+    const long result = waitEventResult(resultKey,60,0);
+    /// 返回1成功，10视频失败
+    return result==1?1:10;
+#else
+    bool bVideoError = false;
 	OpenUserVideo(pCallInfo,m_pMyAccountInfo->GetUserId(),true,hVideoWndParent,pAudioParam,bVideoError);
 	if (bVideoError)
 		return 10;
 	return 1;
 	//return pCallInfo->m_nLocalVideoId;
+#endif
 }
 #ifdef _QT_MAKE_
-bool CUserManagerApp::OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,QObject* hVideoWndParent,void* pAudioParam)
+bool CUserManagerApp::OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount, QWidget* hVideoWndParent,void* pAudioParam)
 #else
 bool CUserManagerApp::OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,HWND hVideoWndParent,void* pAudioParam)
 #endif
@@ -9046,6 +9115,20 @@ bool CUserManagerApp::OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,HWN
 	}
 	//const bool nVideoUserId = pCallInfo->m_pVideoUserIdList[sAccount];
 	if (!pCallInfo->m_pVideoUserIdList.exist(sAccount)) return false;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_Open_Video, QEvent::User);
+    event->m_pCallInfo = pCallInfo;
+    event->m_pSotpRequestInfo = CPOPSotpRequestInfo::create(0);
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("user-id", sAccount));
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("video-parent", (mycp::bigint)hVideoWndParent));
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("audio-param", (mycp::bigint)pAudioParam));
+    const unsigned long resultKey = (unsigned long)event+(unsigned long)hVideoWndParent;
+    event->m_pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("result-key", (mycp::bigint)resultKey));
+    QCoreApplication::postEvent(this, event);
+    const long result = waitEventResult(resultKey,60,0);
+    return result==1?true:false;
+#else
 	const bool bLocalUser = sAccount==this->m_pMyAccountInfo->GetUserId()?true:false;
 	bool bVideoError = false;
 	OpenUserVideo(pCallInfo,sAccount,bLocalUser,hVideoWndParent,pAudioParam,bVideoError);
@@ -9053,6 +9136,7 @@ bool CUserManagerApp::OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,HWN
 		return false;
 	//OpenUserVideo(pCallInfo,sAccount,false,cbAudio,pData);
 	return true;
+#endif
 }
 bool CUserManagerApp::SetVideoOpenClose(eb::bigint sCallId,mycp::bigint sAccount,bool bOpen)
 {
@@ -9236,10 +9320,96 @@ void CUserManagerApp::OnVersionCheckResponse(const CPOPSotpRequestInfo::pointer 
 	}
 }
 
+void CUserManagerApp::OnVRequestResponse(const CPOPSotpRequestInfo::pointer &pSotpRequestInfo,
+                                         const CPOPSotpResponseInfo::pointer &pSotpResponseInfo)
+{
+    if (m_pMyAccountInfo.get() == NULL) return;
+    if (pSotpRequestInfo.get() == NULL) return;
+
+    const mycp::bigint sCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id",(mycp::bigint)0);
+    const int nVideoType = pSotpRequestInfo->m_pRequestList.getParameterValue("v-type",(int)0);
+    const tstring sVideoServer = pSotpResponseInfo->m_pResponseList.getParameterValue("v-server");
+    const mycp::bigint nVideoParam = pSotpResponseInfo->m_pResponseList.getParameterValue("v-param",(mycp::bigint)0);
+    //const int nVideoUserId = pSotpResponseInfo->m_pResponseList.getParameterValue("vu-id",(int)0);
+    int nResultValue = pSotpResponseInfo->GetResultValue();
+
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId, pCallInfo))
+    {
+        return ;
+    }
+    CEBAccountInfo::pointer pFromAccountInfo;
+    if (!pCallInfo->m_pCallUserList.find(m_pMyAccountInfo->GetUserId(),pFromAccountInfo))
+    {
+        return ;
+    }
+
+    //MessageBox(NULL,"OnVRequestResponse","",MB_OK);
+    if (nResultValue == EB_STATE_OK)
+    {
+        //pCallInfo->m_nLocalVideoId = nVideoUserId;
+        pCallInfo->m_sVideoServer = sVideoServer;
+        pCallInfo->m_nVideoParam = nVideoParam;
+        pCallInfo->m_nVideoType = (EB_VIDEO_TYPE)nVideoType;
+        pCallInfo->m_pVideoUserIdList.insert(pFromAccountInfo->GetUserId(),true);
+        pCallInfo->m_pOnVideoUserList.insert(pFromAccountInfo->GetUserId(),true);
+
+        if (pCallInfo->m_sGroupCode==0)
+        {
+        }else
+        {
+            CreateVideoRoom(pCallInfo);
+            DoVideoConnected(pCallInfo);
+        }
+    }
+
+    EB_VideoInfo * pVideoInfo = new EB_VideoInfo();
+#ifdef _QT_MAKE_
+    pVideoInfo->SetQEventType((QEvent::Type)EB_WM_V_REQUEST_RESPONSE);
+    pVideoInfo->SetEventParameter((long)nResultValue);
+#endif
+    pVideoInfo->m_sCallId = sCallId;
+    pVideoInfo->m_nVideoType = (EB_VIDEO_TYPE)nVideoType;
+    if (m_callback)
+        m_callback->onVRequestResponse(*pVideoInfo,(EB_STATE_CODE)nResultValue);
+
+#ifdef _QT_MAKE_
+    QObject* hWnd=NULL;
+#else
+    HWND hWnd=NULL;
+#endif
+    if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+        QCoreApplication::postEvent(m_pHwnd, pVideoInfo, thePostEventPriority);
+#else
+        ::SendMessage(hWnd, EB_WM_V_REQUEST_RESPONSE, (WPARAM)pVideoInfo, nResultValue);
+        delete pVideoInfo;
+#endif
+    }
+    else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+        QCoreApplication::postEvent(m_pHwnd, pVideoInfo, thePostEventPriority);
+#else
+        ::SendMessage(m_pHwnd, EB_WM_V_REQUEST_RESPONSE, (WPARAM)pVideoInfo, nResultValue);
+        delete pVideoInfo;
+#endif
+    }
+    else {
+        delete pVideoInfo;
+    }
+}
+
 void CUserManagerApp::OnVRequestResponse(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
 {
 	if (m_pMyAccountInfo.get() == NULL) return;
 	if (pSotpRequestInfo.get() == NULL) return;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_VRequestResponse, QEvent::User);
+    event->m_pSotpRequestInfo = pSotpRequestInfo;
+    event->m_pSotpResponseInfo = pSotpResponseInfo;
+    QCoreApplication::postEvent(this, event);
+#else
 	const mycp::bigint sCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id",(mycp::bigint)0);
 	const int nVideoType = pSotpRequestInfo->m_pRequestList.getParameterValue("v-type",(int)0);
 	const tstring sVideoServer = pSotpResponseInfo->m_pResponseList.getParameterValue("v-server");
@@ -9310,12 +9480,114 @@ void CUserManagerApp::OnVRequestResponse(const CPOPSotpRequestInfo::pointer & pS
 	}
 	else {
 		delete pVideoInfo;
-	}
+    }
+#endif
 }
+
+void CUserManagerApp::OnVAckResponse(const CPOPSotpRequestInfo::pointer &pSotpRequestInfo,
+                                     const CPOPSotpResponseInfo::pointer &pSotpResponseInfo)
+{
+    if (m_pMyAccountInfo.get() == NULL) return;
+    if (pSotpRequestInfo.get() == NULL) return ;
+    const mycp::bigint nToUserId = pSotpRequestInfo->m_pRequestList.getParameterValue("to-uid",(mycp::bigint)0);
+    const mycp::bigint sCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id",(mycp::bigint)0);
+    const int nAckType = pSotpRequestInfo->m_pRequestList.getParameterValue("ack-type",(int)0);
+    const tstring sVideoServer = pSotpResponseInfo->m_pResponseList.getParameterValue("v-server");
+    const mycp::bigint nVideoParam = pSotpResponseInfo->m_pResponseList.getParameterValue("v-param",(mycp::bigint)0);
+    //const int nVideoUserId = pSotpResponseInfo->m_pResponseList.getParameterValue("vu-id",(int)0);
+    int nResultValue = pSotpResponseInfo->GetResultValue();
+
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId, pCallInfo))
+    {
+        return ;
+    }
+    CEBAccountInfo::pointer pFromAccountInfo;
+    if (!pCallInfo->m_pCallUserList.find(m_pMyAccountInfo->GetUserId(),pFromAccountInfo))
+    {
+        return ;
+    }
+    if (nResultValue == EB_STATE_OK && nAckType==EB_CAT_ACCEPT)
+    {
+        pCallInfo->m_sVideoServer = sVideoServer;
+        pCallInfo->m_nVideoParam = nVideoParam;
+        pCallInfo->m_pVideoUserIdList.insert(pFromAccountInfo->GetUserId(),true);
+        if (pCallInfo->m_sGroupCode==0)
+        {
+            pCallInfo->m_pOnVideoUserList.insert(pFromAccountInfo->GetUserId(),true);
+        }
+        CreateVideoRoom(pCallInfo);
+        DoVideoConnected(pCallInfo);
+
+        //BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
+        //if (pCallInfo->m_sGroupCode>0 && pCallInfo->m_pVideoRoom!=NULL && nToUserId>0)
+        //{
+        //	//char lpBuffer[64];
+        //	//sprintf(lpBuffer,"打开群组成员视频：uid=%lld",nToUserId);
+        //	//MessageBox(NULL, lpBuffer,"",MB_OK);
+        //	pCallInfo->m_pVideoRoom->VR_AddMeLooks(nToUserId);
+        //	// 这里需要先打开，等上层收到数据后，再打开界面和音频
+        //	pCallInfo->m_pVideoRoom->VR_AddVideoStream(nToUserId, (DWORD)&pCallInfo->m_pVideoStreamData, false);
+        //}
+    }else if (pCallInfo->m_sGroupCode>0 && nAckType==2 && nToUserId!=EB_CAT_TIMEOUT && !pCallInfo->m_pOnVideoUserList.exist(m_pMyAccountInfo->GetUserId()))
+    {
+        /// 退出群组视频，要清空所有视频数据，否则会有异常
+        pCallInfo->m_pOnVideoUserList.clear();
+        pCallInfo->m_pVideoUserIdList.clear();
+        DoVideoDisonnecte(pCallInfo,false);
+    }
+    if (nAckType==EB_CAT_ACCEPT)
+    {
+        SendConnectMsg(pCallInfo, pFromAccountInfo->GetUserId(),pFromAccountInfo->GetAccount(),0);	// ?
+        // 接受才发送窗口消息
+        EB_VideoInfo * pVideoInfo = new EB_VideoInfo();
+#ifdef _QT_MAKE_
+        pVideoInfo->SetQEventType((QEvent::Type)EB_WM_V_ACK_RESPONSE);
+        pVideoInfo->SetEventParameter((long)nResultValue);
+#endif
+        pVideoInfo->m_sCallId = sCallId;
+        pVideoInfo->m_nVideoType = pCallInfo->m_nVideoType;
+        if (m_callback)
+            m_callback->onVAckResponse(*pVideoInfo,(EB_STATE_CODE)nResultValue);
+
+#ifdef _QT_MAKE_
+        QObject* hWnd=NULL;
+#else
+        HWND hWnd=NULL;
+#endif
+        if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+            QCoreApplication::postEvent(m_pHwnd, pVideoInfo, thePostEventPriority);
+#else
+            ::SendMessage(hWnd, EB_WM_V_ACK_RESPONSE, (WPARAM)pVideoInfo, nResultValue);
+            delete pVideoInfo;
+#endif
+        }
+        else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+            QCoreApplication::postEvent(m_pHwnd, pVideoInfo, thePostEventPriority);
+#else
+            ::SendMessage(m_pHwnd, EB_WM_V_ACK_RESPONSE, (WPARAM)pVideoInfo, nResultValue);
+            delete pVideoInfo;
+#endif
+        }
+        else {
+            delete pVideoInfo;
+        }
+    }
+}
+
 void CUserManagerApp::OnVAckResponse(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
 {
 	if (m_pMyAccountInfo.get() == NULL) return;
 	if (pSotpRequestInfo.get() == NULL) return ;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_VAckResponse, QEvent::User);
+    event->m_pSotpRequestInfo = pSotpRequestInfo;
+    event->m_pSotpResponseInfo = pSotpResponseInfo;
+    QCoreApplication::postEvent(this, event);
+#else
 	const mycp::bigint nToUserId = pSotpRequestInfo->m_pRequestList.getParameterValue("to-uid",(mycp::bigint)0);
 	const mycp::bigint sCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id",(mycp::bigint)0);
 	const int nAckType = pSotpRequestInfo->m_pRequestList.getParameterValue("ack-type",(int)0);
@@ -9358,7 +9630,7 @@ void CUserManagerApp::OnVAckResponse(const CPOPSotpRequestInfo::pointer & pSotpR
 		//}
 	}else if (pCallInfo->m_sGroupCode>0 && nAckType==2 && nToUserId!=EB_CAT_TIMEOUT && !pCallInfo->m_pOnVideoUserList.exist(m_pMyAccountInfo->GetUserId()))
 	{
-		// 退出群组视频，要清空所有视频数据，否则会有异常
+        /// 退出群组视频，要清空所有视频数据，否则会有异常
 		pCallInfo->m_pOnVideoUserList.clear();
 		pCallInfo->m_pVideoUserIdList.clear();
 		DoVideoDisonnecte(pCallInfo,false);
@@ -9402,11 +9674,13 @@ void CUserManagerApp::OnVAckResponse(const CPOPSotpRequestInfo::pointer & pSotpR
 			delete pVideoInfo;
 		}
 	}
+#endif
 }
+
 void CUserManagerApp::OnRDRequestResponse(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
 {
 	if (m_pMyAccountInfo.get() == NULL) return;
-	if (pSotpRequestInfo.get() == NULL) return;
+    if (pSotpRequestInfo.get() == NULL) return;
 	const mycp::bigint sCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id",(mycp::bigint)0);
 	const int nVideoType = pSotpRequestInfo->m_pRequestList.getParameterValue("rd-type",(int)0);
 	const tstring sRDServer = pSotpResponseInfo->m_pResponseList.getParameterValue("rd-server");
@@ -9478,7 +9752,7 @@ void CUserManagerApp::OnRDRequestResponse(const CPOPSotpRequestInfo::pointer & p
 	}
 	else {
 		delete pVideoInfo;
-	}
+    }
 }
 void CUserManagerApp::OnRDAckResponse(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
 {
@@ -9773,9 +10047,93 @@ void CUserManagerApp::LoadLocalDepInfo(mycp::bigint nGroupId,mycp::bigint nServe
 	}
 }
 
-void CUserManagerApp::OnFVRequest(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
+void CUserManagerApp::OnFVRequest(const CPOPSotpRequestInfo::pointer &pReqeustInfo,
+                                  const CPOPSotpResponseInfo::pointer &pSotpResponseInfo)
+{
+    if (m_pMyAccountInfo.get() == NULL) return;
+
+    const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
+    const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
+    const int nVideoType = pSotpResponseInfo->m_pResponseList.getParameterValue("v-type",(int)0);
+    //const int nVideoUserId = pSotpResponseInfo->m_pResponseList.getParameterValue("vu-id",(int)0);
+
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId, pCallInfo))
+    {
+        return ;
+    }
+    CEBAccountInfo::pointer pFromAccountInfo;
+    if (!pCallInfo->m_pCallUserList.find(sFromAccount,pFromAccountInfo))
+    {
+        return ;
+    }
+    pCallInfo->m_nVideoType = (EB_VIDEO_TYPE)nVideoType;
+    pCallInfo->m_pVideoUserIdList.insert(pFromAccountInfo->GetUserId(),true);
+    pCallInfo->m_pOnVideoUserList.insert(pFromAccountInfo->GetUserId(),true);
+
+    //MessageBox(NULL,"OnFVRequest","",MB_OK);
+    SendConnectMsg(pCallInfo, pFromAccountInfo->GetUserId(),pFromAccountInfo->GetAccount(),0);	// ?
+
+    if (pCallInfo->m_sGroupCode==0)
+    {
+    }else
+    {
+        //if (this->GetVideoCount()>0)
+        //{
+        //	// 自动接收视频
+        //	OnBnClickedButtonVideoAccept();
+        //}
+    }
+
+    EB_UserVideoInfo pUserVideoInfo(sFromAccount,true);
+    EB_VideoInfo * pVideoInfo = new EB_VideoInfo();
+#ifdef _QT_MAKE_
+    pVideoInfo->SetQEventType((QEvent::Type)EB_WM_VIDEO_REQUEST);
+    pVideoInfo->SetEventData((void*)&pUserVideoInfo);
+#endif
+    pVideoInfo->m_sCallId = sCallId;
+    pVideoInfo->m_nVideoType = pCallInfo->m_nVideoType;
+    if (m_callback)
+        m_callback->onVideoRequest(*pVideoInfo,pUserVideoInfo);
+
+#ifdef _QT_MAKE_
+    QObject* hWnd=NULL;
+#else
+    HWND hWnd=NULL;
+#endif
+    if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+        postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+        ::SendMessage(hWnd, EB_WM_VIDEO_REQUEST, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+        delete pVideoInfo;
+#endif
+    }
+    else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+        postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+        ::SendMessage(m_pHwnd, EB_WM_VIDEO_REQUEST, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+        delete pVideoInfo;
+#endif
+    }
+    else {
+        delete pVideoInfo;
+    }
+}
+
+void CUserManagerApp::OnFVRequest(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo,
+                                  const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,
+                                  const CPOPCUserManager* pUMOwner)
 {
 	if (m_pMyAccountInfo.get() == NULL) return;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_FVRequest, QEvent::User);
+    event->m_pSotpRequestInfo = pSotpRequestInfo;
+    event->m_pSotpResponseInfo = pSotpResponseInfo;
+    QCoreApplication::postEvent(this, event);
+#else
 	const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
 	const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
 	const int nVideoType = pSotpResponseInfo->m_pResponseList.getParameterValue("v-type",(int)0);
@@ -9844,10 +10202,201 @@ void CUserManagerApp::OnFVRequest(const CPOPSotpRequestInfo::pointer & pReqeustI
 	else {
 		delete pVideoInfo;
 	}
+#endif
 }
-void CUserManagerApp::OnFVAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
+
+void CUserManagerApp::OnFVAck(const CPOPSotpRequestInfo::pointer &pReqeustInfo,
+                              const CPOPSotpResponseInfo::pointer &pSotpResponseInfo)
+{
+    if (m_pMyAccountInfo.get() == NULL) return;
+
+    const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
+    const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
+    const int nAckType = pSotpResponseInfo->m_pResponseList.getParameterValue("ack-type",(int)0);
+    const tstring sVideoServer = pSotpResponseInfo->m_pResponseList.getParameterValue("v-server");
+    const mycp::bigint nVideoParam = pSotpResponseInfo->m_pResponseList.getParameterValue("v-param",(mycp::bigint)0);
+    //const int nVideoUserId = pSotpResponseInfo->m_pResponseList.getParameterValue("vu-id",(int)0);
+
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId, pCallInfo))
+    {
+        return ;
+    }
+    CEBAccountInfo::pointer pFromAccountInfo;
+    if (!pCallInfo->m_pCallUserList.find(sFromAccount,pFromAccountInfo))
+    {
+        return ;
+    }
+    //MessageBox(NULL,"OnFVAck","",MB_OK);
+    if (!pCallInfo->m_pOnVideoUserList.exist(this->m_pMyAccountInfo->GetUserId()))
+    {
+        // 本人未上视频；
+        return;
+    }
+
+    const bool bFromOnVideo = pCallInfo->m_pOnVideoUserList.exist(sFromAccount);
+    EB_UserVideoInfo pUserVideoInfo(sFromAccount,bFromOnVideo);
+    EB_VideoInfo * pVideoInfo = new EB_VideoInfo();
+    pVideoInfo->m_sCallId = sCallId;
+    pVideoInfo->m_nVideoType = pCallInfo->m_nVideoType;
+    if (nAckType == EB_CAT_ACCEPT) {
+        // accept
+        pCallInfo->m_sVideoServer = sVideoServer;
+        pCallInfo->m_nVideoParam = nVideoParam;
+        pCallInfo->m_pVideoUserIdList.insert(pFromAccountInfo->GetUserId(),true);
+        if (pCallInfo->m_sGroupCode==0)
+        {
+            pCallInfo->m_pOnVideoUserList.insert(pFromAccountInfo->GetUserId(),true);
+        }
+        if (pCallInfo->m_sGroupCode==0)
+        {
+            CreateVideoRoom(pCallInfo);
+            DoVideoConnected(pCallInfo);
+        }else
+        {
+            // 有人打开我的视频；
+            //BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
+            //if (pCallInfo->m_pVideoRoom.get()!=NULL)
+            //{
+            //	//MessageBox(NULL,"有人打开我的视频","",MB_OK);
+            //	//pCallInfo->m_pVideoRoom->VR_AddLookMes(sFromAccount);
+            //}
+        }
+
+        SendConnectMsg(pCallInfo, pFromAccountInfo->GetUserId(),pFromAccountInfo->GetAccount(),0);	// ?
+        if (m_callback)
+            m_callback->onVideoAccept(*pVideoInfo,pUserVideoInfo);
+
+#ifdef _QT_MAKE_
+        pVideoInfo->SetQEventType((QEvent::Type)EB_WM_VIDEO_ACCEPT);
+        //pConnectInfo->SetEventParameter((long)nConnectFlag);
+        pVideoInfo->SetEventData((void*)&pUserVideoInfo);
+#endif
+
+#ifdef _QT_MAKE_
+        QObject* hWnd=NULL;
+#else
+        HWND hWnd=NULL;
+#endif
+        if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+            postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+            ::SendMessage(hWnd, EB_WM_VIDEO_ACCEPT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+            delete pVideoInfo;
+#endif
+        }
+        else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+            postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+            ::SendMessage(m_pHwnd, EB_WM_VIDEO_ACCEPT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+            delete pVideoInfo;
+#endif
+        }
+        else {
+            delete pVideoInfo;
+        }
+    }
+    else {
+        // cancel
+        if (pCallInfo->m_sGroupCode==0) {
+        }
+        else {
+            // 有人关闭我的视频；
+//#ifdef USES_VIDEO_EBMM
+//#else
+//			if (pCallInfo->m_pVideoRoom)
+//			{
+//				pCallInfo->m_pVideoRoom->VR_DelLookMes(sFromAccount);
+//			}
+//#endif
+        }
+
+        if (nAckType == EB_CAT_TIMEOUT) {
+            if (m_callback)
+                m_callback->onVideoTimeout(*pVideoInfo,pUserVideoInfo);
+
+#ifdef _QT_MAKE_
+            pVideoInfo->SetQEventType((QEvent::Type)EB_WM_VIDEO_TIMEOUT);
+            pVideoInfo->SetEventData((void*)&pUserVideoInfo);
+#endif
+
+#ifdef _QT_MAKE_
+            QObject* hWnd=NULL;
+#else
+            HWND hWnd=NULL;
+#endif
+            if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+                postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+                ::SendMessage(hWnd, EB_WM_VIDEO_TIMEOUT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+                delete pVideoInfo;
+#endif
+            }
+            else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+                postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+                ::SendMessage(m_pHwnd, EB_WM_VIDEO_TIMEOUT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+                delete pVideoInfo;
+#endif
+            }
+            else {
+                delete pVideoInfo;
+            }
+
+        }else
+        {
+            if (m_callback)
+                m_callback->onVideoReject(*pVideoInfo,pUserVideoInfo);
+
+#ifdef _QT_MAKE_
+            pVideoInfo->SetQEventType((QEvent::Type)EB_WM_VIDEO_REJECT);
+            pVideoInfo->SetEventData((void*)&pUserVideoInfo);
+#endif
+
+#ifdef _QT_MAKE_
+            QObject* hWnd=NULL;
+#else
+            HWND hWnd=NULL;
+#endif
+            if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+                postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+                ::SendMessage(hWnd, EB_WM_VIDEO_REJECT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+                delete pVideoInfo;
+#endif
+            }
+            else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+                postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+                ::SendMessage(m_pHwnd, EB_WM_VIDEO_REJECT, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+                delete pVideoInfo;
+#endif
+            }
+            else {
+                delete pVideoInfo;
+            }
+        }
+        pCallInfo->m_pVideoUserIdList.remove(pFromAccountInfo->GetUserId());
+    }
+}
+void CUserManagerApp::OnFVAck(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo,
+                              const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,
+                              const CPOPCUserManager* pUMOwner)
 {
 	if (m_pMyAccountInfo.get() == NULL) return;
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_FVAck, QEvent::User);
+    event->m_pSotpRequestInfo = pSotpRequestInfo;
+    event->m_pSotpResponseInfo = pSotpResponseInfo;
+    QCoreApplication::postEvent(this, event);
+#else
 	const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
 	const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
 	const int nAckType = pSotpResponseInfo->m_pResponseList.getParameterValue("ack-type",(int)0);
@@ -9888,7 +10437,7 @@ void CUserManagerApp::OnFVAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 		}
 		if (pCallInfo->m_sGroupCode==0)
 		{
-			CreateVideoRoom(pCallInfo);
+            CreateVideoRoom(pCallInfo);
 			DoVideoConnected(pCallInfo);
 		}else
 		{
@@ -10022,10 +10571,149 @@ void CUserManagerApp::OnFVAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 		}
 		pCallInfo->m_pVideoUserIdList.remove(pFromAccountInfo->GetUserId());
 	}
+#endif
 }
 
-void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
+void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer &pReqeustInfo,
+                              const CPOPSotpResponseInfo::pointer &pSotpResponseInfo)
 {
+    const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
+    const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId, pCallInfo))
+    {
+        return ;
+    }
+    CEBAccountInfo::pointer pFromAccountInfo;
+    if (!pCallInfo->m_pCallUserList.find(sFromAccount,pFromAccountInfo))
+    {
+        return ;
+    }
+#ifdef USES_VIDEOROOM
+    pCallInfo->m_pVideoUserParam.remove(pFromAccountInfo->GetUserId());
+
+    /// **需要先停止视频流播放
+    if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
+    {
+        // 一对一会话，或者本端关闭
+        BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
+        if (pCallInfo->m_pVideoRoom.get()!=NULL)
+        {
+            pCallInfo->m_pVideoRoom->SetLocalVideoPlay(false);
+            pCallInfo->m_pVideoRoom->SetLocalAudioPlay(false);
+            pCallInfo->m_pVideoRoom->SetSinkVideoPlay(sFromAccount,false);
+            pCallInfo->m_pVideoRoom->SetSinkAudioPlay(sFromAccount,false);
+        }
+    }else
+    {
+        // 群组，有人退出视频；
+        pCallInfo->m_pDestUidVideo.remove(sFromAccount);
+        pCallInfo->m_pVideoUserIdList.remove(sFromAccount);
+        BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
+        if (pCallInfo->m_pVideoRoom.get()!=NULL)
+        {
+            pCallInfo->m_pVideoRoom->SetSinkVideoPlay(sFromAccount,false);
+            pCallInfo->m_pVideoRoom->SetSinkAudioPlay(sFromAccount,false);
+        }
+    }
+#endif
+    // ** 放在后面处理，避免关闭时，视频窗口灰色；
+    //if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
+    //{
+    //	// 一对一会话，或者本端关闭
+    //	DoVideoDisonnecte(pCallInfo);
+    //	pCallInfo->m_pVideoUserIdList.clear();
+    //}else
+    //{
+    //	pCallInfo->m_pVideoUserIdList.remove(pFromAccountInfo->GetUserId());
+    //	// 群组，有人退出视频；
+    //	if (pCallInfo->m_pVideoUserIdList.empty())
+    //	{
+    //		DoVideoDisonnecte(pCallInfo);
+    //	}
+    //}
+
+    const bool bFromOnVideo = pCallInfo->m_pOnVideoUserList.exist(sFromAccount);
+    EB_UserVideoInfo pUserVideoInfo(sFromAccount,bFromOnVideo);
+    EB_VideoInfo * pVideoInfo = new EB_VideoInfo();
+#ifdef _QT_MAKE_
+    pVideoInfo->SetQEventType((QEvent::Type)EB_WM_VIDEO_CLOSE);
+    pVideoInfo->SetEventData((void*)&pUserVideoInfo);
+#endif
+    pVideoInfo->m_sCallId = sCallId;
+    pVideoInfo->m_nVideoType = pCallInfo->m_nVideoType;
+    if (m_callback)
+        m_callback->onVideoClose(*pVideoInfo,pUserVideoInfo);
+
+#ifdef _QT_MAKE_
+    QObject* hWnd=NULL;
+#else
+    HWND hWnd=NULL;
+#endif
+    if (m_pVideoHwnd.find(sCallId,hWnd)) {
+#ifdef _QT_MAKE_
+        postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+        ::SendMessage(hWnd, EB_WM_VIDEO_CLOSE, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+        delete pVideoInfo;
+#endif
+    }
+    else if (m_pHwnd!=NULL) {
+#ifdef _QT_MAKE_
+        postWaitEventResult(m_pHwnd, pVideoInfo);
+#else
+        ::SendMessage(m_pHwnd, EB_WM_VIDEO_CLOSE, (WPARAM)pVideoInfo, (LPARAM)&pUserVideoInfo);
+        delete pVideoInfo;
+#endif
+    }
+    else {
+        delete pVideoInfo;
+    }
+
+    if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
+    {
+        /// 一对一会话，或者本端关闭
+//#ifdef _QT_MAKE_
+//        /// 由外面主界面线程去处理
+//#else
+        DoVideoDisonnecte(pCallInfo, true);
+        pCallInfo->m_pVideoUserIdList.clear();
+//#endif
+    }else
+    {
+        // 群组，有人退出视频；
+#ifdef USES_VIDEOROOM
+
+        {
+            BoostReadLock rdLock(pCallInfo->m_mutexVideoRoom);
+            if (pCallInfo->m_pVideoRoom.get()!=NULL)
+            {
+                pCallInfo->m_pVideoRoom->DelAudioSink(sFromAccount);
+                pCallInfo->m_pVideoRoom->DelVideoSink(sFromAccount);
+            }
+        }
+#endif
+        //pCallInfo->m_pDestUidVideo.remove(sFromAccount);
+        //pCallInfo->m_pVideoUserIdList.remove(sFromAccount);
+        if (pCallInfo->m_pVideoUserIdList.empty())
+        {
+            DoVideoDisonnecte(pCallInfo, true);
+        }
+    }
+    pCallInfo->m_pOnVideoUserList.remove(pFromAccountInfo->GetUserId());
+}
+
+void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo,
+                              const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,
+                              const CPOPCUserManager* pUMOwner)
+{
+#ifdef _QT_MAKE_
+    /// 使用统一线程处理
+    EBUM_Event * event = new EBUM_Event(EBUM_Event::Event_FVEnd, QEvent::User);
+    event->m_pSotpRequestInfo = pSotpRequestInfo;
+    event->m_pSotpResponseInfo = pSotpResponseInfo;
+    QCoreApplication::postEvent(this, event);
+#else
 	const mycp::bigint sFromAccount = pSotpResponseInfo->m_pResponseList.getParameterValue("from_uid",(mycp::bigint)0);
 	const mycp::bigint sCallId = pSotpResponseInfo->m_pResponseList.getParameterValue("call-id",(mycp::bigint)0);
 	CEBCallInfo::pointer pCallInfo;
@@ -10039,20 +10727,9 @@ void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 		return ;
 	}
 #ifdef USES_VIDEOROOM
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog==NULL)
-		theFileLog = fopen("c:\\entboost_ebum_test.txt","w+");
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "CUserManagerApp::OnFVEnd...\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
 	pCallInfo->m_pVideoUserParam.remove(pFromAccountInfo->GetUserId());
 
-	// **需要先停止视频流播放
+    /// **需要先停止视频流播放
 	if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
 	{
 		// 一对一会话，或者本端关闭
@@ -10076,16 +10753,6 @@ void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 			pCallInfo->m_pVideoRoom->SetSinkAudioPlay(sFromAccount,false);
 		}
 	}
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "SetLocalVideoPlay(false) ok\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
-
 #endif
 	// ** 放在后面处理，避免关闭时，视频窗口灰色；
 	//if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
@@ -10115,15 +10782,6 @@ void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 	if (m_callback)
 		m_callback->onVideoClose(*pVideoInfo,pUserVideoInfo);
 
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "SendMessage(EB_WM_VIDEO_CLOSE)...\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
 #ifdef _QT_MAKE_
 	QObject* hWnd=NULL;
 #else
@@ -10149,21 +10807,15 @@ void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 		delete pVideoInfo;
 	}
 
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "SendMessage(EB_WM_VIDEO_CLOSE) ok\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-	}
-#endif
-
 	if (pCallInfo->m_sGroupCode==0)// || pFromAccountInfo->GetAccount() == theEBAppClient.EB_GetLogonAccount())
 	{
-		// 一对一会话，或者本端关闭
-		DoVideoDisonnecte(pCallInfo, true);
-		pCallInfo->m_pVideoUserIdList.clear();
+        /// 一对一会话，或者本端关闭
+//#ifdef _QT_MAKE_
+//        /// 由外面主界面线程去处理
+//#else
+        DoVideoDisonnecte(pCallInfo, true);
+        pCallInfo->m_pVideoUserIdList.clear();
+//#endif
 	}else
 	{
 		// 群组，有人退出视频；
@@ -10186,19 +10838,7 @@ void CUserManagerApp::OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo,
 		}
 	}
 	pCallInfo->m_pOnVideoUserList.remove(pFromAccountInfo->GetUserId());
-
-#ifdef USES_DEBUG_LOG_2017_05_15
-	if (theFileLog!=NULL)
-	{
-		char lpszBuffer[128];
-		sprintf(lpszBuffer, "CUserManagerApp::OnFVEnd ok\n");
-		fwrite(lpszBuffer,1,strlen(lpszBuffer),theFileLog);
-		fflush(theFileLog);
-		fclose(theFileLog);
-		theFileLog = NULL;
-	}
 #endif
-
 }
 
 void CUserManagerApp::OnFRDRequest(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
@@ -10510,7 +11150,7 @@ void CUserManagerApp::OnFRDEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo
 	else {
 		delete pVideoInfo;
 	}
-	pCallInfo->m_pOnRDUserList.remove(pFromAccountInfo->GetUserId());
+    pCallInfo->m_pOnRDUserList.remove(pFromAccountInfo->GetUserId());
 }
 
 void CUserManagerApp::UpdateLocalGroupVer(mycp::bigint nGroupId,mycp::bigint nNewGroupVer) const

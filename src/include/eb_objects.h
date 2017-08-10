@@ -3185,7 +3185,11 @@ public:
 	boost::shared_mutex m_mutexVideoRoom; 
 	Cebmm::pointer m_pVideoRoom;
 	bool m_nLocalOnVideo;
+#ifdef _QT_MAKE_
+        CLockMap<eb::bigint, QWidget*>	m_pDestUidVideo;		// uid->
+#else
 	CLockMap<eb::bigint, HWND>	m_pDestUidVideo;		// uid->
+#endif
 	tag_VideoStreamData m_pAudioStreamData;
 	CLockMap<eb::bigint, void*>	m_pVideoUserParam;		// uid->
 #endif

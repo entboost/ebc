@@ -36,6 +36,7 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += _QT_MAKE_
 DEFINES += _QT_USES_WEBENGINE_
+DEFINES += _EB_USES_VIDEO_ROOM
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -51,6 +52,7 @@ INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
 INCLUDEPATH += "../../../libchatroom"
 INCLUDEPATH += "../../../libpopusermanager"
+INCLUDEPATH += "../../../libebmm-2.0/libebmm"
 INCLUDEPATH += "../../../include"
 
     Release {
@@ -58,6 +60,7 @@ LIBS += -L"../../../mycp/build" -lCGCLibQt -lCGCClassQt
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-1_62 -llibboost_thread-vc140-mt-1_62 -llibboost_filesystem-vc140-mt-1_62
 LIBS += -lWs2_32 -lshlwapi
 LIBS += -L"../build" -lebcm -lebum
+LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"F:/THIRDPARTY/sqlite-3081002/lib" -lsqlite3s
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstat
     }
@@ -66,6 +69,7 @@ LIBS += -L"../../../mycp/build" -lCGCLibQtd -lCGCClassQtd
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-gd-1_62 -llibboost_thread-vc140-mt-gd-1_62 -llibboost_filesystem-vc140-mt-gd-1_62
 LIBS += -lWs2_32 -lshlwapi
 LIBS += -L"../build" -lebcmd -lebumd
+LIBS += -L"../../../libebmm-2.0/build" -lebmmd
 LIBS += -L"F:/THIRDPARTY/sqlite-3081002/lib" -lsqlite3sd
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstatd
     }
@@ -168,7 +172,11 @@ SOURCES += main.cpp\
     ebdialogmessagetip.cpp \
     ebdialogmycenter.cpp \
     ebdialogpoptip.cpp \
-    ebwebenginedownloadrequested.cpp
+    ebwebenginedownloadrequested.cpp \
+    ebwidgetvideosetting.cpp \
+    ebwidgetvideowindow.cpp \
+    ebwidgetvoicebar.cpp \
+    ebwidgetvideoframe.cpp
 
 HEADERS  += ../../../include/ebc_public.h \
     ebclientapp.h \
@@ -242,7 +250,11 @@ HEADERS  += ../../../include/ebc_public.h \
     ebdialogmessagetip.h \
     ebdialogmycenter.h \
     ebdialogpoptip.h \
-    ebwebenginedownloadrequested.h
+    ebwebenginedownloadrequested.h \
+    ebwidgetvideosetting.h \
+    ebwidgetvideowindow.h \
+    ebwidgetvoicebar.h \
+    ebwidgetvideoframe.h
 
 FORMS    += ebmessagebox.ui \
     ebdialogfilemanager.ui \

@@ -3,6 +3,7 @@
 #include "ebwidgetaccountinfo.h"
 #include "ebwidgetmysetting.h"
 #include "ebwidgetmodifypassword.h"
+#include "ebwidgetvideosetting.h"
 #include "ebiconhelper.h"
 
 EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
@@ -10,9 +11,11 @@ EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
     ui(new Ui::EbDialogMyCenter)
   , m_labelAccountInfoIcon(0)
   , m_labelModifyPasswordIcon(0)
+  , m_labelVideoSettingIcon(0)
   , m_widgetAccountInfo(0)
   , m_widgetMySetting(0)
   , m_widgetModifyPassword(0)
+  , m_widgetVideoSetting(0)
 {
     ui->setupUi(this);
     /// 设置初始大小
@@ -31,7 +34,7 @@ EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
     /// 帐号信息
     m_labelAccountInfoIcon = new QLabel(ui->pushButtonAccountInfo);
     m_labelAccountInfoIcon->setObjectName("IconLabel");
-    EbIconHelper::Instance()->SetIcon(m_labelAccountInfoIcon,QChar(0xf2c3),10);
+    EbIconHelper::Instance()->SetIcon(m_labelAccountInfoIcon, QChar(0xf2c3), 10);
     m_labelAccountInfoIcon->setVisible(true);
     m_labelAccountInfoIcon->setGeometry( 7,13,16,16 );
     const QSize const_check_button_size(86,39+3);   /// 49+3 (3主要用于下面圆角不显示)
@@ -51,7 +54,7 @@ EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
     /// 修改密码
     m_labelModifyPasswordIcon = new QLabel(ui->pushButtonModifyPassword);
     m_labelModifyPasswordIcon->setObjectName("IconLabel");
-    EbIconHelper::Instance()->SetIcon(m_labelModifyPasswordIcon,QChar(0xf023),10);
+    EbIconHelper::Instance()->SetIcon(m_labelModifyPasswordIcon, QChar(0xf023), 10);
     m_labelModifyPasswordIcon->setVisible(true);
     m_labelModifyPasswordIcon->setGeometry( 7,13,16,16 );
     ui->pushButtonModifyPassword->setCheckable(true);
@@ -67,6 +70,21 @@ EbDialogMyCenter::EbDialogMyCenter(QWidget *parent) :
         ui->pushButtonModifyPassword->setGeometry( x,y,const_check_button_size.width(),const_check_button_size.height() );
         connect( ui->pushButtonModifyPassword,SIGNAL(clicked()),this,SLOT(onClickedPushButtonModifyPassword()) );
     }
+    /// 视频设置
+#ifdef _EB_USES_VIDEO_ROOM
+    m_labelVideoSettingIcon = new QLabel(ui->pushButtonVideoSetting);
+    m_labelVideoSettingIcon->setObjectName("IconLabel");
+    EbIconHelper::Instance()->SetIcon(m_labelVideoSettingIcon, QChar(0xf030), 10);
+    m_labelVideoSettingIcon->setVisible(true);
+    m_labelVideoSettingIcon->setGeometry( 7,13,16,16 );
+    ui->pushButtonVideoSetting->setCheckable(true);
+    ui->pushButtonVideoSetting->setObjectName("TitleCheckButton");
+    x += const_check_button_size.width();
+    ui->pushButtonVideoSetting->setGeometry( x,y,const_check_button_size.width(),const_check_button_size.height() );
+    connect( ui->pushButtonVideoSetting,SIGNAL(clicked()),this,SLOT(onClickedPushButtonVideoSetting()) );
+#else
+    ui->pushButtonVideoSetting->setVisible(false);
+#endif
 
     /// 默认名片
     ui->pushButtonDefaultMember->setObjectName("RequestAddContact");
@@ -106,6 +124,9 @@ void EbDialogMyCenter::updateLocaleInfo()
     /// 修改密码
     ui->pushButtonModifyPassword->setText(  theLocales.getLocalText("my-center-dialog.button-modify-password.text","Modify Password") );
     ui->pushButtonModifyPassword->setToolTip( theLocales.getLocalText("my-center-dialog.button-modify-password.tooltip","") );
+    /// 视频设置
+    ui->pushButtonVideoSetting->setText(  theLocales.getLocalText("my-center-dialog.button-video-setting.text","Video Setting") );
+    ui->pushButtonVideoSetting->setToolTip( theLocales.getLocalText("my-center-dialog.button-video-setting.tooltip","") );
 
     /// 默认名片
     ui->pushButtonDefaultMember->setText(  theLocales.getLocalText("my-center-dialog.button-default-member.text","Defalt Member") );
@@ -155,6 +176,18 @@ void EbDialogMyCenter::onClickedPushButtonModifyPassword()
     udpateClickedPushButton( sender() );
 }
 
+void EbDialogMyCenter::onClickedPushButtonVideoSetting()
+{
+    if (m_widgetVideoSetting==0) {
+        m_widgetVideoSetting = new EbWidgetVideoSetting(this);
+        const int x = 28;
+        const int y = ui->pushButtonAccountInfo->geometry().bottom();
+        m_widgetVideoSetting->setGeometry( x,y,width()-x*2,height()-y-50 );  /// 50最下面间隔
+    }
+    m_widgetVideoSetting->setFocus();
+    udpateClickedPushButton( sender() );
+}
+
 void EbDialogMyCenter::udpateClickedPushButton(const QObject *sender)
 {
     ui->pushButtonAccountInfo->setChecked( (sender==0||sender==ui->pushButtonAccountInfo)?true:false );
@@ -166,6 +199,13 @@ void EbDialogMyCenter::udpateClickedPushButton(const QObject *sender)
     ui->pushButtonModifyPassword->setChecked( sender==ui->pushButtonModifyPassword?true:false );
     if (m_widgetModifyPassword!=0)
         m_widgetModifyPassword->setVisible( sender==ui->pushButtonModifyPassword?true:false );
+    ui->pushButtonVideoSetting->setChecked( sender==ui->pushButtonVideoSetting?true:false );
+    if (m_widgetVideoSetting!=0) {
+        m_widgetVideoSetting->setVisible( sender==ui->pushButtonVideoSetting?true:false );
+        if (!ui->pushButtonVideoSetting->isChecked()) {
+            m_widgetVideoSetting->closeVideo();
+        }
+    }
 }
 
 void EbDialogMyCenter::onClickedPushButtonDefaultMember()
@@ -190,4 +230,16 @@ void EbDialogMyCenter::accept()
         /// 修改密码
         m_widgetModifyPassword->save();
     }
+
+    if (m_widgetVideoSetting!=0 && !ui->pushButtonVideoSetting->isChecked()) {
+        m_widgetVideoSetting->closeVideo();
+    }
+}
+
+void EbDialogMyCenter::reject()
+{
+    if (m_widgetVideoSetting!=0) {
+        m_widgetVideoSetting->closeVideo();
+    }
+    EbDialogBase::reject();
 }

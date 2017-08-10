@@ -19,6 +19,8 @@ public:
     void timerCheckState(void);
     void insertCallRecord(const EbCallRecordInfo::pointer &callRecordInfo, bool insertNew, bool sort=true);
     EbCallRecordInfo::pointer callRecordInfo(eb::bigint groupId, eb::bigint userId, int msgType=0) const;
+    void onMemberInfo(const EB_MemberInfo *memberInfo, bool changeLineState);
+    void onContactStateChanged(const EB_ContactInfo *contactInfo);
 signals:
 
 public slots:

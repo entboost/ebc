@@ -970,6 +970,31 @@ bool EbClientApp::onLogonSuccess(void)
     return true;
 }
 
+void EbClientApp::setLocalVideoIndex(int index)
+{
+    char sql[256];
+    sprintf(sql, "UPDATE sys_value_t SET value2=%d WHERE name='local-video-index' AND value2<>%d", index, index);
+    m_sqliteEbc->execute(sql);
+}
+
+int EbClientApp::localVideoIndex(int defaultIndex) const
+{
+    int index = defaultIndex;
+    int nCookie = 0;
+    m_sqliteEbc->select("SELECT value2 FROM sys_value_t WHERE name='local-video-index'", nCookie);
+    cgcValueInfo::pointer pRecord = m_sqliteEbc->first(nCookie);
+    if (pRecord.get()!=0) {
+        index = pRecord->getVector()[0]->getIntValue();
+        m_sqliteEbc->reset(nCookie);
+    }
+    else {
+        char sql[256];
+        sprintf(sql, "INSERT INTO sys_value_t(name,value1,value2) VALUES('local-video-index','',%d)", index);
+        m_sqliteEbc->execute(sql);
+    }
+    return index;
+}
+
 //void EbClientApp::setMainColor(QRgb v,bool bUpdateDatabase)
 //{
 //    m_mainColor.setRgb(v);

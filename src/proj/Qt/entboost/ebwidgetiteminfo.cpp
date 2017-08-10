@@ -333,9 +333,9 @@ int EbWidgetItemInfo::memberSubType(EB_GROUP_TYPE groupType, eb::bigint groupId,
     return nSubType;
 }
 
-void EbWidgetItemInfo::updateMemberInfo(const EB_MemberInfo *memberInfo)
+void EbWidgetItemInfo::updateMemberInfo(const EB_MemberInfo *memberInfo, bool fromMySession)
 {
-    const int nSubType = memberSubType(memberInfo);
+    const int nSubType = fromMySession?0:memberSubType(memberInfo);
     const QString sImagePath = memberInfo->m_sHeadResourceFile;
     const EB_USER_LINE_STATE pOutLineState = memberInfo->m_nLineState;
     const QString sHeadMd5 = QString::fromStdString(memberInfo->m_sHeadMd5.string());
@@ -428,14 +428,17 @@ void EbWidgetItemInfo::updateMemberInfo(const EB_MemberInfo *memberInfo)
             }
         }
     }
-    this->m_sGroupCode = memberInfo->m_sGroupCode;
-    this->m_sMemberCode = memberInfo->m_sMemberCode;
     this->m_sAccount = memberInfo->m_sMemberAccount;
     this->m_nUserId = memberInfo->m_nMemberUserId;
     this->m_sName = memberInfo->m_sUserName;
     this->m_dwItemData = memberInfo->m_nLineState;
+    if (fromMySession) {
+        return;
+    }
     this->m_nIndex = memberInfo->m_nDisplayIndex;
     this->m_nSubType = nSubType;
+    this->m_sGroupCode = memberInfo->m_sGroupCode;
+    this->m_sMemberCode = memberInfo->m_sMemberCode;
     QColor textColor(0,0,0);
     if (this->m_nSubType>1) {
         /// 管理权限

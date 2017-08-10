@@ -95,17 +95,21 @@ int CPOPCUserManager::Start(const CCgcAddress & address, const tstring & sAppNam
 	sotp()->doStartActiveThread(EB_MAX_HEART_BEAT_SECOND);
 
 	m_bKilled = false;
-	boost::thread_attributes attrs;
-    attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//	boost::thread_attributes attrs;
+//    attrs.set_stack_size(CGC_THREAD_STACK_MIN);
 	if (bBuildResponseThread)
 	{
-		if (m_pResponseThread.get() == NULL)
-			m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCUserManager::response_thread_svr, this)));
+        if (m_pResponseThread.get() == 0) {
+            m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPOPCUserManager::response_thread_svr, this)));
+//			m_pResponseThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCUserManager::response_thread_svr, this)));
+        }
 	}
 	if (bBuildProcessThread)
 	{
-		if (m_pProcessThread.get() == NULL)
-			m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCUserManager::process_thread_svr, this)));
+        if (m_pProcessThread.get() == 0) {
+            m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPOPCUserManager::process_thread_svr, this)));
+//			m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCUserManager::process_thread_svr, this)));
+        }
 	}
 	return 0;
 }

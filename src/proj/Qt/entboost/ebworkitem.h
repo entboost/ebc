@@ -9,6 +9,7 @@
 #include <ebwidgetuserinfo.h>
 #include <ebwidgetuserlist.h>
 #include <ebwidgetchatrecord.h>
+#include <ebwidgetvideoframe.h>
 #include <ebwidgetfiletranlist.h>
 
 //const int const_top_button_width = 140;
@@ -24,6 +25,7 @@ public:
         WORK_ITEM_USER_LIST,             /// 群组成员
         WORK_ITEM_TRAN_FILE,             /// 文件传输
         WORK_ITEM_CHAT_RECORD,             /// 聊天记录
+        WORK_ITEM_VIDEO_FRAME,             /// 视频面板
         WORK_ITEM_WEB_BROWSER             /// 浏览器
     };
 //    explicit EbWorkItem(QObject *parent=0);
@@ -45,17 +47,18 @@ public:
     void buildButton(bool saveUrl,int topHeight, QWidget *parent = 0);
     QPushButton* buttonClose(void) const {return m_pushButtonClose;}
     EbWidgetWorkView::pointer widgetWorkView(void) const {return m_widgetWorkView;}
-    EbWidgetUserInfo * widgetUserInfo(void) const {return m_widgetUserInfo;}
-    EbWidgetUserList * widgetUserList(void) const {return m_widgetUserList;}
-    EbWidgetChatRecord * widgetChatRecord(void) const {return m_widgetChatRecord;}
-    EbWidgetFileTranList * widgetTranFile(void) const {return m_widgetTranFile;}
+    EbWidgetUserInfo *widgetUserInfo(void) const {return m_widgetUserInfo;}
+    EbWidgetUserList *widgetUserList(void) const {return m_widgetUserList;}
+    EbWidgetVideoFrame *widgetVideoFrame(void) const {return m_widgetVideoFrame;}
+    EbWidgetChatRecord *widgetChatRecord(void) const {return m_widgetChatRecord;}
+    EbWidgetFileTranList *widgetTranFile(void) const {return m_widgetTranFile;}
 
     QRect rectButton(void) const;
-    /// * 检查按钮点击状态：1=点击关闭，2=左边点击，0=没有点击
+    /// *检查按钮点击状态：1=点击关闭，2=左边点击，0=没有点击
     int checkTopButtonClickState(const QPushButton* button, const QPoint& pt) const;
 
     int onResize(int x, const QRect& rect, int topHeight,int leftOffset);
-    /// * 用于关闭某个ITEM，左右移动按钮位置
+    /// *用于关闭某个ITEM，左右移动按钮位置
     int onMove(int x);
     QRect topGeometry(void) const;
     void setChecked(bool checked, bool hideButton=false, bool searchFocus=false);
@@ -85,16 +88,17 @@ private:
     QString m_postData;
     EbWidgetWorkView::pointer m_widgetWorkView;
     EbcCallInfo::pointer m_callInfo;
-    EbWidgetUserInfo * m_widgetUserInfo;
-    EbWidgetUserList * m_widgetUserList;
-    EbWidgetChatRecord * m_widgetChatRecord;
-    EbWidgetFileTranList * m_widgetTranFile;
+    EbWidgetUserInfo *m_widgetUserInfo;
+    EbWidgetUserList *m_widgetUserList;
+    EbWidgetVideoFrame *m_widgetVideoFrame;
+    EbWidgetChatRecord *m_widgetChatRecord;
+    EbWidgetFileTranList *m_widgetTranFile;
     int m_topButtonWidth;
-    QPushButton * m_pushButtonTop;
-//    QLabel * m_labelUnreadMsg;
-    QLabel * m_labelImage;
+    QPushButton *m_pushButtonTop;
+//    QLabel *m_labelUnreadMsg;
+    QLabel *m_labelImage;
     EB_SubscribeFuncInfo m_subFuncInfo;
-    QPushButton * m_pushButtonClose;
+    QPushButton *m_pushButtonClose;
 };
 const EbWorkItem::pointer EbWorkItemNull;
 

@@ -55,7 +55,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButtonVideo">
+  <widget class="QPushButton" name="pushButtonVideoChat">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -65,7 +65,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>video</string>
+    <string>video chat</string>
    </property>
    <property name="flat">
     <bool>true</bool>

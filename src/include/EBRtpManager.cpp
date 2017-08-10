@@ -1,4 +1,4 @@
-#include "EBRtpManager.h"
+ï»¿#include "EBRtpManager.h"
 //#include "eb_defines.h"
 
 namespace entboost {
@@ -59,16 +59,17 @@ int CEBRtpManager::Start(const CCgcAddress & address, const tstring& sAppName, u
 	//sotp()->doSetConfig(SOTP_CLIENT_CONFIG_ACCEPT_ENCODING,SOTP_DATA_ENCODING_GZIP|SOTP_DATA_ENCODING_DEFLATE);
 	sotp()->doSendOpenSession();
 	sotp()->doSetEncoding(_T("UTF8"));
-	sotp()->doStartActiveThread(8);	// Í¨¹ıÕâ¸öĞÄÌøÏß³Ì£¬ÊµÏÖ¶¨ÆÚÖØĞÂ×¢²á
+	sotp()->doStartActiveThread(8);	// é€šè¿‡è¿™ä¸ªå¿ƒè·³çº¿ç¨‹ï¼Œå®ç°å®šæœŸé‡æ–°æ³¨å†Œ
 
 	m_bKilled = false;
 	//if (m_pResponseThread == NULL)
 	//	m_pResponseThread = new boost::thread(attrs,boost::bind(response_thread_svr, (void*)this));
 	if (m_pProcessThread.get() == NULL)
 	{
-		boost::thread_attributes attrs;
-		attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CEBRtpManager::process_thread_svr, this)));
+		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEBRtpManager::process_thread_svr, this)));
+		//boost::thread_attributes attrs;
+		//attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+		//m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CEBRtpManager::process_thread_svr, this)));
 	}
 	return 0;
 }
@@ -115,7 +116,7 @@ void CEBRtpManager::DoProcess(void)
 			continue;
 		// process timeout
 		{
-			// ´¦ÀíÓĞÒÑ¾­·µ»ØÊı¾İ£¬³¬¹ı10SÃ»ÓĞĞÂÊı¾İ£¬É¾³ırequestlist£¬ÓÃÓÚÌá¸ßĞ§ÂÊ
+			// å¤„ç†æœ‰å·²ç»è¿”å›æ•°æ®ï¼Œè¶…è¿‡10Sæ²¡æœ‰æ–°æ•°æ®ï¼Œåˆ é™¤requestlistï¼Œç”¨äºæé«˜æ•ˆç‡
 			BoostWriteLock wtlock(m_pReqResponseList.mutex());
 			CLockList<CPOPSotpRequestInfo::pointer>::iterator pIterReqResponstList = m_pReqResponseList.begin();
 			for (; pIterReqResponstList!=m_pReqResponseList.end(); )
@@ -443,7 +444,7 @@ unsigned short CEBRtpManager::GetLocalPort(void) const
 
 void CEBRtpManager::ProcP2PTry(const CPOPSotpRequestInfo::pointer & pRequestInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo)
 {
-	// ÊÕµ½¶Ô·½P2PÇëÇó
+	// æ”¶åˆ°å¯¹æ–¹P2Pè¯·æ±‚
 	const mycp::bigint sFromAccount = pResponseInfo->m_pResponseList.getParameterValue("from-uid", (mycp::bigint)0);
 	const mycp::bigint sCallId = pResponseInfo->m_pResponseList.getParameterValue("call-id", (mycp::bigint)0);
 	const mycp::bigint sChatId = pResponseInfo->m_pResponseList.getParameterValue("chat-id", (mycp::bigint)0);
@@ -451,14 +452,14 @@ void CEBRtpManager::ProcP2PTry(const CPOPSotpRequestInfo::pointer & pRequestInfo
 	const int nP2PData = pResponseInfo->m_pResponseList.getParameterValue("p2p-data", (int)0);
 	if (nTryCount < 5)
 	{
-		// »Ø¸´P2PTRY
-		// nFromAccount=0£º±íÊ¾Ê¹ÓÃµ±Ç°fromÓÃ»§£»
-		if (m_nOnP2POk==1 && nTryCount<=1)	// 0,1£¬ÖØĞÂÇëÇó£»
+		// å›å¤P2PTRY
+		// nFromAccount=0ï¼šè¡¨ç¤ºä½¿ç”¨å½“å‰fromç”¨æˆ·ï¼›
+		if (m_nOnP2POk==1 && nTryCount<=1)	// 0,1ï¼Œé‡æ–°è¯·æ±‚ï¼›
 			m_nOnP2POk = -1;
 		SendP2PTry(sCallId,sChatId,0,nTryCount+1,nP2PData);
 	}else if (m_nOnP2POk!=1)
 	{
-		// ÒÑ¾­´òÍ¨P2P
+		// å·²ç»æ‰“é€šP2P
 		//m_nOnP2POk = 0;
 		//if (!m_sSslPublicKey.empty() && !m_sSslPrivateKey.empty() && !m_sSslPrivatePwd.empty())
 		//{
@@ -472,7 +473,7 @@ void CEBRtpManager::ProcP2PTry(const CPOPSotpRequestInfo::pointer & pRequestInfo
 		//		sotp()->doSetConfig(SOTP_CLIENT_CONFIG_USES_SSL,1);
 		//		if (sFromAccount>m_nP2PTryOwnerAccount)
 		//		{
-		//			// ·¢ËÍSSLÖ¤Êé£¬»ñÈ¡Í¨Ñ¶ÃÜÂësslpassword£¬¶Ô·½Ò²»áÉú³ÉÏàÍ¬ÃÜÂë
+		//			// å‘é€SSLè¯ä¹¦ï¼Œè·å–é€šè®¯å¯†ç sslpasswordï¼Œå¯¹æ–¹ä¹Ÿä¼šç”Ÿæˆç›¸åŒå¯†ç 
 		//			sotp()->doSendOpenSession(0);
 		//		}
 		//		return;
@@ -481,7 +482,7 @@ void CEBRtpManager::ProcP2PTry(const CPOPSotpRequestInfo::pointer & pRequestInfo
 		m_nOnP2POk = 1;
 		for (int i=0;i<3;i++)
 		{
-			// ·¢ËÍ¶à´Î£¬È·±£¶Ô·½ÄÜÊÕµ½£¬±£Ö¤¶ş±ß»¥Í¨£»
+			// å‘é€å¤šæ¬¡ï¼Œç¡®ä¿å¯¹æ–¹èƒ½æ”¶åˆ°ï¼Œä¿è¯äºŒè¾¹äº’é€šï¼›
 			SendP2PTry(sCallId,sChatId,m_nP2PTryOwnerAccount,nTryCount+1,nP2PData);
 #ifdef WIN32
 			Sleep(5);
@@ -501,7 +502,7 @@ void CEBRtpManager::OnCgcResponse(const cgcParserSotp & response)
 	const long nSotpCallId = response.getCallid();
 	const long nSotpSign = response.getSign();
 	const long nResultValue = response.getResultValue();
-	// -102: ´íÎóÄ£¿é´úÂë
+	// -102: é”™è¯¯æ¨¡å—ä»£ç 
 	if (nResultValue < 0)
 	//if (nResultValue == -102 || nResultValue == -103)
 	{
@@ -513,7 +514,7 @@ void CEBRtpManager::OnCgcResponse(const cgcParserSotp & response)
 //	{
 //		for (int i=0;i<3;i++)
 //		{
-//			// ·¢ËÍ¶à´Î£¬È·±£¶Ô·½ÄÜÊÕµ½£¬±£Ö¤¶ş±ß»¥Í¨£»
+//			// å‘é€å¤šæ¬¡ï¼Œç¡®ä¿å¯¹æ–¹èƒ½æ”¶åˆ°ï¼Œä¿è¯äºŒè¾¹äº’é€šï¼›
 //			SendP2PTry(m_pChatInfo->GetCallId(),m_pChatInfo->GetChatId(),0,5,m_nP2PData);
 //#ifdef WIN32
 //			Sleep(5);
@@ -545,7 +546,7 @@ void CEBRtpManager::OnCgcResponse(const cgcParserSotp & response)
 		}break;
 	case EB_SIGN_P2P_TRY:
 		{
-			// ÊÕµ½¶Ô·½P2PÇëÇó
+			// æ”¶åˆ°å¯¹æ–¹P2Pè¯·æ±‚
 			if (response.getFunctionName()==EB_CALL_NAME_P2P_TRY)
 			{
 				//MessageBox(NULL,"EB_SIGN_P2P_TRY","EB_SIGN_P2P_TRY",MB_OK);

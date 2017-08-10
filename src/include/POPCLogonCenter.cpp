@@ -55,12 +55,14 @@ int CPOPCLogonCenter::Start(const CCgcAddress & address, unsigned int bindPort,i
 	sotp()->doStartActiveThread(EB_MAX_HEART_BEAT_SECOND);	// 这是短连接，外面会自动关闭
 
 	m_bKilled = false;
-	boost::thread_attributes attrs;
-    attrs.set_stack_size(CGC_THREAD_STACK_MIN);
 	//if (m_pResponseThread == NULL)
 	//	m_pResponseThread = new boost::thread(attrs,boost::bind(response_thread_svr, (void*)this));
-	if (bBuildProcessThread && m_pProcessThread.get() == NULL)
-		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCLogonCenter::process_thread_svr, this)));
+    if (bBuildProcessThread && m_pProcessThread.get() == NULL) {
+        m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPOPCLogonCenter::process_thread_svr, this)));
+//        boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//		m_pProcessThread = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CPOPCLogonCenter::process_thread_svr, this)));
+    }
 	return 0;
 }
 bool CPOPCLogonCenter::IsStart(void) const

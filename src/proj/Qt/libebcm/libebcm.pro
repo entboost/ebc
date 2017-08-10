@@ -57,14 +57,13 @@ INCLUDEPATH += "../../../mycp/ThirdParty"
 LIBS += -L"../../../mycp/build" -lCGCLibQt -lCGCClassQt
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-1_62 -llibboost_thread-vc140-mt-1_62 -llibboost_filesystem-vc140-mt-1_62
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstat
-LIBS += -lWs2_32 -lshlwapi -lWinmm
   }
   Debug {
 LIBS += -L"../../../mycp/build" -lCGCLibQtd -lCGCClassQtd
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-gd-1_62 -llibboost_thread-vc140-mt-gd-1_62 -llibboost_filesystem-vc140-mt-gd-1_62
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstatd
-LIBS += -lWs2_32 -lshlwapi -lWinmm
   }
+LIBS += -lWs2_32 -lshlwapi -lWinmm
 ## 使用静态库会报错
 LIBS += -L"F:/THIRDPARTY/openssl-1.0.2k/vc2015" -llibeay32 -lssleay32
 }

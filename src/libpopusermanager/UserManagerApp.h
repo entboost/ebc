@@ -212,8 +212,7 @@ class CProcessMsgInfo
 {
 public:
 	typedef boost::shared_ptr<CProcessMsgInfo> pointer;
-    enum PROCESS_MSG_TYPE
-	{
+    enum PROCESS_MSG_TYPE {
 		PROCESS_MSG_TYPE_RESET_DEVAPPID
 		, PROCESS_MSG_TYPE_F_GROUP_INFO
 		, PROCESS_MSG_TYPE_F_MEMBER_INFO
@@ -233,7 +232,7 @@ public:
 		, PROCESS_MSG_TYPE_CHECK_RESOURCE_REFRESH
 		, PROCESS_MSG_TYPE_DELETE_HEAD_RESFILE
 		//, PROCESS_MSG_TYPE_CHECK_MEMBER_HEAD
-		, PROCESS_MSG_TYPE_LOG_MESSAGE				= 100
+        , PROCESS_MSG_TYPE_LOG_MESSAGE				= 200
 	};
 	static CProcessMsgInfo::pointer create(PROCESS_MSG_TYPE nMsg)
 	{
@@ -249,10 +248,13 @@ public:
 	CEBAccountInfo::pointer m_pFromAccount;
 	mycp::bigint m_nFromUserId;
 	Cchatroom::pointer m_pChatRoom;
-	mycp::bigint m_nBigInt1;	// resource_id,msgid
+    mycp::bigint m_nBigInt1;	// resource_id,msgid,userid
 	mycp::bigint m_nBigInt2;	// callid
+    void *m_param;
     EBFileString m_sString1;	// resource_file
 	time_t m_tProcessTime;
+    CPOPSotpRequestInfo::pointer m_pSotpRequestInfo;
+    CPOPSotpResponseInfo::pointer m_pSotpResponseInfo;
 
 	CProcessMsgInfo(PROCESS_MSG_TYPE nMsg)
 		: m_nProcessMsgType(nMsg)
@@ -260,7 +262,7 @@ public:
 		, m_nReturnVer(0)
 		, m_nCallGroupId(0)
 		, m_nFromUserId(0)
-		, m_nBigInt1(0), m_nBigInt2(0)
+        , m_nBigInt1(0), m_nBigInt2(0), m_param(0)
 		, m_tProcessTime(0)
 	{}
 	virtual ~CProcessMsgInfo(void)
@@ -407,11 +409,15 @@ public:
 
 	//PVideoDataCallBack m_pVideoStreamCallback;
 	//DWORD m_dwVideoCallbackData;
+#ifdef _QT_MAKE_
+    std::vector<QString> m_pVideoDevices;
+#else
 	std::vector<tstring> m_pVideoDevices;
+#endif
 	int m_nLocalVideoIndex;
 	void CreateVideoRoom(const CEBCallInfo::pointer& pCallInfo);
 #ifdef _QT_MAKE_
-	void OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::bigint nVideoUserId, bool bLocalUser,QObject* hVideoWndParent, void* pAudioParam, bool& pOutVideoError);
+    void OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::bigint nVideoUserId, bool bLocalUser,QWidget* hVideoWndParent, void* pAudioParam, bool& pOutVideoError);
 #else
 	void OpenUserVideo(const CEBCallInfo::pointer& pCallInfo,mycp::bigint nVideoUserId, bool bLocalUser,HWND hVideoWndParent, void* pAudioParam, bool& pOutVideoError);
 #endif
@@ -421,8 +427,8 @@ public:
 	void DoVideoDisonnecte(eb::bigint sCallId, bool bSendVAck = false);
 	void DoVideoDisonnecte(const CEBCallInfo::pointer& pCallInfo, bool bSendVAck = false);
 #ifdef _QT_MAKE_
-	int OpenLocalVideo(eb::bigint sCallId,QObject* hVideoWndParent,void* pAudioParam);
-	bool OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,QObject* hVideoWndParent,void* pAudioParam);
+    int OpenLocalVideo(eb::bigint sCallId, QWidget *hVideoWndParent,void* pAudioParam);
+    bool OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount, QWidget* hVideoWndParent,void* pAudioParam);
 #else
 	int OpenLocalVideo(eb::bigint sCallId,HWND hVideoWndParent,void* pAudioParam);
 	bool OpenUserVideo(eb::bigint sCallId,mycp::bigint sAccount,HWND hVideoWndParent,void* pAudioParam);
@@ -729,6 +735,7 @@ protected:
     long waitEventResult(unsigned long resultKey,int waitMaxSecond,long defaultResult=0);
     CLockMap<unsigned long,long> m_eventResult;
     virtual void customEvent(QEvent *e);
+    void doEBUMEvent(QEvent *e);
 #endif
 private:
 	static eb::bigint GetNextBigId(void)	// index++ 16
@@ -838,11 +845,16 @@ private:
 	virtual void OnFRDAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
 	virtual void OnFRDEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
 
-	// video
+    /// video
+    void OnVRequestResponse(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo);
 	virtual void OnVRequestResponse(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
+    void OnVAckResponse(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo);
 	virtual void OnVAckResponse(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
+    void OnFVRequest(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo);
 	virtual void OnFVRequest(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
+    void OnFVAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo);
 	virtual void OnFVAck(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
+    void OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo);
 	virtual void OnFVEnd(const CPOPSotpRequestInfo::pointer & pReqeustInfo, const CPOPSotpResponseInfo::pointer & pResponseInfo,const CPOPCUserManager* pUMOwner);
 
 	void UpdateLocalGroupVer(mycp::bigint nGroupId,mycp::bigint nNewGroupVer) const;

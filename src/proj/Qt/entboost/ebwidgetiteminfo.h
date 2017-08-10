@@ -57,7 +57,7 @@ public:
 
     static int memberSubType(const EB_MemberInfo *memberInfo);
     static int memberSubType(EB_GROUP_TYPE groupType, eb::bigint groupId, eb::bigint memberUserId);
-    void updateMemberInfo(const EB_MemberInfo *memberInfo);
+    void updateMemberInfo(const EB_MemberInfo *memberInfo, bool fromMySession=false);
     void updateContactInfo(const EB_ContactInfo *contactInfo);
 
     ITEM_TYPE m_nItemType;

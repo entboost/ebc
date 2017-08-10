@@ -22,7 +22,7 @@ class EbDialogFrameList : public EbDialogBase
     Q_OBJECT
 public:
     explicit EbDialogFrameList(QWidget *parent = 0);
-    ~EbDialogFrameList(void);
+    virtual ~EbDialogFrameList(void);
 
     void updateLocaleInfo(void);
     EbDialogWorkFrame * showWorkFrame(void);

@@ -3236,7 +3236,18 @@ bool CEBAppClient::EB_GetMemberInfoByAccount2(EB_MemberInfo* pOutMemberInfo,EB_G
 			}
 		}
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_IsExistLocalMemberInfo(eb::bigint nMemberId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        if (nMemberId==0) return false;
+        return pManager->theEmployeeList.exist(nMemberId);
+    }
+    return false;
 }
 
 bool CEBAppClient::EB_GetMemberInfoByMemberCode(EB_MemberInfo* pOutMemberInfo,eb::bigint nMemberCode) const
@@ -3993,13 +4004,13 @@ void CEBAppClient::EB_SetVideoCallback(eb::bigint nCallId,PEBVideoCallBack cbAud
 		pManager->SetVideoCallback(nCallId,cbAudio);
 	}
 }
-void CEBAppClient::EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDeviceList)
-{
 #ifdef _QT_MAKE_
-
+void CEBAppClient::EB_GetVideoDeviceList(std::vector<QString>& pOutVideoDeviceList)
 #else
-	Cebmm::GetVideoDevices(pOutVideoDeviceList);
+void CEBAppClient::EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDeviceList)
 #endif
+{
+	Cebmm::GetVideoDevices(pOutVideoDeviceList);
 }
 //int CEBAppClient::EB_GetDefaultVideoMediaType(void)
 //{
@@ -4007,7 +4018,7 @@ void CEBAppClient::EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDe
 //}
 
 #ifdef _QT_MAKE_
-int CEBAppClient::EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,QObject* hVideoWndParent,void* pUserParam)
+int CEBAppClient::EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex, QWidget* hVideoWndParent,void* pUserParam)
 #else
 int CEBAppClient::EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,HWND hVideoWndParent,void* pUserParam)
 #endif
@@ -4029,7 +4040,8 @@ int CEBAppClient::EB_OpenLocalVideo(eb::bigint nCallId,int nLocalVideoIndex,HWND
 }
 
 #ifdef _QT_MAKE_
-bool CEBAppClient::EB_OpenUserVideo(eb::bigint nCallId,eb::bigint nUserId,QObject* hVideoWndParent,void* pUserParam)
+bool CEBAppClient::EB_OpenUserVideo(eb::bigint nCallId, eb::bigint nUserId,
+                                    QWidget *hVideoWndParent, void* pUserParam)
 #else
 bool CEBAppClient::EB_OpenUserVideo(eb::bigint nCallId,eb::bigint nUserId,HWND hVideoWndParent,void* pUserParam)
 #endif

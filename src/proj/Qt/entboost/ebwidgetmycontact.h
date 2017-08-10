@@ -18,7 +18,7 @@ public:
 
     const EbWidgetItemInfo::pointer onUGInfo(const EB_UGInfo *ugInfo);
     void onUGDelete(const EB_UGInfo *ugInfo);
-    void onContactInfo(const EB_ContactInfo *contactInfo);
+    void onContactInfo(const EB_ContactInfo *contactInfo, bool fromStateChanged);
     void onContactDelete(const EB_ContactInfo *contactInfo);
     void onContactHeadChange(const EB_ContactInfo *contactInfo);
 signals:

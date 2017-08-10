@@ -32,16 +32,16 @@ EbWidgetChatRight::EbWidgetChatRight(const EbcCallInfo::pointer& pCallInfo,QWidg
 
 EbWidgetChatRight::~EbWidgetChatRight()
 {
-    exitChat(false);
+    onExitChat(false);
 }
 
-void EbWidgetChatRight::exitChat(bool bHangup)
+void EbWidgetChatRight::onExitChat(bool bHangup)
 {
-//    if (m_pPanVideos!=NULL)
-//    {
-//        m_pPanVideos->ExitChat(bHangup);
-//    }
-    EbWidgetFileTranList * tranFile = widgetTranFile();
+    EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
+    if ( videoFrame!=0 ) {
+        videoFrame->onExitChat(bHangup);
+    }
+    EbWidgetFileTranList *tranFile = widgetTranFile();
     if ( tranFile!=0 ) {
         tranFile->onExitChat(bHangup);
     }
@@ -49,17 +49,17 @@ void EbWidgetChatRight::exitChat(bool bHangup)
 //        m_pPanRemoteDesktop->ExitChat(bHangup);
 }
 
-void EbWidgetChatRight::onUserExit(eb::bigint nUserId, bool bExitDep)
+void EbWidgetChatRight::onUserExit(eb::bigint nUserId, bool exitGroup)
 {
-    EbWidgetUserList * widgetUserList = EbDialogWorkFrame::widgetUserList();
+    EbWidgetUserList *widgetUserList = EbDialogWorkFrame::widgetUserList();
     if ( widgetUserList!=0 ) {
-        widgetUserList->onExitUser( nUserId, bExitDep );
+        widgetUserList->onExitUser(nUserId, exitGroup);
     }
 }
 
 //void EbWidgetChatRight::lineStateChange(eb::bigint userId, EB_USER_LINE_STATE lineState)
 //{
-//    EbWidgetUserList * widgetUserList = EbDialogWorkFrame::widgetUserList();
+//    EbWidgetUserList *widgetUserList = EbDialogWorkFrame::widgetUserList();
 //    if ( widgetUserList!=0 ) {
 //        widgetUserList->lineStateChange(userId, lineState);
 //    }
@@ -80,7 +80,7 @@ void EbWidgetChatRight::onMsgReceipt(const CCrRichInfo *pCrMsgInfo, int nAckType
 
 void EbWidgetChatRight::onSendingFile(const CCrFileInfo *fileInfo)
 {
-    EbWidgetFileTranList * tranFile = this->openTranFile();
+    EbWidgetFileTranList *tranFile = this->openTranFile();
     tranFile->onSendingFile(fileInfo);
     if (tranFile->isEmpty()) {
         EbDialogWorkFrame::closeItem( indexOf(EbWorkItem::WORK_ITEM_TRAN_FILE) );
@@ -89,7 +89,7 @@ void EbWidgetChatRight::onSendingFile(const CCrFileInfo *fileInfo)
 
 void EbWidgetChatRight::onReceivingFile(const CCrFileInfo *fileInfo)
 {
-    EbWidgetFileTranList * tranFile = this->openTranFile();
+    EbWidgetFileTranList *tranFile = this->openTranFile();
     tranFile->onReceivingFile(fileInfo);
 }
 
@@ -100,7 +100,7 @@ void EbWidgetChatRight::onReceivedFile(const CCrFileInfo *fileInfo)
 
 void EbWidgetChatRight::onFilePercent(const CChatRoomFilePercent *pChatRoomFilePercent)
 {
-    EbWidgetFileTranList * tranFile = widgetTranFile();
+    EbWidgetFileTranList *tranFile = widgetTranFile();
     if ( tranFile!=0 ) {
         tranFile->onFilePercent(pChatRoomFilePercent);
     }
@@ -108,7 +108,7 @@ void EbWidgetChatRight::onFilePercent(const CChatRoomFilePercent *pChatRoomFileP
 
 void EbWidgetChatRight::deleteTranFile(eb::bigint msgId)
 {
-    EbWidgetFileTranList * tranFile = widgetTranFile();
+    EbWidgetFileTranList *tranFile = widgetTranFile();
     if (tranFile!=0) {
         tranFile->deleteTranFile(msgId);
         if (tranFile->isEmpty()) {
@@ -119,32 +119,28 @@ void EbWidgetChatRight::deleteTranFile(eb::bigint msgId)
 
 void EbWidgetChatRight::onMemberInfo(const EB_MemberInfo *memberInfo, bool bChangeLineState)
 {
-    EbWidgetUserList * userList = widgetUserList();
+    EbWidgetUserList *userList = widgetUserList();
     if (userList!=0) {
         userList->onMemberInfo(memberInfo,bChangeLineState);
     }
 }
 
-void EbWidgetChatRight::getProcessing(bool &/*pVideoProcessing*/, bool &pFileProcessing, bool &/*pDesktopProcessing*/) const
+void EbWidgetChatRight::getProcessing(bool &pVideoProcessing, bool &pFileProcessing, bool &/*pDesktopProcessing*/) const
 {
-//    if (m_pPanVideos!=NULL)
-//    {
-//        pVideoProcessing = m_pPanVideos->GetVideoCount()>0;
-//    }else
-//    {
-//        pVideoProcessing = false;
-//    }
-    const EbWidgetFileTranList * tranFile = widgetTranFile();
+    EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
+    pVideoProcessing = (videoFrame!=0 && !videoFrame->isEmpty())?true:false;
+    const EbWidgetFileTranList *tranFile = widgetTranFile();
     pFileProcessing = (tranFile!=0 && !tranFile->isEmpty())?true:false;
+
 //    if (m_pPanRemoteDesktop!=NULL)
 //        pDesktopProcessing = m_pPanRemoteDesktop->GetInDesktop();
 //    else
-    //        pDesktopProcessing = false;
+//        pDesktopProcessing = false;
 }
 
 void EbWidgetChatRight::showMsgRecord()
 {
-    EbWidgetChatRecord * chatRecord = widgetChatRecord();
+    EbWidgetChatRecord *chatRecord = widgetChatRecord();
     if (chatRecord==0) {
         EbWorkItem::pointer workItem = EbWorkItem::create(EbWorkItem::WORK_ITEM_CHAT_RECORD);
         workItem->setCallInfo( m_callInfo );
@@ -155,6 +151,60 @@ void EbWidgetChatRight::showMsgRecord()
         EbDialogWorkFrame::closeItem( indexOf(EbWorkItem::WORK_ITEM_CHAT_RECORD) );
     }
 
+}
+
+void EbWidgetChatRight::onVRequestResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
+{
+    EbWidgetVideoFrame *videoFrame = this->openVideoFrame();
+    videoFrame->onVRequestResponse(pVideoInfo, nStateValue);
+}
+
+void EbWidgetChatRight::onVAckResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
+{
+    EbWidgetVideoFrame *videoFrame = this->openVideoFrame();
+    videoFrame->onVAckResponse(pVideoInfo, nStateValue);
+}
+
+void EbWidgetChatRight::onVideoRequest(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    EbWidgetVideoFrame *videoFrame = this->openVideoFrame();
+    videoFrame->onVideoRequest(pVideoInfo, pUserVideoInfo);
+//    if (m_callInfo->isGroupCall())
+//        SetTimer(TIMERID_CHECK_ADJUST_WIDTH,500,NULL);
+}
+
+void EbWidgetChatRight::onVideoAccept(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    EbWidgetVideoFrame *videoFrame = this->openVideoFrame();
+    videoFrame->onVideoAccept(pVideoInfo, pUserVideoInfo);
+}
+
+void EbWidgetChatRight::onVideoCancel(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    EbWidgetVideoFrame *videoFrame = this->widgetVideoFrame();
+    if (videoFrame!=0) {
+        videoFrame->onVideoCancel(pVideoInfo, pUserVideoInfo);
+        if (!m_callInfo->isGroupCall()) {
+            /// 一对一视频，关闭TAB
+            EbDialogWorkFrame::closeItem( indexOf(EbWorkItem::WORK_ITEM_VIDEO_FRAME) );
+        }
+    }
+//    if (m_pCallInfo.m_sGroupCode>0)
+//        SetTimer(TIMERID_CHECK_ADJUST_WIDTH,200,NULL);
+}
+
+void EbWidgetChatRight::onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo)
+{
+    EbWidgetVideoFrame *videoFrame = this->widgetVideoFrame();
+    if (videoFrame!=0) {
+        videoFrame->onVideoEnd(pVideoInfo, pUserVideoInfo);
+        if (!m_callInfo->isGroupCall()) {
+            /// 一对一视频，关闭TAB
+            EbDialogWorkFrame::closeItem( indexOf(EbWorkItem::WORK_ITEM_VIDEO_FRAME) );
+        }
+    }
+//    if (m_pCallInfo.m_sGroupCode>0)
+//        SetTimer(TIMERID_CHECK_ADJUST_WIDTH,200,NULL);
 }
 
 void EbWidgetChatRight::onOpenSubId(eb::bigint subId)
@@ -192,14 +242,27 @@ void EbWidgetChatRight::resizeEvent(QResizeEvent *e)
     EbDialogWorkFrame::resizeEvent(e);
 }
 
-EbWidgetFileTranList * EbWidgetChatRight::openTranFile()
+EbWidgetVideoFrame *EbWidgetChatRight::openVideoFrame()
 {
-    EbWidgetFileTranList * tranFile = widgetTranFile();
+    EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
+    if (videoFrame==0) {
+        EbWorkItem::pointer workItem = EbWorkItem::create(EbWorkItem::WORK_ITEM_VIDEO_FRAME);
+        workItem->setCallInfo( m_callInfo );
+        workItem->setTopButtonWidth( const_top_button_width );
+        EbDialogWorkFrame::addWorkItem(false, workItem);
+        videoFrame = workItem->widgetVideoFrame();
+    }
+    return videoFrame;
+}
+
+EbWidgetFileTranList *EbWidgetChatRight::openTranFile()
+{
+    EbWidgetFileTranList *tranFile = widgetTranFile();
     if (tranFile==0) {
         EbWorkItem::pointer workItem = EbWorkItem::create(EbWorkItem::WORK_ITEM_TRAN_FILE);
         workItem->setCallInfo( m_callInfo );
         workItem->setTopButtonWidth( const_top_button_width );
-        EbDialogWorkFrame::addWorkItem(false,workItem);
+        EbDialogWorkFrame::addWorkItem(false, workItem);
         tranFile = workItem->widgetTranFile();
     }
     return tranFile;

@@ -40,8 +40,9 @@ public:
 
     void onUserExitRoom(eb::bigint userId, bool exitDep);
     void onAlertingCall(void);
+    /// RICH聊天消息
     void onSendRich(const CCrRichInfo *crMsgInfo, EB_STATE_CODE nState);
-    void onReceiveRich(const CCrRichInfo *crMsgInfo, QString* sOutFirstMsg1, QString* sOutFirstMsg2);
+    void onReceiveRich(const CCrRichInfo *crMsgInfo, QString *sOutFirstMsg1, QString *sOutFirstMsg2);
     void onUserLineStateChange(eb::bigint groupId, eb::bigint userId, EB_USER_LINE_STATE bLineState);
     void onMemberInfo(const EB_MemberInfo *memberInfo, bool changeLineState);
     bool onMemberHeadChange(const EB_MemberInfo *memberInfo);
@@ -51,13 +52,22 @@ public:
     void onRemoveMember(const EB_GroupInfo *groupInfo, mycp::bigint memberId, mycp::bigint memberUserId);
     void onMsgReceipt(const CCrRichInfo *crMsgInfo, int nAckType);
 
+    /// 文件传输
     void onSendingFile(const CCrFileInfo *fileInfo);
     bool onSentFile(const CCrFileInfo *fileInfo);
     void onCancelFile(const CCrFileInfo *fileInfo, bool changeP2PSending);
-    void onReceivingFile(const CCrFileInfo *fileInfo,QString* sOutFirstMsg=0);
+    void onReceivingFile(const CCrFileInfo *fileInfo, QString *sOutFirstMsg=0);
     void onReceivedFile(const CCrFileInfo *fileInfo);
     void onFilePercent(const CChatRoomFilePercent *filePercent);
     void onSave2Cloud(const CCrFileInfo *fileInfo);
+    /// 视频聊天
+    void onVRequestResponse(const EB_VideoInfo *pVideoInfo, int nStateValue);
+    void onVAckResponse(const EB_VideoInfo *pVideoInfo, int nStateValue);
+    void onVideoRequest(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoAccept(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoCancel(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoTimeout(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
 
     const QString &fromName(void) const {return m_sFromName;}
     const QString &fullName(void) const {return m_sFullName;}
@@ -75,6 +85,7 @@ public slots:
     void onClickedInputMsgRecord(void);
     void onClickedButtonAddUser(void);
     void onClickedButtonSendFile(void);
+    void onClickedButtonVideoChat(void);
     void onTriggeredActionSendECard(void);
     void onTriggeredActionChatApps(void);
     void onClickedButtonChatApps(void);
@@ -93,19 +104,19 @@ protected:
     virtual void keyPressEvent(QKeyEvent *e);
 private:
     void updateSize(void);
-    void processMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,EB_STATE_CODE nState,QString* sOutFirstMsg1=0,QString* sOutFirstMsg2=0);
+    void processMsg(bool bReceive,const CCrRichInfo *pCrMsgInfo,EB_STATE_CODE nState,QString *sOutFirstMsg1=0,QString *sOutFirstMsg2=0);
     bool processFile(bool bReceive,const CCrFileInfo *fileInfo);
 
     void updateFromInfo(void);
     void createDialogSelectUser(void);
 private:
     Ui::EbDialogChatBase *ui;
-    QSplitter * m_splitterMain;     /// 先把主界面，分左右二边
-    QSplitter * m_splitterInput;    /// 再把左边分上下
-    EbDialogSelectUser * m_dialogSelectUser;
-    EbTextBrowser* m_textBrowserMessage;
-    EbWidgetChatInput* m_widgetChatInput;
-    EbWidgetChatRight* m_widgetChatRight;
+    QSplitter *m_splitterMain;     /// 先把主界面，分左右二边
+    QSplitter *m_splitterInput;    /// 再把左边分上下
+    EbDialogSelectUser *m_dialogSelectUser;
+    EbTextBrowser *m_textBrowserMessage;
+    EbWidgetChatInput *m_widgetChatInput;
+    EbWidgetChatRight *m_widgetChatRight;
     EbcCallInfo::pointer m_callInfo;
     bool m_bOwnerCall;
     QString m_sFromName;
@@ -117,7 +128,7 @@ private:
     EB_USER_LINE_STATE m_nFromLineState;
     EB_GROUP_TYPE m_nGroupType;
 //    CLockMap<mycp::bigint,bool> m_pPrevReceivedFileMsgIdList;   /// msgid->
-    QMenu * m_menuChatApps;
+    QMenu *m_menuChatApps;
 };
 const EbDialogChatBase::pointer EbDialogChatBaseNull;
 

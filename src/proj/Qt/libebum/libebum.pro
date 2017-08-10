@@ -32,7 +32,7 @@ TEMPLATE = lib
 DEFINES += _QT_MAKE_
 DEFINES += EB_APPCLIENT_EXPORTS
 DEFINES += USES_CHATROOM
-#DEFINES += USES_VIDEOROOM
+DEFINES += USES_VIDEOROOM
 #DEFINES += USES_REMOTE_DESKTOP
 
 # The following define makes your compiler emit warnings if you use
@@ -55,25 +55,27 @@ INCLUDEPATH += F:/THIRDPARTY/openssl-1.0.2k/inc32
 INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
 INCLUDEPATH += "../../../libchatroom"
+INCLUDEPATH += "../../../libebmm-2.0/libebmm"
 INCLUDEPATH += "../../../include"
 
     Release {
 LIBS += -L"../../../mycp/build" -lCGCLibQt -lCGCClassQt
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-1_62 -llibboost_thread-vc140-mt-1_62 -llibboost_filesystem-vc140-mt-1_62
-LIBS += -lWs2_32 -lshlwapi
 LIBS += -L"../build" -lebcm
+LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"F:/THIRDPARTY/sqlite-3081002/lib" -lsqlite3s
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstat
     }
     Debug {
 LIBS += -L"../../../mycp/build" -lCGCLibQtd -lCGCClassQtd
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-gd-1_62 -llibboost_thread-vc140-mt-gd-1_62 -llibboost_filesystem-vc140-mt-gd-1_62
-LIBS += -lWs2_32 -lshlwapi
 #LIBS += -lWs2_32 -lshlwapi -lWinmm -lole32 -lOleaut32 -lWbemuuid
 LIBS += -L"../build" -lebcmd
+LIBS += -L"../../../libebmm-2.0/build" -lebmmd
 LIBS += -L"F:/THIRDPARTY/sqlite-3081002/lib" -lsqlite3sd
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstatd
     }
+LIBS += -lWs2_32 -lshlwapi
 LIBS += -L"F:/THIRDPARTY/openssl-1.0.2k/vc2015" -llibeay32 -lssleay32
 
 }

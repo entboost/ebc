@@ -7,16 +7,17 @@
 class EbWorkList
 {
 public:
-    EbWorkList(QWidget * parent);
+    EbWorkList(QWidget *parent);
     virtual ~EbWorkList(void);
 
     bool isEmpty(void) const {return m_list.empty();}
     void setCheckedFocus(void);
 
-    EbWidgetUserInfo * widgetUserInfo(void) const;
-    EbWidgetUserList * widgetUserList(void) const;
-    EbWidgetChatRecord * widgetChatRecord(void) const;
-    EbWidgetFileTranList * widgetTranFile(void) const;
+    EbWidgetUserInfo *widgetUserInfo(void) const;
+    EbWidgetUserList *widgetUserList(void) const;
+    EbWidgetVideoFrame *widgetVideoFrame(void) const;
+    EbWidgetChatRecord *widgetChatRecord(void) const;
+    EbWidgetFileTranList *widgetTranFile(void) const;
 protected:
     void addWorkItem(bool saveUrl, const EbWorkItem::pointer& workItem, int insertOffset=-1);
     void showByIndex(int index, bool bSearchFocus);
@@ -33,7 +34,7 @@ protected:
 
     void checkShowHideCloseButton(const QPoint& pt);    /// 定期检查显示或隐藏关闭按钮
     int onResize(const QRect& rect);
-    /// * 用于关闭某个ITEM，左右移动按钮位置
+    /// *用于关闭某个ITEM，左右移动按钮位置
     int onMove(void);
 //    int topButtonWidth(void) const;
 

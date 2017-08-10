@@ -21,7 +21,11 @@ public:
 
 #define EB_CALLBACK_FIRST_VIDEO_FPS	1
 #define EB_CALLBACK_VOICE_VOLUME	2
+#ifdef _QT_MAKE_
+typedef void (*PEBVideoCallBack) (eb::bigint nUserId, int nCallBackType, unsigned long lParam, unsigned int wParam, void* pUserData);
+#else
 typedef void (*PEBVideoCallBack) (eb::bigint nUserId, int nCallBackType, unsigned int lParam, unsigned int wParam, void* pUserData);
+#endif
 
 
 // 应用回调函数

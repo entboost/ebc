@@ -471,7 +471,7 @@ void EbDialogSelectUser::onMemberInfo(const EB_GroupInfo *pGroupInfo, const EB_M
 void EbDialogSelectUser::onContactInfo(const EB_ContactInfo *pContactInfo, unsigned long dwParam)
 {
     if (dwParam==0) {
-        m_widgetMyContact->onContactInfo(pContactInfo);
+        m_widgetMyContact->onContactInfo(pContactInfo, false);
     }
     else {
         /// 搜索返回

@@ -104,6 +104,14 @@ private:
     void onUserStateChange(QEvent *e);
     void onMemberHeadChange(QEvent *e);
     void onContactHeadChange(QEvent *e);
+    /// 视频聊天
+    void onVRequestResponse(QEvent *e);
+    void onVAckResponse(QEvent *e);
+    void onVideoRequest(QEvent *e);
+    void onVideoAccept(QEvent *e);
+    void onVideoReject(QEvent *e);
+    void onVideoTimeout(QEvent *e);
+    void onVideoClose(QEvent *e);
     /// 聊天消息
     void onMsgReceipt(QEvent *e);
     void onSendRich(QEvent *e);

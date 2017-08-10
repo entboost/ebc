@@ -140,9 +140,10 @@ void CSendFileThread::SetThread(void)
 {
 	if (m_pThreadSendFile.get() == NULL)
 	{
-		boost::thread_attributes attrs;
-        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-		m_pThreadSendFile = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
+        m_pThreadSendFile = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CSendFileThread::SendData, this)));
+//		boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//		m_pThreadSendFile = boost::shared_ptr<boost::thread>(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
 	}
 }
 void CSendFileThread::KillThread(void)
@@ -257,11 +258,12 @@ void CSendFileThread::WriteFile(void)
 			nThreadCount = 1;
 		if (nThreadCount>0)
 		{
-			boost::thread_attributes attrs;
-            attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//			boost::thread_attributes attrs;
+//            attrs.set_stack_size(CGC_THREAD_STACK_MIN);
 			for (int i=0;i<nThreadCount;i++)
 			{
-				boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
+                boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(boost::bind(&CSendFileThread::SendData, this)));
+//				boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
 				m_pTreadSendFileList.push_back(pThreadSendFile);
 			}
 		}
@@ -574,11 +576,12 @@ void CSendFileThread::SendFile(void)
 		// 一个线程 + if ((nSendIndex%4)==1) ，正常发送流量为2.5-3MB
 		// 二个线程 + if ((nSendIndex%4)==1) ，正常发送流量为3-3.3MB（本机达到20MB以上）
 		// 三个线程 + if ((nSendIndex%3)==1) ，正常发送流量为7-9MB
-		boost::thread_attributes attrs;
-        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//		boost::thread_attributes attrs;
+//        attrs.set_stack_size(CGC_THREAD_STACK_MIN);
 		for (int i=0;i<1;i++)
 		{
-			boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
+            boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(boost::bind(&CSendFileThread::SendData, this)));
+//			boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
 			m_pTreadSendFileList.push_back(pThreadSendFile);
 		}
 	}
@@ -595,9 +598,10 @@ void CSendFileThread::SendFile(void)
 				bMove1MB = true;
 			else if (bFirstThread && !bMove1MB && nSendIndex>800 && (nSendIndex%80)==50 && pNewSpeechInfo.m_nCurSpeed>128*1024 && pNewSpeechInfo.m_nCurSpeed<512*1024 && m_pTreadSendFileList.size()<5)
 			{
-				boost::thread_attributes attrs;
-                attrs.set_stack_size(CGC_THREAD_STACK_MIN);
-				boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
+                boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(boost::bind(&CSendFileThread::SendData, this)));
+//				boost::thread_attributes attrs;
+//                attrs.set_stack_size(CGC_THREAD_STACK_MIN);
+//				boost::shared_ptr<boost::thread> pThreadSendFile(new boost::thread(attrs,boost::bind(&CSendFileThread::SendData, this)));
 				m_pTreadSendFileList.push_back(pThreadSendFile);
 				//char lpszBuffer[128];
 				//sprintf(lpszBuffer,"1 SendThreadSize=%d",m_pTreadSendFileList.size());

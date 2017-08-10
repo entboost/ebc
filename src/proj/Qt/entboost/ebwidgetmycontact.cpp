@@ -157,7 +157,7 @@ void EbWidgetMyContact::onUGDelete(const EB_UGInfo *ugInfo)
     deleteGroupItem(groupItemInfo->m_hItem);
 }
 
-void EbWidgetMyContact::onContactInfo(const EB_ContactInfo *contactInfo)
+void EbWidgetMyContact::onContactInfo(const EB_ContactInfo *contactInfo, bool /*fromStateChanged*/)
 {
     if (contactInfo==0 || contactInfo->m_nContactId==0) {
         return;
