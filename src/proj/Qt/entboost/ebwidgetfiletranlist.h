@@ -16,6 +16,7 @@ public:
     void onFilePercent(const CChatRoomFilePercent * filePercent);
     void deleteTranFile(eb::bigint msgId);
     bool isEmpty(void) const;
+    bool requestClose(void) const;
 signals:
 
 public slots:

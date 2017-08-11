@@ -18,6 +18,7 @@
 EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
     EbDialogBase(parent),
     ui(new Ui::EbDialogMainFrame)
+  , m_exited(false)
   , m_labelUserImage(0)
   , m_labelLinState(0)
   , m_menuSetting(0)
@@ -291,10 +292,6 @@ void EbDialogMainFrame::refreshSkin(void)
 
 EbDialogMainFrame::~EbDialogMainFrame()
 {
-    if (m_timerOneSecond!=0) {
-        killTimer(m_timerOneSecond);
-        m_timerOneSecond = 0;
-    }
     if (m_pDlgMyCenter==0) {
         delete m_pDlgMyCenter;
         m_pDlgMyCenter = 0;
@@ -1217,175 +1214,179 @@ void EbDialogMainFrame::onOnlineAnother(QEvent *e)
 
 bool EbDialogMainFrame::checkEventData(QEvent *e)
 {
-    bool result = true;
     const QEvent::Type eventType = e->type();
-    switch ((EB_COMMAND_ID)eventType) {
-    case EB_WM_BROADCAST_MSG:
-        onBroadcastMsg(e);
-        break;
-    case EB_WM_AREA_INFO:
-        onAreaInfo(e);
-        break;
-    case EB_WM_USER_STATE_CHANGE:
-        onUserStateChange(e);
-        break;
-    case EB_WM_USER_HEAD_CHANGE:
-        onMemberHeadChange(e);
-        break;
-    case EB_WM_CONTACT_HEAD_CHANGE:
-        onContactHeadChange(e);
-        break;
-        /// 视频聊天
-    case EB_WM_V_REQUEST_RESPONSE:
-        onVRequestResponse(e);
-        break;
-    case EB_WM_V_ACK_RESPONSE:
-        onVAckResponse(e);
-        break;
-    case EB_WM_VIDEO_REQUEST:
-        onVideoRequest(e);
-        break;
-    case EB_WM_VIDEO_ACCEPT:
-        onVideoAccept(e);
-        break;
-    case EB_WM_VIDEO_REJECT:
-        onVideoReject(e);
-        break;
-    case EB_WM_VIDEO_TIMEOUT:
-        onVideoTimeout(e);
-        break;
-    case EB_WM_VIDEO_CLOSE:
-        onVideoClose(e);
-        break;
-        /// 聊天消息
-    case CR_WM_MSG_RECEIPT:
-        onMsgReceipt(e);
-        break;
-    case CR_WM_SEND_RICH:
-        onSendRich(e);
-        break;
-    case CR_WM_RECEIVE_RICH:
-        result = onReceiveRich(e);
-        break;
-    case CR_WM_SENDING_FILE:
-        onSendingFile(e);
-        break;
-    case CR_WM_SENT_FILE:
-        onSentFile(e);
-        break;
-    case CR_WM_CANCEL_FILE:
-        onCancelFile(e);
-        break;
-    case CR_WM_RECEIVING_FILE:
-        result = onReceivingFile(e);
-        break;
-    case CR_WM_RECEIVED_FILE:
-        onReceivedFile(e);
-        break;
-    case CR_WM_FILE_PERCENT:
-        onFilePercent(e);
-        break;
-    case CR_WM_SAVE2CLOUD_DRIVE:
-        onSave2Cloud(e);
-        break;
-        /// 聊天会话
-    case EB_WM_CALL_CONNECTED:
-        onCallConnected(e);
-        break;
-    case EB_WM_CALL_ERROR:
-        onCallError(e);
-        break;
-    case EB_WM_CALL_HANGUP:
-        onCallHangup(e);
-        break;
-    case EB_WM_CALL_ALERTING:
-        onCallAlerting(e);
-        break;
-    case EB_WM_CALL_INCOMING:
-        onCallIncoming(e);
-        break;
-        ///  联系人
-    case EB_WM_UG_INFO:
-        onUGInfo(e);
-        break;
-    case EB_WM_UG_DELETE:
-        onUGDelete(e);
-        break;
-    case EB_WM_CONTACT_DELETE:
-        onContactDelete(e);
-        break;
-    case EB_WM_CONTACT_INFO:
-        onContactInfo(e);
-        break;
-    case EB_WM_CONTACT_STATE_CHANGE:
-        onContactStateChanged(e);
-        break;
-    case EB_WM_ACCEPT_ADDCONTACT:
-        onAcceptAddContact(e);
-        break;
-    case EB_WM_REJECT_ADDCONTACT:
-        onRejectAddContact(e);
-        break;
-    case EB_WM_REQUEST_ADDCONTACT:
-        onRequestAddContact(e);
-        break;
-        //// 组织结构
-    case EB_WM_EDITINFO_RESPONSE:
-        onEditInfoResponse(e);
-        break;
-    case EB_WM_MEMBER_EDIT_RESPONSE:
-        onMemberEditResponse(e);
-        break;
-    case EB_WM_MEMBER_DELETE:
-        onMemberDelete(e);
-        break;
-    case EB_WM_MEMBER_INFO:
-        onMemberInfo(e);
-        break;
-    case EB_WM_REJECT_ADD2GROUP:
-        onRejectAdd2Group(e);
-        break;
-    case EB_WM_INVITE_ADD2GROUP:
-        onInviteAdd2Group(e);
-        break;
-    case EB_WM_REQUEST_ADD2GROUP:
-        onRequestAdd2Group(e);
-        break;
-    case EB_WM_EXIT_GROUP:
-        onExitGroup(e);
-        break;
-    case EB_WM_REMOVE_GROUP:
-        onRemoveGroup(e);
-        break;
-    case EB_WM_GROUP_EDIT_RESPONSE:
-        onGroupEditResponse(e);
-        break;
-    case EB_WM_GROUP_DELETE:
-        onGroupDelete(e);
-        break;
-    case EB_WM_GROUP_INFO:
-        onGroupInfo(e);
-        break;
-    case EB_WM_ENTERPRISE_INFO:
-        onEnterpriseInfo(e);
-        break;
-        //// 登录
-    case EB_WM_LOGON_SUCCESS:
-        onLogonSuccess(e);
-        break;
-    case EB_WM_LOGON_TIMEOUT:
-        onLogonTimeout(e);
-        break;
-    case EB_WM_LOGON_ERROR:
-        onLogonError(e);
-        break;
-    case EB_WM_ONLINE_ANOTHER:
-        onOnlineAnother(e);
-        break;
-    default:
-        break;
+    bool result = true;
+    if (m_exited) {
+        result = false;
     }
-
+    else {
+        switch ((EB_COMMAND_ID)eventType) {
+        case EB_WM_BROADCAST_MSG:
+            onBroadcastMsg(e);
+            break;
+        case EB_WM_AREA_INFO:
+            onAreaInfo(e);
+            break;
+        case EB_WM_USER_STATE_CHANGE:
+            onUserStateChange(e);
+            break;
+        case EB_WM_USER_HEAD_CHANGE:
+            onMemberHeadChange(e);
+            break;
+        case EB_WM_CONTACT_HEAD_CHANGE:
+            onContactHeadChange(e);
+            break;
+            /// 视频聊天
+        case EB_WM_V_REQUEST_RESPONSE:
+            onVRequestResponse(e);
+            break;
+        case EB_WM_V_ACK_RESPONSE:
+            onVAckResponse(e);
+            break;
+        case EB_WM_VIDEO_REQUEST:
+            onVideoRequest(e);
+            break;
+        case EB_WM_VIDEO_ACCEPT:
+            onVideoAccept(e);
+            break;
+        case EB_WM_VIDEO_REJECT:
+            onVideoReject(e);
+            break;
+        case EB_WM_VIDEO_TIMEOUT:
+            onVideoTimeout(e);
+            break;
+        case EB_WM_VIDEO_CLOSE:
+            onVideoClose(e);
+            break;
+            /// 聊天消息
+        case CR_WM_MSG_RECEIPT:
+            onMsgReceipt(e);
+            break;
+        case CR_WM_SEND_RICH:
+            onSendRich(e);
+            break;
+        case CR_WM_RECEIVE_RICH:
+            result = onReceiveRich(e);
+            break;
+        case CR_WM_SENDING_FILE:
+            onSendingFile(e);
+            break;
+        case CR_WM_SENT_FILE:
+            onSentFile(e);
+            break;
+        case CR_WM_CANCEL_FILE:
+            onCancelFile(e);
+            break;
+        case CR_WM_RECEIVING_FILE:
+            result = onReceivingFile(e);
+            break;
+        case CR_WM_RECEIVED_FILE:
+            onReceivedFile(e);
+            break;
+        case CR_WM_FILE_PERCENT:
+            onFilePercent(e);
+            break;
+        case CR_WM_SAVE2CLOUD_DRIVE:
+            onSave2Cloud(e);
+            break;
+            /// 聊天会话
+        case EB_WM_CALL_CONNECTED:
+            onCallConnected(e);
+            break;
+        case EB_WM_CALL_ERROR:
+            onCallError(e);
+            break;
+        case EB_WM_CALL_HANGUP:
+            onCallHangup(e);
+            break;
+        case EB_WM_CALL_ALERTING:
+            onCallAlerting(e);
+            break;
+        case EB_WM_CALL_INCOMING:
+            onCallIncoming(e);
+            break;
+            ///  联系人
+        case EB_WM_UG_INFO:
+            onUGInfo(e);
+            break;
+        case EB_WM_UG_DELETE:
+            onUGDelete(e);
+            break;
+        case EB_WM_CONTACT_DELETE:
+            onContactDelete(e);
+            break;
+        case EB_WM_CONTACT_INFO:
+            onContactInfo(e);
+            break;
+        case EB_WM_CONTACT_STATE_CHANGE:
+            onContactStateChanged(e);
+            break;
+        case EB_WM_ACCEPT_ADDCONTACT:
+            onAcceptAddContact(e);
+            break;
+        case EB_WM_REJECT_ADDCONTACT:
+            onRejectAddContact(e);
+            break;
+        case EB_WM_REQUEST_ADDCONTACT:
+            onRequestAddContact(e);
+            break;
+            //// 组织结构
+        case EB_WM_EDITINFO_RESPONSE:
+            onEditInfoResponse(e);
+            break;
+        case EB_WM_MEMBER_EDIT_RESPONSE:
+            onMemberEditResponse(e);
+            break;
+        case EB_WM_MEMBER_DELETE:
+            onMemberDelete(e);
+            break;
+        case EB_WM_MEMBER_INFO:
+            onMemberInfo(e);
+            break;
+        case EB_WM_REJECT_ADD2GROUP:
+            onRejectAdd2Group(e);
+            break;
+        case EB_WM_INVITE_ADD2GROUP:
+            onInviteAdd2Group(e);
+            break;
+        case EB_WM_REQUEST_ADD2GROUP:
+            onRequestAdd2Group(e);
+            break;
+        case EB_WM_EXIT_GROUP:
+            onExitGroup(e);
+            break;
+        case EB_WM_REMOVE_GROUP:
+            onRemoveGroup(e);
+            break;
+        case EB_WM_GROUP_EDIT_RESPONSE:
+            onGroupEditResponse(e);
+            break;
+        case EB_WM_GROUP_DELETE:
+            onGroupDelete(e);
+            break;
+        case EB_WM_GROUP_INFO:
+            onGroupInfo(e);
+            break;
+        case EB_WM_ENTERPRISE_INFO:
+            onEnterpriseInfo(e);
+            break;
+            //// 登录
+        case EB_WM_LOGON_SUCCESS:
+            onLogonSuccess(e);
+            break;
+        case EB_WM_LOGON_TIMEOUT:
+            onLogonTimeout(e);
+            break;
+        case EB_WM_LOGON_ERROR:
+            onLogonError(e);
+            break;
+        case EB_WM_ONLINE_ANOTHER:
+            onOnlineAnother(e);
+            break;
+        default:
+            break;
+        }
+    }
     /// 返回结果
     if (eventType>=CR_WM_ENTER_ROOM && eventType<=CR_WM_EVENT_RESULT) {
         CCrInfo *aCrInfo = (CCrInfo*)e;
@@ -2325,11 +2326,19 @@ void EbDialogMainFrame::processDatas(void)
 
 void EbDialogMainFrame::accept()
 {
+    /// 放这里，可以避免某些情况下，退出挂死问题
+    if (m_timerOneSecond!=0) {
+        killTimer(m_timerOneSecond);
+        m_timerOneSecond = 0;
+    }
+    /// 同上
+    m_exited = true;
     /// 在这里清除所有列表，避免退出关闭浏览器异常问题；
     if (m_pDlgFrameList!=0) {
         delete m_pDlgFrameList;
         m_pDlgFrameList = 0;
     }
+    qApp->quit();
     EbDialogBase::accept();
 }
 
@@ -2670,7 +2679,7 @@ void EbDialogMainFrame::onVAckResponse(QEvent *e)
 void EbDialogMainFrame::onVideoRequest(QEvent *e)
 {
     const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
-    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventData();
     EbcCallInfo::pointer pEbCallInfo;
     if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
         return;
@@ -2684,7 +2693,7 @@ void EbDialogMainFrame::onVideoRequest(QEvent *e)
 void EbDialogMainFrame::onVideoAccept(QEvent *e)
 {
     const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
-    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventData();
     EbcCallInfo::pointer pEbCallInfo;
     if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId, pEbCallInfo)) {
         return;
@@ -2714,7 +2723,7 @@ void EbDialogMainFrame::onVideoReject(QEvent *e)
 void EbDialogMainFrame::onVideoTimeout(QEvent *e)
 {
     const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
-    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventData();
     EbcCallInfo::pointer pEbCallInfo;
     if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId,pEbCallInfo)) {
         return;
@@ -2729,7 +2738,7 @@ void EbDialogMainFrame::onVideoTimeout(QEvent *e)
 void EbDialogMainFrame::onVideoClose(QEvent *e)
 {
     const EB_VideoInfo *pVideoInfo = (const EB_VideoInfo*)e;
-    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventParameter();
+    const EB_UserVideoInfo *pUserVideoInfo = (const EB_UserVideoInfo*)pVideoInfo->GetEventData();
     EbcCallInfo::pointer pEbCallInfo;
     if (!theApp->m_pCallList.find(pVideoInfo->m_sCallId,pEbCallInfo)) {
         return;

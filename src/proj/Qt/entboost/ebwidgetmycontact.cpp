@@ -33,7 +33,6 @@ EbWidgetMyContact::~EbWidgetMyContact()
 {
     m_pGroupItemInfo.clear();
     m_pContactItemInfo.clear();
-
 }
 
 const EbWidgetItemInfo::pointer EbWidgetMyContact::onUGInfo(const EB_UGInfo *ugInfo)

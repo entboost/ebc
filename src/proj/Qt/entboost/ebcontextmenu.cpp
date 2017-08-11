@@ -810,13 +810,13 @@ void EbContextMenu::onTriggeredActionDeleteGroup()
         /// 不是部门创建者，不能删除
         return;
     }
-    else if (groupType==EB_GROUP_TYPE_DEPARTMENT && theApp->m_ebum.EB_GetGroupMemberSize(groupId,1)>0) {
-        /// 企业部门, 不为空，不能删除
-        QString text = theLocales.getLocalText("message-show.delete-group-has-member","Delete group has member");
-        text.replace( "[GROUP_TYPE_MEMBER]", theLocales.getGroupTypeName((int)groupType)->member().c_str() );
-        EbMessageBox::doShow( NULL, "", QChar::Null,text,EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
-        return;
-    }
+//    else if (groupType==EB_GROUP_TYPE_DEPARTMENT && theApp->m_ebum.EB_GetGroupMemberSize(groupId,1)>0) {
+//        /// 企业部门, 不为空，不能删除
+//        QString text = theLocales.getLocalText("message-show.delete-group-has-member","Delete group has member");
+//        text.replace( "[GROUP_TYPE_MEMBER]", theLocales.getGroupTypeName((int)groupType)->member().c_str() );
+//        EbMessageBox::doShow( NULL, "", QChar::Null,text,EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
+//        return;
+//    }
 //    if (this->m_pViewContactInfo && m_pViewContactInfo->IsWindowVisible()) {
 //        m_pViewContactInfo->HideReset();
 //    }

@@ -1126,6 +1126,11 @@ public:
 	====================================================================*/
 	bool EB_GetUserVideoInfo(eb::bigint nCallId,std::vector<EB_UserVideoInfo>& pOutVideoUserInfo) const;
 
+    /****
+    功能： 判断会话，是否存在视频用户
+    ====================================================================*/
+    bool EB_IsExistUserVideoInfo(eb::bigint nCallId) const;
+
 	/****
 	功能：打开会话，本地视频设备
 	描述：根据视频请求，打开视频设备（或声卡设备、或二个同时打开）

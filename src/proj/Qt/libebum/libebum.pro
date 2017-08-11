@@ -86,16 +86,17 @@ INCLUDEPATH += "/usr/local/include/sqlite3"
 INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
 INCLUDEPATH += "../../../libchatroom"
+INCLUDEPATH += "../../../libebmm-2.0/libebmm"
 INCLUDEPATH += "../../../include"
 
 CONFIG(debug,debug|release) {
-LIBS += "../../../mycp/build/libCGCClassQtd.a"
-LIBS += "../../../mycp/build/libCGCLibQtd.a"
+LIBS += -L"../../../mycp/build" -lCGCClassQtd -lCGCLibQtd
+LIBS += -L"../../../libebmm-2.0/build" -lebmmd
 LIBS += -L"../build" -lebcmd
 }
 else {
-LIBS += "../../../mycp/build/libCGCClassQt.a"
-LIBS += "../../../mycp/build/libCGCLibQt.a"
+LIBS += -L"../../../mycp/build" -lCGCClassQt -lCGCLibQt
+LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"../build" -lebcm
 }
 

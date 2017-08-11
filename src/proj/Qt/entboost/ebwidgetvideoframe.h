@@ -20,15 +20,16 @@ public:
     bool isEmpty(void) const;
     int videoCount(void) const;
     void onExitChat(bool hangup);
+    bool requestClose(void) const;
 
-    void onVRequestResponse(const EB_VideoInfo* pVideoInfo,int nStateValue);
-    void onVAckResponse(const EB_VideoInfo* pVideoInfo,int nStateValue);
-    void onVideoRequest(const EB_VideoInfo* pVideoInfo, const EB_UserVideoInfo* pUserVideoInfo);
-    void onVideoAccept(const EB_VideoInfo* pVideoInfo, const EB_UserVideoInfo* pUserVideoInfo);
-    void onVideoCancel(const EB_VideoInfo* pVideoInfo, const EB_UserVideoInfo* pUserVideoInfo);
-    void onVideoEnd(const EB_VideoInfo* pVideoInfo, const EB_UserVideoInfo* pUserVideoInfo);
+    void onVRequestResponse(const EB_VideoInfo *pVideoInfo, int nStateValue);
+    void onVAckResponse(const EB_VideoInfo *pVideoInfo, int nStateValue);
+    void onVideoRequest(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoAccept(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoCancel(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
+    void onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_UserVideoInfo *pUserVideoInfo);
 signals:
-
+    void closeFrame(void);
 public slots:
     void onClickedButtonOn(void);
     void onClickedButtonAccept(void);
@@ -36,7 +37,6 @@ public slots:
     void onClickedButtonCancel(void);
 protected:
     virtual void resizeEvent(QResizeEvent *e);
-    virtual void customEvent(QEvent *e);
 private:
     bool isMyOnVideo(void) const;
     int getVideoIndex(eb::bigint nVideoUserId) const;
@@ -45,7 +45,7 @@ private:
     void openUserVideo(eb::bigint nVideoUserId);
     void doVideoDisonnecte(bool bHideOnly=false, eb::bigint nOnlyHideUid=0);
     void doVideoConnected(void);
-    static void EBVideoDataCallBack(eb::bigint nUserId, int nCallBackType, unsigned long lParam, unsigned int wParam, void* pUserData);
+    static void EBVideoDataCallBack(eb::bigint nUserId, int nCallBackType, unsigned long lParam, unsigned int wParam, void *pUserData);
 private:
     EbcCallInfo::pointer m_callInfo;
     QPushButton *m_buttonOn;        /// for 群组多人视频聊天

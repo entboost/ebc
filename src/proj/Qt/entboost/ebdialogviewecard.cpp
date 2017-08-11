@@ -173,6 +173,9 @@ void EbDialogViewECard::setMouseEnter(const QWidget * widgetValid, const QRect &
         this->killTimer(m_timerIdCheck2Hide);
         m_timerIdCheck2Hide = 0;
     }
+    if (m_widgetValid==0) {
+        return;
+    }
     if (m_timerIdCheck2Show!=0) {
         this->killTimer(m_timerIdCheck2Show);
     }
@@ -181,6 +184,14 @@ void EbDialogViewECard::setMouseEnter(const QWidget * widgetValid, const QRect &
         m_timerIdCheck2Show = this->startTimer(1);
     else
         m_timerIdCheck2Show = this->startTimer(1500);
+}
+
+void EbDialogViewECard::hideReset(const QWidget *widgetValid)
+{
+    if (m_widgetValid==widgetValid) {
+        m_widgetValid = 0;
+        hideReset();
+    }
 }
 
 void EbDialogViewECard::hideReset()
@@ -300,6 +311,12 @@ void EbDialogViewECard::timerEvent(QTimerEvent *event)
                 this->hide();
                 return;
             }
+        }
+        else {
+            this->killTimer(m_timerIdCheck2Show);
+            m_timerIdCheck2Show = 0;
+            this->hide();
+            return;
         }
 
         if (this->isVisible() || rectClient.contains(pos) || this->m_rectValid.contains(pos) ) {

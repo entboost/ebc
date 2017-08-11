@@ -48,6 +48,7 @@ protected:
     void getFromToName(bool receive, eb::bigint fromUserId, eb::bigint toUserId, tstring &outFromUserName, tstring &outToUserName);
     void writeTitle(bool writeLeft, eb::bigint msgId, bool aprivate, eb::bigint fromUserId, const tstring &fromName,
                     eb::bigint toUserId, const tstring &toName, time_t msgTime, int nReadFlag, QString *pOutWindowText=0);
+    bool insertImage(const QString &filePath, const QString &alt);
     void writeFileMessage(bool receive, eb::bigint msgId, eb::bigint resourceId, const QString &filePath, eb::bigint fileSize, bool showNameOnly=false, QString *pOutMsgText=0);
     void writeVoiceMessage(const QString &voiceFile, QString *pOutMsgText=0);
     bool writeCardDataMessage( bool receive, eb::bigint msgId, const char *cardData, QString *pOutMsgText=0);

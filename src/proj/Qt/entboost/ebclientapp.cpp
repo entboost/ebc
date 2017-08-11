@@ -197,6 +197,13 @@ EbDialogViewECard *EbClientApp::dialgoViewECard(const QWidget * wdigetValid, con
     return m_dialogViewECard;
 }
 
+void EbClientApp::hideViewECard(const QWidget *hideViewECard)
+{
+    if (m_dialogViewECard!=0) {
+        m_dialogViewECard->hideReset(hideViewECard);
+    }
+}
+
 void EbClientApp::editContactInfo(mycp::bigint contactId, QWidget *parent)
 {
     EB_ContactInfo pContactInfo;

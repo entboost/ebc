@@ -1,5 +1,7 @@
 #include "ebwidgetfiletranlist.h"
 #include <QTimer>
+#include "ebclientapp.h"
+#include "ebmessagebox.h"
 
 const int const_TranFile_Height		= 60;
 
@@ -80,9 +82,22 @@ void EbWidgetFileTranList::deleteTranFile(eb::bigint msgId)
     }
 }
 
-bool EbWidgetFileTranList::isEmpty() const
+bool EbWidgetFileTranList::isEmpty(void) const
 {
     return m_tranFileList.empty();
+}
+
+bool EbWidgetFileTranList::requestClose(void) const
+{
+    if (isEmpty()) {
+        return true;
+    }
+    const QString title = theLocales.getLocalText("message-box.tran-file-exit-chat.title","Exit Chat");
+    const QString text = theLocales.getLocalText("message-box.tran-file-exit-chat.text","Confirm exit chat?");
+    if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
+        return false;
+    }
+    return true;
 }
 
 void EbWidgetFileTranList::onAddFileTranItem()

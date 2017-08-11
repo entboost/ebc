@@ -18,7 +18,9 @@ public:
     void setCallInfo(const EbcCallInfo::pointer &callInfo);
     void onMsgReceipt(const CCrRichInfo *crMsgInfo,int ackType);
     void onMemberInfo(const EB_MemberInfo *memberInfo, bool changeLineState);
-    void getProcessing(bool &outVideoProcessing, bool &outFileProcessing, bool &outDesktopProcessing) const;
+    bool requestClose(void) const;
+    int videoCount(void) const;
+//    void getProcessing(bool &outVideoProcessing, bool &outFileProcessing, bool &outDesktopProcessing) const;
     /// 文件传输
     void onSendingFile(const CCrFileInfo *fileInfo);
     void onReceivingFile(const CCrFileInfo *fileInfo);
@@ -37,6 +39,7 @@ public:
 signals:
 
 public slots:
+    void onCloseVideoFrame(void);
     void onOpenSubId(eb::bigint subId);
     virtual void resizeEvent(QResizeEvent *e);
 private:

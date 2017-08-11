@@ -4152,7 +4152,17 @@ bool CEBAppClient::EB_GetUserVideoInfo(eb::bigint nCallId, std::vector<EB_UserVi
 	{
 		return pManager->GetCallVideoUserInfo(nCallId,pOutVideoUserInfo);
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_IsExistUserVideoInfo(eb::bigint nCallId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        return pManager->IsExistCallVideoUserInfo(nCallId);
+    }
+    return false;
 }
 
 int CEBAppClient::EB_GetSubscribeFuncList(EB_FUNC_LOCATION nFuncLocation,std::vector<EB_SubscribeFuncInfo>& pOutFuncInfo) const

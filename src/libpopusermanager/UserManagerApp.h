@@ -403,6 +403,7 @@ public:
 	int VideoAck(mycp::bigint sCallId,bool bAccept,mycp::bigint nToUserId);
 	int VideoEnd(mycp::bigint sCallId);
 	bool GetCallVideoUserInfo(mycp::bigint sCallId, std::vector<EB_UserVideoInfo>& pOutVideoUserInfo) const;
+    bool IsExistCallVideoUserInfo(mycp::bigint sCallId) const;
 	void GetCallVideoUserInfo(const CEBCallInfo::pointer& pCallInfo, std::vector<EB_UserVideoInfo>& pOutVideoUserInfo) const;
 	void ProcessAudioStream(mycp::bigint nCallId, mycp::bigint nUserId, int nCallBackType, unsigned int lParam, unsigned int wParam);
 	void SetVideoCallback(eb::bigint sCallId, PEBVideoCallBack cbAudio);

@@ -44,6 +44,7 @@ EbWidgetUserList::EbWidgetUserList(const EbcCallInfo::pointer &callInfo,QWidget 
 
 EbWidgetUserList::~EbWidgetUserList()
 {
+    theApp->hideViewECard(this);
     this->killTimer(m_timerIdCheckState);
     m_timerIdCheckState = 0;
 }

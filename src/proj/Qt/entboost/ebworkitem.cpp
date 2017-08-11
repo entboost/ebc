@@ -87,7 +87,7 @@ void EbWorkItem::buildButton(bool saveUrl, int topHeight, QWidget *parent)
     }
     else if ( isItemType(WORK_ITEM_VIDEO_FRAME) && m_widgetVideoFrame==0 ) {
         m_widgetVideoFrame = new EbWidgetVideoFrame(m_callInfo, parent);
-//        parent->connect(m_widgetVideoFrame->textBrowser(), SIGNAL(openSubId(eb::bigint)), parent, SLOT(onOpenSubId(eb::bigint)));
+        parent->connect(m_widgetVideoFrame, SIGNAL(closeFrame()), parent, SLOT(onCloseVideoFrame()));
         m_itemText = theLocales.getLocalText("video-frame.title","Video Frame");
     }
     else if ( isItemType(WORK_ITEM_CHAT_RECORD) && m_widgetChatRecord==0 ) {
@@ -353,7 +353,7 @@ void EbWorkItem::setCloseButtonVisible(bool visible)
     }
 }
 
-void EbWorkItem::sendClose()
+void EbWorkItem::sendClose(void)
 {
     if (m_widgetUserInfo!=0) {
         m_widgetUserInfo->close();
@@ -362,17 +362,30 @@ void EbWorkItem::sendClose()
         m_widgetUserList->close();
     }
     else if (m_widgetVideoFrame!=0) {
+        m_widgetVideoFrame->onExitChat(false);
         m_widgetVideoFrame->close();
     }
     else if (m_widgetChatRecord!=0) {
         m_widgetChatRecord->close();
     }
     else if (m_widgetTranFile!=0) {
+        m_widgetTranFile->onExitChat(false);
         m_widgetTranFile->close();
     }
     else if (m_widgetWorkView!=0) {
         m_widgetWorkView->close();
     }
+}
+
+bool EbWorkItem::requestClose(void)
+{
+    if (m_widgetVideoFrame!=0 && !m_widgetVideoFrame->requestClose()) {
+        return false;
+    }
+    if (m_widgetTranFile!=0 && !m_widgetTranFile->requestClose()) {
+        return false;
+    }
+    return true;
 }
 
 bool EbWorkItem::onTitleChanged(const EbWidgetWorkView *view, const QString &title)

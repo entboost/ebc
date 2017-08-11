@@ -164,7 +164,12 @@ extern "C" {
 
 /* END COMPILE TIME DEFINITIONS */
 
-#if defined(_WIN32) && !defined(__MINGW32__)
+/// add by hd 2017-08-11
+#ifdef __MACH__
+#include <stdlib.h>
+typedef float float32_t;
+#elif defined(_WIN32) && !defined(__MINGW32__)
+//#if defined(_WIN32) && !defined(__MINGW32__)
 
 #include <stdlib.h>
 

@@ -109,6 +109,19 @@ void  EbWidgetVideoFrame::onExitChat(bool hangup)
     onClickedButtonEnd();
 }
 
+bool EbWidgetVideoFrame::requestClose(void) const
+{
+    if (isEmpty()) {
+        return true;
+    }
+    const QString title = theLocales.getLocalText("message-box.video-chat-exit-chat.title","Exit Chat");
+    const QString text = theLocales.getLocalText("message-box.video-chat-exit-chat.text","Confirm exit chat?");
+    if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
+        return false;
+    }
+    return true;
+}
+
 void  EbWidgetVideoFrame::onVRequestResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
 {
     const bool bOk = nStateValue==EB_STATE_OK;
@@ -123,34 +136,26 @@ void  EbWidgetVideoFrame::onVRequestResponse(const EB_VideoInfo *pVideoInfo, int
                 m_buttonCancel->setText( theLocales.getLocalText("video-frame.button-group-exit.text","Exit Video") );
                 m_buttonCancel->setToolTip( theLocales.getLocalText("video-frame.button-group-exit.tooltip","") );
             }
-//            SetTimer(TIMER_ID_DO_VIDEO_CONNECTE,100,NULL);
             doVideoConnected();
+            m_buttonOn->setEnabled(false);
+            m_buttonEnd->setEnabled(true);
+            m_buttonCancel->setEnabled(true);
         }
         else {
-            //m_staDesc.SetWindowText(_T("正在请求视频通话，等待对方连接..."));
-            //theApp.InvalidateParentRect(&m_staDesc);
+            m_buttonAccept->setEnabled(false);
+            m_buttonEnd->setEnabled(true);
+            m_buttonCancel->setEnabled(false);
         }
     }
     else {
         //m_staDesc.SetWindowText(_T("请求失败！"));
         //theApp.InvalidateParentRect(&m_staDesc);
     }
-
-    if (m_callInfo->isGroupCall()) {
-        //m_btnVideoAccept.EnableWindow(TRUE);
-        //m_btnVideoCancel.EnableWindow(TRUE);
-    }
-    else {
-        m_buttonAccept->setEnabled(false);
-        m_buttonEnd->setEnabled(true);
-        m_buttonCancel->setEnabled(false);
-    }
 }
 
 void  EbWidgetVideoFrame::onVAckResponse(const EB_VideoInfo *pVideoInfo, int nStateValue)
 {
     /// 接受才发送窗口消息
-//    SetTimer(TIMER_ID_DO_VIDEO_CONNECTE,100,NULL);
     doVideoConnected();
     if (m_callInfo->isGroupCall()) {
         /// 只有接收才有VAckResponse消息；
@@ -163,7 +168,7 @@ void  EbWidgetVideoFrame::onVAckResponse(const EB_VideoInfo *pVideoInfo, int nSt
             m_buttonCancel->setToolTip( theLocales.getLocalText("video-frame.button-group-exit.tooltip","") );
         }
         //m_btnVideoAccept.EnableWindow(TRUE);
-        //m_btnVideoCancel.EnableWindow(TRUE);
+        m_buttonCancel->setEnabled(true);
         //m_btnVideoEnd.EnableWindow(FALSE);
     }
     else {
@@ -182,6 +187,7 @@ void  EbWidgetVideoFrame::onVideoRequest(const EB_VideoInfo *pVideoInfo, const E
             theApp->m_ebum.EB_SetVideoCallback(m_callInfo->callId(), EBVideoDataCallBack);
             theApp->m_ebum.EB_VideoAck(m_callInfo->callId(), true, pUserVideoInfo->m_sUserAccount);
         }
+        m_buttonCancel->setEnabled(true);
     }
     else {
         if (!isMyOnVideo()) {
@@ -199,8 +205,6 @@ void  EbWidgetVideoFrame::onVideoAccept(const EB_VideoInfo *pVideoInfo, const EB
         m_buttonAccept->setEnabled(false);
         m_buttonEnd->setEnabled(true);
         m_buttonCancel->setEnabled(false);
-//        QEvent *event = new QEvent(QEvent::User);
-//        QCoreApplication::postEvent(this, event);
         doVideoConnected();
     }
 }
@@ -274,7 +278,7 @@ void EbWidgetVideoFrame::onClickedButtonEnd()
         m_buttonAccept->setEnabled(false);
         m_buttonEnd->setEnabled(false);
         m_buttonCancel->setEnabled(false);
-//        this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_CLOSE, (WPARAM)this->GetSafeHwnd(), 0);
+        emit closeFrame();
     }
     theApp->m_ebum.EB_VideoEnd(m_callInfo->callId());
 }
@@ -295,7 +299,7 @@ void EbWidgetVideoFrame::onClickedButtonCancel()
             /// 加入会议 & 加入视频会议
             m_buttonCancel->setText( theLocales.getLocalText("video-frame.button-group-join.text","Join Video") );
             m_buttonCancel->setToolTip( theLocales.getLocalText("video-frame.button-group-join.tooltip","") );
-//            this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_CLOSE, (WPARAM)this->GetSafeHwnd(), 0);
+            emit closeFrame();
         }
         else {
             m_bInVideoConference = true;
@@ -315,7 +319,7 @@ void EbWidgetVideoFrame::onClickedButtonCancel()
         m_buttonCancel->setEnabled(false);
         theApp->m_ebum.EB_VideoAck(m_callInfo->callId(), false, 0);
         //theApp->m_ebum.EB_VideoEnd(m_callInfo->callId());
-//        this->GetParent()->PostMessage(EB_COMMAND_RAME_WND_CLOSE, (WPARAM)this->GetSafeHwnd(), 0);
+        emit closeFrame();
     }
 
 }
@@ -331,16 +335,6 @@ void  EbWidgetVideoFrame::resizeEvent(QResizeEvent *e)
     x += (const_btn_size.width()+5);
     m_buttonCancel->move(x, y);
     QWidget::resizeEvent(e);
-}
-
-void EbWidgetVideoFrame::customEvent(QEvent *e)
-{
-    if (e->type()==QEvent::User) {
-        doVideoConnected();
-    }
-    else if (e->type()==QEvent::User+1) {
-        doVideoDisonnecte();
-    }
 }
 
 bool  EbWidgetVideoFrame::isMyOnVideo() const
@@ -452,6 +446,7 @@ void  EbWidgetVideoFrame::doVideoDisonnecte(bool bHideOnly, eb::bigint nOnlyHide
 {
     m_bInFVideoRequest = false;
     {
+        theApp->m_ebum.EB_SetVideoCallback(m_callInfo->callId(), 0);
         BoostReadLock rdlock(m_mutex);
         for (int i=0; i<MAX_VIDEO_COUNT; i++) {
             if (m_pUserVideo[i].get()==0) {

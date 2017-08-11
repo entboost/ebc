@@ -38,6 +38,7 @@ EbTextBrowser::EbTextBrowser(const EbcCallInfo::pointer& pCallInfo,QWidget* pare
 
 EbTextBrowser::~EbTextBrowser()
 {
+    theApp->hideViewECard(this);
 //    if ( m_chatToolBar!=0 ) {
 //        delete m_chatToolBar;
 //        m_chatToolBar = 0;
@@ -279,8 +280,9 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
 //                this->document()->addResource(QTextDocument::ImageResource, QUrl(resourceCmInfo), image);
 //                this->textCursor().insertImage(resourceCmInfo);
                 /// 使用这种复制后，可以粘贴显示，并发送（以文件图片发送，不是以资源发送，后期再优化成资源发送）
-                QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/>").arg(sImageFileName).arg(sDescription.c_str());
-                this->insertHtml(sTemp);
+                insertImage(sImageFileName, sDescription.c_str());
+//                QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/>").arg(sImageFileName).arg(sDescription.c_str());
+//                this->insertHtml(sTemp);
 
                 if (saveHistory && theApp->isSaveConversationLocal() && !theApp->m_ebum.EB_IsLogonVisitor()) {
                     sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag) "
@@ -354,8 +356,9 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
             }
 
             if (nSubType == EB_RICH_SUB_TYPE_JPG) {
-                QString sTemp = QString("<img src=\"%1\" />").arg(sObjectFileName);
-                this->insertHtml(sTemp);
+                insertImage(sObjectFileName, "");
+//                QString sTemp = QString("<img src=\"%1\" />").arg(sObjectFileName);
+//                this->insertHtml(sTemp);
                 if (sOutFirstMsg1!=0 && nOutMsgLength<const_max_length) {
                     nOutMsgLength += 30;
                     *sOutFirstMsg1 += QString("<img src=\"%1\" width=\"80\" height=\"80\" />").arg(sObjectFileName);
@@ -1267,8 +1270,9 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         }
         case MRT_JPG: {
             /// 图片
-            QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/>").arg(sMsgName.c_str()).arg(sMsgText.c_str());
-            this->insertHtml(sTemp);
+            insertImage(sMsgName.c_str(), sMsgText.c_str());
+//            QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/>").arg(sMsgName.c_str()).arg(sMsgText.c_str());
+//            this->insertHtml(sTemp);
             break;
         }
         case MRT_MAP_POS:
@@ -1363,7 +1367,7 @@ void EbTextBrowser::updateMsgReceiptData(eb::bigint msgId, eb::bigint fromUserId
         if ( fromUserId==theApp->logonUserId() ) {
             if (state!=EB_STATE_OK) {
                 /// 发送时间超过2分钟的消息：<br>不能撤回！
-                QString text = theLocales.getLocalText("withdraw-msg-response.other-error.text","");
+                QString text = theLocales.getLocalText("withdraw-msg-response.other-error","");
                 if ( !text.isEmpty() ) {
                     text.replace( "[STATE_CODE]", QString::number((int)state) );
                     EbMessageBox::doShow( NULL, "", QChar::Null, text, EbMessageBox::IMAGE_WARNING, default_warning_auto_close );
@@ -1538,19 +1542,45 @@ void EbTextBrowser::writeTitle(bool writeLeft,eb::bigint msgId, bool bPrivate, e
 
 }
 
+bool EbTextBrowser::insertImage(const QString &filePath, const QString &alt)
+{
+    const QImage image(filePath);
+    const int imageWidth = image.width();
+    const int imageHeight = image.height();
+    if (imageWidth==0 || imageHeight==0) {
+        return false;
+    }
+
+    const int const_max_image_width = 640;
+    const int const_max_image_height = 480;
+    if (imageWidth>const_max_image_width) {
+        const int width = const_max_image_width;
+        const int height = (imageHeight*const_max_image_width)/imageWidth;
+        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+                .arg(filePath).arg(width).arg(height).arg(alt);
+        this->insertHtml(html);
+    }
+    else if (imageHeight>const_max_image_height) {
+        const int height = const_max_image_height;
+        const int width = (imageWidth*const_max_image_height)/imageHeight;
+        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+                .arg(filePath).arg(width).arg(height).arg(filePath);
+        this->insertHtml(html);
+    }
+    else {
+        const QString html = QString("<img src=\"%1\" alt=\"%2\"/><br>").arg(filePath).arg(filePath);
+        this->insertHtml(html);
+    }
+    return true;
+}
+
 void EbTextBrowser::writeFileMessage(bool receive, eb::bigint msgId, eb::bigint resourceId, const QString &filePath,
                                      eb::bigint fileSizeOrg, bool showNameOnly, QString *pOutMsgText)
 {
     moveTextBrowserToEnd();
-    bool isImage = false;
     const eb::bigint fileSize = fileSizeOrg>0?fileSizeOrg:(eb::bigint)libEbc::GetFileSize(filePath);
     if (fileSize>0) {
-        const QImage image(filePath);
-        isImage = image.isNull()?false:true;
-    }
-    if (isImage) {
-        QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/><br>").arg(filePath).arg(filePath);
-        this->insertHtml(sTemp);
+        insertImage(filePath, filePath);
     }
     else if (resourceId==0){
         QFileIconProvider icon_provider;

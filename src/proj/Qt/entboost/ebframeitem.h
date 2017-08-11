@@ -42,7 +42,7 @@ public:
     mycp::bigint fromUserId(void) const {return (m_dialogChatBase.get()==0)?0:m_dialogChatBase->fromUserId();}
     /// * 检查按钮点击状态：1=点击关闭，2=上边点击，0=没有点击
     int checkLeftButtonClickState(const QPushButton *button, const QPoint &pt) const;
-    void requestClose(void);
+    bool requestClose(void);
 //    QPushButton* buttonLeft(void) const {return m_pushButtonLeft;}
 
     void onResize(int index, const QRect& rect, int leftWidth);

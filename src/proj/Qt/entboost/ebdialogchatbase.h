@@ -81,7 +81,7 @@ public:
     bool isGroupChat(void) const {return (m_callInfo->m_pCallInfo.m_sGroupCode>0)?true:false;}
     EB_GROUP_TYPE groupType(void) const {return m_nGroupType;}
 public slots:
-    void onClickedInputClose(void);
+    bool onClickedInputClose(void);
     void onClickedInputMsgRecord(void);
     void onClickedButtonAddUser(void);
     void onClickedButtonSendFile(void);

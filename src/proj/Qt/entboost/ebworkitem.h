@@ -67,6 +67,7 @@ public:
     bool checkShowHideCloseButton(const QPoint& pt);
     void setCloseButtonVisible(bool visible);
     void sendClose(void);
+    bool requestClose(void);
 
     bool back(void);
     bool forward(void);

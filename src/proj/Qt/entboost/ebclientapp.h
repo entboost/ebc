@@ -157,6 +157,7 @@ public:
 
     EbDialogEmotionSelect* showDialogEmotionSelect(const QPoint &pt, QObject *receiver=0);
     EbDialogViewECard * dialgoViewECard(const QWidget *wdigetValid, const QRect &rectValid, bool showImmediate=false);
+    void hideViewECard(const QWidget *wdigetValid);
 
     bool isLogoned(void) const {return m_ebum.EB_IsLogoned();}
     bool isLogonVisitor(void) const {return m_ebum.EB_IsLogonVisitor();}

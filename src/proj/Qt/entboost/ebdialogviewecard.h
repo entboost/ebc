@@ -21,7 +21,7 @@ public:
         , VIEW_CONTACT
     };
     explicit EbDialogViewECard(QWidget *parent = 0);
-    ~EbDialogViewECard(void);
+    virtual ~EbDialogViewECard(void);
 
     void updateLocaleInfo(void);
     bool setItemInfo(const EbWidgetItemInfo::pointer &itemInfo);
@@ -35,6 +35,7 @@ public:
     void setContactInfo2(eb::bigint userId);
 
     void setMouseEnter(const QWidget * widgetValid, const QRect &rectValid, bool showImmediate=false);
+    void hideReset(const QWidget * widgetValid);
     void hideReset(void);
 public slots:
     void onClieckedButtonAddContact(void);

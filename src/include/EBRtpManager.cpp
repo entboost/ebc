@@ -58,7 +58,9 @@ int CEBRtpManager::Start(const CCgcAddress & address, const tstring& sAppName, u
 	//sotp()->doSetConfig(SOTP_CLIENT_CONFIG_USES_SSL,nUsesSsl);
 	//sotp()->doSetConfig(SOTP_CLIENT_CONFIG_ACCEPT_ENCODING,SOTP_DATA_ENCODING_GZIP|SOTP_DATA_ENCODING_DEFLATE);
 	sotp()->doSendOpenSession();
-	sotp()->doSetEncoding(_T("UTF8"));
+#ifndef _QT_MAKE_
+    sotp()->doSetEncoding(_T("UTF8"));
+#endif
 	sotp()->doStartActiveThread(8);	// 通过这个心跳线程，实现定期重新注册
 
 	m_bKilled = false;

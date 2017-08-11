@@ -216,13 +216,13 @@ int EbFrameItem::checkLeftButtonClickState(const QPushButton *button, const QPoi
     return 0;
 }
 
-void EbFrameItem::requestClose()
+bool EbFrameItem::requestClose()
 {
     /// 请求退出窗口
     if (m_dialogChatBase.get()!=0) {
-        m_dialogChatBase->onClickedInputClose();
+        return m_dialogChatBase->onClickedInputClose();
     }
-
+    return true;
 }
 
 void EbFrameItem::onResize(int index, const QRect &rect, int leftWidth)

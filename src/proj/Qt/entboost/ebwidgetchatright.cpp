@@ -125,18 +125,37 @@ void EbWidgetChatRight::onMemberInfo(const EB_MemberInfo *memberInfo, bool bChan
     }
 }
 
-void EbWidgetChatRight::getProcessing(bool &pVideoProcessing, bool &pFileProcessing, bool &/*pDesktopProcessing*/) const
+bool EbWidgetChatRight::requestClose(void) const
 {
     EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
-    pVideoProcessing = (videoFrame!=0 && !videoFrame->isEmpty())?true:false;
+    if (videoFrame!=0 && !videoFrame->requestClose()) {
+        return false;
+    }
     const EbWidgetFileTranList *tranFile = widgetTranFile();
-    pFileProcessing = (tranFile!=0 && !tranFile->isEmpty())?true:false;
-
-//    if (m_pPanRemoteDesktop!=NULL)
-//        pDesktopProcessing = m_pPanRemoteDesktop->GetInDesktop();
-//    else
-//        pDesktopProcessing = false;
+    if (tranFile!= 0 && !tranFile->requestClose()) {
+        return false;
+    }
+    return true;
 }
+
+int EbWidgetChatRight::videoCount(void) const
+{
+    EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
+    return (videoFrame!=0)?videoFrame->videoCount():-1;
+}
+
+//void EbWidgetChatRight::getProcessing(bool &pVideoProcessing, bool &pFileProcessing, bool &/*pDesktopProcessing*/) const
+//{
+//    EbWidgetVideoFrame *videoFrame = widgetVideoFrame();
+//    pVideoProcessing = (videoFrame!=0 && !videoFrame->isEmpty())?true:false;
+//    const EbWidgetFileTranList *tranFile = widgetTranFile();
+//    pFileProcessing = (tranFile!=0 && !tranFile->isEmpty())?true:false;
+
+////    if (m_pPanRemoteDesktop!=NULL)
+////        pDesktopProcessing = m_pPanRemoteDesktop->GetInDesktop();
+////    else
+////        pDesktopProcessing = false;
+//}
 
 void EbWidgetChatRight::showMsgRecord()
 {
@@ -204,7 +223,12 @@ void EbWidgetChatRight::onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_User
         }
     }
 //    if (m_pCallInfo.m_sGroupCode>0)
-//        SetTimer(TIMERID_CHECK_ADJUST_WIDTH,200,NULL);
+    //        SetTimer(TIMERID_CHECK_ADJUST_WIDTH,200,NULL);
+}
+
+void EbWidgetChatRight::onCloseVideoFrame()
+{
+    EbDialogWorkFrame::closeItem( indexOf(EbWorkItem::WORK_ITEM_VIDEO_FRAME) );
 }
 
 void EbWidgetChatRight::onOpenSubId(eb::bigint subId)

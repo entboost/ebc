@@ -14,6 +14,7 @@ EbWidgetMySession::EbWidgetMySession(QWidget *parent) : QWidget(parent)
     m_listWidget->setIconSize(const_tree_icon_size);
     m_listWidget->setSortingEnabled(false);
     m_listWidget->setMouseTracking(true);
+    m_listWidget->setWordWrap(true);
     m_listWidget->setObjectName("MessageTipList");
     connect( m_listWidget,SIGNAL(itemEntered(QListWidgetItem*)),this,SLOT(onItemEntered(QListWidgetItem*)) );
     connect( m_listWidget,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(onItemDoubleClicked(QListWidgetItem*)) );
@@ -47,7 +48,6 @@ EbWidgetMySession::EbWidgetMySession(QWidget *parent) : QWidget(parent)
 
 EbWidgetMySession::~EbWidgetMySession()
 {
-
 }
 
 void EbWidgetMySession::updateLocaleInfo()
@@ -395,7 +395,7 @@ void EbWidgetMySession::onItemEntered(QListWidgetItem *item)
         m_buttonDelete->setVisible(false);
         m_buttonAddContact->setVisible(false);
         if (theApp->m_ebum.EB_IsMyGroup(ebitem->m_itemInfo->m_sGroupCode)) {
-            m_buttonCall->setGeometry( rectItem.right()-buttonSize,y+1,buttonSize,buttonSize );
+            m_buttonCall->setGeometry(m_listWidget->width()-buttonSize, y+1, buttonSize, buttonSize);
             m_buttonCall->setProperty("track-item",QVariant((quint64)item));
             m_buttonCall->setVisible(true);
         }
@@ -406,18 +406,18 @@ void EbWidgetMySession::onItemEntered(QListWidgetItem *item)
     }
     else {
         /// 用户会话
-        m_buttonCall->setGeometry( rectItem.right()-buttonSize,y+1,buttonSize,buttonSize );
+        m_buttonCall->setGeometry(m_listWidget->width()-buttonSize, y+1, buttonSize, buttonSize);
         m_buttonCall->setProperty("track-item",QVariant((quint64)item));
         m_buttonCall->setVisible(true);
         const bool showAddContactButton = theApp->m_ebum.EB_IsMyContactAccount2(ebitem->m_itemInfo->m_nUserId)?false:true;
         if (showAddContactButton) {
-            m_buttonAddContact->setGeometry( rectItem.right()-buttonSize*2,y+1,buttonSize,buttonSize );
+            m_buttonAddContact->setGeometry(m_listWidget->width()-buttonSize*2, y+1, buttonSize, buttonSize);
             m_buttonAddContact->setProperty("track-item",QVariant((quint64)item));
             m_buttonAddContact->setVisible(true);
         }
         if (is_visitor_uid(ebitem->m_itemInfo->m_nUserId)) {
             /// ** 游客增加删除按钮，方便操作
-            const int x = rectItem.right()-buttonSize*2+(showAddContactButton?buttonSize:0);
+            const int x = m_listWidget->width()-buttonSize*2+(showAddContactButton?buttonSize:0);
             m_buttonDelete->setGeometry( x,y+1,buttonSize,buttonSize );
             m_buttonDelete->setProperty("track-item",QVariant((quint64)item));
             m_buttonDelete->setVisible(true);

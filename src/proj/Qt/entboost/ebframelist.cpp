@@ -265,7 +265,11 @@ void EbFrameList::onMemberInfo(const EB_MemberInfo *pMemberInfo, bool bChangeLin
         const EbFrameItem::pointer& pFrameWndInfo = *pIter;
         const EbDialogChatBase::pointer & chatBase = pFrameWndInfo->dialogChatBase();
         if (chatBase.get()!=0) {
-            chatBase->onMemberInfo(pMemberInfo,bChangeLineState);
+            chatBase->onMemberInfo(pMemberInfo, bChangeLineState);
+        }
+        if (bChangeLineState) {
+            pFrameWndInfo->onUserLineStateChange(
+                        pMemberInfo->m_sGroupCode, pMemberInfo->m_nMemberUserId, pMemberInfo->m_nLineState);
         }
     }
 }
@@ -510,6 +514,7 @@ void EbFrameList::clickedLeftButton(const QPushButton *leftButton, const QPoint&
         /// 同时判断是否点击了关闭按钮，并切换到不同的ITEM显示
         EbFrameItem::pointer frameInfoPrevChecked;    /// 点击关闭前一个checked ITEM
         EbFrameItem::pointer frameInfoPrevClose;    /// 点击关闭前一个ITEM
+        bool clickedNormalItem = false; /// 正常点击某个ITEM
         BoostWriteLock wtLock(m_list.mutex());
         CLockList<EbFrameItem::pointer>::iterator pIter = m_list.begin();
         for (; pIter!=m_list.end(); ) {
@@ -522,39 +527,55 @@ void EbFrameList::clickedLeftButton(const QPushButton *leftButton, const QPoint&
             /// * 检查按钮点击状态：1=点击关闭，2=左边点击，0=没有点击
             const int clickState = frameInfo->checkLeftButtonClickState( leftButton,pt );
             if (clickState==2) {
+                clickedNormalItem = true;
                 frameInfo->setChecked(true);
                 frameInfo->clearUnreadMsg(true);
-                frameInfoPrevChecked.reset();
+                if (frameInfoPrevChecked.get()!=0) {
+                    frameInfoPrevChecked->setChecked(false);
+                    break;
+                }
             }
             else if (clickState==1) {
                 frameInfoClose = frameInfo;
                 wtLock.unlock();
-                frameInfoClose->requestClose();
+                if (!frameInfoClose->requestClose()) {
+                    return;
+                }
 //                return;
 //                frameInfoClose = frameInfo;
 //                m_hide.add(frameInfo);
 //                m_list.erase(pIter++);
+                /// *
+                if (frameInfoPrevChecked.get()!=0) {
+                    /// 前面有显示 ITEM ，直接退出
+                    break;
+                }
                 if (frameInfoClose->isChecked() && frameInfoPrevClose.get()!=0) {
                     /// *关闭显示ITEM，显示前一个 ITEM，然后退出
                     frameInfoPrevClose->setChecked(true);
                 }
-                else if(frameInfoClose->isChecked()) {
-                    /// *关闭显示ITEM，需要显示下一个ITEM
-                }
-                else {
-                    /// *关闭其他ITEM，直接退出
-                    if (frameInfoPrevChecked.get()!=NULL) {
-                        /// 重新设置前一个 checked ITEM
-                        frameInfoPrevChecked->setChecked(true);
-                    }
-                }
+//                else if(frameInfoClose->isChecked()) {
+//                    /// *关闭显示ITEM，需要显示下一个ITEM
+//                }
+//                else {
+//                    /// *关闭其他ITEM，直接退出
+//                    if (frameInfoPrevChecked.get()!=NULL) {
+//                        /// 重新设置前一个 checked ITEM
+//                        frameInfoPrevChecked->setChecked(true);
+//                    }
+//                }
                 return;
             }
             else {
                 if (frameInfoPrevChecked.get()==0 && frameInfo->isChecked()) {
+                    if (clickedNormalItem) {
+                        /// 前面已经点击了某个ITEM，当前checked ITEM设为 false后，直接退出
+                        frameInfo->setChecked(false);
+                        break;
+                    }
                     frameInfoPrevChecked = frameInfo;
                 }
-                frameInfo->setChecked(false);
+//                frameInfo->setChecked(false);
             }
             /// *记录前一个ITEM，方便处理
             frameInfoPrevClose = frameInfo;

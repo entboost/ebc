@@ -3879,7 +3879,16 @@ bool CUserManagerApp::GetCallVideoUserInfo(mycp::bigint sCallId, std::vector<EB_
 		return false;
 	}
 	GetCallVideoUserInfo(pCallInfo,pOutVideoUserInfo);
-	return true;
+    return true;
+}
+
+bool CUserManagerApp::IsExistCallVideoUserInfo(bigint sCallId) const
+{
+    CEBCallInfo::pointer pCallInfo;
+    if (!theCallInfoList.find(sCallId,pCallInfo)) {
+        return false;
+    }
+    return pCallInfo->m_pVideoUserIdList.empty()?false:true;
 }
 void CUserManagerApp::GetCallVideoUserInfo(const CEBCallInfo::pointer& pCallInfo, std::vector<EB_UserVideoInfo>& pOutVideoUserInfo) const
 {
@@ -8784,9 +8793,8 @@ void CUserManagerApp::SetVideoCallback(eb::bigint sCallId, PEBVideoCallBack cbAu
 	if (theCallInfoList.find(sCallId, pCallInfo))
 	{
 #ifdef USES_VIDEOROOM
-
 		pCallInfo->m_pAudioStreamData.pApp = this;
-		pCallInfo->m_pAudioStreamData.pCallback = cbAudio;
+        pCallInfo->m_pAudioStreamData.pCallback = (void*)cbAudio;
 		pCallInfo->m_pAudioStreamData.m_nCallId = sCallId;
 #endif
 	}

@@ -83,22 +83,20 @@ INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
 INCLUDEPATH += "../../../libchatroom"
 INCLUDEPATH += "../../../libpopusermanager"
+INCLUDEPATH += "../../../libebmm-2.0/libebmm"
 INCLUDEPATH += "../../../include"
 
 CONFIG(debug,debug|release) {
-LIBS += "../../../mycp/build/libCGCClassQtd.a"
-LIBS += "../../../mycp/build/libCGCLibQtd.a"
+LIBS += -L"../../../mycp/build" -lCGCClassQtd -lCGCLibQtd
+LIBS += -L"../../../libebmm-2.0/build" -lebmmd
 LIBS += -L"../build" -lebcmd -lebumd
 }
 else {
-LIBS += "../../../mycp/build/libCGCClassQt.a"
-LIBS += "../../../mycp/build/libCGCLibQt.a"
+LIBS += -L"../../../mycp/build" -lCGCClassQt -lCGCLibQt
+LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"../build" -lebcm -lebum
 }
-LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_system.a"
-LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
-LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
-
+LIBS += -L"/Users/akee/src/boost_1_62_0/stage/lib" -lboost_system -lboost_thread -lboost_filesystem
 }
 
 SOURCES += main.cpp\

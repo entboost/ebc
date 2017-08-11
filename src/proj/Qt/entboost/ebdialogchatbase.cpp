@@ -717,13 +717,7 @@ void EbDialogChatBase::onVAckResponse(const EB_VideoInfo *pVideoInfo, int nState
         }
     }
     else if (nStateValue==EB_STATE_OK) {
-        bool pVideoProcessing = false;
-        bool pFileProcessing = false;
-        bool pDesktopProcessing = false;
-        if (m_widgetChatRight!=0) {
-            m_widgetChatRight->getProcessing(pVideoProcessing, pFileProcessing, pDesktopProcessing);
-        }
-        if (!pVideoProcessing) {
+        if (m_widgetChatRight==0 || m_widgetChatRight->videoCount()<=0) {
             /// 成功申请视频会议，可以“打开视频”加入视频会议，然后“退出会议”！
             m_textBrowserMessage->addLineString(0, theLocales.getLocalText("chat-msg-text.group-video-ack-ok","Group video chat..."));
         }
@@ -849,13 +843,14 @@ void EbDialogChatBase::onVideoEnd(const EB_VideoInfo *pVideoInfo, const EB_UserV
 //        ::FlashWindow(this->GetParent()->GetSafeHwnd(), TRUE);
 }
 
-void EbDialogChatBase::onClickedInputClose()
+bool EbDialogChatBase::onClickedInputClose()
 {
     if (!requestClose(false)) {
         /// 检查不能退出会话，直接返回
-        return;
+        return false;
     }
     emit clickedClose();
+    return true;
 }
 
 void EbDialogChatBase::onClickedInputMsgRecord()
@@ -1142,26 +1137,9 @@ bool EbDialogChatBase::onBeforeClickedPushButtonSysMax()
 bool EbDialogChatBase::requestClose(bool checkOnly)
 {
     if (m_widgetChatRight!=0) {
-        bool pVideoProcessing = false;
-        bool pFileProcessing = false;
-        bool pDesktopProcessing = false;
-        m_widgetChatRight->getProcessing(pVideoProcessing,pFileProcessing,pDesktopProcessing);
-
-        if (pVideoProcessing) {
-            const QString title = theLocales.getLocalText("message-box.video-chat-exit-chat.title","Exit Chat");
-            const QString text = theLocales.getLocalText("message-box.video-chat-exit-chat.text","Confirm exit chat?");
-            if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
-                this->m_widgetChatInput->setFocusInput();
-                return false;
-            }
-        }
-        else if (pFileProcessing) {
-            const QString title = theLocales.getLocalText("message-box.tran-file-exit-chat.title","Exit Chat");
-            const QString text = theLocales.getLocalText("message-box.tran-file-exit-chat.text","Confirm exit chat?");
-            if ( EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION )!=QDialog::Accepted) {
-                this->m_widgetChatInput->setFocusInput();
-                return false;
-            }
+        if (!m_widgetChatRight->requestClose()) {
+            this->m_widgetChatInput->setFocusInput();
+            return false;
         }
 //        if (pDesktopProcessing) {
 //            if (CDlgMessageBox::EbDoModal(this,"退出会话",_T("正在远程桌面中：\t\n确定退出吗？"),CDlgMessageBox::IMAGE_QUESTION)!=IDOK)

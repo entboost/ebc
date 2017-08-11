@@ -168,6 +168,7 @@ private:
     void saveCallRecord(eb::bigint callId, eb::bigint groupId, const EB_AccountInfo &fromAccountInfo);
 private:
     Ui::EbDialogMainFrame *ui;
+    bool m_exited;
     EbLabel* m_labelUserImage;
     EbLabel* m_labelLinState;
     QMenu* m_menuSetting;
