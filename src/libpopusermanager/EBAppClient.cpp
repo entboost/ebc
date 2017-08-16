@@ -4010,7 +4010,9 @@ void CEBAppClient::EB_GetVideoDeviceList(std::vector<QString>& pOutVideoDeviceLi
 void CEBAppClient::EB_GetVideoDeviceList(std::vector<mycp::tstring>& pOutVideoDeviceList)
 #endif
 {
+#ifdef USES_VIDEOROOM
 	Cebmm::GetVideoDevices(pOutVideoDeviceList);
+#endif
 }
 //int CEBAppClient::EB_GetDefaultVideoMediaType(void)
 //{

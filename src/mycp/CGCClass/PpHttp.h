@@ -1,4 +1,4 @@
-/*
+ï»¿/*
     MYCP is a HTTP and C++ Web Application Server.
     Copyright (C) 2009-2010  Akee Yang <akee.yang@gmail.com>
 
@@ -80,7 +80,7 @@ private:
 	CLockMap<tstring,cgcValueInfo::pointer> m_pResHeaders;
 	//std::vector<cgcKeyValue::pointer> m_pResHeaders;
 	tstring m_sResCookieSessionId;
-	//int m_nCookieExpiresMinute;		// COOKIE¹ıÆÚÊ±¼ä£¬µ¥Î»·ÖÖÓ£¬Ä¬ÈÏ0
+	//int m_nCookieExpiresMinute;		// COOKIEè¿‡æœŸæ—¶é—´ï¼Œå•ä½åˆ†é’Ÿï¼Œé»˜è®¤0
 	CLockMap<tstring,cgcCookieInfo::pointer> m_pResCookies;
 	//CLockMap<tstring,cgcValueInfo::pointer> m_pResCookies;
 	//std::vector<cgcKeyValue::pointer> m_pResCookies;
@@ -89,11 +89,11 @@ private:
 
 	// Content-Disposition: form-data; name="file"; filename="a.txt"
 
-	// image/gif»òÕßimage/jpg
+	// image/gifæˆ–è€…image/jpg
 
 	//Content-Disposition: form-data; name="filename"; filename="D:\Temp\TestFile.txt"
 	// Content-Type: text/plain
-	// Content-TypeÊôĞÔÃ»ÓĞµÄ»°±íÊ¾ÆÕÍ¨µÄ×Ö·û´®Êı¾İ£¬Èç"company"£½XX
+	// Content-Typeå±æ€§æ²¡æœ‰çš„è¯è¡¨ç¤ºæ™®é€šçš„å­—ç¬¦ä¸²æ•°æ®ï¼Œå¦‚"company"ï¼XX
 
 	HTTP_STATUSCODE m_statusCode;
 	bool m_addDateHeader;
@@ -272,6 +272,7 @@ inline std::string CGC_UTF82ACP(const char* sString)
 	return cgc_str_convert(sString,CP_UTF8,CP_ACP);
 }
 #else
+#ifndef _QT_MAKE_
 #include <iconv.h>
 inline int cgc_code_convert(const char *from_charset,const char *to_charset,const char *inbuf,size_t inlen,char *outbuf,size_t outlen)  
 {  
@@ -318,6 +319,7 @@ inline int CGC_XXX2UTF8(const char* from_charset, const char *inbuf,size_t inlen
 	delete[] pBuf;
 	return ret;
 }
+#endif  /// Q_OS_ANDROID
 #endif
 
 } // namespace mycp

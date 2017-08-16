@@ -22,6 +22,7 @@ EbDialogMainFrame::EbDialogMainFrame(QWidget *parent) :
   , m_labelUserImage(0)
   , m_labelLinState(0)
   , m_menuSetting(0)
+  , m_menuLocale(0)
   , m_menuLineState(0)
   , m_menuContext(0)
   , m_menuApps(0)
@@ -1654,14 +1655,30 @@ void EbDialogMainFrame::onClickedPushButtonSetting(void)
             break;
         }
     }
-    bool bFindColoeChecked = false;
+    /// 处理选择顏色 checked
+    bool bFindedColorChecked = false;
     const QList<QAction*> actionList = m_menuSetting->actions();
     for ( int i=0; i!=actionList.size(); ++i ) {
         QAction *action = actionList.at(i);
         bool bOk = false;
-        if (!bFindColoeChecked && action->data().toInt(&bOk)==nFindColorIndex && bOk ) {
+        if (!bFindedColorChecked && action->data().toInt(&bOk)==nFindColorIndex && bOk ) {
             action->setChecked(true);
-            bFindColoeChecked = true;
+            bFindedColorChecked = true;
+        }
+        else {
+            action->setChecked(false);
+        }
+    }
+
+    /// 处理选择语言 checked
+    const QString currentLocaleLanguage = theApp->localeLanguage();
+    bool bFindedLocaleChecked = false;
+    const QList<QAction*> actionLocaleList = m_menuLocale->actions();
+    for ( int i=0; i!=actionLocaleList.size(); ++i ) {
+        QAction* action = actionLocaleList.at(i);
+        if (!bFindedLocaleChecked && action->data().toString()==currentLocaleLanguage) {
+            action->setChecked(true);
+            bFindedLocaleChecked = true;
         }
         else {
             action->setChecked(false);
@@ -1689,6 +1706,23 @@ void EbDialogMainFrame::onTriggeredActionSelectColor(void)
         theApp->setMainColor( c,true );
     }
     refreshSkin();
+}
+
+void EbDialogMainFrame::onTriggeredActionSelectLocale()
+{
+    QAction* pAction = dynamic_cast<QAction*>( sender() );
+    const QString localeFileName = pAction->data().toString();
+    const QString localeFilePath = theApp->getAppLocalesPath()+"/"+localeFileName;
+    if (!QFile::exists(localeFilePath)) {
+        return;
+    }
+    if (!theLocales.loadLocaleFile(localeFilePath.toLocal8Bit().toStdString())) {
+        return;
+    }
+    if (!theApp->setLocaleLanguage(localeFileName)) {
+        return;
+    }
+    updateLocaleInfo();
 }
 
 void EbDialogMainFrame::updateLineState()
@@ -2200,7 +2234,7 @@ void EbDialogMainFrame::onClearAutoCallInfo()
 
 void EbDialogMainFrame::createMenuData(void)
 {
-     if (m_menuSetting == 0) {
+     if (m_menuSetting==0) {
         m_menuSetting = new QMenu(this);
         const QString selectText = theLocales.getLocalText("color-skin.select-color.text","选择色调");
         QAction *pSelectColorAction = m_menuSetting->addAction( QIcon(":/res/color_select.bmp"), selectText );
@@ -2226,6 +2260,27 @@ void EbDialogMainFrame::createMenuData(void)
         }
         if (!bFindMainColorChecked) {
             pSelectColorAction->setChecked(true);
+        }
+
+        m_menuSetting->addSeparator();
+        /// 语言
+        m_menuLocale = new QMenu(m_menuSetting);
+        QAction * actionLocaleLanguage = m_menuSetting->addMenu(m_menuLocale);
+        const QString currentLocaleFileName = theApp->localeLanguage();
+        actionLocaleLanguage->setText(currentLocaleFileName);
+        bool findedCurrentLocaleFile = false;
+        const std::vector<EbLocaleInfo::pointer>& localeList = theLocales.localeInfoList();
+        for (size_t i=0; i<localeList.size(); i++) {
+            const EbLocaleInfo::pointer& colorInfo = localeList[i];
+            QAction * pAction = m_menuLocale->addAction( colorInfo->name() );
+            pAction->setCheckable(true);
+            pAction->setData( QVariant(colorInfo->file()) );
+            connect( pAction, SIGNAL(triggered()), this, SLOT(onTriggeredActionSelectLocale()) );
+            if (!findedCurrentLocaleFile && colorInfo->file()==currentLocaleFileName) {
+                findedCurrentLocaleFile = true;
+                pAction->setChecked(true);
+                actionLocaleLanguage->setText(colorInfo->language());
+            }
         }
     }
     /// 在线状态菜单

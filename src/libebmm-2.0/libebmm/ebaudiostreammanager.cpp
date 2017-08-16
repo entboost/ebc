@@ -164,7 +164,6 @@ void EbAudioStreamManager::onRunProcessData()
 
 void EbAudioStreamManager::ProcessData()
 {
-    BOOL bRet;
     EbAudioBuffer::pointer pAudioBuffer;
     int load_cnt = 0;;
 

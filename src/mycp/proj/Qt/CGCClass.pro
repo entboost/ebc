@@ -14,6 +14,14 @@ else {
 TARGET = "../../../build/CGCClassQt"
 }
 }
+else:android {
+CONFIG(debug,debug|release) {
+TARGET = "../../build/CGCClassQtAndroidd"
+}
+else {
+TARGET = "../../build/CGCClassQtAndroid"
+}
+}
 else {
 CONFIG(debug,debug|release) {
 TARGET = "../../build/CGCClassQtd"
@@ -53,6 +61,11 @@ INCLUDEPATH += F:/THIRDPARTY/openssl-1.0.2k/inc32
   else {
      #CONFIG += console
   }
+}
+else:android {
+INCLUDEPATH += F:/THIRDPARTY/zlib-1.2.8
+INCLUDEPATH += F:/THIRDPARTY/boost_1_62_0
+INCLUDEPATH += F:/THIRDPARTY/openssl-android-master/include
 }
 else:unix: {
 # for OSX

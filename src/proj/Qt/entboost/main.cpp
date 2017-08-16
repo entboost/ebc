@@ -57,13 +57,21 @@ int main(int argc, char *argv[])
         a.installTranslator(&tranWidgets);
     }
 
-    /// 加载默认中文
-    const QString localFileName = theApp->getAppLocalesPath()+"/zh-CN.json";
-    theLocales.loadLocaleFile(localFileName.toLocal8Bit().toStdString());
+    /// 加载语言列表
+    const QString localeListFile = theApp->getAppLocalesPath()+"/locales.json";
+    theLocales.loadLocaleList(localeListFile.toLocal8Bit().toStdString());
+    /// 加载默认中文简体
+    const QString localeFileName = theApp->localeLanguage();
+    const QString localeFilePath = theApp->getAppLocalesPath()+"/"+localeFileName;
+    theLocales.loadLocaleFile(localeFilePath.toLocal8Bit().toStdString());
     if (!theApp->initApp()) {
         return 1;
     }
-
+    const QString settingLocaleFileName = theApp->localeLanguage(localeFileName);
+    if (settingLocaleFileName!=localeFileName) {
+        const QString settingLocaleFilePath = theApp->getAppLocalesPath()+"/"+settingLocaleFileName;
+        theLocales.loadLocaleFile(settingLocaleFilePath.toLocal8Bit().toStdString());
+    }
     {
         EbDialogLogin pDlgLogin;
         const int nret = pDlgLogin.exec();
@@ -110,10 +118,7 @@ int main(int argc, char *argv[])
 #ifdef USES_CEF
     CefQuit()
 #endif
-//    MainWindow w;
-//    w.show();
     theApp.reset();
-
     if ( mainFrame.requestLogout() ) {
         const QString appFilePath = a.applicationFilePath();
         QProcess proc;

@@ -36,6 +36,7 @@ public:
 public slots:
     void onClickedPushButtonSetting(void);
     void onTriggeredActionSelectColor(void);
+    void onTriggeredActionSelectLocale(void);
     void updateLineState(void);
     void onClickedLabelUserImage(void);
     void onClickedLineState(void);
@@ -172,6 +173,7 @@ private:
     EbLabel* m_labelUserImage;
     EbLabel* m_labelLinState;
     QMenu* m_menuSetting;
+    QMenu* m_menuLocale;
     QMenu* m_menuLineState;
     QMenu* m_menuContext;
     QMenu * m_menuApps;

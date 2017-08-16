@@ -35,7 +35,7 @@ bool EbAacEncoder::init(int channels, int sampleRate, int bitRate)
         return false;
     }
     if (m_buffer==0) {
-        m_buffer = new unsigned char[m_aacFrameMaxSize];
+        m_buffer = new unsigned char[m_aacFrameMaxSize*6];
     }
 
     m_samplesPerFrame /= m_srcChannels;
@@ -43,9 +43,10 @@ bool EbAacEncoder::init(int channels, int sampleRate, int bitRate)
 
     m_faacConfig->mpegVersion = MPEG4;
     m_faacConfig->aacObjectType = LOW;
-    m_faacConfig->allowMidside = false;
-    m_faacConfig->useLfe = false;
-    m_faacConfig->useTns = false;
+    m_faacConfig->allowMidside = 0;
+    m_faacConfig->useLfe = 0;
+    m_faacConfig->useTns = 0;
+//    m_faacConfig->useTns = 1;
     m_faacConfig->inputFormat = FAAC_INPUT_16BIT;
     m_faacConfig->outputFormat = 0;    // raw
     m_faacConfig->quantqual = 0;    // use abr
@@ -94,6 +95,7 @@ bool EbAacEncoder::encode(const short *samples, int length, unsigned long param)
         return false;
     }
     if (m_callback!=0) {
+//    if (m_callback!=0 && rc>0) {
         m_callback->onEncodeOk(m_buffer, rc, param);
     }
     return true;

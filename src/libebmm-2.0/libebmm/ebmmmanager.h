@@ -20,7 +20,11 @@
 #include "ebp2ptaskinfo.h"
 #include "ebvideostreammanager.h"
 #include "ebaudiostreammanager.h"
-#include "ebvideodefine.h"
+//#include "ebvideodefine.h"
+//#ifdef Q_OS_MACOS
+//#define uint64 quint64
+//#include "opencv2/opencv.hpp"
+//#endif
 
 //typedef enum {
 //    VIDEO_RGB24=0,
@@ -73,7 +77,7 @@ public:
 //    }
 
 public slots:
-    void onCaptureVideoFrame(const QVideoFrame &frame, unsigned long timestamp);
+    void onCaptureVideoFrame(const uchar *frameData, int frameSize, int width, int height, unsigned long timestamp);
     void onCaptureAudioData(const char *data, qint64 size, unsigned long timestamp);
     /// EbAacEncoderCallback
     virtual void onEncodeInitOk(const unsigned char */*decoderSCData*/, int /*size*/) {}
@@ -209,6 +213,10 @@ protected:
 //    CAudioEncoderFaac *m_pAudioEncoder;
     /// 视频捕捉
     QCamera *m_camera;
+//#ifdef Q_OS_MACOS
+//    cv::VideoCapture  m_videoCapture;
+//    cv::Mat m_cvframe;
+//#endif
     EbAbstractVideoSurface *m_videoSurface;
     EbVideoStreamManager *m_pVideoStreamManger;
     EbAudioStreamManager *m_pAudioStreamManager;

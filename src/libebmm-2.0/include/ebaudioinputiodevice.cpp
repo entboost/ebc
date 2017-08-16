@@ -5,21 +5,12 @@
 EbAudioInputIODevice::EbAudioInputIODevice(QObject *parent)
     : QIODevice(parent)
     , m_detectSilenceData(true)
-//    , m_aacEncoder(this)
-//    , m_aacDecoder(this)
 {
-//    m_file.setFileName("./test_audio.pcm");
-//    m_file.open( QIODevice::WriteOnly | QIODevice::Truncate );
-//    m_aacEncoder.init(1, DEFAULT_SAMPLERATE, DEFAULT_AUDIO_BITRATE);
-
-//    m_timerId = this->startTimer(1);
-    m_buffer = new short[8*1024];
+    m_buffer = new short[5*1024];
 }
 
 EbAudioInputIODevice::~EbAudioInputIODevice()
 {
-//    this->killTimer(m_timerId);
-//    m_file.close();
     close();
     delete[] m_buffer;
 }
@@ -36,43 +27,39 @@ qint64 EbAudioInputIODevice::writeData(const char *data, qint64 len)
         /// 判断为静音数据，不发送
         return len;
     }
-//    memcpy(m_buffer, data, len*2);
-//    emit captureAudioData((const char*)m_buffer, len*2, timeGetTime());
-    emit captureAudioData(data, len, timeGetTime());
-    return len;
-//    /// 直接保存 PCM 文件是可以的
-////    m_file.write(data, len);
-//    /// 先压缩
-//    m_list.add(EbData::create((unsigned char*)data, (unsigned int)len));
-////    m_aacEncoder.encode((const short*)data, (int)len, this);
-
-//    return len;
-}
-
-//void EbAudioInputIODevice::timerEvent(QTimerEvent *e)
-//{
-//    if (m_timerId!=0 && m_timerId==e->timerId()) {
-//        EbData::pointer data;
-//        if (m_list.front(data)) {
-//            m_aacEncoder.encode((const short*)data->data(), (int)data->size());
+//    {
+//        /// ?44100 -> 16000
+//        const short * tmp = (const short*)data;
+//        int destIndex = 0;
+//        for (int i=0; i<len; i++) {
+//            /// 做二次i++是为了跳过其中一个采样点;（声音会失真）
+//            m_buffer[destIndex++] = tmp[i];
+//            /// 1024也会失真
+//            /// 2048有点声音，声音小，不会失真
+//            /// 3076会有异常
+//            if (destIndex==2048) {
+//                emit captureAudioData((const char*)m_buffer, destIndex, timeGetTime());
+//                destIndex=0;
+//            }
 //        }
+//        if (destIndex>0) {
+//            emit captureAudioData((const char*)m_buffer, destIndex, timeGetTime());
+//        }
+//        return len;
 //    }
-//    QIODevice::timerEvent(e);
-//}
 
-//void EbAudioInputIODevice::onEncodeInitOk(const unsigned char *decodeSCData, int size)
-//{
-//    if (!m_aacDecoder.isInited()) {
-//        m_aacDecoder.init(decodeSCData, size);
-//    }
-//}
-
-//void EbAudioInputIODevice::onEncodeOk(const unsigned char *data, int size)
-//{
-//    m_aacDecoder.decode(data, size);
-//}
-
-//void EbAudioInputIODevice::onDecodeOk(const unsigned char *data, int size)
-//{
-//    m_file.write((const char*)data, (qint64)size);
-//}
+//    const qint64 size = MIN(2048, len);
+//    emit captureAudioData(data, size, timeGetTime());
+//    return size;
+//    const int const_frame_size = 3072;
+    const int const_frame_size = 2048;
+//    const int const_frame_size = 1228;
+    const int nCount = (len+const_frame_size-1)/const_frame_size;
+    for (int i=0; i<nCount; i++) {
+        int size = MIN((len%const_frame_size), const_frame_size);
+        if (size==0)
+            size = const_frame_size;
+        emit captureAudioData(data+(i*const_frame_size*2), size, timeGetTime());
+    }
+    return len;
+}

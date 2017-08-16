@@ -37,7 +37,6 @@ void EbVideoFrame::allocBuffer(unsigned int nSize)
     }
     else if (bufferSize < nSize) {
         delete[] data;
-        data = NULL;
         bufferSize = nSize+1;
         data = new unsigned char[bufferSize];
     }

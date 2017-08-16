@@ -9,7 +9,12 @@ QT       -= gui
 QT       += network
 QT +=multimedia
 
+android {
+
+}
+else {
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+}
 
 win32 {
 CONFIG(debug,debug|release) {
@@ -54,45 +59,53 @@ INCLUDEPATH += "../../mycp"
 INCLUDEPATH += "../../mycp/ThirdParty"
 INCLUDEPATH += "../ebaacenc"
 INCLUDEPATH += "../ebaacdec"
+#INCLUDEPATH += "F:/THIRDPARTY/opencv-3.3.0/vc2015/install/include"
 
-    Release {
-LIBS += -L"../../mycp/build" -lCGCLibQt -lCGCClassQt
-LIBS += -L"../build" -lebaacenc -lebaacdec
-LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-1_62 -llibboost_thread-vc140-mt-1_62 -llibboost_filesystem-vc140-mt-1_62
-LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstat
-    }
-    Debug {
+CONFIG(debug,debug|release) {
 LIBS += -L"../../mycp/build" -lCGCLibQtd -lCGCClassQtd
 LIBS += -L"../build" -lebaacencd -lebaacdecd
 LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-gd-1_62 -llibboost_thread-vc140-mt-gd-1_62 -llibboost_filesystem-vc140-mt-gd-1_62
 LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstatd
-    }
+#LIBS += -L"F:/THIRDPARTY/opencv-3.3.0/vc2015/lib/debug" \
+#    -lopencv_core330d -lopencv_video330d -lopencv_videoio330d -lopencv_videostab330d \
+#    -lopencv_imgproc330d
+}
+else {
+LIBS += -L"../../mycp/build" -lCGCLibQt -lCGCClassQt
+LIBS += -L"../build" -lebaacenc -lebaacdec
+LIBS += -L"F:/THIRDPARTY/boost_1_62_0/stage/lib" -llibboost_system-vc140-mt-1_62 -llibboost_thread-vc140-mt-1_62 -llibboost_filesystem-vc140-mt-1_62
+LIBS += -L"F:/THIRDPARTY/zlib-1.2.8/contrib/vstudio/vc14/lib" -lzlibstat
+}
 LIBS += -L"C:/ffmpeg/bin" -lavcodec -lavformat -lavutil -lswscale
 LIBS += -L"F:/THIRDPARTY/openssl-1.0.2k/vc2015" -llibeay32 -lssleay32
 LIBS += -lWinmm
 
 }
 else:unix: {
+INCLUDEPATH += "/usr/local/include"
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
 #INCLUDEPATH += "/usr/local/opt/zlib/include"
-#INCLUDEPATH += C:/ffmpeg/include
+INCLUDEPATH += "../../include"
 INCLUDEPATH += "../../mycp"
 INCLUDEPATH += "../../mycp/ThirdParty"
+INCLUDEPATH += "../ebaacenc"
+INCLUDEPATH += "../ebaacdec"
 
 CONFIG(debug,debug|release) {
-LIBS += "../../mycp/build/libCGCClassQtd.a"
-LIBS += "../../mycp/build/libCGCLibQtd.a"
+LIBS += -L"../../mycp/build" -lCGCClassQtd -lCGCLibQtd
+LIBS += -L"../build" -lebaacencd -lebaacdecd
 }
 else {
-LIBS += "../../mycp/build/libCGCClassQt.a"
-LIBS += "../../mycp/build/libCGCLibQt.a"
+LIBS += -L"../../mycp/build" -lCGCClassQt -lCGCLibQt
+LIBS += -L"../build" -lebaacenc -lebaacdec
 }
 
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_system.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
-#LIBS += -L"/usr/lib" -lz
-#LIBS += -L"/usr/lib" -lcrypto -lssl
+LIBS += -L"/usr/local/lib" -lavcodec -lavformat -lavutil -lswscale
+#LIBS += -L"/usr/local/lib" -lopencv_core -lopencv_video -lopencv_videoio -lopencv_videostab -lopencv_imgproc
+LIBS += -L"/usr/lib" -lcrypto -lssl -lz
 }
 
 

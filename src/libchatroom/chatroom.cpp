@@ -15,10 +15,10 @@
 #include <QCoreApplication>
 #include <QEvent>
 #include <QObject>
-#include <QDesktopServices>
+#include <QStandardPaths>
 #include <QDir>
 #include <QFile>
-#endif
+#endif  /// _QT_MAKE_
 
 #ifndef WIN32
 #include "../include/boost_ini.h"

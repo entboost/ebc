@@ -57,7 +57,8 @@ public slots:
     void onClickedCheckBoxAutoRun(void);
 #endif
 
-    void onClickSelectColor(void);
+    void onClickedSelectColor(void);
+    void onClickedSelectLocale(void);
 
     void onTextChangedEditAccount(const QString &text);
     void onClickedLabelAccountIcon(void);
@@ -79,13 +80,8 @@ protected:
     void setLoginInfo(const EbLoginInfo::pointer &pLoginInfo, bool bAccountSelect);
     void loadLoginData(void);
     void createMenuData(void);
-//    void timerEvent( QTimerEvent *e);
 
-#ifdef USES_CORE_EVENT
-    virtual bool event(QEvent *e);
-#else
     virtual void customEvent(QEvent *e);
-#endif
     void keyPressEvent(QKeyEvent *);
     virtual bool eventFilter(QObject *obj, QEvent *e);
 private:
@@ -97,6 +93,7 @@ private:
 private:
     Ui::EbDialogLogin *ui;
     QMenu* m_menuSetting;
+    QMenu* m_menuLocale;
     EbLabel * m_labelEntLogo;
     EbLabel * m_labelAccountIcon;
     bool m_isDefaultEntLogo;

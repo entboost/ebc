@@ -7,13 +7,17 @@
 #include <string>
 #ifdef _QT_MAKE_
 #include <QRgb>
-#endif
+#endif  /// _QT_MAKE_
 
+#ifdef Q_OS_ANDROID
+#define EB_EBPARSESETTING_API
+#else   /// Q_OS_ANDROID
 #ifdef EB_APPCLIENT_EXPORTS
 #define EB_EBPARSESETTING_API __declspec(dllexport)
 #else // EB_APPCLIENT_EXPORTS
 #define EB_EBPARSESETTING_API __declspec(dllimport)
 #endif // EB_APPCLIENT_EXPORTS
+#endif  /// Q_OS_ANDROID
 
 namespace entboost {
 

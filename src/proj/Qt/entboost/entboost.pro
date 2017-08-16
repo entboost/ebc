@@ -96,7 +96,9 @@ LIBS += -L"../../../mycp/build" -lCGCClassQt -lCGCLibQt
 LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"../build" -lebcm -lebum
 }
-LIBS += -L"/Users/akee/src/boost_1_62_0/stage/lib" -lboost_system -lboost_thread -lboost_filesystem
+LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_system.a"
+LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
+LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
 }
 
 SOURCES += main.cpp\
@@ -174,7 +176,8 @@ SOURCES += main.cpp\
     ebwidgetvideosetting.cpp \
     ebwidgetvideowindow.cpp \
     ebwidgetvoicebar.cpp \
-    ebwidgetvideoframe.cpp
+    ebwidgetvideoframe.cpp \
+    ebclientappbase.cpp
 
 HEADERS  += ../../../include/ebc_public.h \
     ebclientapp.h \
@@ -252,7 +255,8 @@ HEADERS  += ../../../include/ebc_public.h \
     ebwidgetvideosetting.h \
     ebwidgetvideowindow.h \
     ebwidgetvoicebar.h \
-    ebwidgetvideoframe.h
+    ebwidgetvideoframe.h \
+    ebclientappbase.h
 
 FORMS    += ebmessagebox.ui \
     ebdialogfilemanager.ui \

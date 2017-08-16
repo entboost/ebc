@@ -59,7 +59,7 @@ void fft_double (unsigned int p_nSamples, bool p_bInverseTransform, double *p_lp
 	{
 		j = ReverseBits ( i, NumBits );
 		p_lpRealOut[j] = p_lpRealIn[i];
-		p_lpImagOut[j] = (p_lpImagIn == NULL) ? 0.0 : p_lpImagIn[i];
+        p_lpImagOut[j] = (p_lpImagIn == (double*)0) ? 0.0 : p_lpImagIn[i];
 	}
 
 

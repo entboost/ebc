@@ -20,7 +20,11 @@
 
 namespace entboost {
 
+#ifdef Q_OS_ANDROID
+class Cchatroom
+#else
 class CHATROOM_API Cchatroom
+#endif
 {
 public:
 	typedef boost::shared_ptr<Cchatroom> pointer;

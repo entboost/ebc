@@ -148,13 +148,13 @@ void EbVideoStreamManager::readCache()
 void EbVideoStreamManager::ProcessData(void)
 {
     bool     hRet = false;
-    DWORD       dwSizeread = 0;
+    unsigned long       dwSizeread = 0;
     EbVideoFrame::pointer pVideoFrame = getVideoFramePool();
     /// new a video frame.
     pVideoFrame->allocBuffer(EB_MAX_VIDEO_FRAME_SIZE);
     pVideoFrame->height  = 0;
     pVideoFrame->width   = 0;
-    pVideoFrame->type    = BI_RGB;
+    pVideoFrame->type    = 0;///BI_RGB;
     pVideoFrame->usedSize = 0;
     pVideoFrame->timastamp = 0;
 

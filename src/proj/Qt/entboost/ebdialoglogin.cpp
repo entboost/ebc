@@ -41,8 +41,9 @@ const int const_button_interval = const_button_size2.width()+9;
 EbDialogLogin::EbDialogLogin(QWidget *parent)
     : EbDialogBase(parent)
     , ui(new Ui::EbDialogLogin)
-    , m_menuSetting(NULL)
-    , m_labelEntLogo(NULL)
+    , m_menuSetting(0)
+    , m_menuLocale(0)
+    , m_labelEntLogo(0)
     , m_labelAccountIcon(0)
     , m_isDefaultEntLogo(false)
 
@@ -367,14 +368,15 @@ void EbDialogLogin::loadLoginData(void)
 
 void EbDialogLogin::createMenuData(void)
 {
-    if (m_menuSetting == NULL) {
+    if (m_menuSetting==0) {
         m_menuSetting = new QMenu(this);
-        const QString selectText = theLocales.getLocalText("color-skin.select-color.text", "选择色调");
+        /// 选择色调
+        const QString selectText = theLocales.getLocalText("color-skin.select-color.text", "Select Color");
         QAction * pSelectColorAction = m_menuSetting->addAction( QIcon(QStringLiteral(":/res/color_select.bmp")), selectText );
         pSelectColorAction->setCheckable(true);
         pSelectColorAction->setToolTip( theLocales.getLocalText("color-skin.select-color.tooltip", "") );
         pSelectColorAction->setData( QVariant(0) );
-        connect( pSelectColorAction, SIGNAL(triggered()), this, SLOT(onClickSelectColor()) );
+        connect( pSelectColorAction, SIGNAL(triggered()), this, SLOT(onClickedSelectColor()) );
         m_menuSetting->addSeparator();
         bool bFindMainColorChecked = false;
         const std::vector<EbColorInfo::pointer>& colors = theLocales.colors();
@@ -385,72 +387,65 @@ void EbDialogLogin::createMenuData(void)
             QAction * pAction = m_menuSetting->addAction( QIcon(pixmap), colorInfo->name() );
             pAction->setCheckable(true);
             pAction->setData( QVariant((int)(i+1)) );
-            connect( pAction, SIGNAL(triggered()), this, SLOT(onClickSelectColor()) );
+            connect( pAction, SIGNAL(triggered()), this, SLOT(onClickedSelectColor()) );
             if (!bFindMainColorChecked && colorInfo->color()==theApp->getMainColor()) {
                 bFindMainColorChecked = true;
                 pAction->setChecked(true);
             }
         }
-
         if (!bFindMainColorChecked) {
             pSelectColorAction->setChecked(true);
         }
+
+        m_menuSetting->addSeparator();
+        /// 语言
+        m_menuLocale = new QMenu(m_menuSetting);
+        QAction * actionLocaleLanguage = m_menuSetting->addMenu(m_menuLocale);
+        const QString currentLocaleFileName = theApp->localeLanguage();
+        actionLocaleLanguage->setText(currentLocaleFileName);
+        bool findedCurrentLocaleFile = false;
+        const std::vector<EbLocaleInfo::pointer>& localeList = theLocales.localeInfoList();
+        for (size_t i=0; i<localeList.size(); i++) {
+            const EbLocaleInfo::pointer& colorInfo = localeList[i];
+            QAction * pAction = m_menuLocale->addAction( colorInfo->name() );
+            pAction->setCheckable(true);
+            pAction->setData( QVariant(colorInfo->file()) );
+            connect( pAction, SIGNAL(triggered()), this, SLOT(onClickedSelectLocale()) );
+            if (!findedCurrentLocaleFile && colorInfo->file()==currentLocaleFileName) {
+                findedCurrentLocaleFile = true;
+                pAction->setChecked(true);
+                actionLocaleLanguage->setText(colorInfo->language());
+            }
+        }
+
     }
 }
 
-#ifdef USES_CORE_EVENT
-bool EbDialogLogin::event(QEvent *e)
-#else
 void EbDialogLogin::customEvent(QEvent *e)
-#endif
 {
     const QEvent::Type eventType = e->type();
     switch ((EB_COMMAND_ID)eventType) {
-//    case EB_COMMAND_UPDATE_PRODUCT_NAME:
-//        onUpdateProductName(e);
-//        break;
-//    case EB_COMMAND_UPDATE_ENT_LOGO:
-//        onUpdateEntLogo(e);
-//        break;
     case EB_WM_APPID_SUCCESS:
         onAppIdSuccess(e);
-#ifdef USES_CORE_EVENT
-        return true;
-#endif
         break;
     case EB_WM_APPID_ERROR:
         onAppIdError(e);
-#ifdef USES_CORE_EVENT
-        return true;
-#endif
         break;
     case EB_WM_LOGON_SUCCESS:
         onLogonSuccess(e);
-#ifdef USES_CORE_EVENT
-        return true;
-#endif
         break;
     case EB_WM_LOGON_TIMEOUT:
 //        onLogonTimeout(e);
 //        break;
     case EB_WM_LOGON_ERROR:
         onLogonError(e);
-#ifdef USES_CORE_EVENT
-        return true;
-#endif
         break;
     case EB_WM_ONLINE_ANOTHER:
         onOnlineAnother(e);
-#ifdef USES_CORE_EVENT
-        return true;
-#endif
         break;
     default:
         break;
     }
-#ifdef USES_CORE_EVENT
-    return EbDialogBase::event(e);
-#endif
 }
 
 void EbDialogLogin::keyPressEvent(QKeyEvent * e)
@@ -715,14 +710,29 @@ void EbDialogLogin::onClickedPushButtonSetting(void)
 //            break;
 //        }
 //    }
-    bool bFindColoeChecked = false;
-    const QList<QAction*> actionList = m_menuSetting->actions();
-    for ( int i=0; i!=actionList.size(); ++i ) {
-        QAction* action = actionList.at(i);
+    /// 处理选择色调 checked
+    bool bFindedColorChecked = false;
+    const QList<QAction*> actionColorList = m_menuSetting->actions();
+    for ( int i=0; i!=actionColorList.size(); ++i ) {
+        QAction* action = actionColorList.at(i);
         bool bOk = false;
-        if (!bFindColoeChecked && action->data().toInt(&bOk)==nFindColorIndex && bOk ) {
+        if (!bFindedColorChecked && action->data().toInt(&bOk)==nFindColorIndex && bOk ) {
             action->setChecked(true);
-            bFindColoeChecked = true;
+            bFindedColorChecked = true;
+        }
+        else {
+            action->setChecked(false);
+        }
+    }
+    /// 处理选择语言 checked
+    const QString currentLocaleLanguage = theApp->localeLanguage();
+    bool bFindedLocaleChecked = false;
+    const QList<QAction*> actionLocaleList = m_menuLocale->actions();
+    for ( int i=0; i!=actionLocaleList.size(); ++i ) {
+        QAction* action = actionLocaleList.at(i);
+        if (!bFindedLocaleChecked && action->data().toString()==currentLocaleLanguage) {
+            action->setChecked(true);
+            bFindedLocaleChecked = true;
         }
         else {
             action->setChecked(false);
@@ -741,10 +751,9 @@ void EbDialogLogin::onClickedEntLogo()
         QDesktopServices::openUrl( QUrl(theApp->defaultUrl()) );
 }
 
-void EbDialogLogin::onClickSelectColor(void)
+void EbDialogLogin::onClickedSelectColor(void)
 {
     QAction* pAction = dynamic_cast<QAction*>( sender() );
-    pAction->setChecked(true);
     const int nColorIndex = pAction->data().toInt();
     const std::vector<EbColorInfo::pointer>& colors = theLocales.colors();
     if (nColorIndex>=1 && nColorIndex<=(int)colors.size()) {
@@ -757,6 +766,23 @@ void EbDialogLogin::onClickSelectColor(void)
         }
         theApp->setMainColor( c,true );
     }
+}
+
+void EbDialogLogin::onClickedSelectLocale()
+{
+    QAction* pAction = dynamic_cast<QAction*>( sender() );
+    const QString localeFileName = pAction->data().toString();
+    const QString localeFilePath = theApp->getAppLocalesPath()+"/"+localeFileName;
+    if (!QFile::exists(localeFilePath)) {
+        return;
+    }
+    if (!theLocales.loadLocaleFile(localeFilePath.toLocal8Bit().toStdString())) {
+        return;
+    }
+    if (!theApp->setLocaleLanguage(localeFileName)) {
+        return;
+    }
+    updateLocaleInfo();
 }
 void EbDialogLogin::setLogonCtrlEnabled(bool enable)
 {

@@ -3,7 +3,7 @@
 #include "Windows.h"
 #endif
 #ifdef _QT_MAKE_
-#include <QApplication>
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QString>
 #include <QColor>

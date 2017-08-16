@@ -5,6 +5,7 @@
 #include <QDesktopServices>
 #include <QCoreApplication>
 #include "ebtimegettime.h"
+//#include <QMessageBox>
 
 #define DEFAULT_CHANNELS   1
 #define DEFAULT_SAMPLERATE 16000					// 11025 12000 16000（同步） 22050(会不同步)
@@ -111,18 +112,15 @@ void EbMMManager::func_video_cb2(eb::bigint nId, const VIDEOFRAME *pFrame, unsig
     }
 }
 
-void EbMMManager::onCaptureVideoFrame(const QVideoFrame &frame, unsigned long timestamp)
+void EbMMManager::onCaptureVideoFrame(const uchar *frameData, int frameSize, int width, int height, unsigned long timestamp)
 {
-    const uchar *bits = frame.bits();
-    if (bits==0) {
+    if (frameData==0 || frameSize<=0) {
         return;
     }
-    const int width = frame.width();
-    const int height = frame.height();
-    const int bytesPerLine = frame.bytesPerLine();
-    const int size = bytesPerLine*height;
+//    const int bytesPerLine = frameData.bytesPerLine();
+//    const int size = bytesPerLine*height;
 
-    int ret = 0;
+//    int ret = 0;
 //    unsigned long dwSizeWrite = 0;
     /// timestamp
     if (m_uTimeStampVideo==0)
@@ -136,13 +134,13 @@ void EbMMManager::onCaptureVideoFrame(const QVideoFrame &frame, unsigned long ti
             this->m_pVideoRoomWndList.isPlay(this->GetSourceId())) {
         m_pVideoStreamManger->Write(
                     this->GetSourceId(),
-                    size,
-                    bits,
-//                    &dwSizeWrite,
+                    frameSize,
+                    frameData,
                     m_nVideoSeq,
                     m_uTimeStampVideo,
                     EB_RTP_PAYLOAD_TYPE_RGB, -1);
     }
+//    return;
     /// 进行H264/Xvid编码和传输.
     if (m_bSendLocalVideo) {
         /// encode 视频编码
@@ -157,7 +155,7 @@ void EbMMManager::onCaptureVideoFrame(const QVideoFrame &frame, unsigned long ti
                 else if(m_nEnDecodeType == TYPE_H264) {
                     try {
                         m_pX264Encoder->encodeVideo(
-                                    frame.bits(),
+                                    frameData,
                                     m_videoFrameBuffer,
                                     EB_MAX_VIDEO_FRAME_SIZE,
                                     &videoDataSize,
@@ -196,6 +194,7 @@ void EbMMManager::onCaptureAudioData(const char *data, qint64 size, unsigned lon
             if (!m_pAudioEncoder->init(1, EB_DEFAULT_SAMPLERATE, EB_DEFAULT_AUDIO_BITRATE)) {
                 delete m_pAudioEncoder;
                 m_pAudioEncoder = 0;
+                return;
             }
         }
         const unsigned long param = timestamp;
@@ -474,6 +473,35 @@ int EbMMManager::GetVideoDeviceSize() const
     return theCameras.size();
 }
 
+#ifdef Q_OS_MACOS
+//QImage Mat2QImage(cv::Mat cvImg)
+//{
+//    QImage qImg;
+//    if(cvImg.channels()==3) {                            //3 channels color image
+//        cv::cvtColor(cvImg,cvImg,CV_BGR2RGB);
+//        qImg =QImage((const unsigned char*)(cvImg.data),
+//                    cvImg.cols, cvImg.rows,
+//                    cvImg.cols*cvImg.channels(),
+//                    QImage::Format_RGB888);
+//    }
+//    else if(cvImg.channels()==1) {                    //grayscale image
+//        qImg =QImage((const unsigned char*)(cvImg.data),
+//                    cvImg.cols,cvImg.rows,
+//                    cvImg.cols*cvImg.channels(),
+//                    QImage::Format_Indexed8);
+//    }
+//    else {
+//        qImg =QImage((const unsigned char*)(cvImg.data),
+//                    cvImg.cols,cvImg.rows,
+//                    cvImg.cols*cvImg.channels(),
+//                    QImage::Format_RGB888);
+//    }
+
+//    return qImg;
+
+//}
+#endif
+
 bool EbMMManager::InitVideoCapture(int nIndex, int nQuality)
 {
     if (m_camera!=0) {
@@ -491,37 +519,89 @@ bool EbMMManager::InitVideoCapture(int nIndex, int nQuality)
     else if (nIndex+1>nSize)
         return false;
 
-//    QEvent * event = new QEvent(QEvent::User);
-//    QCoreApplication::postEvent(this, event);
-//    while (m_camera==0 || m_videoSurface==0 || m_videoSurface->imageFormat()==QImage::Format_Invalid) {
-//#ifdef WIN32
-//        Sleep(5);
-//#else
-//        usleep(5000);
-//#endif
-//        QCoreApplication::processEvents();
+    /// for test
+//#ifdef Q_OS_MACOS
+////    m_videoCapture.open(0);           /// open the default camera
+//    if (m_videoCapture.isOpened()) {
+//        /// CV_CAP_MODE_RGB  = 1, // RGB24
+//        m_videoCapture.set(CV_CAP_PROP_MODE, 1.0);
+//        /// 320,180
+//        m_videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 320.0);
+//        m_videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 240.0);
+//        m_videoCapture.set(CV_CAP_PROP_FPS, 10.0);
+////        BRG = 16.0
+////        double format = m_videoCapture.get(CV_CAP_PROP_FORMAT);
+////        const double rate = m_videoCapture.get(CV_CAP_PROP_FPS);
+//        m_videoCapture >> m_cvframe;
+//        if (!m_cvframe.empty()) {
+
+//            QImage image((const unsigned char*)(m_cvframe.data),
+//                        m_cvframe.cols, m_cvframe.rows,
+//                        m_cvframe.cols*m_cvframe.channels(),
+//                        QImage::Format_RGB888);
+
+////            QImage image = Mat2QImage(m_cvframe);
+//            image.save("/Users/akee/Desktop/opencv_videocapture.png");
+
+//            //                ui->label->setPixmap(QPixmap::fromImage(image));
+//            //                timer = new QTimer(this);
+//            //                timer->setInterval(1000/rate);   //set timer match with FPS
+//            //                connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
+//            //                timer->start();
+//        }
+//        m_videoCapture.release();
 //    }
+//#endif
 
     const QCameraInfo cameraInfo = theCameras.at(nIndex);
     m_camera = new QCamera(cameraInfo, this);
+//    m_camera->setCaptureMode(QCamera::CaptureViewfinder);
     m_videoSurface = new EbAbstractVideoSurface(this);
     m_videoSurface->setFps(8);
-    connect(m_videoSurface, SIGNAL(captureVideoFrame(QVideoFrame,unsigned long)),
-            this, SLOT(onCaptureVideoFrame(QVideoFrame,unsigned long)) );
+    connect(m_videoSurface, SIGNAL(captureVideoFrame(const uchar*,int,int,int,unsigned long)),
+            this, SLOT(onCaptureVideoFrame(const uchar*,int,int,int,unsigned long)) );
     QCameraViewfinderSettings viewfinderSettings = m_camera->viewfinderSettings();
     /// 设置320,240
     viewfinderSettings.setResolution(320, 240);
     m_camera->setViewfinderSettings(viewfinderSettings);
-    m_camera->setViewfinder(m_videoSurface);
+    m_videoSurface->setSource(m_camera, QSize(320, 240));
+//    m_camera->setViewfinder(m_videoSurface);
     /// 启动，获取视频格式
     m_camera->start();
+//    QList<QVideoFrame::PixelFormat> list = m_camera->supportedViewfinderPixelFormats();
+//    for (int i=0; i<list.size(); i++) {
+//        QMessageBox::about(0, "formst", QString::number(list.at(i)));
+//    }
+    while (!m_videoSurface->isStarted()) {
+#ifdef WIN32
+        Sleep(10);
+#else
+        usleep(10000);
+#endif
+        QCoreApplication::processEvents();
+    }
+//    const QString errorString  = m_camera->errorString();
+//    QMessageBox::about(0, "error", errorString);
 
     /// 获取视频格式
     m_imageFormat = m_videoSurface->imageFormat();
     const QVideoFrame::PixelFormat videoFormat = m_videoSurface->videoFormat();
     switch (videoFormat) {
+    case QVideoFrame::Format_UYVY:  /// 已经转换成RGB24
+    case QVideoFrame::Format_YUYV:  /// 已经转换成RGB24
+    case QVideoFrame::Format_NV12:  /// 已经转换成RGB24
     case QVideoFrame::Format_RGB24: {
         m_ffmpegFormat = AV_PIX_FMT_RGB24;
+        break;
+    }
+    case QVideoFrame::Format_BGRA32: {
+        /// BGRA32 can change to RGB32
+        m_ffmpegFormat = AV_PIX_FMT_RGBA;
+        break;
+    }
+    case QVideoFrame::Format_ARGB32: {
+        m_ffmpegFormat = AV_PIX_FMT_RGB32;   /// ok
+//        m_ffmpegFormat = AV_PIX_FMT_ARGB;   /// 颜色有点失真
         break;
     }
     case QVideoFrame::Format_RGB32: {
@@ -531,11 +611,6 @@ bool EbMMManager::InitVideoCapture(int nIndex, int nQuality)
     }
     case QVideoFrame::Format_YUV420P: {
         m_ffmpegFormat = AV_PIX_FMT_YUV420P;  // I420
-        break;
-    }
-    case QVideoFrame::Format_YUYV: {
-        /// ?
-        m_ffmpegFormat = AV_PIX_FMT_YUYV422;
         break;
     }
     default: {
@@ -596,34 +671,25 @@ bool EbMMManager::InitAudioCapture()
         return true;
     }
     QAudioFormat audioFormat;
+//    audioFormat.setSampleRate(44100);
     audioFormat.setSampleRate(EB_DEFAULT_SAMPLERATE);
     audioFormat.setChannelCount(EB_DEFAULT_CHANNELS);
+//    audioFormat.framesForBytes(1024);
     audioFormat.setSampleSize(16);
     audioFormat.setCodec("audio/pcm");
     audioFormat.setByteOrder(QAudioFormat::LittleEndian);
     audioFormat.setSampleType(QAudioFormat::SignedInt);
     m_audioInput = new QAudioInput(audioFormat, this);
-    m_audioInput->setBufferSize(8*1024);
-
+    m_audioInput->setBufferSize(8*1024);    /// **8*1024比6*1024效果好一些
+//    QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
+//    QStringList supportedCodes = d.supportedCodecs();
+//    QList<int> supportedSampleRates = d.supportedSampleRates();
+//    QList<int> supportedSampleSizes = d.supportedSampleSizes();
     m_audioInputIODevice = new EbAudioInputIODevice(this);
     connect( m_audioInputIODevice, SIGNAL(captureAudioData(const char*,qint64,unsigned long)),
              this, SLOT(onCaptureAudioData(const char*,qint64,unsigned long)) );
     m_audioInputIODevice->open(QIODevice::WriteOnly);
     return true;
-
-//    if ( !m_bAudioCaptureInit)
-//    {
-//        m_pWaveCapture->SetId(this->GetSourceId());
-//        m_pWaveCapture->SetWaveFormat(DEFAULT_CHANNELS, DEFAULT_SAMPLERATE);
-//        m_pWaveCapture->SetAudioSamplePerFrame( 1024);
-
-//        m_pAudioEncoder->Init(DEFAULT_CHANNELS, DEFAULT_SAMPLERATE,DEFAULT_AUDIO_BITRATE);
-//        m_pAudioEncoder->SetWaveDataCB(func_WaveCapturecbs, (void*)this);
-//        m_pWaveCapture->AddSink( m_pAudioEncoder);
-//        m_pWaveCapture->SetFFTCallback( func_FFT_cbs, this);
-//        m_bAudioCaptureInit = true;
-//    }
-//    return true;
 }
 
 void EbMMManager::StartVideoCapture(QWidget *hLocalVideoWndParent)
@@ -686,6 +752,7 @@ void EbMMManager::StartAudioCapture()
 void EbMMManager::StopAudioCapture()
 {
     if (m_audioInput!=0) {
+        m_audioInput->reset();
         m_audioInput->stop();
     }
 
@@ -698,11 +765,13 @@ void EbMMManager::ExitAudioCapture()
     StopAudioCapture();
     /// *必须放在前面
     if (m_audioInput!=0) {
+        m_audioInput->reset();
         m_audioInput->stop();
         delete m_audioInput;
         m_audioInput = 0;
     }
     if (m_audioInputIODevice!=0) {
+        m_audioInputIODevice->close();
         delete m_audioInputIODevice;
         m_audioInputIODevice = 0;
     }
@@ -1028,7 +1097,7 @@ void EbMMManager::onLocalAudioData(const unsigned char *pData, unsigned int nSiz
     {
         if (m_pRDAudioManagerP2POk.get()!=NULL)
             m_pRDAudioManagerP2POk->SendRtpData(m_nRoomId,pData,nSize,nTimestamp,SOTP_RTP_NAK_DATA_AUDIO,SOTP_RTP_NAK_REQUEST_1);
-        else if (m_pAudioP2PTaskInfo.get()==NULL)	// m_pAudioP2PTaskInfo.get()!=NULL：表示正在做P2P尝试；
+        else if (m_pAudioP2PTaskInfo.get()==NULL)	/// m_pAudioP2PTaskInfo.get()!=NULL：表示正在做P2P尝试；
             m_pRtpAudioManager->SendRtpData(m_nRoomId,pData,nSize,nTimestamp,SOTP_RTP_NAK_DATA_AUDIO,SOTP_RTP_NAK_REQUEST_1);
     }catch(std::exception&)
     {}catch(...)
@@ -1043,7 +1112,7 @@ void EbMMManager::onLocalVideoData(const unsigned char *pData, unsigned int nSiz
     {
         if (m_pRDVideoManagerP2POk.get()!=NULL)
             m_pRDVideoManagerP2POk->SendRtpData(m_nRoomId,pData,nSize,nTimestamp,nDataType,SOTP_RTP_NAK_REQUEST_1);
-        else if (m_pVideoP2PTaskInfo.get()==NULL)	// m_pVideoP2PTaskInfo.get()!=NULL：表示正在做P2P尝试；
+        else if (m_pVideoP2PTaskInfo.get()==NULL)	/// m_pVideoP2PTaskInfo.get()!=NULL：表示正在做P2P尝试；
             m_pRtpVideoManager->SendRtpData(m_nRoomId,pData,nSize,nTimestamp,nDataType,SOTP_RTP_NAK_REQUEST_1);
     }catch(std::exception&)
     {}catch(...)
@@ -1054,12 +1123,11 @@ void EbMMManager::OnRtpFrame(bigint nSrcId, const CSotpRtpFrame::pointer &pRtpFr
 {
     if (pRtpFrame->m_pRtpHead.m_nRoomId!=this->GetRoomId()) return;
 
-    if (nUserData==1 && m_pAudioStreamManager!=NULL)
-    {
+    if (nUserData==1 && m_pAudioStreamManager!=0) {
         /// audio
-        m_pAudioStreamManager->WritestreamData(nSrcId,(BYTE*)pRtpFrame->m_pPayload,pRtpFrame->m_pRtpHead.m_nTotleLength,pRtpFrame->m_nFirstSeq,pRtpFrame->m_pRtpHead.m_nTimestamp);
-    }else if (nUserData==2 && m_pVideoStreamManger!=NULL)
-    {
+        m_pAudioStreamManager->WritestreamData(nSrcId,(unsigned char*)pRtpFrame->m_pPayload,pRtpFrame->m_pRtpHead.m_nTotleLength,pRtpFrame->m_nFirstSeq,pRtpFrame->m_pRtpHead.m_nTimestamp);
+    }
+    else if (nUserData==2 && m_pVideoStreamManger!=0) {
         /// video
         const int pt = pRtpFrame->m_pRtpHead.m_nDataType==SOTP_RTP_NAK_DATA_VIDEO_I?11:1;
         m_pVideoStreamManger->Write(nSrcId, pRtpFrame->m_pRtpHead.m_nTotleLength,

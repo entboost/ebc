@@ -12,11 +12,15 @@
 #include "../include/chatroomobject.h"
 //using namespace entboost;
 
+#ifdef Q_OS_ANDROID
+#define EB_APPCLIENT_API
+#else   /// Q_OS_ANDROID
 #ifdef EB_APPCLIENT_EXPORTS
 #define EB_APPCLIENT_API __declspec(dllexport)
 #else
 #define EB_APPCLIENT_API __declspec(dllimport)
-#endif
+#endif  /// EB_APPCLIENT_EXPORTS
+#endif  /// Q_OS_ANDROID
 
 namespace entboost {
 

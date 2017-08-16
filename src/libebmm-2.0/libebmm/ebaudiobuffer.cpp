@@ -36,7 +36,6 @@ void EbAudioBuffer::allocBuffer(unsigned int nSize)
     }else if (m_bufferSize < nSize)
     {
         delete[] data;
-        data = 0;
         m_bufferSize = nSize;
         data = new unsigned char[m_bufferSize];
     }

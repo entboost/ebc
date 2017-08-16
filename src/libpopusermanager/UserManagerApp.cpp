@@ -2,7 +2,9 @@
 #ifdef _MSC_VER
 #pragma warning(disable:4018 4819)
 #endif // WIN32
+#ifdef WIN32
 #include "stdafx.h"
+#endif
 #include "UserManagerApp.h"
 #include "../include/md5.h"
 #include "../include/EBParseSetting.h"
@@ -7736,16 +7738,15 @@ void CUserManagerApp::OnLCULQueryResponse(const CPOPSotpRequestInfo::pointer & p
 						SaveAddressList(sUmServer);
 				}
 			}
-			if (pGroupCallInfo.get() != NULL)
-			{
-				// 查询群组
+            if (pGroupCallInfo.get() != 0) {
+                /// 查询群组
 				theUserManagerList.remove(sCallId);
 				theUserManagerList.insert(sCallId, pPOPCUserManager);	// 统一放在这里
 				pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("um-key", sCallUmKey));
 				pPOPCUserManager->SendUMIUUser(0,0,pGroupCallInfo,0,pSotpRequestInfo);
 				return;
-			}else
-			{
+            }
+            else {
 				theUserManagerList.remove(nUserId);
 				theUserManagerList.insert(nUserId, pPOPCUserManager);	// 统一放在这里
 			}

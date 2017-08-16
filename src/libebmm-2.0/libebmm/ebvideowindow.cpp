@@ -9,26 +9,25 @@ EbVideoWindow::EbVideoWindow(QImage::Format format, int width, int height, QWidg
     , m_bitCount(0)
     , m_isReady(false)
 {
-//    list << QVideoFrame::Format_RGB32;
-//    list << QVideoFrame::Format_RGB24;
-//    list << QVideoFrame::Format_ARGB32;
-//    list << QVideoFrame::Format_ARGB32_Premultiplied;
-//    list << QVideoFrame::Format_RGB565;
-//    list << QVideoFrame::Format_RGB555;
-//    list << QVideoFrame::Format_UYVY;
-//    list << QVideoFrame::Format_Y8;
-//    list << QVideoFrame::Format_YUYV;
-    if (m_format==QImage::Format_RGB32) {
+    switch (m_format) {
+    case QImage::Format_ARGB32:
+    case QImage::Format_RGB32: {
         m_bytesPerLine = m_width*4;
         m_bitCount = 32;
+        break;
     }
-    else if (m_format==QImage::Format_RGB888) {
+    case QImage::Format_RGB888: {
         m_bytesPerLine = m_width*3;
         m_bitCount = 24;
+        break;
     }
-    else if (m_format==QImage::Format_RGB16) {
+    case QImage::Format_RGB16: {
         m_bytesPerLine = m_width*2;
         m_bitCount = 16;
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -43,6 +42,11 @@ bool EbVideoWindow::drawVideo(const uchar *data, int size)
                 m_height,
                 m_bytesPerLine,
                 m_format);
+//    static bool theSave = false;
+//    if (!theSave) {
+//        theSave = true;
+//        m_currentImage.save("/Users/akee/Desktop/mac_videocapture.png");
+//    }
     const QRect &rect = this->geometry();
     if (rect.width()==m_width && rect.height()==m_height)
         this->setPixmap( QPixmap::fromImage(m_currentImage) );

@@ -909,14 +909,15 @@ void EbDialogChatBase::onClickedButtonAddUser()
 //            if (bExistAccount) {
 //                continue;
 //            }
+            int ret = 0;
             if (!m_callInfo->isGroupCall()) {
-                theApp->m_ebum.EB_Call2Group( m_callInfo->callId(), sSelAccount.c_str());
+                ret = theApp->m_ebum.EB_Call2Group( m_callInfo->callId(), sSelAccount.c_str());
             }
             else if (nToUserId>0) {
-                theApp->m_ebum.EB_CallUserId( nToUserId, m_callInfo->callId() );
+                ret = theApp->m_ebum.EB_CallUserId( nToUserId, m_callInfo->callId() );
             }
             else {
-                theApp->m_ebum.EB_CallAccount( sSelAccount.c_str(), m_callInfo->callId() );
+                ret = theApp->m_ebum.EB_CallAccount( sSelAccount.c_str(), m_callInfo->callId() );
             }
         }
     }

@@ -7,8 +7,12 @@
 #QT       += core gui network
 QT       -= gui
 QT       += network
-
+android {
+QT       += quick
+}
+else {
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+}
 
 win32 {
 CONFIG(debug,debug|release) {
@@ -32,7 +36,12 @@ TEMPLATE = lib
 DEFINES += _QT_MAKE_
 DEFINES += EB_APPCLIENT_EXPORTS
 DEFINES += USES_CHATROOM
+android {
+DEFINES += OPENSSL_NO_ENGINE
+}
+else {
 DEFINES += USES_VIDEOROOM
+}
 #DEFINES += USES_REMOTE_DESKTOP
 
 # The following define makes your compiler emit warnings if you use
@@ -79,9 +88,33 @@ LIBS += -lWs2_32 -lshlwapi
 LIBS += -L"F:/THIRDPARTY/openssl-1.0.2k/vc2015" -llibeay32 -lssleay32
 
 }
+else:android {
+INCLUDEPATH += "F:/THIRDPARTY/zlib-1.2.8"
+INCLUDEPATH += F:/THIRDPARTY/boost_1_62_0
+INCLUDEPATH += "F:/THIRDPARTY/sqlite-3081002"
+INCLUDEPATH += F:/THIRDPARTY/openssl-android-master/include
+INCLUDEPATH += "../../../mycp"
+INCLUDEPATH += "../../../mycp/ThirdParty"
+INCLUDEPATH += "../../../libchatroom"
+INCLUDEPATH += "../../../libebmm-2.0/libebmm"
+INCLUDEPATH += "../../../include"
+
+CONFIG(debug,debug|release) {
+LIBS += -L"../build" -lebcmd
+LIBS += "../../../mycp/build/libCGCLibQtAndroidd.a"
+LIBS += "../../../mycp/build/libCGCClassQtAndroidd.a"
+LIBS += "F:/THIRDPARTY/sqlite-3081002/Qt/build/libsqliteandroidd.a"
+}
+else {
+LIBS += -L"../build" -lebcm
+LIBS += "../../../mycp/build/libCGCLibQtAndroid.a"
+LIBS += "../../../mycp/build/libCGCClassQtAndroid.a"
+LIBS += "F:/THIRDPARTY/sqlite-3081002/Qt/build/libsqliteandroid.a"
+}
+LIBS += -L"F:/THIRDPARTY/openssl-android-master/libs/armeabi-v7a" -lcrypto -lssl
+}
 else:unix: {
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
-#INCLUDEPATH += "/usr/local/opt/zlib/include"
 INCLUDEPATH += "/usr/local/include/sqlite3"
 INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
@@ -99,13 +132,11 @@ LIBS += -L"../../../mycp/build" -lCGCClassQt -lCGCLibQt
 LIBS += -L"../../../libebmm-2.0/build" -lebmm
 LIBS += -L"../build" -lebcm
 }
-
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_system.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
-LIBS += -L"/usr/lib" -lz
-LIBS += -L"/usr/lib" -lcrypto -lssl
 LIBS += "/usr/local/lib/libsqlite3.a"
+LIBS += -L"/usr/lib" -lcrypto -lssl -lz
 }
 
 
