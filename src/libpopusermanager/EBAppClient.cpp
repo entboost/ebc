@@ -79,7 +79,7 @@ bool GetAddressPort(const char* sAddress, mycp::tstring & sOutAddress, int & nOu
 	return true;
 }
 mycp::tstring theLocalHostOAuthKey;
-void GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey)
+void GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey, bool dynamicKey)
 {
 	if (theLocalHostOAuthKey.empty())
 	{
@@ -109,10 +109,34 @@ void GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey)
 		tstring strBoardClassMem[] = {_T("Caption"),_T("SerialNumber")};
 		pWmiInfo.GetGroupItemInfo(_T("Win32_Processor"),strCpuClassMem,2,strCpuInfo);
 		pWmiInfo.GetGroupItemInfo(_T("Win32_BaseBoard"),strBoardClassMem,2,strBoardInfo);
+		if (strBoardInfo.find("BSS-0123456789")!=std::string::npos) {
+			tstring strBIOSInfo;
+			tstring strBIOSClassMem[] = {_T("Caption"),_T("SerialNumber")};
+			pWmiInfo.GetGroupItemInfo(_T("Win32_BIOS"),strBIOSClassMem,1,strBIOSInfo);
+			strBoardInfo = strBIOSInfo;
+		}
+		//		[Intel64 Family 6 Model 60 Stepping 3	BFEBFBFF000306C3	
+		//][Base Board	BSS-0123456789	
+		//]
+		//FILE * file = fopen("D:/eb_login.txt", "w");
+		//if (file!=NULL) {
+		//	fwrite((const char*)"[", 1, 1, file);
+		//	fwrite(strCpuInfo.c_str(), 1, strCpuInfo.size(), file);
+		//	fwrite((const char*)"][", 1, 2, file);
+		//	fwrite(strBoardInfo.c_str(), 1, strBoardInfo.size(), file);
+		//	fwrite((const char*)"]", 1, 1, file);
+		//	fclose(file);
+		//}
         theLocalHostOAuthKey = strCpuInfo+strBoardInfo;
 #endif
+        char lpszBuffer[256];
+        if (dynamicKey)
+            sprintf(lpszBuffer, "%s-%lld-%d", theLocalHostOAuthKey.c_str(), (mycp::bigint)time(0), rand());
+        else
+            sprintf(lpszBuffer, "%s", theLocalHostOAuthKey.c_str());
         MD5 md5;
-        md5.update((const unsigned char *)theLocalHostOAuthKey.c_str(), theLocalHostOAuthKey.size());
+        md5.update((const unsigned char *)lpszBuffer, strlen(lpszBuffer));
+//        md5.update((const unsigned char *)theLocalHostOAuthKey.c_str(), theLocalHostOAuthKey.size());
         md5.finalize();
         theLocalHostOAuthKey = md5.hex_digest();
 	}
@@ -386,6 +410,22 @@ void CEBAppClient::EB_GetSystemParameter(EB_SYSTEM_PARAMETER nParameter, unsigne
 		*pParameterValue = 0;
 		switch (nParameter)
 		{
+		case EB_SYSTEM_PARAMETER_HOME_INDEX_URL:
+			{
+				/// 
+				if ((pManager->m_nSystemSetting&CEBSysInfo::SYSTEM_SETTING_VALUE_DISABLE_ENTBOOST_TW)!=0) {
+					/// 禁止协同办公功能
+					return;
+				}
+				const mycp::tstring sHomeIndexUrl = pManager->GetHomeIndexUrl();
+				if (!sHomeIndexUrl.empty())
+				{
+					char * lpszBuffer = new char[sHomeIndexUrl.size()+1];
+					memset(lpszBuffer,0,sHomeIndexUrl.size()+1);
+					strcpy(lpszBuffer,sHomeIndexUrl.c_str());
+					*pParameterValue = (unsigned long)lpszBuffer;
+				}
+			}break;
 		case EB_SYSTEM_PARAMETER_MY_COLLECTION_SUBID:
 			{
 				if (pManager->m_nMyCollectionSubId>0)
@@ -606,6 +646,7 @@ void CEBAppClient::EB_FreeSystemParameter(EB_SYSTEM_PARAMETER nParameter, unsign
 {
 	switch (nParameter)
 	{
+	case EB_SYSTEM_PARAMETER_HOME_INDEX_URL:
 	case EB_SYSTEM_PARAMETER_DEFAULT_URL:
 	case EB_SYSTEM_PARAMETER_LOGON_HTTP_REQ_URL:
 	case EB_SYSTEM_PARAMETER_ACCOUNT_PREFIX:
@@ -673,12 +714,14 @@ int CEBAppClient::EB_Register(const char* sAccount, const char* sPwd, const char
 	}
 	return -1;
 }
-int CEBAppClient::EB_LogonByVisitor(const char* sReqCode)
+int CEBAppClient::EB_LogonByVisitor(const char* sReqCode, EB_LOGON_TYPE logonType)
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
 	{
-		CPOPLogonInfo::pointer pLogonInfo = CPOPLogonInfo::create(EB_LOGON_TYPE_PC|EB_LOGON_TYPE_VISITOR);
+        const int nLogonType = logonType|EB_LOGON_TYPE_VISITOR;
+        CPOPLogonInfo::pointer pLogonInfo = CPOPLogonInfo::create(nLogonType);
+//		CPOPLogonInfo::pointer pLogonInfo = CPOPLogonInfo::create(EB_LOGON_TYPE_PC|EB_LOGON_TYPE_VISITOR);
 		pLogonInfo->m_sReqCode = sReqCode;
 		pLogonInfo->m_nLineState = EB_LINE_STATE_ONLINE_NEW;
 		return pManager->Logon(pLogonInfo);
@@ -1257,7 +1300,7 @@ int CEBAppClient::EB_DeleteRes(eb::bigint sResId)
 	}
 	return -1;
 }
-bool CEBAppClient::EB_GetResourceInfo(eb::bigint sResId,EB_ResourceInfo* pOutResourceInfo)
+bool CEBAppClient::EB_GetResourceInfo(eb::bigint sResId,EB_ResourceInfo* pOutResourceInfo) const
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
@@ -1271,7 +1314,7 @@ bool CEBAppClient::EB_GetResourceInfo(eb::bigint sResId,EB_ResourceInfo* pOutRes
 	}
 	return false;
 }
-bool CEBAppClient::EB_GetResourceCmInfo(eb::bigint sResId,mycp::tstring& pOutResourceInfo)
+bool CEBAppClient::EB_GetResourceCmInfo(eb::bigint sResId, mycp::tstring& pOutResourceInfo) const
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
@@ -1561,7 +1604,20 @@ bool CEBAppClient::EB_IsGroupManager(eb::bigint nGroupId, eb::bigint nMemberUser
 		//	if (pManager->IsEnterpriseCreator(pDepartmentInfo->m_sEnterpriseCode,nMemberUserId)) return true;	// 企业创建者
 		//}
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_IsGroupMember(eb::bigint nGroupId, eb::bigint nMemberUserId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        CEBGroupInfo::pointer pDepartmentInfo;
+        if (!pManager->theDepartmentList.find(nGroupId, pDepartmentInfo)) return false;
+        return pDepartmentInfo->m_pMemberList.exist(nMemberUserId);
+    }
+    return false;
+
 }
 
 //bool CEBAppClient::EB_CanDeleteGroupInfo(int nManagerLevel) const
@@ -2054,7 +2110,7 @@ int CEBAppClient::EB_SendUserCard(eb::bigint nCallId,eb::bigint nCardUserId,eb::
 	}
 	return -1;
 }
-bool CEBAppClient::EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCardType,tstring& pOutCardData)
+bool CEBAppClient::EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCardType,tstring& pOutCardData) const
 {
 	// [CARD_TYPE],[CARD_DATA]
 	const std::string::size_type find = sInCardInfoString.find(",");
@@ -2063,11 +2119,11 @@ bool CEBAppClient::EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCa
 	pOutCardData = sInCardInfoString.substr(find+1);
 	return true;
 }
-bool CEBAppClient::EB_GetUserECardByFromInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard)
+bool CEBAppClient::EB_GetUserECardByFromInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard) const
 {
 	return pOutUserECard==NULL?false:CUserManagerApp::GetECardByFromInfo(sInUserECardString,pOutUserECard);
 }
-bool CEBAppClient::EB_GetUserECardByCardInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard)
+bool CEBAppClient::EB_GetUserECardByCardInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard) const
 {
 	int nCardType = 0;
 	tstring sCardData;
@@ -2353,14 +2409,34 @@ int CEBAppClient::EB_DeleteUGInfo(eb::bigint nUGId)
 	}
 	return -1;
 }
-int CEBAppClient::EB_GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize)
+int CEBAppClient::EB_GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize) const
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
 	{
 		return pManager->GetUGContactSize(nUGId, pOutContactSize, pOutOnlineSize);
 	}
-	return -1;
+    return -1;
+}
+
+int CEBAppClient::EB_GetUGContactList(eb::bigint nUGId, std::vector<EB_ContactInfo> &pOutUGContactList) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        return pManager->GetUGContactList(nUGId, pOutUGContactList);
+    }
+    return -1;
+}
+
+bool CEBAppClient::EB_HasUGContact(eb::bigint nUGId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        return pManager->HasUGContact(nUGId);
+    }
+    return false;
 }
 void CEBAppClient::EB_GetUGInfoList(std::vector<EB_UGInfo>& pOutUGInfoList) const
 {
@@ -2441,7 +2517,20 @@ bool CEBAppClient::EB_GetContactInfo1(eb::bigint nContactId,EB_ContactInfo* pOut
 			return true;
 		}
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_GetContactName1(eb::bigint nContactId, cgcSmartString &pOutContactName) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL) {
+        CEBContactInfo::pointer pPopContactInfo;
+        if (pManager->theContactList1.find(nContactId, pPopContactInfo)) {
+            pOutContactName = pPopContactInfo->m_sName;
+            return true;
+        }
+    }
+    return false;
 }
 bool CEBAppClient::EB_GetContactInfo2(eb::bigint nContactUserId,EB_ContactInfo* pOutContactInfo) const
 {
@@ -2453,7 +2542,16 @@ bool CEBAppClient::EB_GetContactInfo2(eb::bigint nContactUserId,EB_ContactInfo* 
 			return true;
 		}
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_GetContactName2(eb::bigint nContactUserId, cgcSmartString &pOutContactName) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL) {
+        return pManager->GetContactName(nContactUserId,pOutContactName);
+    }
+    return false;
 }
 
 bool CEBAppClient::EB_GetContactHeadInfoByContactId(eb::bigint nContactId, EBFileString &pOutHeadFile,tstring& pOutHeadMd5,EB_USER_LINE_STATE& pOutLineState) const
@@ -2561,6 +2659,28 @@ int CEBAppClient::EB_LoadOrg(void)
 	}
 	return -1;
 }
+
+int CEBAppClient::EB_RefreshGroupData(bool bRefreshEntGroup, bool bRefreshMyGroup)
+{
+	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+	if (pManager != NULL)
+	{
+		if (!bRefreshEntGroup && !bRefreshMyGroup) {
+			return 0;
+		}
+		const time_t tNow = time(0);
+		static time_t theLastTime = 0;
+		if ((theLastTime+30)>tNow) {
+			return -1;
+		}
+		theLastTime = tNow;
+		const int nLoadEntGroup = bRefreshEntGroup?1:0;
+		const int nLoadMyGroup = bRefreshMyGroup?1:0;
+		return pManager->EnterpriseLoad(0, nLoadEntGroup, nLoadMyGroup);
+	}
+	return -1;
+}
+
 int CEBAppClient::EB_LoadGroup(eb::bigint nGroupId,bool bLoadMember)
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
@@ -2857,6 +2977,46 @@ bool CEBAppClient::EB_HasSubGroup(eb::bigint nGroupId) const
     return false;
 }
 
+int CEBAppClient::EB_SubGroupCount(eb::bigint nGroupId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        if (nGroupId==0) return 0;
+        int result = 0;
+        BoostReadLock rdlock(pManager->theDepartmentList.mutex());
+        CLockMap<mycp::bigint, CEBGroupInfo::pointer>::iterator pIter1 = pManager->theDepartmentList.begin();
+        for (; pIter1!=pManager->theDepartmentList.end(); pIter1++) {
+            const CEBGroupInfo::pointer &pDepartmentInfo = pIter1->second;
+            if (pDepartmentInfo->m_sParentCode==nGroupId) {
+                result++;
+            }
+        }
+        return result;
+    }
+    return 0;
+}
+
+int CEBAppClient::EB_GetSubGroupInfoList(eb::bigint nGroupId, std::vector<EB_GroupInfo> &pOutList) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        if (nGroupId==0) return 0;
+        BoostReadLock rdlock(pManager->theDepartmentList.mutex());
+        CLockMap<mycp::bigint, CEBGroupInfo::pointer>::iterator pIter1 = pManager->theDepartmentList.begin();
+        for (; pIter1!=pManager->theDepartmentList.end(); pIter1++) {
+            const CEBGroupInfo::pointer &pDepartmentInfo = pIter1->second;
+            if (pDepartmentInfo->m_sParentCode==nGroupId) {
+                pOutList.push_back( EB_GroupInfo(pDepartmentInfo.get()) );
+            }
+        }
+        return (int)pOutList.size();
+    }
+    return 0;
+}
+
+
 int CEBAppClient::EB_EditMember(const EB_MemberInfo* pEmployeeInfo)//,int nNeedEmpInfo)
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
@@ -3039,7 +3199,18 @@ int CEBAppClient::EB_DeleteMember(eb::bigint nMemberCode, bool bDeleteAccount)
 		if (!this->EB_CanDeleteMemberInfo(nMemberCode)) return -1;
 		return pManager->EmpDelete(nMemberCode,bDeleteAccount);
 	}
-	return -1;
+    return -1;
+}
+
+int CEBAppClient::EB_DeleteMember(eb::bigint groupId, eb::bigint memberUserId, bool bDeleteAccount)
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        if (!this->EB_CanDeleteMemberInfo(groupId, memberUserId)) return -1;
+        return pManager->EmpDelete(groupId, memberUserId, bDeleteAccount);
+    }
+    return -1;
 }
 
 //EB_MemberInfo::pointer CEBAppClient::EB_GetEmployeeInfo(const EB_MemberInfo* pInPopEmployeeInfo) const
@@ -3424,6 +3595,8 @@ bool CEBAppClient::EB_GetMemberNameByUserId2(eb::bigint nMemberUserId, cgcSmartS
     if (pManager != NULL)
     {
         if (nMemberUserId==0) return false;
+        /// 会优先获取部门类型名称
+        tstring sFindNameTemp;
         BoostReadLock rdlock(pManager->theDepartmentList.mutex());
         CLockMap<mycp::bigint, CEBGroupInfo::pointer>::iterator pIter1 = pManager->theDepartmentList.begin();
         for (; pIter1!=pManager->theDepartmentList.end(); pIter1++)
@@ -3432,9 +3605,20 @@ bool CEBAppClient::EB_GetMemberNameByUserId2(eb::bigint nMemberUserId, cgcSmartS
             CEBMemberInfo::pointer pEmployeeInfo;
             if (pDepartmentInfo->m_pMemberList.find(nMemberUserId, pEmployeeInfo))
             {
-                pOutMemberName = pEmployeeInfo->m_sUserName;
-                return true;
+                if (sFindNameTemp.empty() ||
+                        pDepartmentInfo->m_nGroupType==EB_GROUP_TYPE_DEPARTMENT) {
+                    sFindNameTemp = pEmployeeInfo->m_sUserName;
+                }
+                if (pDepartmentInfo->m_nGroupType==EB_GROUP_TYPE_DEPARTMENT) {
+                    break;
+                }
+//                pOutMemberName = pEmployeeInfo->m_sUserName;
+//                return true;
             }
+        }
+        if (!sFindNameTemp.empty()) {
+            pOutMemberName = sFindNameTemp;
+            return true;
         }
     }
     return false;
@@ -3468,10 +3652,41 @@ bool CEBAppClient::EB_GetMemberLineState(eb::bigint nMemberId,EB_USER_LINE_STATE
 			return true;
 		}
 	}
-	return false;
+    return false;
 }
 
-bool CEBAppClient::EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId, EBFileString& pOutHeadPath,mycp::tstring& pOutFileMd5)
+bool CEBAppClient::EB_GetMemberHeadFile2(eb::bigint nUserId, eb::bigint &pOutResourceId, EBFileString &pOutHeadPath, cgcSmartString &pOutFileMd5) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        BoostReadLock rdlock(pManager->theDepartmentList.mutex());
+        CLockMap<mycp::bigint, CEBGroupInfo::pointer>::iterator pIter1 = pManager->theDepartmentList.begin();
+        for (; pIter1!=pManager->theDepartmentList.end(); pIter1++) {
+            const CEBGroupInfo::pointer &pDepartmentInfo = pIter1->second;
+            CEBMemberInfo::pointer pEmployeeInfo;
+#ifdef _QT_MAKE_
+            if (pDepartmentInfo->m_pMemberList.find(nUserId,pEmployeeInfo) &&
+                    !pEmployeeInfo->m_sHeadResourceFile.isEmpty())
+#else
+            if (pDepartmentInfo->m_pMemberList.find(nUserId,pEmployeeInfo) &&
+                    !pEmployeeInfo->m_sHeadResourceFile.empty())
+#endif
+            {
+                pOutResourceId = pEmployeeInfo->m_sHeadResourceId;
+                pOutHeadPath = pEmployeeInfo->m_sHeadResourceFile;
+                if (pManager->theResourceFilePath.exist(pEmployeeInfo->m_sHeadResourceId))
+                    pOutFileMd5 = "";
+                else
+                    pOutFileMd5 = pEmployeeInfo->m_sHeadMd5;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool CEBAppClient::EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId, EBFileString& pOutHeadPath,mycp::tstring& pOutFileMd5) const
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
@@ -3492,7 +3707,7 @@ bool CEBAppClient::EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutRes
 	}
 	return false;
 }
-bool CEBAppClient::EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId, EBFileString& pOutHeadPath,mycp::tstring& pOutFileMd5)
+bool CEBAppClient::EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId, EBFileString& pOutHeadPath,mycp::tstring& pOutFileMd5) const
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
@@ -3767,7 +3982,18 @@ bool CEBAppClient::EB_GetEnterpriseName(mycp::tstring& pOutEnterpriseName,eb::bi
 			return true;
 		}
 	}
-	return false;
+    return false;
+}
+
+eb::bigint CEBAppClient::EB_GetEnterpriseId() const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        if (pManager->m_pDefaultEnterpriseInfo.get()==NULL) return 0;
+        return pManager->m_pDefaultEnterpriseInfo->m_sEnterpriseCode;
+    }
+    return 0;
 }
 
 void CEBAppClient::EB_GetEnterpriseMemberSize(eb::bigint nEnterpriseCode,int& pOutMemberSize,int& pOutOnlineSize) const
@@ -3817,7 +4043,16 @@ void CEBAppClient::EB_FindAllGroupInfo(CEBSearchCallback * pCallback, eb::bigint
 	if (pManager != NULL)
 	{
 		pManager->LoadDepartmentInfo(sEntCode, pCallback, dwParam);
-	}
+    }
+}
+
+void CEBAppClient::EB_SearchGroupInfo(CEBSearchCallback *pCallback, const char *sSearchKey, unsigned long dwParam)
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        pManager->SearchGroupInfo(sSearchKey, pCallback, dwParam);
+    }
 }
 void CEBAppClient::EB_FindAllContactInfo(CEBSearchCallback * pCallback, unsigned long dwParam)
 {
@@ -4192,7 +4427,17 @@ bool CEBAppClient::EB_GetSubscribeFuncInfo(eb::bigint nSubId, EB_SubscribeFuncIn
 	{
 		return pManager->GetFuncInfo(nSubId,pOutFuncInfo);
 	}
-	return false;
+    return false;
+}
+
+bool CEBAppClient::EB_IsExistSubscribeFuncInfo(eb::bigint nSubId) const
+{
+    CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
+    if (pManager != NULL)
+    {
+        return pManager->IsExistFuncInfo(nSubId);
+    }
+    return false;
 }
 
 mycp::tstring CEBAppClient::EB_GetSubscribeFuncUrl(eb::bigint nSubscribeId,eb::bigint nCallId,eb::bigint nFromUserId,const mycp::tstring& sFromAccount,eb::bigint nGroupId) const

@@ -495,7 +495,7 @@ public:
 	//tstring GetECardFromInfo(const CEBECardInfo::pointer& pECardInfo) const;	// 根据对方，获取电子名片
 	//tstring GetDepFromInfo(EB_ACCOUNT_TYPE nAccountType,const CEBGroupInfo::pointer& pDepartmentInfo) const;	// 根据群组，获取电子名片
 	//EB_ACCOUNT_TYPE GetAccountTypeFromAccount(const tstring& sFromAccount) const;	// 根据对方，获取帐号类型
-	static bool GetECardByFromInfo(const tstring& sFromInfo,EB_ECardInfo* pOutECardInfo);		// 根据对方，获取电子名片
+    static bool GetECardByFromInfo(const tstring& sFromInfo,EB_ECardInfo* pOutECardInfo);		// 根据对方，获取电子名片
 	//bool GetAccountInfoByFromInfo(const tstring& sFromInfo, CEBAccountInfo::pointer & pAccountInfo) const;
 
 	CEBCallInfo::pointer GetCallInfoByUser(mycp::bigint sAccount, tstring& pOutAccount, EB_USER_LINE_STATE& pOutLineState);
@@ -505,7 +505,9 @@ public:
 
 	int UGInfoEit(mycp::bigint nUGId, const tstring& sGroupName);
 	int UGInfoDelete(mycp::bigint nUGId);
-	int GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize);
+    bool HasUGContact(eb::bigint nUGId) const;
+    int GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize) const;
+    int GetUGContactList(eb::bigint nUGId, std::vector<EB_ContactInfo> &pOutUGContactList) const;
 	int ContactEdit(const EB_ContactInfo* pPopContactInfo);
 	int ContactDelete(mycp::bigint nContactId,bool bDeleteDest);
 	int ContactQuery(mycp::bigint nOnlyContactId = 0,mycp::bigint nOnlyContactUserId=0,int nLoadFlag=0,bool bAcceptContact=false);
@@ -520,6 +522,7 @@ public:
 	int EmpEdit(const CEBMemberInfo* pEmployeeInfo,int nForbidMinutes,int nNeedEmpInfo);
 	int SetMemberForbidSpeech(mycp::bigint nGroupId, mycp::bigint nMemberUserId,int nForbidMinutes);
 	int EmpDelete(mycp::bigint sEmpCode, bool bDeleteAccount);
+    int EmpDelete(mycp::bigint groupId, mycp::bigint userId, bool bDeleteAccount);
 	bool m_bExistLocalImage;
 	bool m_bExistLocalContact;
 	int EnterpriseLoad(mycp::bigint nGroupId,int nLoadEntDep=1,int nLoadMyGroup=1,int nLoadEmp=1,mycp::bigint nMemberCode=0,mycp::bigint nMemberUid=0,bool bLoadImage=false,const tstring& sSearchKey="",bool bLoadFromEBC=false,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
@@ -528,9 +531,11 @@ public:
 	void LoadDepartmentInfo(mycp::bigint sEntCode, CEBSearchCallback * pCallback, unsigned long dwParam);
 	bool IsMyContact(mycp::bigint nContactUserId);
 	bool GetContactInfo(mycp::bigint nContactUserId,EB_ContactInfo* pOutContactInfo) const;
+    bool GetContactName(mycp::bigint nContactUserId, tstring &pOutContactName) const;
 	CEBContactInfo::pointer GetContactInfo(mycp::bigint nContactUserId) const;
 	void LoadContactInfo(CEBSearchCallback * pCallback, unsigned long dwParam=0);
 	void SearchUserInfo(const tstring& sSearchKey, CEBSearchCallback * pCallback, unsigned long dwParam=0);
+    void SearchGroupInfo(const tstring& sSearchKey, CEBSearchCallback * pCallback, unsigned long dwParam=0);
 	CEBMemberInfo::pointer GetEmployeeInfo(mycp::bigint sAccount) const;
 	CEBMemberInfo::pointer GetEmployeeInfo(const tstring& sAccount) const;
 	CEBMemberInfo::pointer GetEmployeeInfo2(mycp::bigint sResourceId) const;
@@ -546,11 +551,13 @@ public:
 	bool IsEnterpriseCreator(mycp::bigint sEnterpriseCode) const;
 	bool IsEnterpriseCreator(mycp::bigint sEnterpriseCode, mycp::bigint nMemberUserId) const;
 	bool GetFuncInfo(eb::bigint nSubId,EB_SubscribeFuncInfo* pOutFuncInfo) const;
+    bool IsExistFuncInfo(eb::bigint nSubId) const;
 	int GetFuncInfo(EB_FUNC_LOCATION nFuncLocation,std::vector<EB_SubscribeFuncInfo>& pOutFuncInfo) const;
 	int GetFuncSize(EB_FUNC_LOCATION nFuncLocation) const;
 	tstring GetSubscribeFuncUrl(eb::bigint nSubscribeId,eb::bigint nCallId,eb::bigint nFromUserId,const tstring& sFromAccount,eb::bigint nGroupId) const;
 	tstring GetConversationsUrl(eb::bigint nFromUserId,eb::bigint nGroupId) const;
 	tstring GetEntManagerUrl(void) const;
+	tstring GetHomeIndexUrl(void) const;
 	tstring GetLogonHttpReqUrl(void) const;
 
 	mycp::bigint m_sDevAppId;

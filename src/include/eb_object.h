@@ -1028,7 +1028,7 @@ public:
 群组（部门）信息
 ===========================================================*/
 class EB_GroupInfo
-	: public EB_Event
+        : public EB_Event
 {
 public:
 	EB_GroupInfo(void)
@@ -1229,7 +1229,7 @@ public:
 	//	, m_nContactUserId(0)
 	//{}
 	EB_ContactInfo(const EB_ContactInfo* pContactInfo)
-		: EB_UGInfo(),m_nContactId(0),m_nContactUserId(0),m_nContactType(0)
+                : EB_UGInfo((const EB_UGInfo*)pContactInfo),m_nContactId(0),m_nContactUserId(0),m_nContactType(0)
 		, m_nLineState(EB_LINE_STATE_UNKNOWN)
 		, m_sHeadResourceId(0)
 	{
@@ -1242,31 +1242,31 @@ public:
 	}
 	const EB_ContactInfo& operator = (const EB_ContactInfo* pContactInfo)
 	{
-		if (pContactInfo != NULL)
-		{
-			//EB_Event::operator =(pContactInfo);
-			EB_UGInfo::operator =((EB_UGInfo*)pContactInfo);
-			m_nContactId = pContactInfo->m_nContactId;
-			m_nContactType = pContactInfo->m_nContactType;
-			m_sContact = pContactInfo->m_sContact;
-			//m_sGroup = pContactInfo->m_sGroup;
-			m_sName = pContactInfo->m_sName;
-			m_sPhone = pContactInfo->m_sPhone;
-			m_sEmail = pContactInfo->m_sEmail;
-			m_sAddress = pContactInfo->m_sAddress;
-			m_sDescription = pContactInfo->m_sDescription;
-			m_sCompany = pContactInfo->m_sCompany;
-			m_sJobTitle = pContactInfo->m_sJobTitle;
-			m_sTel = pContactInfo->m_sTel;
-			m_sFax = pContactInfo->m_sFax;
-			m_sUrl = pContactInfo->m_sUrl;
-			m_nContactUserId = pContactInfo->m_nContactUserId;
-			m_nLineState = pContactInfo->m_nLineState;
-			m_sHeadResourceId = pContactInfo->m_sHeadResourceId;
-			m_sHeadResourceFile = pContactInfo->m_sHeadResourceFile;
-			m_sHeadMd5 = pContactInfo->m_sHeadMd5;
-		}
-		return *this;
+                if (pContactInfo != NULL)
+                {
+                        //EB_Event::operator =(pContactInfo);
+                        EB_UGInfo::operator =((EB_UGInfo*)pContactInfo);
+                        m_nContactId = pContactInfo->m_nContactId;
+                        m_nContactType = pContactInfo->m_nContactType;
+                        m_sContact = pContactInfo->m_sContact;
+                        //m_sGroup = pContactInfo->m_sGroup;
+                        m_sName = pContactInfo->m_sName;
+                        m_sPhone = pContactInfo->m_sPhone;
+                        m_sEmail = pContactInfo->m_sEmail;
+                        m_sAddress = pContactInfo->m_sAddress;
+                        m_sDescription = pContactInfo->m_sDescription;
+                        m_sCompany = pContactInfo->m_sCompany;
+                        m_sJobTitle = pContactInfo->m_sJobTitle;
+                        m_sTel = pContactInfo->m_sTel;
+                        m_sFax = pContactInfo->m_sFax;
+                        m_sUrl = pContactInfo->m_sUrl;
+                        m_nContactUserId = pContactInfo->m_nContactUserId;
+                        m_nLineState = pContactInfo->m_nLineState;
+                        m_sHeadResourceId = pContactInfo->m_sHeadResourceId;
+                        m_sHeadResourceFile = pContactInfo->m_sHeadResourceFile;
+                        m_sHeadMd5 = pContactInfo->m_sHeadMd5;
+                }
+                return *this;
 	}
 #ifdef USES_EBCOM_TEST
 	const EB_ContactInfo& operator = (IEB_ContactInfo* pContactInfo)

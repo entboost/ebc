@@ -1194,6 +1194,7 @@ BOOL CPOPApp::InitInstance()
 	this->m_bDisableUserCloudDrive = pDlgLogin.GetDisableUserCloudDrive();
 	this->m_bDisableGroupSharedCloud = pDlgLogin.GetDisableGroupSharedCloud();
 	this->m_bDisableModifyPasswd = pDlgLogin.GetDisableModifyPasswd();
+	this->m_sHomeIndexUrl = pDlgLogin.GetHomeIndexUrl();
 	this->m_sEntManagerUrl = pDlgLogin.GetEntManagerurl();
 	this->m_bDisableVideo = pDlgLogin.GetDisableVideo();
 	this->m_bDisableRemoteDesktop = pDlgLogin.GetDisableRD();

@@ -85,6 +85,7 @@ typedef enum EB_SYSTEM_PARAMETER {
     , EB_SYSTEM_PARAMETER_EB_SERVER_VERSION						// 33 int 当前服务端版本，如 544=1.25.0.544 544以上版本开始支持
     , EB_SYSTEM_PARAMETER_DEFAULT_URL									// 34 char*
     , EB_SYSTEM_PARAMETER_SYSTEM_ACCOUNT_FLAG					// 35 int 系统帐号标示，1=系统管理员；2=普通企业管理员；0=普通用户
+    , EB_SYSTEM_PARAMETER_HOME_INDEX_URL							// 36 char*
 }EB_SYSTEM_PARAMETER;
 
 /*==========================================================

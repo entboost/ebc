@@ -898,6 +898,7 @@ public:
 	unsigned long m_nHttpIpAddress1;
 	unsigned long m_nHttpIpAddress2;
 	mycp::bigint m_nUserSignId;
+	int m_nSDKVersion;
 	//mycp::bigint m_nSSLId;
 	//tstring m_sDeviceToken;
 	void SetCreateTime(time_t t) {m_tCreateTime = t;}
@@ -915,6 +916,7 @@ public:
 		, m_bLoadAppSubInfo(false)
 		, m_nExtData(0)
 		, m_nFromIpAddress(0),m_nHttpIpAddress1(0),m_nHttpIpAddress2(0),m_nUserSignId(0)//,m_nSSLId(0)
+		, m_nSDKVersion(0)
 	{
 		m_tCreateTime = time(0);
 	}
@@ -923,6 +925,7 @@ public:
 		, m_bLoadAppSubInfo(false)
 		, m_nExtData(0)
 		, m_nFromIpAddress(0),m_nHttpIpAddress1(0),m_nHttpIpAddress2(0),m_nUserSignId(0)//,m_nSSLId(0)
+		, m_nSDKVersion(0)
 		, m_tCreateTime(0)
 	{
 	}

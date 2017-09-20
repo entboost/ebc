@@ -40,6 +40,7 @@ public:
 	bool GetDisableUserCloudDrive(void) const {return m_bDisableUserCloudDrive;}
 	bool GetDisableGroupSharedCloud(void) const {return m_bDisableGroupSharedCloud;}
 	bool GetDisableModifyPasswd(void) const {return m_bDisableModifyPasswd;}
+	const tstring& GetHomeIndexUrl(void) const {return m_sHomeIndexUrl;}
 	const tstring& GetEntManagerurl(void) const {return m_sEntManagerUrl;}
 	bool GetDisableVideo(void) const {return m_bDisableVideo;}
 	bool GetDisableRD(void) const {return m_bDisableRemoteDesktop;}
@@ -71,6 +72,7 @@ protected:
 	bool m_bDisableUserCloudDrive;
 	bool m_bDisableGroupSharedCloud;
 	bool m_bDisableModifyPasswd;
+	tstring m_sHomeIndexUrl;
 	tstring m_sEntManagerUrl;
 	bool m_bDisableVideo;
 	bool m_bDisableRemoteDesktop;

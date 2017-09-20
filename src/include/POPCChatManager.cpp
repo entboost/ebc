@@ -465,6 +465,16 @@ void CPOPCChatManager::ProcFCMAck(const CPOPSotpRequestInfo::pointer & pRequestI
             }
             const tstring sFileName(pChatMsgInfo->GetContent());
             const mycp::bigint ntotalsize = pChatMsgInfo->GetSize();
+
+//#ifdef Q_OS_ANDROID
+//            FILE * logf = fopen("/entboost_log.txt", "w");
+//            if (logf!=NULL) {
+//                fwrite(sFileName.c_str(), 1, sFileName.size(), logf);
+//                fclose(logf);
+//                logf = 0;
+//            }
+//#endif
+
 #ifdef _QT_MAKE_
             const QString filePathTemp(sFileName.c_str());
             FILE * f = fopen(filePathTemp.toLocal8Bit().constData(),"rb");
@@ -480,7 +490,12 @@ void CPOPCChatManager::ProcFCMAck(const CPOPSotpRequestInfo::pointer & pRequestI
             CSendFileThread::pointer pThreadSendFile = CSendFileThread::create(this, ntotalsize, nMsgId, f, pChatMsgInfo->m_nDataStreamSize);
             pThreadSendFile->SetAcceptEncoding(nAcceptEncoding);
             pThreadSendFile->SetFileName(sFileName);
+#ifdef Q_OS_ANDROID
+            /// for test
+            pThreadSendFile->SetDisableZip(true);
+#else
             pThreadSendFile->SetDisableZip(IsDisableZipFile(sFileName));
+#endif
             pThreadSendFile->SetP2P(m_nP2PTryOwnerAccount>0);
             pThreadSendFile->SetLocalIpAddress(m_bLocalIpAddress);
 

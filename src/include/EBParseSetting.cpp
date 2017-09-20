@@ -4,6 +4,10 @@
 #endif
 #ifdef _QT_MAKE_
 #include <QCoreApplication>
+#ifdef Q_OS_ANDROID
+#include <QStandardPaths>
+#include <QDir>
+#endif /// Q_OS_ANDROID
 #include <QFileInfo>
 #include <QString>
 #include <QColor>
@@ -102,7 +106,12 @@ bool CEBParseSetting::load(const char* filename)
 
     /// 用户配置服务器地址
 #ifdef _QT_MAKE_
+#ifdef Q_OS_ANDROID
+    const QString writablePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    const QString pApplicationDirPath = QDir(writablePath).absolutePath();
+#else
 	const QString pApplicationDirPath = QCoreApplication::applicationDirPath();
+#endif
     const QString sEBCSettingTemp = pApplicationDirPath+"/datas/ebc.ini";
     if (QFileInfo::exists(sEBCSettingTemp))
 #else
@@ -127,23 +136,36 @@ bool CEBParseSetting::load(const char* filename)
 		m_sServerAddress = lpszBuffer;
 	}
 
+    if (m_nSDKVersion==0) {
 #ifdef WIN32
-    m_nSDKVersion = GetPrivateProfileIntA("setting","sdk-ver",0,filename);
+        m_nSDKVersion = GetPrivateProfileIntA("setting","sdk-ver",0,filename);
 #else
-    m_nSDKVersion = GetPrivateProfileIntABoost("setting","sdk-ver",0,filename);
+        m_nSDKVersion = GetPrivateProfileIntABoost("setting","sdk-ver",0,filename);
 #endif
+    }
+//#ifdef WIN32
+//    m_nSDKVersion = GetPrivateProfileIntA("setting","sdk-ver",0,filename);
+//#else
+////    m_nSDKVersion = 514;
+//    if (m_nSDKVersion==0) {
+//        m_nSDKVersion = GetPrivateProfileIntABoost("setting","sdk-ver",0,filename);
+//    }
+//#endif
 	if (m_nSDKVersion>0)
 	{
 		// 新版本
-		char lpszBuffer[260];
-		memset(lpszBuffer,0,sizeof(lpszBuffer));
+        char lpszBuffer[260];
+        memset(lpszBuffer,0,sizeof(lpszBuffer));
+        if (m_sVersion.empty()) {
 #ifdef WIN32
-        ::GetPrivateProfileStringA("setting","version","",lpszBuffer,260,filename);
+            ::GetPrivateProfileStringA("setting","version","",lpszBuffer,260,filename);
 #else
-        GetPrivateProfileStringABoost("setting","version","",lpszBuffer,260,filename);
+            //        GetPrivateProfileStringABoost("setting","version","",lpszBuffer,260,filename);
+            sprintf(lpszBuffer, "2.0.0.%d", m_nSDKVersion);
 #endif
-		m_sVersion = lpszBuffer;
-		//// 用户配置服务器地址
+            m_sVersion = lpszBuffer;
+        }
+        //// 用户配置服务器地址
 		//char str[MAX_PATH];
         //GetModuleFileNameA( NULL, str, MAX_PATH);
 		//std::string sEBCSetting(str);

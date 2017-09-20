@@ -9215,8 +9215,7 @@ void CPOPDlg::OnFrameWndShow(const CFrameWndInfo::pointer& pFrameWndInfo, bool b
 		if (pFrameWndInfo->GetType()==CFrameWndInfo::FRAME_WND_WORK_FRAME)
 		{
 #ifndef USES_FRAMELIST_APPFRAME
-			if (pDlgAppFrame!=NULL)
-			{
+			if (pDlgAppFrame!=0) {
 				if (bShow)
 				{
 					//OnBnClickedButtonSwitchFrame();	// *** 有异常
@@ -11600,9 +11599,13 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 #else
 	CDlgAppFrame* pDlgAppFrame = m_pDlgAppFrame;
 #endif
-	if (pDlgAppFrame==NULL || pDlgAppFrame->IsEmpty())
+	if (pDlgAppFrame==0 || pDlgAppFrame->IsEmpty())
 	{
-		AddAppUrl(false,"about:blank","",NULL);
+		const tstring sHomeIndex = theApp.GetHomeIndexUrl();
+		if (sHomeIndex.empty())
+			AddAppUrl(false,"about:blank","",NULL);
+		else
+			AddAppUrl(false,sHomeIndex.string(),"",NULL);
 		//m_editSearch.SetFocus();	// ** 没用
 		return;
 	}

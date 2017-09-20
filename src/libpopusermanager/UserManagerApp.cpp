@@ -2,9 +2,11 @@
 #ifdef _MSC_VER
 #pragma warning(disable:4018 4819)
 #endif // WIN32
-#ifdef WIN32
+
+//#ifdef WIN32
 #include "stdafx.h"
-#endif
+//#endif
+
 #include "UserManagerApp.h"
 #include "../include/md5.h"
 #include "../include/EBParseSetting.h"
@@ -222,11 +224,19 @@ bool GetNetworkCfg(std::vector<NetworkCfg>& pOutNetworkCfg,bool bGetEmptyGateway
 	QList<QHostAddress> list = QNetworkInterface::allAddresses();  
 	foreach (QHostAddress address, list)  
 	{  
-		if(address.protocol() == QAbstractSocket::IPv4Protocol)  
-		{  
-            //IPv4地址
+        if ( address.protocol() == QAbstractSocket::IPv4Protocol &&
+             address != QHostAddress::Null &&
+             address != QHostAddress::LocalHost)
+        {
+            /// IPv4地址
+            /// 10.0.2.15 ?
             const QString sIp = address.toString();
-            if (sIp.contains("127.0.") || sIp.contains("0.0.0.0"))
+            if (sIp.contains("127.0.") ||
+//        #ifdef Q_OS_ANDROID
+                    sIp.contains("10.0.") ||
+//        #endif
+                    sIp.contains("0.0.0.0"))
+//            if (sIp.contains("127.0.") || sIp.contains("0.0.0.0"))
 			{  
 				continue;  
 			}  
@@ -234,7 +244,12 @@ bool GetNetworkCfg(std::vector<NetworkCfg>& pOutNetworkCfg,bool bGetEmptyGateway
             strcpy(cfg.szIP, sIp.toStdString().c_str());
             pOutNetworkCfg.push_back(cfg);
 		}  
-	}  
+    }
+//    if (pOutNetworkCfg.empty()) {
+//        NetworkCfg cfg;
+//        strcpy(cfg.szIP, QHostAddress(QHostAddress::LocalHost).toString().toStdString().c_str());
+//        pOutNetworkCfg.push_back(cfg);
+//    }
 #else
 
 //#ifdef _MSC_VER
@@ -512,11 +527,20 @@ inline int SplitIntValue(const tstring& sSource, const char* sStart, const char*
 	}
 	return nResult;
 }
-//#ifdef _DEBUG
-//int abctest1(int a) {return 22+a;}
-//tstring abctest2(void) {return "abc";}
-//#endif
-#ifndef _QT_MAKE_
+#ifdef _DEBUG
+int abctest3(int a) {return 22+a;}
+tstring abctest2(void) {return "abc";}
+#endif
+#ifdef _QT_MAKE_
+inline bool checkCreateDir(const QString &dirName)
+{
+    QDir pDir1(dirName);
+    if (!pDir1.exists()) {
+        return pDir1.mkdir(dirName);
+    }
+    return true;
+}
+#else
 ULONG_PTR theGdiplusToken=0;
 #endif
 CUserManagerApp::CUserManagerApp(void)
@@ -532,30 +556,10 @@ CUserManagerApp::CUserManagerApp(void)
 , m_tReLogonTime(0)
 , m_tReLoadInfo(0)
 {
-//#ifdef _DEBUG
-//	abctest3();
-//	abctest3();
-//	abctest3();
-//	abctest3();
-//	abctest3();
-//	abctest3();
-//	abctest1(12);
-//	abctest2();
-//	abctest1(23);
-//	abctest2();
-//	abctest1(23);
-//	abctest2();
-//	abctest1(20);
-//	abctest2();
-//	abctest2();
-//	abctest1(2);
-//	abctest2();
-//	abctest1(40);
-//	abctest2();
-//	abctest1(20);
-//	abctest5();
+#ifdef _DEBUG
+	abctest3(1);
 //	abctest6();
-//#endif
+#endif
 
 #ifndef _QT_MAKE_
 //#ifdef _MSC_VER
@@ -586,29 +590,20 @@ CUserManagerApp::CUserManagerApp(void)
 	m_tLogonCenter = 0;
 	m_pMyAccountInfo = CEBAccountInfo::create(0,"");
 #ifdef _QT_MAKE_
+#ifdef Q_OS_ANDROID
+    const QString writablePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    checkCreateDir(writablePath);
+    m_sAppPath = QDir(writablePath).absolutePath();
+#else
     const QString pApplicationDirPath = QCoreApplication::applicationDirPath();
     m_sAppPath = pApplicationDirPath;
+#endif
     m_sImgPath = m_sAppPath+"/img";
-	{
-        QDir pDir1(m_sImgPath);
-		if (!pDir1.exists()) {
-            pDir1.mkdir(m_sImgPath);
-		}
-	}
+    checkCreateDir(m_sImgPath);
     m_sEbResourcePath = m_sAppPath+"/res";
-	{
-        QDir pDir1(m_sEbResourcePath);
-		if (!pDir1.exists()) {
-            pDir1.mkdir(m_sEbResourcePath);
-		}
-	}
+    checkCreateDir(m_sEbResourcePath);
     m_sEbDataPath = m_sAppPath+"/datas";
-	{
-        QDir pDir1(m_sEbDataPath);
-		if (!pDir1.exists()) {
-            pDir1.mkdir(m_sEbDataPath);
-		}
-	}
+    checkCreateDir(m_sEbDataPath);
 
     /// app data path
     /// C:/Users/pc/AppData/Local/ebcd
@@ -646,19 +641,9 @@ CUserManagerApp::CUserManagerApp(void)
 	
 
 #ifdef _QT_MAKE_
-	{
-        QDir pDir1(m_sAppDataPath);
-		if (!pDir1.exists()) {
-            pDir1.mkdir(m_sAppDataPath);
-		}
-	}
+    checkCreateDir(m_sAppDataPath);
     m_sAppDataTempPath = m_sAppDataPath+"/temp";
-	{
-        QDir pDir1(m_sAppDataTempPath);
-		if (!pDir1.exists()) {
-            pDir1.mkdir(m_sAppDataTempPath);
-		}
-	}
+    checkCreateDir(m_sAppDataTempPath);
 #else
     if (!::PathFileExistsA(m_sAppDataPath.c_str()))
 	{
@@ -739,7 +724,6 @@ CUserManagerApp::~CUserManagerApp(void)
 //#ifdef _DEBUG
 //	abctest1(12);
 //#endif
-
 	LogoutAppCenter();
 	Logout();
 	m_pUserManager.reset();
@@ -831,7 +815,7 @@ void CUserManagerApp::DoProcess(void)
 
 		bool bBreak = false;
 		CProcessMsgInfo::pointer pProcessMsgInfo;
-		while (!bBreak && m_pProcessMsgList.front(pProcessMsgInfo))
+        while (!m_bKilled && !bBreak && m_pProcessMsgList.front(pProcessMsgInfo))
 		{
 			if (pProcessMsgInfo->m_tProcessTime>0 && pProcessMsgInfo->m_tProcessTime>=time(0))
 			{
@@ -1399,7 +1383,20 @@ void CUserManagerApp::GetLocalIp(void)
 		std::vector<tagNetworkCfg> pNetworkCfg;
 		GetNetworkCfg(pNetworkCfg,false);	// **有可能取到二个以上，其中有一个是不对的
 		if (pNetworkCfg.size()>1)
-		{
+        {
+#ifdef Q_OS_ANDROID
+            for (int i=0;i<(int)pNetworkCfg.size();i++) {
+                m_pLocalHostIp.push_back(pNetworkCfg[i].szIP);
+            }
+            /// for test
+            /// 192.168.1.123;10.0.2.15
+//            std::string sIp;
+//            for (int i=0;i<(int)pNetworkCfg.size();i++) {
+//                sIp += pNetworkCfg[i].szIP;
+//                sIp += ";";
+//            }
+//            m_pLocalHostIp.push_back(sIp);
+#else
 			// 做交叉比较，去掉没用的IP地址，取出真实IP地址；
 			CLockMap<tstring,bool> pIpList;
 			for (int i=0;i<(int)pNetworkCfg.size();i++)
@@ -1418,7 +1415,8 @@ void CUserManagerApp::GetLocalIp(void)
 			if (m_pLocalHostIp.empty())
 			{
 				GetLocalHostIp(m_pLocalHostIp);
-			}
+            }
+#endif
 		}else if (pNetworkCfg.size()==1)
 		{
 			m_pLocalHostIp.push_back(pNetworkCfg[0].szIP);
@@ -1741,6 +1739,7 @@ void CUserManagerApp::Logout(void)
 			m_pEBDatas.reset();
 		}
 	}
+    m_pProcessMsgList.clear();
 	theChatRoomList.clear();
 	theResourceChatRoom.clear();
 
@@ -2226,7 +2225,14 @@ bool CUserManagerApp::ChangeLineState(EB_USER_LINE_STATE nNewLineState)
 	int nRealLineState = nNewLineState;
 	nRealLineState &= ~EB_USER_CHANGE_STATE;
 	m_pMyAccountInfo->SetLineState((EB_USER_LINE_STATE)nRealLineState);
-	m_pUserManager->SendUMSMOnline(m_pMyAccountInfo->GetLogonType(),m_pMyAccountInfo->GetUserId(),m_pMyAccountInfo->m_pLogonList.GetOnlineKey(""),nRealLineState|EB_USER_CHANGE_STATE,0,m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),"");
+    m_pUserManager->SendUMSMOnline(m_nSDKVersion,
+                                   m_pMyAccountInfo->GetLogonType(),
+                                   m_pMyAccountInfo->GetUserId(),
+                                   m_pMyAccountInfo->m_pLogonList.GetOnlineKey(""),
+                                   nRealLineState|EB_USER_CHANGE_STATE,
+                                   0,
+                                   m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),
+                                   "");
 	return true;
 }
 bool CUserManagerApp::UpdateInfo(const CPopParameterList& pInfoList)
@@ -2444,6 +2450,10 @@ bool CUserManagerApp::SetDefaltMemberCode(mycp::bigint sNewDefaultMemberCode)
 //const unsigned int theRemoveP2PPort1	= 9500;
 void CUserManagerApp::LocalChatRoomP2PRequest(const CEBCallInfo::pointer& pCallInfo,const CEBAccountInfo::pointer& pAccountInfo,int nRequestData)
 {
+#ifdef Q_OS_ANDROID
+    return;
+#endif
+
 #ifdef USES_DISABLE_P2P
 	return;
 #endif
@@ -2693,7 +2703,20 @@ bool CUserManagerApp::GetContactInfo(mycp::bigint nContactUserId,EB_ContactInfo*
 	//		return true;
 	//	}
 	//}
-	return false;
+    return false;
+}
+
+bool CUserManagerApp::GetContactName(bigint nContactUserId, cgcSmartString &pOutContactName) const
+{
+    if (nContactUserId==0) {
+        return false;
+    }
+    CEBContactInfo::pointer pContactInfo;
+    if (theContactList2.find(nContactUserId,pContactInfo)) {
+        pOutContactName = pContactInfo->m_sName;
+        return true;
+    }
+    return false;
 }
 CEBContactInfo::pointer CUserManagerApp::GetContactInfo(mycp::bigint nContactUserId) const
 {
@@ -2828,6 +2851,39 @@ void CUserManagerApp::SearchUserInfo(const tstring& sSearchKey, CEBSearchCallbac
 		EnterpriseLoad(0,0,0,1,0,0,false,sSearchKey,false,pSotpRequestInfo);
 	}
 
+}
+
+void CUserManagerApp::SearchGroupInfo(const cgcSmartString &sSearchKey, CEBSearchCallback *pCallback, unsigned long dwParam)
+{
+    const mycp::bigint nSearchId = cgc_atoi64(sSearchKey.c_str());
+    int nCallbackCount = 0;
+
+    //BOOST_ASSERT(pCallback != NULL);
+    BoostReadLock lockDepartment(theDepartmentList.mutex());
+    CLockMap<mycp::bigint, CEBGroupInfo::pointer>::const_iterator pIterDepartment = theDepartmentList.begin();
+    for (; pIterDepartment!=theDepartmentList.end(); pIterDepartment++) {
+        const CEBGroupInfo::pointer &groupInfo = pIterDepartment->second;
+
+        if (sSearchKey.empty() ||
+            (nSearchId>0 && groupInfo->m_sGroupCode == nSearchId) ||
+            groupInfo->m_sGroupName.find(sSearchKey) != std::string::npos ||
+            groupInfo->m_sDescription.find(sSearchKey) != std::string::npos
+            )
+        {
+            nCallbackCount++;
+            CEBEnterpriseInfo::pointer pEnterpriseInfo;
+            if (groupInfo->m_sEnterpriseCode>0 &&
+                    m_pDefaultEnterpriseInfo.get()!=0 &&
+                    m_pDefaultEnterpriseInfo->m_sEnterpriseCode==groupInfo->m_sEnterpriseCode) {
+                pCallback->onGroupInfo(groupInfo.get(), m_pDefaultEnterpriseInfo.get(), dwParam);
+            }
+            else {
+                pCallback->onGroupInfo(groupInfo.get(), 0, dwParam);
+            }
+            if (nCallbackCount>=20)
+                break;
+        }
+    }
 }
 
 CEBMemberInfo::pointer CUserManagerApp::GetEmployeeInfo(mycp::bigint sAccount) const
@@ -3036,7 +3092,12 @@ bool CUserManagerApp::GetFuncInfo(eb::bigint nSubId,EB_SubscribeFuncInfo* pOutFu
 		pOutFuncInfo->operator =(pSubscrieFuncInfo.get());
 		return true;
 	}
-	return false;
+    return false;
+}
+
+bool CUserManagerApp::IsExistFuncInfo(eb::bigint nSubId) const
+{
+    return theSubscribeFuncInfolist.exist(nSubId);
 }
 int CUserManagerApp::GetFuncInfo(EB_FUNC_LOCATION nFuncLocation,std::vector<EB_SubscribeFuncInfo>& pOutFuncInfo) const
 {
@@ -3211,6 +3272,26 @@ tstring CUserManagerApp::GetEntManagerUrl(void) const
 		sprintf(lpszBuffer,"http://%s%s&uid=%lld&ok=%s",sUMServer.c_str(),m_sEntManagerUrl.c_str(),m_pMyAccountInfo->GetUserId(),m_pMyAccountInfo->m_pLogonList.GetOnlineKey("").c_str());
 	return lpszBuffer;
 }
+
+tstring CUserManagerApp::GetHomeIndexUrl(void) const
+{
+	if (m_pUserManager.get()==NULL) return "";
+	if (m_pMyAccountInfo.get()==NULL) return "";
+
+	tstring sUMServer(m_sHttpServer);
+	if (sUMServer.empty())
+	{
+		int nPort = 0;
+		entboost::GetAddressPort(m_pUserManager->GetAddress().address().c_str(),sUMServer,nPort);
+	}
+	char lpszBuffer[1024];
+	if (m_sEntManagerUrl.find("?",1)==std::string::npos)
+		sprintf(lpszBuffer,"http://%s/ebtw/index.php",sUMServer.c_str());
+	else
+		sprintf(lpszBuffer,"http://%s/ebtw/index.php",sUMServer.c_str());
+	return lpszBuffer;
+}
+
 tstring CUserManagerApp::GetLogonHttpReqUrl(void) const
 {
 	if (m_pUserManager.get()==NULL) return "";
@@ -4037,6 +4118,7 @@ int CUserManagerApp::SendCrRich(eb::bigint sCallId,const EB_ChatRoomRichMsg* pRi
 	}
 	if(pCallInfo->m_pChatRoom.get()==NULL)
 	{
+        this->InviteCall(pCallInfo, 0);
 		return 2;
 	}
 	//LogMessage("SendCrRich->m_pChatRoom->SendRich... (callid=%lld,touid=%lld)\r\n",sCallId,sTo);
@@ -4189,12 +4271,13 @@ int CUserManagerApp::SendCrFile(eb::bigint sCallId,const char* sFilePath,mycp::b
 	{
 		if (InviteCall(pCallInfo,0,0,true,false,&bCanSendFileCall) != 0 && !bFromToSendList && !bOffFile)	// * 离线文件不跑里面，直接跑后面发送
 		{
+#ifndef Q_OS_ANDROID
 			if (bNeedWaitingCallback && pCallInfo->m_sGroupCode==0)
 			{
 				if (!SendWaitingProcessCallback(sCallId, sFilePath, sTo, bPrivate, bOffFile))
 					return 0;
 			}
-
+#endif  /// Q_OS_ANDROID
 			if (pOutInviteCall!=NULL)
 				*pOutInviteCall = true;
 			CToSendList::pointer pCallToSendList;
@@ -4234,7 +4317,9 @@ int CUserManagerApp::SendCrFile(eb::bigint sCallId,const char* sFilePath,mycp::b
 			//return 3;
 		}
 	}
-	// 一对一，在线发送文件才处理，离线发送不处理；
+#ifndef Q_OS_ANDROID
+    /// 安卓手机不做P2P
+    /// 一对一，在线发送文件才处理，离线发送不处理；
 	if (pCallInfo->m_sGroupCode==0 && !bOffFile)	// 离线文件不处理；
 	{
 		// 查找P2P发送
@@ -4325,6 +4410,7 @@ int CUserManagerApp::SendCrFile(eb::bigint sCallId,const char* sFilePath,mycp::b
 			}
 		}
 	}
+#endif  /// Q_OS_ANDROID
 	if(pCallInfo->m_pChatRoom.get()==NULL)
 		return 2;
 	// **保存在线发送的文件，用于取消，或者对方上线P2P成功后，重新发送；
@@ -4869,8 +4955,8 @@ int CUserManagerApp::CallGroup(mycp::bigint sDepCode,bool bOwnerCall,bool bQuery
 	{
 		CEBGroupInfo::pointer pDepartmentInfo;
 		theDepartmentList.find(sDepCode, pDepartmentInfo);
-		if (pDepartmentInfo.get() == NULL || !pDepartmentInfo->m_pMemberList.exist(m_pMyAccountInfo->GetUserId()))
-			//if (pDepartmentInfo.get() != NULL && !pDepartmentInfo->m_pMemberList.exist(m_pMyAccountInfo->GetAccount()))
+        if (pDepartmentInfo.get() == NULL || pDepartmentInfo->m_nMyEmpId==0)
+//		if (pDepartmentInfo.get() == NULL || !pDepartmentInfo->m_pMemberList.exist(m_pMyAccountInfo->GetUserId()))
 		{
 			// 群组不存在
 			// 不属于本群组，不能发起会话
@@ -5048,7 +5134,9 @@ int CUserManagerApp::InviteCall(const CEBCallInfo::pointer & pCallInfo, mycp::bi
 					return 1;
 				}
 			}
-			if (pCallInfo->m_sGroupCode>0 || pAccountInfo->m_pFromCardInfo.m_nAccountType!=EB_ACCOUNT_TYPE_VISITOR || pCallInfo->m_nCallState == EB_CALL_STATE_INVALIDATE)
+            if (pCallInfo->m_sGroupCode>0 ||
+                    pAccountInfo->m_pFromCardInfo.m_nAccountType!=EB_ACCOUNT_TYPE_VISITOR ||
+                    pCallInfo->m_nCallState == EB_CALL_STATE_INVALIDATE)
 			{
 				if (pCallInfo->m_nCallState == EB_CALL_STATE_HANGUP ||
 					pCallInfo->m_nCallState == EB_CALL_STATE_INVALIDATE ||	// 会话失效
@@ -5875,27 +5963,52 @@ int CUserManagerApp::UGInfoDelete(mycp::bigint nUGId)
 	}
 	CPOPSotpRequestInfo::pointer pRequestInfo = CPOPSotpRequestInfo::create(0, EB_REQ_TYPE_UNKNOWN);
 	pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("ug-id", nUGId));
-	return m_pUserManager->SendUGDelete(nUGId, pRequestInfo);
+    return m_pUserManager->SendUGDelete(nUGId, pRequestInfo);
 }
-int CUserManagerApp::GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize)
+
+bool CUserManagerApp::HasUGContact(eb::bigint nUGId) const
+{
+    const bool bAuthContact = (m_nSystemSetting&CEBSysInfo::SYSTEM_SETTING_VALUE_AUTH_CONTACT)==CEBSysInfo::SYSTEM_SETTING_VALUE_AUTH_CONTACT;	// 需要验证好友
+    AUTO_CONST_RLOCK(theContactList1);
+    CLockMap<mycp::bigint, CEBContactInfo::pointer>::const_iterator pIterContact = theContactList1.begin();
+    for (; pIterContact!=theContactList1.end(); pIterContact++) {
+        const CEBContactInfo::pointer &pContactInfo = pIterContact->second;
+        if (pContactInfo->m_nUGId==nUGId) {
+            return true;
+        }
+    }
+    return false;
+}
+int CUserManagerApp::GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize) const
 {
 	const bool bAuthContact = (m_nSystemSetting&CEBSysInfo::SYSTEM_SETTING_VALUE_AUTH_CONTACT)==CEBSysInfo::SYSTEM_SETTING_VALUE_AUTH_CONTACT;	// 需要验证好友
 
-	BoostReadLock lockContact(theContactList1.mutex());
+    AUTO_CONST_RLOCK(theContactList1);
 	CLockMap<mycp::bigint, CEBContactInfo::pointer>::const_iterator pIterContact = theContactList1.begin();
-	for (; pIterContact!=theContactList1.end(); pIterContact++)
-	{
-		CEBContactInfo::pointer pContactInfo = pIterContact->second;
-		if (pContactInfo->m_nUGId==nUGId)
-		{
+    for (; pIterContact!=theContactList1.end(); pIterContact++) {
+        const CEBContactInfo::pointer &pContactInfo = pIterContact->second;
+        if (pContactInfo->m_nUGId==nUGId) {
 			pOutContactSize++;
-			if (bAuthContact && pContactInfo->m_nLineState>=EB_LINE_STATE_BUSY)	// 需要验证好友
-			{
+            if (bAuthContact && pContactInfo->m_nLineState>=EB_LINE_STATE_BUSY)	{
+                /// 需要验证好友
 				pOutOnlineSize++;
 			}
 		}
 	}
-	return 0;
+    return 0;
+}
+
+int CUserManagerApp::GetUGContactList(eb::bigint nUGId, std::vector<EB_ContactInfo> &pOutUGContactList) const
+{
+    AUTO_CONST_RLOCK(theContactList1);
+    CLockMap<mycp::bigint, CEBContactInfo::pointer>::const_iterator pIterContact = theContactList1.begin();
+    for (; pIterContact!=theContactList1.end(); pIterContact++) {
+        const CEBContactInfo::pointer &pContactInfo = pIterContact->second;
+        if (pContactInfo->m_nUGId==nUGId) {
+            pOutUGContactList.push_back(EB_ContactInfo(pContactInfo.get()));
+        }
+    }
+    return (int)pOutUGContactList.size();
 }
 
 int CUserManagerApp::ContactEdit(const EB_ContactInfo* pPopContactEditInfo)
@@ -6150,7 +6263,11 @@ int CUserManagerApp::DepExit(mycp::bigint sDepCode)
 	{
 		return -1;
 	}
-	return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"");
+//    CPOPSotpRequestInfo::pointer pRequestInfo = CPOPSotpRequestInfo::create(0, EB_REQ_TYPE_UNKNOWN);
+//    pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("dep_code", pEmployeeInfo->m_sGroupCode));
+//    //return m_pUserManager->SendUMEMEmpDelete(0,pEmployeeInfo->m_sGroupCode,lpszBuffer,0,pRequestInfo);
+//    return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"",0,pRequestInfo);
+    return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"");
 }
 bool CUserManagerApp::HasSubDepartment(eb::bigint sParentCode) const
 {
@@ -6275,9 +6392,42 @@ int CUserManagerApp::EmpDelete(mycp::bigint sEmpCode, bool bDeleteAccount)
 	//char lpszBuffer[24];
 	//sprintf(lpszBuffer,"%lld",pEmployeeInfo->m_nMemberUserId);
 	//return m_pUserManager->SendUMEMEmpDelete(0,pEmployeeInfo->m_sGroupCode,lpszBuffer,0,pRequestInfo);
-	return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"",0,pRequestInfo);
+    return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"",0,pRequestInfo);
 }
-int CUserManagerApp::EnterpriseLoad(mycp::bigint sDepCode,int nLoadEntDep,int nLoadMyGroup,int nLoadEmp,mycp::bigint nMemberCode,mycp::bigint nMemberUid,bool bLoadImage,const tstring& sSearchKey,bool bLoadFromEBC,const CPOPSotpRequestInfo::pointer& pRequestInfo)
+
+int CUserManagerApp::EmpDelete(bigint groupId, bigint userId, bool bDeleteAccount)
+{
+    if (m_pUserManager.get() == NULL) return -1;
+
+    CEBGroupInfo::pointer pDepartmentInfo;
+    if (!theDepartmentList.find(groupId, pDepartmentInfo))
+    {
+        // error
+        return -1;
+    }else if (!pDepartmentInfo->m_pMemberList.exist(userId))
+    {
+        // error
+        // == EDT_DELETE_EMP不需要判断，否则会死锁
+        return -1;
+    }
+    CPOPSotpRequestInfo::pointer pRequestInfo = CPOPSotpRequestInfo::create(0, EB_REQ_TYPE_UNKNOWN);
+    pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("dep_code", groupId));
+    char lpszBuffer[24];
+    sprintf(lpszBuffer,"%lld", userId);
+    return m_pUserManager->SendUMEMEmpDelete(0,groupId,lpszBuffer,0,pRequestInfo);
+//    return m_pUserManager->SendUMEMEmpDelete(pEmployeeInfo->m_sMemberCode,0,"",0,pRequestInfo);
+}
+
+int CUserManagerApp::EnterpriseLoad(mycp::bigint sDepCode,
+									int nLoadEntDep,
+									int nLoadMyGroup,
+									int nLoadEmp,
+									mycp::bigint nMemberCode,
+									mycp::bigint nMemberUid,
+									bool bLoadImage,
+									const tstring& sSearchKey,
+									bool bLoadFromEBC,
+									const CPOPSotpRequestInfo::pointer& pRequestInfo)
 {
 	if (m_pUserManager.get() == NULL) return -1;
 	if (m_userStatus != US_Logoned) return -2;
@@ -8209,7 +8359,11 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
 		if (m_nDeployId>0 && !m_pMyAccountInfo->IsLogonVisitor())
 		{
             /// **检查本地数据文件；
+#ifdef Q_OS_ANDROID
+            const EBFileString sDefaultEBDatasFile = "assets:/datas/bodb/syncdatas";
+#else
             const EBFileString sDefaultEBDatasFile = GetAppPath()+"/datas/bodb/syncdatas";
+#endif
 #ifdef _QT_MAKE_
             const bool bExistDefaultEBDatasFile = QFileInfo::exists(sDefaultEBDatasFile);
             QString lpszBuffer = QString("%1/users").arg(GetAppPath());
@@ -8234,9 +8388,14 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
                 ::CreateDirectoryA(sCurrentLogonServerBoPath.c_str(), NULL);
 #endif
 			}
+            ///  ANDROID：/users/uid
             /// \users\[account]
 #ifdef _QT_MAKE_
+#ifdef Q_OS_ANDROID
+            sCurrentLogonServerBoPath = QString("%1/%2").arg(sCurrentLogonServerBoPath).arg(m_pMyAccountInfo->GetUserId());
+#else   /// Q_OS_ANDROID
             sCurrentLogonServerBoPath = QString("%1/%2").arg(sCurrentLogonServerBoPath).arg(m_pMyAccountInfo->GetAccount().c_str());
+#endif  /// Q_OS_ANDROID
             if (!QFileInfo::exists(sCurrentLogonServerBoPath) && bExistDefaultEBDatasFile)
 #else
             sprintf(lpszBuffer,"%s\\%s",sCurrentLogonServerBoPath.c_str(),m_pMyAccountInfo->GetAccount().c_str());
@@ -8251,6 +8410,7 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
                 ::CreateDirectoryA(sCurrentLogonServerBoPath.c_str(), NULL);
 #endif
 			}
+            /// ANDROID: /users/[user_id]/[deployid]
             /// \users\[account]\[deployid]
 #ifdef _QT_MAKE_
             sCurrentLogonServerBoPath = QString("%1/%2").arg(sCurrentLogonServerBoPath).arg(m_nDeployId);
@@ -8268,6 +8428,7 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
                 ::CreateDirectoryA(sCurrentLogonServerBoPath.c_str(), NULL);
 #endif
 			}
+            /// 删除过期无用文件
             const EBFileString sDelPath = sCurrentLogonServerBoPath+"/bodb/ebdatas";
 #ifdef _QT_MAKE_
             if (QFileInfo::exists(sDelPath)) {
@@ -8291,6 +8452,7 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
 #endif
 			}
 
+            /// ANDROID: /users/[user_id]\[deployid]\bodb
             /// \users\[account]\[deployid]\bodb
             sCurrentLogonServerBoPath = sCurrentLogonServerBoPath+"/bodb";
 #ifdef _QT_MAKE_
@@ -8304,9 +8466,10 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
 			}
 #endif
 
-			// *数据库文件
-			// \users\[account]\[deployid]\bodb\ebdatas
-            const EBFileString sCurrentLogonServerBoFile = sCurrentLogonServerBoPath+"\\syncdatas";
+            /// *数据库文件
+            /// ANDROID: /users/[user_id]/[deployid]/bodb/ebdatas
+            /// \users\[account]\[deployid]\bodb\ebdatas
+            const EBFileString sCurrentLogonServerBoFile = sCurrentLogonServerBoPath+"/syncdatas";
             //if (!::PathFileExistsA(sCurrentLogonServerBoFile.c_str()) && bExistDefaultEBDatasFile)
 			//{
             //	::CreateDirectoryA(sCurrentLogonServerBoFile.c_str(), NULL);
@@ -8326,7 +8489,7 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
                 CopyFileA(sDefaultEBDatasFile.c_str(),sCurrentLogonServerBoFile.c_str(),FALSE);
 #endif
 			}
-			if (m_pEBDatas.get()!=NULL)
+            if (m_pEBDatas.get()!=0)
 			{
 				try
 				{
@@ -8701,7 +8864,7 @@ void CUserManagerApp::OnLCULLogonResponse(const CPOPSotpRequestInfo::pointer & p
 			//nRealLineState |= EB_USER_CHANGE_STATE;
 			m_pMyAccountInfo->m_dwAccountData |= EB_DATA_NEED_CHANGE_LINESTATE;
 		}
-		m_pUserManager->SendUMSMOnline(nLogonType,m_pMyAccountInfo->GetUserId(),sOnlineKey,nRealLineState,0,m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),m_sLogonUserData);
+        m_pUserManager->SendUMSMOnline(m_nSDKVersion,nLogonType,m_pMyAccountInfo->GetUserId(),sOnlineKey,nRealLineState,0,m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),m_sLogonUserData);
 	}else if (m_tReLogonTime>0 && nResultValue==EB_STATE_APPID_KEY_ERROR)
 	{
 		m_sDevAppOnlineKey.clear();
@@ -9248,6 +9411,12 @@ void CUserManagerApp::OnVersionCheckResponse(const CPOPSotpRequestInfo::pointer 
 			m_pVersionInfo.m_sVersionFile = sVersionResourceFile;
 			m_pVersionInfo.m_sResId = sResourceId;
 			m_pVersionInfo.m_sMD5 = sMd5;
+#ifdef Q_OS_ANDROID
+            EB_VersionInfo * pEvent = new EB_VersionInfo(m_pVersionInfo);
+            pEvent->SetQEventType((QEvent::Type)EB_WM_NEW_VERSION);
+            QCoreApplication::postEvent( m_pHwnd, pEvent,thePostEventPriority );
+            return;
+#endif
 
 #ifdef _QT_MAKE_
             if (QFileInfo::exists(sVersionResourceFile))
@@ -11737,6 +11906,11 @@ void CUserManagerApp::OnFUMEMEntInfo(const CPOPSotpRequestInfo::pointer & pSotpR
 		m_callback->onEnterpriseInfo(m_pDefaultEnterpriseInfo.get());
 	if (m_pHwnd!=NULL) {
 #ifdef _QT_MAKE_
+        /// for test
+//        char lpszLocalIp[128];
+////        sprintf(lpszLocalIp,"ip-size=%d", (int)m_pLocalHostIp.size());
+//        sprintf(lpszLocalIp,"%d-%s", (int)m_pLocalHostIp.size(), m_pLocalHostIp[0].c_str());
+//        m_pDefaultEnterpriseInfo->m_sEnterpriseName = lpszLocalIp;
         EB_EnterpriseInfo * pEvent = new EB_EnterpriseInfo(m_pDefaultEnterpriseInfo.get());
 		pEvent->SetQEventType((QEvent::Type)EB_WM_ENTERPRISE_INFO);
         QCoreApplication::postEvent( m_pHwnd, pEvent,thePostEventPriority );
@@ -13242,6 +13416,8 @@ void CUserManagerApp::OnSentFile(const CCrFileInfo& pFileInfo)
                     pEmployeeInfo->m_sHeadResourceFile = lpszHeadResourceFile;
                     CopyFileA(pFilePathInfo->m_sFilePath.c_str(),lpszHeadResourceFile,FALSE);
 #endif
+                    mycp::bigint nFileSize = 0;
+                    GetFileMd5(lpszHeadResourceFile,nFileSize,pEmployeeInfo->m_sHeadMd5);
 
 					if (this->m_callback)
 						m_callback->onUserHeadChange(pEmployeeInfo.get(),true);
@@ -13766,8 +13942,12 @@ void CUserManagerApp::OnReceivedFile(const CCrFileInfo& pFileInfo)
 				{
 					pFilePathInfo->m_pEmployeeInfo->m_sHeadResourceFile = pFilePathInfo->m_sFilePath;
 					const bool bUserHeadChange = pFilePathInfo->m_nBigData==1?true:false;
-					if (bUserHeadChange)
-					{
+                    if (bUserHeadChange) {
+                        mycp::bigint nFileSize = 0;
+                        GetFileMd5(pFilePathInfo->m_sFilePath,
+                                   nFileSize,
+                                   pFilePathInfo->m_pEmployeeInfo->m_sHeadMd5);
+
 						const bool bIsOwnerMember = pFilePathInfo->m_pEmployeeInfo->m_nMemberUserId==m_pMyAccountInfo->GetUserId()?true:false;
 						if (this->m_callback)
 							m_callback->onUserHeadChange(pFilePathInfo->m_pEmployeeInfo.get(),bIsOwnerMember);
@@ -15768,8 +15948,11 @@ void CUserManagerApp::LoadLocalContactData(void)
 			if (theUGInfoList.find(nUGId,pUGInfo))
 			{
 				pPopContactInfo->m_nUGId = nUGId;
-				pPopContactInfo->m_sGroupName = pUGInfo->m_sGroupName;
-			}
+                pPopContactInfo->m_sGroupName = pUGInfo->m_sGroupName;
+            }
+            else {
+                pPopContactInfo->m_nUGId = nUGId;
+            }
 			pPopContactInfo->m_sName = sName;
 			pPopContactInfo->m_sPhone = sPhone;
 			pPopContactInfo->m_sEmail = sEmail;
@@ -16099,6 +16282,9 @@ void CUserManagerApp::OnUMCMQuery(const CPOPSotpRequestInfo::pointer & pSotpRequ
 			pPopContactInfo->m_nUGId = nUGId;
 			pPopContactInfo->m_sGroupName = pUGInfo->m_sGroupName;
 		}
+        else {
+            pPopContactInfo->m_nUGId = nUGId;
+        }
 		pPopContactInfo->m_sName = sName;
 		pPopContactInfo->m_sPhone = sPhone;
 		pPopContactInfo->m_sEmail = sEmail;
@@ -16361,13 +16547,16 @@ void CUserManagerApp::OnFUMIUAck(const CPOPSotpRequestInfo::pointer & pSotpReque
 		pFromAccountInfo->SetLineState(bOffLineUser?EB_LINE_STATE_OFFLINE:EB_LINE_STATE_ONLINE_NEW);
 
 	pFromAccountInfo->m_sFromInfo = sFromInfo;
-	if (pSotpResponseInfo->GetResultValue() == EB_STATE_OK && (nAckType == EB_CAT_ACCEPT || nAckType == EB_CAT_OFF_ACCEPT))
+    if (pSotpResponseInfo->GetResultValue() == EB_STATE_OK &&
+            (nAckType == EB_CAT_ACCEPT || nAckType == EB_CAT_OFF_ACCEPT))
 	{
-		if (!sFromAccount.empty() && pFromAccountInfo->GetAccount()!=sFromAccount)	// 在线用户，需要更新一次；
+        // 在线用户，需要更新一次；
+        if (!sFromAccount.empty() && pFromAccountInfo->GetAccount()!=sFromAccount)
 		{
 			pFromAccountInfo->SetAccount(sFromAccount);
 		}
-		if (pCallInfo->m_sGroupCode==0 &&	// 群组会话，不需要名片；
+        // 群组会话，不需要名片；
+        if (pCallInfo->m_sGroupCode==0 &&
 			!GetECardByFromInfo(sFromInfo,&pFromAccountInfo->m_pFromCardInfo))
 		{
 			return ;
@@ -16409,24 +16598,30 @@ void CUserManagerApp::OnFUMIUAck(const CPOPSotpRequestInfo::pointer & pSotpReque
 				EnterpriseLoad(pCallInfo->m_sGroupCode);
 			}
 		}
-		const bool bNeedEnter = (pCallInfo->m_sChatId==0 || pCallInfo->m_nCallState==EB_CALL_STATE_INVALIDATE)?true:false;
+        const bool bNeedEnter = (pCallInfo->m_sChatId==0 ||
+                                 pCallInfo->m_nCallState==EB_CALL_STATE_INVALIDATE)?true:false;
 		int nConnectFlag = 0;
 		if (bOffLineUser)
 			nConnectFlag |= EB_CONNECTED_OFFLINE_USER;
-		if(pCallInfo->m_nCallState==EB_CALL_STATE_AUTO_ACK)		// 自动响应，或对方下线，自动呼叫
+        // 自动响应，或对方下线，自动呼叫
+        if(pCallInfo->m_nCallState==EB_CALL_STATE_AUTO_ACK)
 			nConnectFlag |= EB_CONNECTED_AUTO_ACK;
-		//else if (pCallInfo->m_sGroupCode>0)		// ** 群组聊天不会跑这里，不过这里的代码不影响业务，暂时保留
-		if (pCallInfo->m_sGroupCode>0)		// ** 群组聊天不会跑这里，不过这里的代码不影响业务，暂时保留
+        // ** 群组聊天不会跑这里，不过这里的代码不影响业务，暂时保留
+        if (pCallInfo->m_sGroupCode>0)
 		{
-			if ((bNeedEnter && theOwnerCallGroup.exist(nFromUserId)) ||	// *** 不可以 remove
-				(!bNeedEnter && theOwnerCallGroup.remove(nFromUserId)))		// *** 需要 remove
+            // *** 不可以 remove
+            // *** 需要 remove
+            if ((bNeedEnter && theOwnerCallGroup.exist(nFromUserId)) ||
+                (!bNeedEnter && theOwnerCallGroup.remove(nFromUserId)))
 			{
 					nConnectFlag |= EB_CONNECTED_OWNER_CALL;
 			}
 		}else// if (pCallInfo->m_sGroupCode==0)
 		{
-			if ((bNeedEnter && theOwnerCallUser.exist(nFromUserId)) ||	// *** 不可以 remove
-				(!bNeedEnter && theOwnerCallUser.remove(nFromUserId)))		// *** 需要 remove
+            // *** 不可以 remove
+            // *** 需要 remove
+            if ((bNeedEnter && theOwnerCallUser.exist(nFromUserId)) ||
+                (!bNeedEnter && theOwnerCallUser.remove(nFromUserId)))
 			{
 					nConnectFlag |= EB_CONNECTED_OWNER_CALL;
 			}
@@ -17818,19 +18013,16 @@ void CUserManagerApp::ProcessP2PMsgInfo(const CEBAppMsgInfo::pointer& pMsgInfo,b
 			// 企业部门版本信息；
 			// msg-name=版本号；格式ver,size
 			// msg-content=版本列表；格式groupid:ver;...
-			if (m_pDefaultEnterpriseInfo.get()==NULL)
-			{
+			if (m_pDefaultEnterpriseInfo.get()==0) {
 				break;
 			}
 			bool bNeedLoadGroupInfo = true;
 			bool bFirstData = false;
 			//static int theServerEntDepInfoSize = 0;
 			static CLockMap<mycp::bigint,bool> theServerEntDepList;
-			if (m_nServerEntDepInfoVer==-1)
-			{
+			if (m_nServerEntDepInfoVer==-1) {
 				std::vector<tstring> pList;
-				if (ParseString(pMsgInfo->GetMsgName(),",",false,pList)!=2)
-				{
+				if (ParseString(pMsgInfo->GetMsgName(),",",false,pList)!=2) {
 					return;
 				}
 				m_nServerEntDepInfoVer = cgc_atoi64(pList[0].c_str());
@@ -18630,7 +18822,7 @@ void CUserManagerApp::ProcessP2PMsgInfo(const CEBAppMsgInfo::pointer& pMsgInfo,b
 		{
 			// 在其他地方登录，清空数据，保证新登录不会又掉线出来；
 			const int nOnlineAnotherType = atoi(pMsgInfo->GetMsgContent().c_str());
-			m_userStatus = US_OnlineAnother;
+            m_userStatus = US_OnlineAnother;
 			if (this->m_callback)
 				m_callback->onOnlineAnother(nOnlineAnotherType);
 			if (m_pHwnd!=NULL) {
@@ -18646,11 +18838,11 @@ void CUserManagerApp::ProcessP2PMsgInfo(const CEBAppMsgInfo::pointer& pMsgInfo,b
 			m_pMyAccountInfo = CEBAccountInfo::create(0,"");
 			//m_pMyAccountInfo.reset();
 
-			// 清空几个重要数据列表
-			theEmployeeList.clear();
-			theCallInfoList.clear();
-			this->theDepartmentList.clear();
-			BoostWriteLock wtLock(m_mutexEBDatas);
+            // 清空几个重要数据列表
+            theEmployeeList.clear();
+            theCallInfoList.clear();
+            this->theDepartmentList.clear();
+            BoostWriteLock wtLock(m_mutexEBDatas);
 			if (m_pEBDatas.get()!=NULL)
 			{
 				m_pEBDatas->close();
@@ -19624,29 +19816,29 @@ void CUserManagerApp::ProcessP2PMsgInfo(const CEBAppMsgInfo::pointer& pMsgInfo,b
 			// 收到一条广播消息；
 			EB_AccountInfo * pAccountInfo = new EB_AccountInfo(pMsgInfo->m_nFromUserId,pMsgInfo->m_sFromAccount,0);
 
-			EB_APMsgInfo pApMsgInfo;
-			pApMsgInfo.m_sFromUserId = pMsgInfo->m_nFromUserId;
-			pApMsgInfo.m_nMsgId = pMsgInfo->GetMsgId();	// 自动响应即可
-			pApMsgInfo.m_nMsgType = pMsgInfo->GetMsgSubType();
-			pApMsgInfo.m_sMsgName = pMsgInfo->GetMsgName();
-			pApMsgInfo.m_sMsgContent = pMsgInfo->GetMsgContent();
-			pApMsgInfo.m_nUserId = pMsgInfo->m_nFromUserId;
-			pApMsgInfo.m_sAccount = pMsgInfo->m_sFromAccount;
+            EB_APMsgInfo pApMsgInfo;
+            pApMsgInfo.m_sFromUserId = pMsgInfo->m_nFromUserId;
+            pApMsgInfo.m_nMsgId = pMsgInfo->GetMsgId();	// 自动响应即可
+            pApMsgInfo.m_nMsgType = pMsgInfo->GetMsgSubType();
+            pApMsgInfo.m_sMsgName = pMsgInfo->GetMsgName();
+            pApMsgInfo.m_sMsgContent = pMsgInfo->GetMsgContent();
+            pApMsgInfo.m_nUserId = pMsgInfo->m_nFromUserId;
+            pApMsgInfo.m_sAccount = pMsgInfo->m_sFromAccount;
 			if (m_callback)
-				m_callback->onBroadcastMsg(pAccountInfo,&pApMsgInfo);
+                m_callback->onBroadcastMsg(pAccountInfo,&pApMsgInfo);
 			if (m_pHwnd!=NULL) {
 #ifdef _QT_MAKE_
 				pAccountInfo->SetQEventType((QEvent::Type)EB_WM_BROADCAST_MSG);
-				pAccountInfo->SetEventData((void*)(const EB_APMsgInfo*)&pApMsgInfo);
+                pAccountInfo->SetEventData((void*)(const EB_APMsgInfo*)&pApMsgInfo);
                 postWaitEventResult(m_pHwnd, pAccountInfo);
 #else
-				::SendMessage(m_pHwnd, EB_WM_BROADCAST_MSG, (WPARAM)pAccountInfo, (LPARAM)&pApMsgInfo);
+                ::SendMessage(m_pHwnd, EB_WM_BROADCAST_MSG, (WPARAM)pAccountInfo, (LPARAM)&pApMsgInfo);
 				delete pAccountInfo;
 #endif
 			}
 			else {
 				delete pAccountInfo;
-			}
+            }
 		}break;
 	case EB_MSG_ENT_GROUP_INFO_VERSION:
 		{
@@ -19735,7 +19927,14 @@ void CUserManagerApp::OnUMSMLoadResponse(const CPOPSotpRequestInfo::pointer & pR
 			// 更改状态通知
 			m_pMyAccountInfo->m_dwAccountData &= ~EB_DATA_NEED_CHANGE_LINESTATE;
 			int nRealLineState = m_pMyAccountInfo->GetLineState();
-			m_pUserManager->SendUMSMOnline(m_pMyAccountInfo->GetLogonType(),m_pMyAccountInfo->GetUserId(),m_pMyAccountInfo->m_pLogonList.GetOnlineKey(""),nRealLineState|EB_USER_CHANGE_STATE,0,m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),m_sLogonUserData);
+            m_pUserManager->SendUMSMOnline(m_nSDKVersion,
+                                           m_pMyAccountInfo->GetLogonType(),
+                                           m_pMyAccountInfo->GetUserId(),
+                                           m_pMyAccountInfo->m_pLogonList.GetOnlineKey(""),
+                                           nRealLineState|EB_USER_CHANGE_STATE,
+                                           0,
+                                           m_pMyAccountInfo->m_pLogonList.GetUserSignId(""),
+                                           m_sLogonUserData);
 		}
 	}
 }
@@ -19823,7 +20022,8 @@ void CUserManagerApp::OnUMSMOnlineResponse(const CPOPSotpRequestInfo::pointer & 
 					const int nResType = pRecord->getVector()[6]->getIntValue();
 					const tstring sResMd5 = pRecord->getVector()[7]->getStrValue();
 #ifdef _QT_MAKE_
-                    tstring sDescription(CEBParseSetting::utf82str(pRecord->getVector()[8]->getStrValue().c_str(),"BGK"));
+                    tstring sDescription(pRecord->getVector()[8]->getStrValue());
+//                    tstring sDescription(CEBParseSetting::utf82str(pRecord->getVector()[8]->getStrValue().c_str(),"BGK"));
 #else
 					tstring sDescription(CEBParseSetting::str_convert(pRecord->getVector()[8]->getStrValue().c_str(),CP_UTF8,CP_ACP));
 #endif

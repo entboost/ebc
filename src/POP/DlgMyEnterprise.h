@@ -90,6 +90,7 @@ protected:
 	afx_msg void OnDepartmentDelete();
 	afx_msg void OnDepartmentEdit();
 	afx_msg void OnDepartmentRefresh();
+	afx_msg void OnRefreshEntData();
 	afx_msg void OnEmployeeNew();
 	afx_msg void OnEmployeeDelete();
 	afx_msg void OnEmployeeEdit();

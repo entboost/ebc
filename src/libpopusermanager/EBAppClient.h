@@ -27,7 +27,7 @@ namespace entboost {
 mycp::tstring EB_APPCLIENT_API GetHostIp(const char* lpszHostName,const char* lpszDefaultName);
 bool EB_APPCLIENT_API GetAddressPort(const char* sFullAddress, mycp::tstring& sOutAddress, int & nOutPort);
 //bool EB_APPCLIENT_API GetAccountAddress(const char* sFullAccount, mycp::tstring& sOutAddress);
-void EB_APPCLIENT_API GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey);
+void EB_APPCLIENT_API GetLocalHostOAuthKey(mycp::tstring& pOutLocalHostOAuthKey, bool dynamicKey=false);
 
 //
 class EB_APPCLIENT_API CEBAppClient
@@ -178,7 +178,7 @@ public:
 	/****
 	功能：游客登录
 	====================================================================*/
-	int EB_LogonByVisitor(const char* sReqCode="");
+    int EB_LogonByVisitor(const char* sReqCode="", EB_LOGON_TYPE logonType=EB_LOGON_TYPE_PC);
 
 	/****
 	功能：用户登录
@@ -341,6 +341,7 @@ public:
 	bool EB_IsGroupCreator(eb::bigint nGroupId, eb::bigint nMemberUserId) const;
 	bool EB_IsGroupManager(eb::bigint nGroupId) const;
 	bool EB_IsGroupManager(eb::bigint nGroupId, eb::bigint nMemberUserId) const;
+    bool EB_IsGroupMember(eb::bigint nGroupId, eb::bigint nMemberUserId) const;
 
 	/******
 	功能：判断是否有编辑群组（部门）成员资料权限
@@ -463,12 +464,12 @@ public:
 	/****
 	功能：获取资源对象信息
 	====================================================================*/
-	bool EB_GetResourceInfo(eb::bigint sResId,EB_ResourceInfo* pOutResourceInfo);
+    bool EB_GetResourceInfo(eb::bigint sResId, EB_ResourceInfo* pOutResourceInfo) const;
 
 	/****
 	功能：获取资源对象信息
 	====================================================================*/
-	bool EB_GetResourceCmInfo(eb::bigint sResId,mycp::tstring& pOutResourceInfo);
+    bool EB_GetResourceCmInfo(eb::bigint sResId, mycp::tstring& pOutResourceInfo) const;
 
 
 	/****
@@ -604,15 +605,15 @@ public:
 	参数：[out] pOutCartType 名片类型；1=用户名片
 	参数：[out] pOutCardData 名片数据；配合 pOutCartType 使用，如果1=用户名片，调用 EB_ParseUserECard 解析用户名片
 	====================================================================*/
-	bool EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCardType,tstring& pOutCardData);
+    bool EB_ParseCardInfo(const tstring& sInCardInfoString,int& pOutCardType,tstring& pOutCardData) const;
 	
 	/****
 	功能：解析用户电子名片
 	参数：[in] sInUserECardString 要解析用户名片字符串
 	参数：[out] pOutUserECard 用户电子名片类
 	====================================================================*/
-	bool EB_GetUserECardByFromInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard);
-	bool EB_GetUserECardByCardInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard);
+    bool EB_GetUserECardByFromInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard) const;
+    bool EB_GetUserECardByCardInfo(const tstring& sInUserECardString, EB_ECardInfo* pOutUserECard) const;
 	
 	//int EB_SendCard(eb::bigint nCallId,int nCardType,const char* sCardData,eb::bigint nToUserId=0,bool bPrivate=false);
 	int EB_SendMapPos(eb::bigint nCallId,const char* sMapPosData,eb::bigint nToUserId=0,bool bPrivate=false);
@@ -704,9 +705,19 @@ public:
 	int EB_DeleteUGInfo(eb::bigint nUGId);
 
 	/****
-	功能：删除一条用户分组信息
+    功能：获取联系人信息数量
 	====================================================================*/
-	int EB_GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize);
+    int EB_GetUGContactSize(eb::bigint nUGId, int& pOutContactSize, int& pOutOnlineSize) const;
+
+    /****
+    功能：获取联系人信息列表
+    ====================================================================*/
+    int EB_GetUGContactList(eb::bigint nUGId, std::vector<EB_ContactInfo>& pOutUGContactList) const;
+
+    /****
+    功能：获取联系人信息数量
+    ====================================================================*/
+    bool EB_HasUGContact(eb::bigint nUGId) const;
 
 	/****
 	功能：获取联系人信息列表
@@ -744,7 +755,9 @@ public:
 	功能：获取联系人信息
 	====================================================================*/
 	bool EB_GetContactInfo1(eb::bigint nContactId,EB_ContactInfo* pOutContactInfo) const;
+    bool EB_GetContactName1(eb::bigint nContactId, tstring &pOutContactName) const;
 	bool EB_GetContactInfo2(eb::bigint nContactUserId,EB_ContactInfo* pOutContactInfo) const;
+    bool EB_GetContactName2(eb::bigint nContactUserId, tstring &pOutContactName) const;
 	//bool EB_GetContactInfo(const char* sContactAccount,EB_ContactInfo* pOutContactInfo) const;
 
 	/****
@@ -767,6 +780,13 @@ public:
 	====================================================================*/
 	int EB_LoadOrg(void);
 
+	/* 刷新数据 ***********************************************************************/
+	/****
+	功能：用于刷新本地数据缓存
+	描述：主要用于用户手工刷新（一般情况下，可以不需要刷新），刷新间隔时间>30秒
+	====================================================================*/
+	int EB_RefreshGroupData(bool bRefreshEntGroup=true, bool bRefreshMyGroup=false);
+
 	/****
 	功能：加载在线指定群组（部门）信息
 	参数：bLoadMember true:同时加载成员信息
@@ -786,6 +806,11 @@ public:
 	参数：sEnterpriseCode为空，获取当前默认企业名称
 	====================================================================*/
 	bool EB_GetEnterpriseName(mycp::tstring& pOutEnterpriseName,eb::bigint nEnterpriseCode=0) const;
+
+    /****
+    功能：获取默认企业ID
+    ====================================================================*/
+    eb::bigint EB_GetEnterpriseId(void) const;
 
 	/****
 	功能：获取企业在线用户信息
@@ -891,6 +916,18 @@ public:
     ====================================================================*/
     bool EB_HasSubGroup(eb::bigint nGroupId) const;
 
+    /****
+    功能: 获取子部门数量
+    参数: nGroupId 群组（部门）代码
+    ====================================================================*/
+    int EB_SubGroupCount(eb::bigint nGroupId) const;
+
+    /****
+    功能: 获取子部门列表
+    参数: nGroupId 群组（部门）代码
+    ====================================================================*/
+    int EB_GetSubGroupInfoList(eb::bigint nGroupId, std::vector<EB_GroupInfo> &pOutList) const;
+
 	/****
 	功能：修改或新建群组（部门）成员信息，主要用于添加部门员工或修改员工资料
 	描述：pMemberInfo->m_sMemberCode成员编号为空，表示新建
@@ -915,6 +952,7 @@ public:
 	功能：删除群组（部门）成员
 	====================================================================*/
 	int EB_DeleteMember(eb::bigint nMemberId, bool bDeleteAccount=true);
+    int EB_DeleteMember(eb::bigint groupId, eb::bigint memberUserId, bool bDeleteAccount=true);
 
 	/****
 	功能：获取群组（部门）成员信息
@@ -967,8 +1005,9 @@ public:
 	/****
 	功能：获取群组（部门）头像文件
 	====================================================================*/
-    bool EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId, EBFileString &pOutHeadPath,mycp::tstring& pOutFileMd5);
-    bool EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId, EBFileString &pOutHeadPath,mycp::tstring& pOutFileMd5);
+    bool EB_GetMemberHeadFile(eb::bigint nMemberId,eb::bigint& pOutResourceId, EBFileString &pOutHeadPath,mycp::tstring& pOutFileMd5) const;
+    bool EB_GetMemberHeadFile2(eb::bigint nUserId,eb::bigint& pOutResourceId, EBFileString &pOutHeadPath,mycp::tstring& pOutFileMd5) const;
+    bool EB_GetMemberHeadFile(eb::bigint nGroupId,eb::bigint nUserId,eb::bigint& pOutResourceId, EBFileString &pOutHeadPath,mycp::tstring& pOutFileMd5) const;
 
 	/****
 	功能：获取我的群组（部门）成员信息
@@ -1015,6 +1054,13 @@ public:
 	参数：dwParam 由CEBSearchCallback回调函数返回；
 	====================================================================*/
 	void EB_FindAllGroupInfo(CEBSearchCallback * pCallback,eb::bigint nEnterpriseCode=0,unsigned long dwParam=0);
+
+    /****
+    功能：搜索群聊，包括企业部门，项目组，个人群组和临时讨论组
+    参数：sSearchKey 搜索关键词，""空搜索所有
+    参数：dwParam 由CEBSearchCallback回调函数返回；
+    ====================================================================*/
+    void EB_SearchGroupInfo(CEBSearchCallback * pCallback,const char* sSearchKey,unsigned long dwParam=0);
 
 	/****
 	功能：查找所有通讯录（联系人）信息
@@ -1207,6 +1253,12 @@ public:
 	参数：nSubId，订购ID
 	====================================================================*/
 	bool EB_GetSubscribeFuncInfo(eb::bigint nSubId, EB_SubscribeFuncInfo* pOutFuncInfo) const;
+
+    /****
+    功能：判断是否存在订购ID
+    参数：nSubId，订购ID
+    ====================================================================*/
+    bool EB_IsExistSubscribeFuncInfo(eb::bigint nSubId) const;
 
 	/****
 	功能：打开某个应用功能

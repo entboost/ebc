@@ -202,6 +202,8 @@ public:
 	const CString& GetLogonAccount(void) const {return m_sLogonAccount;}
 	eb::bigint GetLogonUserId(void) const {return m_nLogonUserId;}
 	const CString& GetLogonPassword(void) const {return m_sLogonPassword;}
+	void SetHomeIndexUrl(const tstring& v) {m_sHomeIndexUrl = v;}
+	const tstring& GetHomeIndexUrl(void) const {return m_sHomeIndexUrl;}
 	void SetEntManagerurl(const tstring& v) {m_sEntManagerUrl = v;}
 	const tstring& GetEntManagerurl(void) const {return m_sEntManagerUrl;}
 	const tstring& GetDefaultUrl(void) const {return m_sDefaultUrl;}
@@ -294,6 +296,7 @@ private:
 	CString m_sLogonAccount;
 	eb::bigint m_nLogonUserId;
 	CString m_sLogonPassword;
+	tstring m_sHomeIndexUrl;
 	tstring m_sEntManagerUrl;
 	tstring m_sDefaultUrl;
 	CString m_sDefaultLoadingImageFile;

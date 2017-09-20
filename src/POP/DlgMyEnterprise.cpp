@@ -48,6 +48,7 @@ BEGIN_MESSAGE_MAP(CDlgMyEnterprise, CDialog)
 	ON_COMMAND(EB_COMMAND_DELETE_DEPARTMENT, &CDlgMyEnterprise::OnDepartmentDelete)
 	ON_COMMAND(EB_COMMAND_EDIT_DEPARTMENT, &CDlgMyEnterprise::OnDepartmentEdit)
 	ON_COMMAND(EB_COMMAND_DEPARTMENT_REFRESH, &CDlgMyEnterprise::OnDepartmentRefresh)
+	ON_COMMAND(EB_COMMAND_REFRESH_ENT_DATA, &CDlgMyEnterprise::OnRefreshEntData)
 	ON_COMMAND(EB_COMMAND_DEPARTMENT_ADD_EMP, &CDlgMyEnterprise::OnEmployeeNew)
 	ON_COMMAND(EB_COMMAND_DEPARTMENT_DEL_EMP, &CDlgMyEnterprise::OnEmployeeDelete)
 	ON_COMMAND(EB_COMMAND_DEPARTMENT_EDIT_EMP, &CDlgMyEnterprise::OnEmployeeEdit)
@@ -654,6 +655,11 @@ void CDlgMyEnterprise::OnDepartmentRefresh()
 #else
 	theEBAppClient.EB_LoadGroup(pDepItemInfo->m_sGroupCode,true);
 #endif
+}
+
+void CDlgMyEnterprise::OnRefreshEntData()
+{
+	theEBAppClient.EB_RefreshGroupData(true, false);
 }
 
 void CDlgMyEnterprise::OnEmployeeNew()
@@ -1639,6 +1645,9 @@ void CDlgMyEnterprise::OnNMRClickTreeEnterprise(NMHDR *pNMHDR, LRESULT *pResult)
 			//m_menu2.AppendMenu(MF_POPUP|MF_BYPOSITION,(UINT)pPopupMenu.m_hMenu,_T("集成应用"));
 		}
 	}
+	if (bNeedSeparator)
+		m_menu2.AppendMenu(MF_SEPARATOR);
+	m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_REFRESH_ENT_DATA,_T("刷新组织架构"));
 
 	//m_menu2.AppendMenu(MF_BYCOMMAND,EB_COMMAND_DEPARTMENT_REFRESH,_T("刷新"));
 	//if (pTreeItemInfo->m_nItemType==CTreeItemInfo::ITEM_TYPE_GROUP)

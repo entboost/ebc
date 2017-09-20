@@ -1013,6 +1013,11 @@ bool CDlgAppWindow::OnCefClose(void)
 bool CDlgAppWindow::OnBeforePopup(const wchar_t* sTargetUrl)
 {
 	if (m_nBrowserType!=EB_BROWSER_TYPE_CEF) return false;
+	bool bCancel = false;
+	OnBeforeNavigate(sTargetUrl, &bCancel);
+	if (bCancel) {
+		return true;
+	}
 	const bool bControl = (GetKeyState(VK_CONTROL)&0x80)==0x80?true:false;
 	const CString csURL(sTargetUrl);
 	if (bControl)

@@ -51,7 +51,9 @@ public:
 //#else
 //	unsigned long GetDefaultColor(void) const {return m_nDefaultColor;}
 //#endif
+    void SetVersion(const std::string v) {m_sVersion = v;}
 	const std::string& GetVersion(void) const {return m_sVersion;}
+    void SetSDKVersion(int v) {m_nSDKVersion = v;}
 	int GetSDKVersion(void) const {return m_nSDKVersion;}
 	int GetDefaultUIStyleType(void) const {return m_nDefaultUIStyleType;}	// 0:office; 1:chat(default)
 

@@ -204,6 +204,15 @@ LRESULT CDlgOAuth::OnMessageLogonSuccess(WPARAM wParam, LPARAM lParam)
 		this->PostMessage(WM_CLOSE, 0, 0);
 	}
 
+	
+	unsigned long pHomeIndexUrl = 0;
+	theEBAppClient.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_HOME_INDEX_URL, &pHomeIndexUrl);
+	if (pHomeIndexUrl != NULL && strlen((const char*)pHomeIndexUrl)>0)
+	{
+		m_sHomeIndexUrl = (const char*)pHomeIndexUrl;
+		theEBAppClient.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_HOME_INDEX_URL,pHomeIndexUrl);
+	}
+
 #ifdef USES_EBCOM_TEST
 	unsigned long pEntManagerUrl = theEBClientCore->EB_GetSystemParameter(EB_SYSTEM_PARAMETER_ENT_MANAGER_URL);
 #else

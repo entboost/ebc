@@ -1,4 +1,4 @@
-﻿#ifdef WIN32
+#ifdef WIN32
 #pragma warning(disable:4819 4267)
 #endif // WIN32
 //#include "StdAfx.h"
@@ -2777,7 +2777,7 @@ int CPOPCUserManager::SendUMMack(mycp::bigint nFromIpAddress,mycp::bigint nMsgId
 //	return -2;
 //}
 
-int CPOPCUserManager::SendUMSMOnline(int nLogonType, mycp::bigint nUserId, const tstring & sOnlineKey,int nNewLineState,mycp::bigint nFromIpAddress,
+int CPOPCUserManager::SendUMSMOnline(int nSDKVersion, int nLogonType, mycp::bigint nUserId, const tstring & sOnlineKey,int nNewLineState,mycp::bigint nFromIpAddress,
 									 mycp::bigint nUserSignId,const tstring& sUserData,const tstring& sEbSid,const CPOPSotpRequestInfo::pointer& pRequestInfo)
 {
 	if (!IsClientStarted()) return -1;
@@ -2798,6 +2798,7 @@ int CPOPCUserManager::SendUMSMOnline(int nLogonType, mycp::bigint nUserId, const
 	sotp()->doAddParameter(CGC_PARAMETER("uid", nUserId));
 	//sotp()->doAddParameter(CGC_PARAMETER("account", sAccount));
 	sotp()->doAddParameter(CGC_PARAMETER("online-key", sOnlineKey));
+    sotp()->doAddParameter(CGC_PARAMETER("sdk-ver", nSDKVersion));
 	sotp()->doAddParameter(CGC_PARAMETER("state", nNewLineState));
 	//sotp()->doAddParameter(CGC_PARAMETER("desc", sNewDesc));
 	if (nUserSignId>0)
@@ -3244,7 +3245,7 @@ int CPOPCUserManager::SendUMEMEmpEdit(mycp::bigint nFromIpAddress,const CPopPara
 	//sotp()->doAddParameter(CGC_PARAMETER("emp_account", pEmployeeInfo->m_sMemberAccount));
 	//sotp()->doAddParameter(CGC_PARAMETER("username", pEmployeeInfo->m_sUserName));
 	//sotp()->doAddParameter(CGC_PARAMETER("job_title", pEmployeeInfo->m_sJobTitle));
-	//sotp()->doAddParameter(CGC_PARAMETER("job_posiiton", pEmployeeInfo->m_nJobPosition));
+    //sotp()->doAddParameter(CGC_PARAMETER("job_position", pEmployeeInfo->m_nJobPosition));
 	//sotp()->doAddParameter(CGC_PARAMETER("cell_phone", pEmployeeInfo->m_sCellPhone));
 	//sotp()->doAddParameter(CGC_PARAMETER("fax", pEmployeeInfo->m_sFax));
 	//sotp()->doAddParameter(CGC_PARAMETER("work_phone", pEmployeeInfo->m_sWorkPhone));
@@ -3299,7 +3300,7 @@ int CPOPCUserManager::SendUMEMEmpEdit(const EB_MemberInfo* pEmployeeInfo,int nFo
 	sotp()->doAddParameter(CGC_PARAMETER("emp_account", pEmployeeInfo->m_sMemberAccount));
 	sotp()->doAddParameter(CGC_PARAMETER("username", pEmployeeInfo->m_sUserName));
 	sotp()->doAddParameter(CGC_PARAMETER("job_title", pEmployeeInfo->m_sJobTitle));
-	sotp()->doAddParameter(CGC_PARAMETER("job_posiiton", pEmployeeInfo->m_nJobPosition));
+    sotp()->doAddParameter(CGC_PARAMETER("job_position", pEmployeeInfo->m_nJobPosition));
 	sotp()->doAddParameter(CGC_PARAMETER("cell_phone", pEmployeeInfo->m_sCellPhone));
 	sotp()->doAddParameter(CGC_PARAMETER("fax", pEmployeeInfo->m_sFax));
 	sotp()->doAddParameter(CGC_PARAMETER("work_phone", pEmployeeInfo->m_sWorkPhone));

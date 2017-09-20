@@ -9,7 +9,7 @@ class CPOPCUserManager;
 class CPOPUMHandler
 {
 public:
-	virtual void OnProcessTimer(const CPOPCUserManager* pUMOwner) {}	// 1�붨ʱ�¼�
+	virtual void OnProcessTimer(const CPOPCUserManager* pUMOwner) {}	// 1秒定时事件
 	virtual void OnTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo,const CPOPCUserManager* pUMOwner) {}
 	virtual void OnInvalidateSession(int nResultCode,const CPOPCUserManager* pUMOwner) {}
 	virtual void OnResultValue(int nResultValue,const CPOPCUserManager* pUMOwner) {}
@@ -175,7 +175,7 @@ public:
 	//int SendUMIUUser(const tstring & sFromAccount, const tstring & sToAccount, const CEbECardInfo::pointer & pECardInfo, const CEBCallInfo::pointer & pExistCallInfo, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	//int SendUMIUMsg(mycp::bigint nFromUserId, mycp::bigint nToUserId, const CEBAppMsgInfo::pointer & pMsgInfo, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMMack(mycp::bigint nFromIpAddress, mycp::bigint nMsgId, EB_CALL_ACK_TYPE nAckType=EB_CAT_UNKNOWN, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
-	int SendUMSMOnline(int nLogonType, mycp::bigint nUserId, const tstring & sOnlineKey, int nNewLineState,mycp::bigint nFromIpAddress=0,mycp::bigint nUserSignId=0,const tstring& sUserData="",const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
+    int SendUMSMOnline(int nSDKVersion, int nLogonType, mycp::bigint nUserId, const tstring & sOnlineKey, int nNewLineState,mycp::bigint nFromIpAddress=0,mycp::bigint nUserSignId=0,const tstring& sUserData="",const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSMLoad2(EB_UM_LOAD2_TYPE nLoadType=EB_UM_LOAD2_TYPE_UNKNOWN,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSMLoad(int nLoadSubFunc=1,int nLoadMsg=1,int nLoadGroupVer=0,mycp::bigint nLoadOLSGroupId=0,const tstring& sLoadOLSAccounts="",int nLoadEntGroupOLS=0,int nLoadUserGroupOLS=0,const tstring& sLoadGroupOLSGid="", int nLoadOLSContact=0,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSMOffline(int nOfflineState = OFFLINE_USES_CLOSE,const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
