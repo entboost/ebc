@@ -26,16 +26,16 @@ EbTextEdit::~EbTextEdit()
 
 }
 
-inline int getImageQuality(int size) {
-    if (size>=(1280*720))
-        return 75;
-    else if (size>=(1024*720))
-        return 80;
-    else if (size>=(800*600))
-        return 90;
-    else
-        return -1;
-}
+//inline int getImageQuality(int size) {
+//    if (size>=(1280*720))
+//        return 75;
+//    else if (size>=(1024*720))
+//        return 80;
+//    else if (size>=(800*600))
+//        return 90;
+//    else
+//        return -1;
+//}
 
 bool EbTextEdit::formatInputMsg(EB_ChatRoomRichMsg *pOutMsgFormat)
 {

@@ -326,6 +326,9 @@ void CPOPCLogonCenter::OnCgcResponse(const cgcParserSotp & response)
 				pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("app-online-key", response.getRecvParameterValue("app-online-key", "")));
 				pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("lc-list", response.getRecvParameterValue("lc-list", "")));
 				pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("lc-http-list", response.getRecvParameterValue("lc-http-list", "")));
+#ifdef Q_OS_ANDROID
+                pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("push-sslid-list", response.getRecvParameterValue("push-sslid-list", "")));
+#endif
 				// 客户端应用
 				pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("system-setting", response.getRecvParameterValue("system-setting", (int)0)));
 				pResponseInfo->m_pResponseList.SetParameter(CGC_PARAMETER("account-prefix", response.getRecvParameterValue("account-prefix", "")));

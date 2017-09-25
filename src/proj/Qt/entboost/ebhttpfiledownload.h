@@ -15,6 +15,7 @@ public:
 
 signals:
     void downloadHttpFileOk(const QString &saveToFilePath, const QString &lastModified);
+    void downloadPercent(qint64 writtenBytes, qint64 contentLength);
     void downloadHttpFileError(const QString &saveToFilePath, QNetworkReply::NetworkError errorCode);
 public slots:
     void downloadHttpFile( const QString &url, const QString &saveToFilePath, const QString &oldLastModifited, int waitSeconds=10 );
@@ -25,6 +26,7 @@ public slots:
     const QString& getLastModified(void) const {return m_lastModified;}
 
     void replyReadyRead(void);
+    void replyBytesWritten(qint64 bytes);
     void replyFinished(void);
     void replyError(QNetworkReply::NetworkError code);
 private:
@@ -37,6 +39,7 @@ private:
     QString m_saveToFilePath;
     bool m_downloadFinished;
     QNetworkReply::NetworkError m_lastErrorCode;
+    qint64 m_contentLength;
     QString m_lastModified;
 };
 

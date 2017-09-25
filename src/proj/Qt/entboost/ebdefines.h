@@ -50,8 +50,29 @@ static const char * theHideMainFrame  = "eb-hide-mainframe";
 static const char * theOpenFileManager  = "eb-open-filemanager";
 static const char * theMailTo  = "mailto";
 
+#ifdef Q_OS_ANDROID
+//#ifndef Q_OS_MAC
+const double const_kb_size = 1024.0;
+const double const_mb_size = 1024*const_kb_size;
+const double const_gb_size = 1024*const_mb_size;
+#endif
+
 const qint64 constGroupShareSubId = 1002300105;
 
+const QString theMimeDataResourceName("mime-resource:");
+
+
+#define EBC_MSG_TYPE_REQUEST_JOIN_2_GROUP	1
+#define EBC_MSG_TYPE_INVITE_JOIN_2_GROUP	2
+#define EBC_MSG_TYPE_REQUEST_ADD_CONTACT	3
+#define EBC_MSG_TYPE_ACCERPT_ADD_CONTACT	4
+#define EBC_MSG_TYPE_REJECT_ADD_CONTACT		5
+#define EBC_MSG_TYPE_BC_MSG					10
+
+#define EBC_READ_FLAG_TRUE				0x1	/// 消息已读标识
+#define EBC_READ_FLAG_RECEIPT			0x2	/// 对方已接收消息回执
+#define EBC_READ_FLAG_SENT				0x4	/// 发送成功（文件）
+#define EBC_READ_FLAG_WITHDRAW          0x8 /// 请求撤回消息
 
 typedef enum EB_VIEW_MODE {
     EB_VIEW_MAIN_FRAME,    /// 主界面
@@ -89,5 +110,15 @@ typedef enum EB_MSG_RECORD_TYPE
 }EB_MSG_RECORD_TYPE;
 inline bool isCanCollectRecordType(EB_MSG_RECORD_TYPE nType) {return (nType==MRT_FILE || nType==MRT_RESOURCE)?false:true;}
 
+inline int getImageQuality(int size) {
+    if (size>=(1280*720))
+        return 75;
+    else if (size>=(1024*720))
+        return 80;
+    else if (size>=(800*600))
+        return 90;
+    else
+        return -1;
+}
 
 #endif // EBDEFINES_H

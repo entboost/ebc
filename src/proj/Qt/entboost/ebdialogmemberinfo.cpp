@@ -41,14 +41,14 @@ EbDialogMemberInfo::EbDialogMemberInfo(QWidget *parent) :
     int nX = 123;
     int nY = const_y1;
     ui->labelAccount->setAlignment( Qt::AlignRight );
-    ui->labelAccount->setGeometry(nX,nY,const_static_width-20,const_edit_height);
-    nX += (const_x_interval-10);
+    ui->labelAccount->setGeometry(nX,nY,const_static_width,const_edit_height);
+    nX += (const_x_interval);
     ui->lineEditAccount->setGeometry( nX,nY,const_edit_width1,const_edit_height );
     nX = 123;
     nY += const_y_interval;
     ui->labelGroupName->setAlignment( Qt::AlignRight );
-    ui->labelGroupName->setGeometry(nX,nY,const_static_width-20,const_edit_height);
-    nX += (const_x_interval-10);
+    ui->labelGroupName->setGeometry(nX,nY,const_static_width,const_edit_height);
+    nX += (const_x_interval);
     ui->lineEditGroupName->setGeometry( nX,nY,const_edit_width1,const_edit_height );
     ui->lineEditGroupName->setReadOnly(true);
 //    ui->pushButtonUserHead->setGeometry( 123,const_y1+(const_edit_height+2)*2+5,60,22 );
@@ -187,6 +187,7 @@ void EbDialogMemberInfo::updateLocaleInfo()
             /// 当前默认名片
             ui->pushButtonDefaultMember->setText( theLocales.getLocalText("member-info-dialog.button-default-member.text-1","Current Default Member") );
         }
+        ui->pushButtonDefaultMember->setVisible(m_memberInfo.m_nMemberUserId==theApp->logonUserId()?true:false);
     }
     else {
         ui->pushButtonDefaultMember->setVisible(false);
@@ -204,6 +205,7 @@ int EbDialogMemberInfo::exec()
 {
     updateUserHeadImage();
 
+    theApp->m_ebum.EB_GetGroupType(m_memberInfo.m_sGroupCode,m_groupType);
     QString sDialogTitle = theLocales.getLocalText("member-info-dialog.title","Member Info");
     sDialogTitle.replace( "[GROUP_TYPE_MEMBER]", theLocales.getGroupTypeName((int)m_groupType)->member().c_str() );
     this->setWindowTitle( sDialogTitle );
@@ -215,7 +217,6 @@ int EbDialogMemberInfo::exec()
         m_labelUserHead->setCursor( QCursor(Qt::PointingHandCursor) );
         ui->lineEditAccount->setReadOnly(true);
 
-        theApp->m_ebum.EB_GetGroupType(m_memberInfo.m_sGroupCode,m_groupType);
         if (!theApp->m_ebum.EB_CanEditMyBaseMemberInfo(m_memberInfo.m_sGroupCode)) {
             /// 限制不能修改自己成员名片
             ui->lineEditUserName->setReadOnly(true);

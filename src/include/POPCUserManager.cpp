@@ -2306,7 +2306,31 @@ int CPOPCUserManager::SendRLoad(int nVerifyValid,mycp::bigint sResourceId, int n
 	}
 	if (pRequestInfo.get() != NULL)
 		m_pRequestList.remove(nCallId);
-	return -2;
+    return -2;
+}
+
+int CPOPCUserManager::SendUMSPush(bigint nSslId, const cgcSmartString &sPushToken, const CPOPSotpRequestInfo::pointer &pRequestInfo)
+{
+    if (!IsClientStarted()) return -1;
+    sotp()->doBeginCallLock();
+    sotp()->doAddParameter(CGC_PARAMETER("uid", m_nUserId));
+    sotp()->doAddParameter(CGC_PARAMETER("online-key", m_sOnlineKey),false);
+    sotp()->doAddParameter(CGC_PARAMETER("ssl-id", nSslId));
+    sotp()->doAddParameter(CGC_PARAMETER("d-token", sPushToken),false);
+    const unsigned long nCallId = sotp()->doGetNextCallId();
+    if (pRequestInfo.get() != NULL)
+    {
+        pRequestInfo->SetRequestTime();
+        pRequestInfo->SetCallId(nCallId);
+        m_pRequestList.insert(nCallId, pRequestInfo);
+    }
+    if (sotp()->doSendAppCall2(nCallId,EB_SIGN_U_SPUSH, EB_CALL_NAME_UM_SPUSH, true))
+    {
+        return 0;
+    }
+    if (pRequestInfo.get() != NULL)
+        m_pRequestList.remove(nCallId);
+    return -2;
 }
 
 int CPOPCUserManager::SendUMReset(mycp::bigint nFromIpAddress,mycp::bigint nResetUserId, int nResetType,const tstring& sResetValue, const CPOPSotpRequestInfo::pointer& pRequestInfo)
@@ -2874,7 +2898,10 @@ int CPOPCUserManager::SendUMSMLoad(int nLoadSubFunc,int nLoadMsg,int nLoadGroupV
 		m_pRequestList.remove(nCallId);
 	return -2;
 }
-int CPOPCUserManager::SendUMSMOffline(int nOfflineState, const tstring& sEbSid, const CPOPSotpRequestInfo::pointer& pRequestInfo)
+int CPOPCUserManager::SendUMSMOffline(bool bAcceptPush,
+                                      int nOfflineState,
+                                      const tstring& sEbSid,
+                                      const CPOPSotpRequestInfo::pointer& pRequestInfo)
 {
 	if (!IsClientStarted()) return -1;
 	sotp()->doBeginCallLock();
@@ -2883,6 +2910,7 @@ int CPOPCUserManager::SendUMSMOffline(int nOfflineState, const tstring& sEbSid, 
 	sotp()->doAddParameter(CGC_PARAMETER("online-key", m_sOnlineKey));
 	sotp()->doAddParameter(CGC_PARAMETER("offline-state", nOfflineState));
 	sotp()->doAddParameter(CGC_PARAMETER("from_eb_sid", sEbSid),false);
+    sotp()->doAddParameter(CGC_PARAMETER("accept-push", (int)(bAcceptPush?1:0)));
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{

@@ -59,7 +59,7 @@ public:
 
     void setMainWnd(EbDialogMainFrame *mainWnd) {m_mainWnd=mainWnd;}
     EbDialogMainFrame *mainWnd(void) const {return m_mainWnd;}
-    bool setDevAppId(QObject *receiver);
+//    bool setDevAppId(QObject *receiver);
 
     bool initApp(void);
 //    void exitApp(bool bResetEbumOnly=false);
@@ -75,20 +75,15 @@ public:
 
     QString urlIconFilePath(const QUrl &url);
     QString subscribeFuncUrl(eb::bigint subId, const std::string &sParameters="");
-    void setEntManagerUrl(const QString &v) {m_sEntManagerUrl=v;}
-    const QString& entManagerUrl(void) const {return m_sEntManagerUrl;}
-    void setEnterpriseCreateUserId(eb::bigint nUserId) {m_nEnterpriseCreateUserId=nUserId;}
-    eb::bigint enterpriseCreateUserId(void) const {return m_nEnterpriseCreateUserId;}
-    bool isEnterpriseCreateUserId(eb::bigint nUserId) {return (nUserId>0 && nUserId==m_nEnterpriseCreateUserId)?true:false;}
 
     QString lineStateText(EB_USER_LINE_STATE lineState) const;
     QString lineStateText(void) const;
 
-    bool isStatSubGroupMember(void) const {return m_bStatSubGroupMember;}
-    const QString & defaultUrl(void) const {return m_sDefaultUrl;}
-    int openRegister(void) const {return m_nOpenRegister;}
-    bool isOpenVisitor(void) const {return m_bOpenVisitor;}
-    const QString& forgetPwdUrl(void) const {return m_sForgetPwdUrl;}
+//    bool isStatSubGroupMember(void) const {return m_bStatSubGroupMember;}
+//    const QString & defaultUrl(void) const {return m_sDefaultUrl;}
+//    int openRegister(void) const {return m_nOpenRegister;}
+//    bool isOpenVisitor(void) const {return m_bOpenVisitor;}
+//    const QString& forgetPwdUrl(void) const {return m_sForgetPwdUrl;}
 
     void setDefaultBrowserType(EB_BROWSER_TYPE newValue) {m_nDefaultBrowserType = newValue;}
     EB_BROWSER_TYPE defaultBrowserType(void) const {return m_nDefaultBrowserType;}
@@ -104,18 +99,14 @@ public:
     EbDialogViewECard * dialgoViewECard(const QWidget *wdigetValid, const QRect &rectValid, bool showImmediate=false);
     void hideViewECard(const QWidget *wdigetValid);
 
-    bool isLogoned(void) const {return m_ebum.EB_IsLogoned();}
-    bool isLogonVisitor(void) const {return m_ebum.EB_IsLogonVisitor();}
-    eb::bigint logonUserId(void) const {return m_ebum.EB_GetLogonUserId();}
-    tstring logonUserAccount(void) const {return m_ebum.EB_GetLogonAccount();}
     void editContactInfo(eb::bigint contactId, QWidget *parent=0);
     void editGroupInfo(eb::bigint groupId, QWidget *parent=0);
     void newGroupInfo(EB_GROUP_TYPE groupType, eb::bigint enterpriseId, eb::bigint parentGroupId, QWidget *parent=0);
     void newMemberInfo(EB_GROUP_TYPE groupType, eb::bigint groupId, const QString &groupName, QWidget *parent=0);
     void editMemberInfo(const EB_MemberInfo* pMemberInfo, QWidget *parent=0);
-    void deleteDbRecord(eb::bigint sId, bool bIsAccount);
-    void deleteDbRecord(eb::bigint sMsgId);
-    void updateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType);
+//    void deleteDbRecord(eb::bigint sId, bool bIsAccount);
+//    void deleteDbRecord(eb::bigint sMsgId);
+//    void updateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType);
     QImage userHeadImage(eb::bigint userId, eb::bigint memberId, const tstring &account) const;
     QString userHeadFilePath(eb::bigint userId, eb::bigint memberId, const tstring &account) const;
     QImage funcImage(const EB_SubscribeFuncInfo *funcInfo) const;
@@ -133,10 +124,10 @@ public slots:
 
 private:
     void onAppIdSuccess(QEvent *e);
-    void onAppIdError(QEvent *e);
+//    void onAppIdError(QEvent *e);
     void loadUserSetting(void);
 
-    EbHttpFileDownload m_httpFileDownload;
+//    EbHttpFileDownload m_httpFileDownload;
 //    void updateColor(bool bUpdateDatabase);
 private:
 //    QColor m_hotColor;      // 按钮 hot 状态
@@ -151,7 +142,7 @@ private:
     QRect m_screenRect;
 
     EbDialogMainFrame *m_mainWnd;
-    QObject *m_receiver;
+//    QObject *m_receiver;
     EbDialogEmotionSelect *m_dialogEmotionSelect;
     EbDialogViewECard *m_dialogViewECard;
     EbWebEngineDownloadRequested *m_webWngineDownloadRequested;

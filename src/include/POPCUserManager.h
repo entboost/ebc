@@ -160,6 +160,7 @@ public:
 	int SendRDelete(mycp::bigint nFromIpAddress,mycp::bigint sResourceId,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendRLoad(int nVerifyValid, mycp::bigint sResourceId, int nType,mycp::bigint sFromId,EB_RESOURCE_FROM_TYPE nFromType,int nOffset=-1,int nLimit=1,mycp::bigint nToShareUserId=0,int nShareType=0, int nShareFlag=-1, int nGetSummary=0, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 
+    int SendUMSPush(mycp::bigint nSslId, const tstring &sPushToken, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMReset(mycp::bigint nFromIpAddress,mycp::bigint nResetUserId, int nResetType,const tstring& sResetValue, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSHead(mycp::bigint nSetUserId, mycp::bigint sDepCode, mycp::bigint sResId, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSInfo(mycp::bigint nFromIpAddress, mycp::bigint nSetUserId, const CPopParameterList& pInfoList, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
@@ -178,7 +179,7 @@ public:
     int SendUMSMOnline(int nSDKVersion, int nLogonType, mycp::bigint nUserId, const tstring & sOnlineKey, int nNewLineState,mycp::bigint nFromIpAddress=0,mycp::bigint nUserSignId=0,const tstring& sUserData="",const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSMLoad2(EB_UM_LOAD2_TYPE nLoadType=EB_UM_LOAD2_TYPE_UNKNOWN,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	int SendUMSMLoad(int nLoadSubFunc=1,int nLoadMsg=1,int nLoadGroupVer=0,mycp::bigint nLoadOLSGroupId=0,const tstring& sLoadOLSAccounts="",int nLoadEntGroupOLS=0,int nLoadUserGroupOLS=0,const tstring& sLoadGroupOLSGid="", int nLoadOLSContact=0,const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
-	int SendUMSMOffline(int nOfflineState = OFFLINE_USES_CLOSE,const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
+    int SendUMSMOffline(bool bAcceptPush=true,int nOfflineState = OFFLINE_USES_CLOSE,const tstring& sEbSid="",const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 
 	int SendUMCMEdit(mycp::bigint nFromIpAddress,const CPopParameterList& pInfoList, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);
 	//int SendUMCMEdit(const EB_ContactInfo* pPopContactInfo, const CPOPSotpRequestInfo::pointer& pRequestInfo = NullPOPSotpRequestInfo);

@@ -46,9 +46,9 @@ protected:
 
     EbTextBlockUserData * updateBlockMsgId(eb::bigint msgId);
     void getFromToName(bool receive, eb::bigint fromUserId, eb::bigint toUserId, tstring &outFromUserName, tstring &outToUserName);
-    void writeTitle(bool writeLeft, eb::bigint msgId, bool aprivate, eb::bigint fromUserId, const tstring &fromName,
+    bool writeTitle(bool writeLeft, eb::bigint msgId, bool aprivate, eb::bigint fromUserId, const tstring &fromName,
                     eb::bigint toUserId, const tstring &toName, time_t msgTime, int nReadFlag, QString *pOutWindowText=0);
-    bool insertImage(const QString &filePath, const QString &alt);
+    bool insertImage(const QString &filePath, const QString &alt, QString *pOutText=0);
     void writeFileMessage(bool receive, eb::bigint msgId, eb::bigint resourceId, const QString &filePath, eb::bigint fileSize, bool showNameOnly=false, QString *pOutMsgText=0);
     void writeVoiceMessage(const QString &voiceFile, QString *pOutMsgText=0);
     bool writeCardDataMessage( bool receive, eb::bigint msgId, const char *cardData, QString *pOutMsgText=0);
@@ -58,6 +58,9 @@ private:
     int m_timerIdFindTextBlockFromPosition;
     EbFrameChatToolBar * m_chatToolBar;
     QDateTime m_tLastMsgDayTime;
+    mycp::bigint m_nLastMsgId;
+    mycp::bigint m_nFromUid;
+    mycp::bigint m_nToUid;
 //    CLockMap<eb::bigint,std::string> m_cardInfoList;
     CLockMap<eb::bigint,bool> m_pPrevReceivedFileMsgIdList;   /// msgid->
 };

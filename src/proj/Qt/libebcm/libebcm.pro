@@ -122,7 +122,7 @@ LIBS += -L"/usr/lib" -lcrypto -lssl
 
 }
 
-
+android {
 SOURCES += ../../../libchatroom/chatroom.cpp \
     ../../../libchatroom/md5.cpp \
     ../../../include/POPCChatManager.cpp \
@@ -141,6 +141,13 @@ SOURCES += ../../../libchatroom/chatroom.cpp \
     ../boost_1.62/filesystem/utf8_codecvt_facet.cpp \
     ../boost_1.62/filesystem/windows_file_codecvt.cpp \
     ../boost_1.62/system/error_code.cpp
+}
+else {
+SOURCES += ../../../libchatroom/chatroom.cpp \
+    ../../../libchatroom/md5.cpp \
+    ../../../include/POPCChatManager.cpp \
+    ../../../include/SendFileThread.cpp
+}
 
 HEADERS += ../../../libchatroom/chatroom.h \
     ../../../libchatroom/md5.h \

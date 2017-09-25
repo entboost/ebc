@@ -138,7 +138,8 @@ bool EbDialogEmotionSelect::eventFilter(QObject *obj, QEvent *e)
 
 void EbDialogEmotionSelect::loadEmotion()
 {
-    if (ui->listWidgetEmotion->count()==0 || m_hasEmptyFile) {	// 前面有空，需要判断多一次
+    if (ui->listWidgetEmotion->count()==0 || m_hasEmptyFile) {
+        /// 前面有空，需要判断多一次
         std::vector<EB_EmotionInfo> pEnterpriseImageList;
         theApp->m_ebum.EB_GetMyEmotionList(pEnterpriseImageList);
         m_hasEmptyFile = false;

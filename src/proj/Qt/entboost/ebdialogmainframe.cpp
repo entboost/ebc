@@ -1534,7 +1534,8 @@ void EbDialogMainFrame::saveCallRecord(eb::bigint callId, eb::bigint groupId, co
             theApp->m_sqliteUser->execute(sql);
         }
         else {
-            sprintf( sql, "DELETE FROM call_record_t WHERE from_uid=%lld AND dep_code=0",fromAccountInfo.GetUserId());
+            sprintf( sql, "DELETE FROM call_record_t WHERE from_uid=%lld AND dep_code=0 AND emp_code>=0",
+                     fromAccountInfo.GetUserId());
             theApp->m_sqliteUser->execute(sql);
         }
     }
@@ -2262,6 +2263,7 @@ void EbDialogMainFrame::createMenuData(void)
             pSelectColorAction->setChecked(true);
         }
 
+        /// 暂时不支持
         m_menuSetting->addSeparator();
         /// 语言
         m_menuLocale = new QMenu(m_menuSetting);

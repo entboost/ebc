@@ -28,7 +28,7 @@ EbClientApp::EbClientApp(QObject *parent)
     , m_nDefaultBrowserType(EB_BROWSER_TYPE_CEF)
     , m_nDefaultUIStyleType(EB_UI_STYLE_TYPE_OFFICE)    //EB_UI_STYLE_TYPE_CHAT;
     , m_mainWnd(0)
-    , m_receiver(0)
+//    , m_receiver(0)
     , m_dialogEmotionSelect(0)
     , m_dialogViewECard(0)
     , m_webWngineDownloadRequested(0)
@@ -80,23 +80,23 @@ void EbClientApp::clearSubscribeSelectInfo()
 //}
 
 
-bool EbClientApp::setDevAppId(QObject* receiver)
-{
-    m_receiver = receiver;
-    const CEBString sAddress = this->m_setting.GetServerAddress();
-    //entboost::GetAccountAddress(lpszAccount, sAddress);
-    //this->m_ebum.Stop();
-    this->m_ebum.EB_Init(sAddress.c_str());
-    //this->m_ebum.EB_SetMsgHwnd(this->GetSafeHwnd());
-    if (!this->m_ebum.EB_IsInited()) {
-        return false;
-    }
-    this->m_ebum.EB_SetMsgReceiver(this);
-    if (this->m_ebum.EB_SetDevAppId(278573612908LL,"ec1b9c69094db40d9ada80d657e08cc6",true)!=0) {
-        return false;
-    }
-    return true;
-}
+//bool EbClientApp::setDevAppId(QObject* receiver)
+//{
+//    m_receiver = receiver;
+//    const CEBString sAddress = this->m_setting.GetServerAddress();
+//    //entboost::GetAccountAddress(lpszAccount, sAddress);
+//    //this->m_ebum.Stop();
+//    this->m_ebum.EB_Init(sAddress.c_str());
+//    //this->m_ebum.EB_SetMsgHwnd(this->GetSafeHwnd());
+//    if (!this->m_ebum.EB_IsInited()) {
+//        return false;
+//    }
+//    this->m_ebum.EB_SetMsgReceiver(this);
+//    if (this->m_ebum.EB_SetDevAppId(278573612908LL,"ec1b9c69094db40d9ada80d657e08cc6",true)!=0) {
+//        return false;
+//    }
+//    return true;
+//}
 
 bool EbClientApp::setDefaultUIStyleType(EB_UI_STYLE_TYPE newValue)
 {
@@ -242,110 +242,110 @@ void EbClientApp::editMemberInfo(const EB_MemberInfo *pMemberInfo, QWidget *pare
     }
 }
 
-void EbClientApp::deleteDbRecord(eb::bigint sId, bool bIsAccount)
-{
-    /// 先删除图片，语音，文件...
-    if ( this->m_sqliteUser.get()==0 ) {
-        return;
-    }
-    char sSql[256];
-    if (bIsAccount) {
-        sprintf(sSql,"select msg_name,msg_text FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) AND msg_type>=%d",sId,sId,(int)MRT_JPG);
-    }
-    else {
-        sprintf(sSql,"select msg_name,msg_text FROM msg_record_t WHERE dep_code=%lld AND msg_type>=%d",sId,(int)MRT_JPG);
-    }
-    const QString sUserImagePath(userImagePath());
-    const QString sUserFilePath(userFilePath());
-    int nCookie = 0;
-    m_sqliteUser->select( sSql, nCookie );
-    cgcValueInfo::pointer pRecord = m_sqliteUser->first(nCookie);
-    while (pRecord.get()!=0) {
-        const QString sMsgName( pRecord->getVector()[0]->getStrValue().c_str() );
-        const QString sMsgText( pRecord->getVector()[1]->getStrValue().c_str() );
-        pRecord = m_sqliteUser->next(nCookie);
-        /// 判断是临时图片，语音，文件目录
-        if ( !sMsgName.isEmpty() && sMsgName.indexOf( sUserImagePath,Qt::CaseInsensitive )==0) {
-            /// 删除临时目录图片
-            QFile::remove(sMsgName);
-        }
-        if ( !sMsgText.isEmpty() && sMsgText.indexOf( sUserFilePath,Qt::CaseInsensitive )==0) {
-            /// 删除临时目录图片
-            QFile::remove(sMsgText);
-        }
-    }
-    m_sqliteUser->reset(nCookie);
-    /// 删除数据
-    if (bIsAccount) {
-        sprintf(sSql,"DELETE FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld)",sId,sId);
-    }
-    else {
-        sprintf(sSql, "DELETE FROM msg_record_t WHERE dep_code=%lld",sId);
-    }
-    m_sqliteUser->execute(sSql);
-}
+//void EbClientApp::deleteDbRecord(eb::bigint sId, bool bIsAccount)
+//{
+//    /// 先删除图片，语音，文件...
+//    if ( this->m_sqliteUser.get()==0 ) {
+//        return;
+//    }
+//    char sSql[256];
+//    if (bIsAccount) {
+//        sprintf(sSql,"select msg_name,msg_text FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) AND msg_type>=%d",sId,sId,(int)MRT_JPG);
+//    }
+//    else {
+//        sprintf(sSql,"select msg_name,msg_text FROM msg_record_t WHERE dep_code=%lld AND msg_type>=%d",sId,(int)MRT_JPG);
+//    }
+//    const QString sUserImagePath(userImagePath());
+//    const QString sUserFilePath(userFilePath());
+//    int nCookie = 0;
+//    m_sqliteUser->select( sSql, nCookie );
+//    cgcValueInfo::pointer pRecord = m_sqliteUser->first(nCookie);
+//    while (pRecord.get()!=0) {
+//        const QString sMsgName( pRecord->getVector()[0]->getStrValue().c_str() );
+//        const QString sMsgText( pRecord->getVector()[1]->getStrValue().c_str() );
+//        pRecord = m_sqliteUser->next(nCookie);
+//        /// 判断是临时图片，语音，文件目录
+//        if ( !sMsgName.isEmpty() && sMsgName.indexOf( sUserImagePath,Qt::CaseInsensitive )==0) {
+//            /// 删除临时目录图片
+//            QFile::remove(sMsgName);
+//        }
+//        if ( !sMsgText.isEmpty() && sMsgText.indexOf( sUserFilePath,Qt::CaseInsensitive )==0) {
+//            /// 删除临时目录图片
+//            QFile::remove(sMsgText);
+//        }
+//    }
+//    m_sqliteUser->reset(nCookie);
+//    /// 删除数据
+//    if (bIsAccount) {
+//        sprintf(sSql,"DELETE FROM msg_record_t WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld)",sId,sId);
+//    }
+//    else {
+//        sprintf(sSql, "DELETE FROM msg_record_t WHERE dep_code=%lld",sId);
+//    }
+//    m_sqliteUser->execute(sSql);
+//}
 
-void EbClientApp::deleteDbRecord(eb::bigint sMsgId)
-{
-    /// 先删除图片，语音，文件...
-    if ( this->m_sqliteUser.get()==0 ) {
-        return;
-    }
-    char sSql[256];
-    sprintf( sSql, "select msg_name,msg_text FROM msg_record_t WHERE msg_id=%lld AND msg_type>=%d", sMsgId, (int)MRT_JPG);
-    const QString sUserImagePath(userImagePath());
-    const QString sUserFilePath(userFilePath());
-    int nCookie = 0;
-    m_sqliteUser->select(sSql, nCookie);
-    cgcValueInfo::pointer pRecord = m_sqliteUser->first(nCookie);
-    while (pRecord.get()!=NULL)
-    {
-        const QString sMsgName( pRecord->getVector()[0]->getStrValue().c_str() );
-        const QString sMsgText( pRecord->getVector()[1]->getStrValue().c_str() );
-        pRecord = m_sqliteUser->next(nCookie);
-        /// 判断是临时图片，语音，文件目录
-        if ( !sMsgName.isEmpty() && sMsgName.indexOf( sUserImagePath,Qt::CaseInsensitive )==0) {
-            /// 删除临时目录图片
-            QFile::remove(sMsgName);
-        }
-        if ( !sMsgText.isEmpty() && sMsgText.indexOf( sUserFilePath,Qt::CaseInsensitive )==0) {
-            /// 删除临时目录图片
-            QFile::remove(sMsgText);
-        }
-    }
-    m_sqliteUser->reset(nCookie);
-    /// 删除数据
-    sprintf( sSql, "DELETE FROM msg_record_t WHERE msg_id=%lld", sMsgId );
-    m_sqliteUser->execute(sSql);
-}
+//void EbClientApp::deleteDbRecord(eb::bigint sMsgId)
+//{
+//    /// 先删除图片，语音，文件...
+//    if ( this->m_sqliteUser.get()==0 ) {
+//        return;
+//    }
+//    char sSql[256];
+//    sprintf( sSql, "select msg_name,msg_text FROM msg_record_t WHERE msg_id=%lld AND msg_type>=%d", sMsgId, (int)MRT_JPG);
+//    const QString sUserImagePath(userImagePath());
+//    const QString sUserFilePath(userFilePath());
+//    int nCookie = 0;
+//    m_sqliteUser->select(sSql, nCookie);
+//    cgcValueInfo::pointer pRecord = m_sqliteUser->first(nCookie);
+//    while (pRecord.get()!=NULL)
+//    {
+//        const QString sMsgName( pRecord->getVector()[0]->getStrValue().c_str() );
+//        const QString sMsgText( pRecord->getVector()[1]->getStrValue().c_str() );
+//        pRecord = m_sqliteUser->next(nCookie);
+//        /// 判断是临时图片，语音，文件目录
+//        if ( !sMsgName.isEmpty() && sMsgName.indexOf( sUserImagePath,Qt::CaseInsensitive )==0) {
+//            /// 删除临时目录图片
+//            QFile::remove(sMsgName);
+//        }
+//        if ( !sMsgText.isEmpty() && sMsgText.indexOf( sUserFilePath,Qt::CaseInsensitive )==0) {
+//            /// 删除临时目录图片
+//            QFile::remove(sMsgText);
+//        }
+//    }
+//    m_sqliteUser->reset(nCookie);
+//    /// 删除数据
+//    sprintf( sSql, "DELETE FROM msg_record_t WHERE msg_id=%lld", sMsgId );
+//    m_sqliteUser->execute(sSql);
+//}
 
-void EbClientApp::updateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType)
-{
-    /// nAckType=0 对方收到消息
-    /// nAckType=4 请求撤回消息
-    /// nAckType=6 请求“个人收藏”消息
-    /// nAckType=7 请求“群收藏”消息
-    if (this->m_sqliteUser.get()==0) {
-        return;
-    }
-    char sSql[256];
-    if (nAckType==6) {
-        /// 个人收藏
-        return;
-    }
-    else if (nAckType==7) {
-        /// 群收藏
-        return;
-    }
-    else if (nAckType==4) {
-        sprintf( sSql, "UPDATE msg_record_t SET msg_name='',msg_text='',read_flag=read_flag|%d WHERE msg_id=%lld AND from_uid=%lld AND (read_flag&%d)=0",EBC_READ_FLAG_WITHDRAW,nMsgId,nFromUserId,EBC_READ_FLAG_WITHDRAW);
-    }
-    else if (nAckType==0) {
-        /// ?
-        sprintf(sSql, "UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0",EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
-    }
-    m_sqliteUser->execute(sSql);
-}
+//void EbClientApp::updateMsgReceiptData(eb::bigint nMsgId, eb::bigint nFromUserId, int nAckType)
+//{
+//    /// nAckType=0 对方收到消息
+//    /// nAckType=4 请求撤回消息
+//    /// nAckType=6 请求“个人收藏”消息
+//    /// nAckType=7 请求“群收藏”消息
+//    if (this->m_sqliteUser.get()==0) {
+//        return;
+//    }
+//    char sSql[256];
+//    if (nAckType==6) {
+//        /// 个人收藏
+//        return;
+//    }
+//    else if (nAckType==7) {
+//        /// 群收藏
+//        return;
+//    }
+//    else if (nAckType==4) {
+//        sprintf( sSql, "UPDATE msg_record_t SET msg_name='',msg_text='',read_flag=read_flag|%d WHERE msg_id=%lld AND from_uid=%lld AND (read_flag&%d)=0",EBC_READ_FLAG_WITHDRAW,nMsgId,nFromUserId,EBC_READ_FLAG_WITHDRAW);
+//    }
+//    else if (nAckType==0) {
+//        /// ?
+//        sprintf(sSql, "UPDATE msg_record_t SET read_flag=read_flag|%d WHERE msg_id=%lld AND dep_code=0 AND to_uid=%lld AND (read_flag&%d)=0",EBC_READ_FLAG_RECEIPT,nMsgId,nFromUserId,EBC_READ_FLAG_RECEIPT);
+//    }
+//    m_sqliteUser->execute(sSql);
+//}
 
 QImage EbClientApp::userHeadImage(eb::bigint userId, eb::bigint memberId, const cgcSmartString &account) const
 {
@@ -535,205 +535,19 @@ void EbClientApp::customEvent(QEvent *e)
 
 void EbClientApp::onAppIdSuccess(QEvent * e)
 {
-    m_isAppIdResponseOk = true;
-
-    unsigned long pAccountPrefix = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_ACCOUNT_PREFIX,&pAccountPrefix);
-    if (pAccountPrefix!=0 && strlen((const char*)pAccountPrefix)>0)
-    {
-        m_sAccountPrefix = (const char*)pAccountPrefix;
-        this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_ACCOUNT_PREFIX,pAccountPrefix);
-    }
-
-    unsigned long nLicenseUser = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_LICENSE_USER,&nLicenseUser);
-    m_bLicenseUser = nLicenseUser==0?false:true;
-    if (m_bLicenseUser) {
-        unsigned long pProductName = 0;
-        this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_PRODUCT_NAME,&pProductName);
-        if (pProductName!=0 && strlen((const char*)pProductName)>0) {
-            const std::string productName((const char*)pProductName);
-            this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_PRODUCT_NAME,pProductName);
-            m_sProductName = QString::fromStdString(productName);
-            char sql[256];
-            sprintf(sql, "UPDATE sys_value_t SET value1='%s' WHERE name='product-name'",productName.c_str());
-            m_sqliteEbc->execute(sql);
-//            if (m_receiver!=NULL)
-//                QApplication::postEvent(m_receiver, new QEvent((QEvent::Type)EB_COMMAND_UPDATE_PRODUCT_NAME));
-        }
-        else {
-            /// 没有配置，使用默认
-            m_sqliteEbc->execute("UPDATE sys_value_t SET value1='' WHERE name='product-name'");
-            this->m_sProductName = QString::fromStdString( this->m_setting.GetEnterprise() );
-        }
-    }
-    unsigned long nSendRegMail = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_SEND_REG_MAIL,&nSendRegMail);
-    m_bSendRegMail = nSendRegMail==1?true:false;
-    unsigned long nSaveConversatios = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_SAVE_CONVERSATIONS,&nSaveConversatios);
-    m_nSaveConversations = nSaveConversatios;
-    unsigned long nAuthContact = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_AUTH_CONTACT,&nAuthContact);
-    m_bAuthContact = nAuthContact==1?true:false;
-
-    unsigned long pDeployId = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEPLOY_ID,&pDeployId);
-    if (pDeployId!=0 && strlen((const char*)pDeployId)>0)
-    {
-        m_nDeployId = eb_atoi64((const char*)pDeployId);
-        this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_DEPLOY_ID,pDeployId);
-    }
-    unsigned long nLicenseType = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_LICENSE_TYPE,&nLicenseType);
-    m_nLicenstType = nLicenseType;
-    unsigned long nEBServerVersion = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_EB_SERVER_VERSION,&nEBServerVersion);
-    m_nEBServerVersion = nEBServerVersion;
-    //unsigned long pGroupMsgSubId = 0;
-    //this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_GROUP_MSG_SUBID,&pGroupMsgSubId);
-    //if (pGroupMsgSubId!=NULL && strlen((const char*)pGroupMsgSubId)>0)
-    //{
-    //	m_nGroupMsgSubId = eb_atoi64((const char*)pGroupMsgSubId);
-    //	this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_GROUP_MSG_SUBID,pGroupMsgSubId);
-    //}
-    unsigned long pAutoOpenSubId = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_AUTO_OPEN_SUBID,&pAutoOpenSubId);
-    if (pAutoOpenSubId!=0 && strlen((const char*)pAutoOpenSubId)>0)
-    {
-        m_nAutoOpenSubId = eb_atoi64((const char*)pAutoOpenSubId);
-        this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_AUTO_OPEN_SUBID,pAutoOpenSubId);
-    }
-    unsigned long nAutoHideMainFrame = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_AUTOHIDE_MAINFRAME,&nAutoHideMainFrame);
-    m_bAutoHideMainFrame = nAutoHideMainFrame==1?true:false;
-    unsigned long nHideMainFrame = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_HIDE_MAINFRAME,&nHideMainFrame);
-    m_bHideMainFrame = nHideMainFrame==1?true:false;
-    unsigned long nDisableUserCloudDrive = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_USER_CLOUD_DRIVE,&nDisableUserCloudDrive);
-    m_bDisableUserCloudDrive = nDisableUserCloudDrive==1?true:false;
-    unsigned long nDisableGroupShareCloud = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_GROUP_SHARED_CLOUD,&nDisableGroupShareCloud);
-    m_bDisableGroupShareCloud = nDisableGroupShareCloud==1?true:false;
-    unsigned long nDisableModifyPasswd = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_MODIFY_PASSWD,&nDisableModifyPasswd);
-    m_bDisableModifyPasswd = nDisableModifyPasswd==1?true:false;
-    unsigned long nDisableVideo = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_VIDEO,&nDisableVideo);
-    m_bDisableVideo = nDisableVideo==1?true:false;
-    unsigned long nDisableRD = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_REMOTE_DESKTOP,&nDisableRD);
-    m_bDisableRemoteDesktop = nDisableRD==1?true:false;
-    unsigned long nDisableAccountEdit = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_ACCOUNT_EDIT,&nDisableAccountEdit);
-    m_bDisableAccountEdit = nDisableAccountEdit==1?true:false;
     unsigned long nDefaultBrowserType = 0;
     this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_BROWSER_TYPE,&nDefaultBrowserType);
     m_nDefaultBrowserType = nDefaultBrowserType==1?EB_BROWSER_TYPE_IE:EB_BROWSER_TYPE_CEF;
-    unsigned long nDisableMsgReceipt = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DISABLE_MSG_RECEIPT,&nDisableMsgReceipt);
-    m_bDisableMsgReceipt = nDisableMsgReceipt==1?true:false;
-    unsigned long nStatSubGroupMember = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_STAT_SUB_GROUP_MEMBER,&nStatSubGroupMember);
-    m_bStatSubGroupMember = nStatSubGroupMember==1?true:false;
-    unsigned long pDefaultUrl = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,&pDefaultUrl);
-    if (pDefaultUrl!=0 && strlen((const char*)pDefaultUrl)>0)
-    {
-        m_sDefaultUrl = (const char*)pDefaultUrl;
-        this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_DEFAULT_URL,pDefaultUrl);
-    }
-
-    unsigned long nOpenRegisiter = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_OPEN_REGISTER,&nOpenRegisiter);
-    m_nOpenRegister = nOpenRegisiter;
-    unsigned long nOpenVisitor = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_OPEN_VISITOR,&nOpenVisitor);
-    m_bOpenVisitor = nOpenVisitor==0?false:true;
-    unsigned long pForgetPwdUrl = 0;
-    this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_FORGET_PWD_URL,&pForgetPwdUrl);
-    if (pForgetPwdUrl!=0 && strlen((const char*)pForgetPwdUrl)>0)
-    {
-        m_sForgetPwdUrl = (const char*)pForgetPwdUrl;
-        this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_FORGET_PWD_URL,pForgetPwdUrl);
-    }
-
-    const QString sEntLogoImagePath = m_appImgPath + "/entlogo";			/// 企业定制LOGO
-    const QString sEntLogoImagePathTemp = m_appImgPath + "/entlogotemp";	/// 先保存到临时中间文件
-    if (m_bLicenseUser) {
-        /// 企业LOGO
-        unsigned long pEntLogoUrl = 0;
-        this->m_ebum.EB_GetSystemParameter(EB_SYSTEM_PARAMETER_ENT_LOGO_URL,&pEntLogoUrl);
-        const std::string sImageTempIniPath = m_appImgPath.toLocal8Bit().toStdString() + "/temp.ini";
-        if (pEntLogoUrl!=0 && strlen((const char*)pEntLogoUrl)>0) {
-            /// http://test-um.entboost.com/images/entlogo.png
-            const std::string sEntLogoUrl((const char*)pEntLogoUrl);
-            this->m_ebum.EB_FreeSystemParameter(EB_SYSTEM_PARAMETER_ENT_LOGO_URL,pEntLogoUrl);
-            char lpszEntLogoLastModified[64];
-            memset(lpszEntLogoLastModified,0,64);
-            GetPrivateProfileStringABoost( "entlogo", "last_modified", "",lpszEntLogoLastModified,64,sImageTempIniPath.c_str());
-            if (!QFile::exists(sEntLogoImagePath)) {
-                memset(lpszEntLogoLastModified,0,64);
-            }
-            const QString sOldLastModified(lpszEntLogoLastModified);
-            m_httpFileDownload.downloadHttpFile( QString::fromStdString(sEntLogoUrl), sEntLogoImagePathTemp, sOldLastModified );
-            if (m_httpFileDownload.getDownloadFinished() && m_httpFileDownload.getLastErrorCode()==QNetworkReply::NoError) {
-                if (QFile::exists(sEntLogoImagePathTemp)) {
-                    QFile::remove(sEntLogoImagePath);
-                    QFile::rename(sEntLogoImagePathTemp, sEntLogoImagePath);
-                    WritePrivateProfileStringABoost("entlogo", "last_modified",
-                                                    m_httpFileDownload.getLastModified().toStdString().c_str(),
-                                                    sImageTempIniPath.c_str());
-                }
-//                if (m_receiver!=NULL)
-//                    QApplication::postEvent(m_receiver, new QEvent((QEvent::Type)EB_COMMAND_UPDATE_ENT_LOGO));
-            }
-            else if ( m_httpFileDownload.getDownloadFinished() && m_httpFileDownload.getLastModified()==sOldLastModified) {
-                /// 下载文件没有改变
-            }
-            else if (QFile::exists(sEntLogoImagePath)) {
-                QFile::remove(sEntLogoImagePath);
-                QFile::remove(sEntLogoImagePathTemp);
-//                if (m_receiver!=NULL)
-//                    QApplication::postEvent(m_receiver, new QEvent((QEvent::Type)EB_COMMAND_UPDATE_ENT_LOGO));
-            }
-        }
-        else if (QFile::exists(sEntLogoImagePath)) {
-            // 没有设置企业LOGO，但有企业LOGO，应该是其他系统，删除并通知事件更新界面
-            QFile::remove(sEntLogoImagePath);
-            QFile::remove(sEntLogoImagePathTemp);
-//            if (m_receiver!=NULL)
-//                QApplication::postEvent(m_receiver, new QEvent((QEvent::Type)EB_COMMAND_UPDATE_ENT_LOGO));
-        }
-    }
-    else {
-        const std::string sEnterprise( this->m_setting.GetEnterprise() );
-        if ( sEnterprise.find("恩布")==std::string::npos ) {
-            m_sProductName = QString::fromUtf8("恩布互联");
-        }
-        else {
-            m_sProductName = sEnterprise.c_str();
-        }
-
-        if (QFile::exists(sEntLogoImagePath)) {
-            QFile::remove(sEntLogoImagePath);   // ?
-        }
-    }
-
-    if (m_receiver!=NULL) {
-        const EB_Event * pEvent = (EB_Event*)e;
-        QApplication::postEvent( m_receiver, new EB_Event(*pEvent) );
-    }
+    EbClientAppBase::onAppIdSuccess(e);
 }
-void EbClientApp::onAppIdError(QEvent *e)
-{
-    m_isAppIdResponseOk = false;
-    if (m_receiver!=NULL) {
-        const EB_Event * pEvent = (EB_Event*)e;
-        QApplication::postEvent( m_receiver, new EB_Event(*pEvent) );
-    }
-}
+//void EbClientApp::onAppIdError(QEvent *e)
+//{
+//    EbClientAppBase::onAppIdError(e);
+//    if (m_receiver!=0) {
+//        const EB_Event * pEvent = (EB_Event*)e;
+//        QCoreApplication::postEvent( m_receiver, new EB_Event(*pEvent) );
+//    }
+//}
 
 void EbClientApp::loadUserSetting()
 {
@@ -864,63 +678,11 @@ bool EbClientApp::onLogonSuccess(void)
         sprintf(sql, "INSERT INTO sys_value_t(name,value2) VALUES('default-browser-type',%d)",(int)this->defaultBrowserType());
         m_sqliteEbc->execute(sql);
     }
-    const mycp::tstring sLogonAccount = this->m_ebum.EB_GetLogonAccount();
-    m_userMainPath = qApp->applicationDirPath() + "/users";
-    checkCreateDir(m_userMainPath);
-//    return m_userMainPath + _T("\\setting.ini");
-    if (this->m_ebum.EB_IsLogonVisitor()) {
-        m_userMainPath += "/visitor";
+    if (!EbClientAppBase::onLogonSuccess()) {
+        return false;
     }
-    else {
-        m_userMainPath = m_userMainPath + "/" + sLogonAccount.c_str();
-    }
-    if (!QFile::exists(m_userMainPath)) {
-        QDir dir(m_userMainPath);
-        dir.mkdir(m_userMainPath);
-    }
-    m_userSettingIniFile = m_userMainPath + "/" + sLogonAccount.c_str() + "/setting.ini";
-    m_userImagePath = m_userMainPath + "/image";
-    if (!QFile::exists(m_userImagePath)) {
-        QDir dir(m_userImagePath);
-        dir.mkdir(m_userImagePath);
-    }
-    m_userFilePath = m_userMainPath + "/file";
-    if (!QFile::exists(m_userFilePath)) {
-        QDir dir(m_userFilePath);
-        dir.mkdir(m_userFilePath);
-    }
-    loadUserSetting();
 
-    if (this->m_sqliteUser.get()==NULL) {
-        QString sBoPath = QString("%1/%2").arg(m_userMainPath).arg(this->deployId());
-        if (!QFile::exists(sBoPath)) {
-            QDir dir(sBoPath);
-            dir.mkdir(sBoPath);
-        }
-        sBoPath += "/bodb";
-        const QString sDefaultUserBoFile = m_appBodbPath + "/userdatas";
-        const QString sUserBoFile = sBoPath + "/userdatas";
-        if (!QFile::exists(sBoPath)) {
-            QDir dir(sBoPath);
-            dir.mkdir(sBoPath);
-            QFile::remove(sUserBoFile);
-            QFile::copy(sDefaultUserBoFile,sUserBoFile);
-        }
-        else if (libEbc::GetFileSize(sUserBoFile)<=0) {
-            QFile::remove(sUserBoFile);
-            QFile::copy(sDefaultUserBoFile,sUserBoFile);
-        }
-        m_sqliteUser = CSqliteCdbc::create();
-        if (!m_sqliteUser->open(sUserBoFile.toStdString().c_str())) {
-            m_sqliteUser.reset();
-            QString title = theLocales.getLocalText("message-box.ebc-file-error.title","");
-            if (title.isEmpty())
-                title = m_sProductName;
-            const QString text = theLocales.getLocalText("message-box.ebc-file-error.text","安装目录损坏：<br>请重新安装，或联系公司客服！");
-            EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_WARNING,0,QMessageBox::Ok );
-            return false;
-        }
-    }
+    loadUserSetting();
 
     if (this->isHideMainFrame()) {
         m_nDefaultUIStyleType = EB_UI_STYLE_TYPE_CHAT;	// *

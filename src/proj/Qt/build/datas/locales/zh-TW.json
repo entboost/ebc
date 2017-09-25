@@ -1,0 +1,822 @@
+﻿{
+	"menu-bar": {
+		"window": { "text": "窗口", "tooltip": "" }
+	},
+  "base-dialog": {
+  	"title": { "background-height": 40 },
+    "setting-button": { "tooltip": "設置" },
+    "minimize-button": { "text": "最小化", "tooltip": "最大化" },
+    "maximize-button": { "text": "最大化", "tooltip": "最大化" },
+    "exit-button": { "text": "退出", "tooltip": "退出" },
+    "ok-button": { "text": "確定" },
+    "yes-button": { "text": "是" },
+    "retry-button": { "text": "重試" },
+    "save-button": { "text": "保存" },
+    "open-button": { "text": "開啟" },
+    "abort-button": { "text": "終止" },
+    "cancel-button": { "text": "取消" },
+    "close-button": {"text": "關閉", "tooltip": "關閉" },
+    "no-button": { "tooltip": "否" },
+    "ignore-button": { "tooltip": "忽略" },
+    "register-button": { "text": "註冊" },
+    "new-button": { "text": "新建" },
+    "request-contact": {"text": "申請", "tooltip": "點擊發送好友請求" },
+    "add-contact-button": {"text": "加為好友", "tooltip": "點擊申請添加好友" },
+    "send-msg-button": {"text": "發送消息", "tooltip": "點擊發送消息" }
+  },
+  "line-state": {
+    "online": { "text": "", "tooltip": "在線" },
+    "away": { "text": "离开", "tooltip": "離開" },
+    "busy": { "text": "忙碌", "tooltip": "忙碌" },
+    "offline": { "text":"离线", "tooltip": "離線" }
+  },
+  "gender": {
+    "1": { "short": "男", "name": "男性" },
+    "2": { "short": "女", "name": "女性" }
+  },
+  "day-of-week": {
+  	"0": { "short":"週日", "name":"星期日" },
+  	"1": { "short":"週一", "name":"星期一" },
+  	"2": { "short":"週二", "name":"星期二" },
+  	"3": { "short":"週三", "name":"星期三" },
+  	"4": { "short":"週四", "name":"星期四" },
+  	"5": { "short":"週五", "name":"星期五" },
+  	"6": { "short":"週六", "name":"星期六" }
+  },
+  "group-name": {
+  	"0": { "short":"部門", "name":"部門", "member": "部門員工", "manager": "部門經理" },
+  	"1": { "short":"項目", "name":"項目組", "member": "項目成員", "manager": "項目經理" },
+  	"2": { "short":"群組", "name":"個人群組", "member": "群組成員", "manager": "群主" },
+  	"9": { "short":"討論組", "name":"討論組", "member": "討論成員", "manager": "討論組長" }
+  },
+  "web-engine-view" : {
+  	"zoom": "縮放",
+	  "context-menu": {
+	  	"back": { "text": "返回(&B)", "tooltip": "" },
+	  	"forward": { "text": "前進(&F)", "tooltip": "" },
+	  	"stop": { "text": "停止載入", "tooltip": "" },
+	  	"reload": { "text": "重新載入(&R)", "tooltip": "" },
+	  	
+	  	"open-link-in-new-tab": { "text": "在新分頁中開啟連結(&T)", "tooltip": "" },
+	  	"open-link-in-new-window": { "text": "在新視窗中開啟連結(&W)", "tooltip": "" },
+	  	"download-link": { "text": "另存連結為(&K)...", "tooltip": "" },
+	  	"copy-link": { "text": "複製連結網址(&E)", "tooltip": "" },
+	  	
+	  	"download-image": { "text": "另存圖檔(&V)...", "tooltip": "" },
+	  	"copy-image": { "text": "複製圖片(&Y)", "tooltip": "" },
+	  	"copy-image-link": { "text": "複製圖片位址(&O)", "tooltip": "" },
+	  	
+	  	"copy": { "text": "複製(&C)", "tooltip": "" },
+	  	
+	  	"saveas": { "text": "另存為(&A)...", "tooltip": "" },
+	  	"print": { "text": "列印(&P)...", "tooltip": "" },
+	  	
+	  	"find": { "text": "尋找", "tooltip": "" },
+	  	"view-source": { "text": "檢視網頁原始碼(&V)...", "tooltip": "" },
+	  	"inspect-element": { "text": "檢查(&N)...", "tooltip": "" }
+		}
+  },
+  "context-menu": {
+  	"send-ecard": { "text": "發送名片", "tooltip": "" },
+  	"delete-session-msg": { "text": "刪除消息通知(&D)", "tooltip": "" },
+  	
+  	"delete-session-chat": { "text": "刪除會話記錄(&D)", "tooltip": "" },
+  	"clear-session": { "text": "清空會話記錄", "tooltip": "" },
+  	
+  	"add-contact": { "text": "添加聯繫人", "tooltip": "" },
+  	"edit-contact": { "text": "查看資料", "tooltip": "" },
+  	"move-contact-to": { "text": "移動至", "tooltip": "" },
+  	"delete-contact": { "text": "刪除聯繫人", "tooltip": "" },
+  	"add-contact-group": { "text": "添加分组", "tooltip": "" },
+  	"rename-contact-group": { "text": "修改分組", "tooltip": "" },
+  	"delete-contact-group": { "text": "刪除分組", "tooltip": "" },
+  	
+  	"system-manager": { "text": "管理中心", "tooltip": "" },
+  	"new-sub-group": { "text": "新建下級[GROUP_TYPE_NAME]", "tooltip": "" },
+  	
+    "add-member": { "text": "添加成員", "tooltip": "" },
+  	"new-group": { "text": "新建[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-group": { "text": "修改[GROUP_TYPE_NAME]资料", "tooltip": "" },
+  	"delete-group": { "text": "解散該[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"exit-group": { "text": "退出該[GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-my-member": { "text": "修改我的名片", "tooltip": "" },
+  	"edit-user-member": { "text": "修改成員名片", "tooltip": "" },
+  	"new-member": { "text": "新建[GROUP_TYPE_MEMBER]", "tooltip": "" },
+  	"del-member": { "text": "移除成員", "tooltip": "" },
+  	"open-chat": { "text": "開啟會話(&C)", "tooltip": "" },
+  	"chat-record": { "text": "聊天記錄", "tooltip": "" },
+  	"group-share": { "text": "群共享(&S)", "tooltip": "" },
+  	"member-add-admin": { "text": "加為管理員", "tooltip": "" },
+  	"member-del-admin": { "text": "取消管理員資格", "tooltip": "" },
+  	"group-add-forbid-speech": { "text": "群禁言", "tooltip": "" },
+  	"group-del-forbid-speech": { "text": "解除群禁言", "tooltip": "" },
+  	"member-del-forbid-speech": { "text": "解除禁言", "tooltip": "" },
+  	"member-forbid-speech": {
+  			"text": "禁言",
+  			"10": "10分鐘",
+  			"60": "1小時",
+  			"720": "12小時",
+  			"1440": "1天",
+  			"0": "永久"
+		},
+  	"my-collection": { "text": "個人收藏", "tooltip": "" },
+  	"open-frame-list": { "text": "開啟工作臺", "tooltip": "" },
+    "logout": { "text": "登出", "tooltip": "登出" },
+    "quit": { "text": "退出", "tooltip": "退出" }
+  },
+  "name-text": {
+  	"group-chat": "群聊",
+  	"more": "更多",
+  	"detail": "詳細資料",
+  	"mobile": "手機",
+  	"tel": "電話",
+  	"fax": "傳真",
+  	"email": "郵箱",
+  	"url": "主頁",
+  	"address": "地址",
+  	"no-apps": "沒有集成應用",
+  	"mail-type-contact": "郵件聯繫人",
+  	"unname-group": "未命名分組",
+  	"default-group-name": "默認分組",
+  	"visitor": "遊客",
+  	"text": "文本",
+  	"file": "文件",
+    "ecard": "名片",
+    "album": "相冊",
+  	"shoot": "拍攝",
+  	"image": "圖片",
+  	"yesterday": "昨天",
+  	"year": "年",
+  	"month": "月",
+  	"date": "日",
+  	"day": "天",
+  	"hour": "小時",
+  	"minute": "分鐘"
+  },
+  "color-skin": {
+  	"select-color": {"text": "選擇色調...","tooltip":"" },
+  	"colors": [
+	  	{"name": "紫色", "r": 163, "g": 73, "b": 164},  
+			{"name": "靛青", "r": 63, "g": 72, "b": 204},   
+			{"name": "藍色", "r": 0, "g": 162, "b": 232},   
+			{"name": "綠色", "r": 34, "g": 177, "b": 76},   
+			{"name": "褐色", "r": 185, "g": 122, "b": 87},  
+			{"name": "橙色", "r": 255, "g": 127, "b": 39},  
+			{"name": "紅色", "r": 237, "g": 28, "b": 36},   
+			{"name": "玫瑰色", "r": 255, "g": 174, "b": 201},
+			{"name": "藍灰色", "r": 112, "g": 146, "b": 190},
+			{"name": "深灰色", "r": 96, "g": 96, "b": 96}    
+  	]
+  },
+  "login-dialog": {
+  	"window-size": { "width": 288, "height": 588 },
+    "window-text": "[PRODUCT_NAME]-登錄介面",
+    "edit-account": { "bg-text": "請輸入帳號/郵箱" },
+    "edit-password": { "bg-text": "密碼" },
+    "checkbox-savepwd": { "text": "記住密碼" },
+    "checkbox-autorun": { "text": "開機啟動" },
+    "button-logon": { "text": "登錄", "tooltip": "點擊登錄" },
+    "button-visitor-logon": { "text": "遊客登錄", "tooltip": "點擊遊客進入" },
+    "button-delete-account": { "tooltip": "刪除帳號信息" },
+    "button-register": {
+      "text": "我要註冊",
+      "tooltip": "點擊註冊新帳號"
+    },
+    "button-forget-pwd": {
+      "text": "忘記密碼",
+      "tooltip": "點擊重置密碼"
+    },
+    "button-connect-setting": {
+      "text": "連接設置",
+      "tooltip": "點擊設置服務器地址"
+    }
+  },
+  "message-tip-dialog": {
+    "title": "消息提醒",
+    "button-ignore-item": { "tooltip": "忽略" },
+    "button-ignore-all": { "text":"忽略全部", "tooltip": "" },
+    "button-view-all": { "text":"查看全部", "tooltip": "" }
+  },
+  "group-info-dialog": {
+  	"title": "[GROUP_TYPE_NAME]資料",
+    "label-group-name": { "label": "[GROUP_TYPE_NAME] name", "text": "[GROUP_TYPE_NAME]：" },
+    "edit-group-name": { "bg-text": "請輸入[GROUP_TYPE_NAME]名稱"},
+    "label-manager": { "text": "[GROUP_TYPE_MANAGER]：" },
+    "set-manager": { "label": "設為[GROUP_TYPE_MANAGER]" },
+    "label-manager-user-name": { "tooltip": "點擊設置[GROUP_TYPE_MANAGER]" },
+    "label-tel": { "label": "電話", "text": "電      話：" },
+    "label-fax": { "label": "傳真", "text": "傳      真：" },
+    "label-email": { "label": "郵箱", "text": "郵      箱：" },
+    "label-url": { "label": "網址", "text": "網      址：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
+    "label-display-index": { "text": "顯示排序：" },
+    "label-description": { "label": "備註", "text": "備      註：" },
+    "label-parent-group": { "label": "上級"},
+    "label-sub-group": { "label": "下級"},
+    "label-enterprise": { "label": "公司"}    
+  },
+  "member-info-dialog": {
+    "title": "[GROUP_TYPE_MEMBER]資料",
+    "label-user-head": { "tooltip": "點擊更換頭像" },
+    "label-account": { "label": "帳號", "text": "帳號：" },
+    "edit-account": {
+      "tooltip": "登錄帳號",
+      "bg-text": "**请输入登錄帳號**"
+    },
+    "label-group-name": { "label": "[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_NAME]：" },
+    "label-enterprise": { "label": "公司" },
+    "label-user-name": { "label": "姓名", "text": "姓      名：" },
+    "edit-user-name": {
+      "tooltip": "用戶名稱",
+      "bg-text": "請輸入用戶名稱"
+    },
+    "label-job-title": { "label": "職位", "text": "職      位：" },
+    "label-gender": { "label": "性别", "text": "性      别：" },
+    "label-job-position": { "label": "崗位", "text": "崗位級別：" },
+    "label-birthday": { "label": "生日", "text": "生      日：" },
+    "date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+    "label-tel": { "label": "電話", "text": "電      話：" },
+    "label-phone": { "label": "手機", "text": "手      機：" },
+    "label-fax": { "label": "傳真", "text": "傳      真：" },
+    "label-email": { "label": "郵箱", "text": "郵      箱：" },
+    "label-display-index": { "text": "顯示排序：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
+    "label-description": { "label": "簽名", "text": "個性簽名：" },
+
+    "edit-account": { "tooltip": "請輸入註冊新帳號！", "bg-text": "請輸入註冊新帳號"},
+    "button-default-member": { "text-0":"設為默認名片", "text-1":"當前默認名片", "tooltip": "默認名片用於聊天窗口顯示電子名片" }
+  },
+  "request-add-contact-dialog": {
+    "title": "申請添加好友",
+    "edit-description": {
+      "tooltip": "",
+      "bg-text": "請輸入添加好友驗證信息"
+    }
+  },
+  "contact-info-dialog": {
+    "title": "聯繫人資料",
+    "label-contact": { "label": "聯繫人", "text": "聯  繫  人：" },
+    "edit-contact": {
+      "tooltip": "聯繫人帳號",
+      "bg-text": "**請輸入聯繫人帳號**"
+    },
+    "label-group-name": { "label": "分組", "text": "分      組：" },
+    "label-user-name": { "label": "姓名", "text": "姓      名：" },
+    "edit-user-name": {
+      "tooltip": "用戶名稱",
+      "bg-text": "**請輸入聯繫人姓名"
+    },
+    "label-phone": { "label": "手機", "text": "手      機：" },
+    "label-enterprise": { "label": "公司", "text": "公      司：" },
+    "label-job-title": { "label": "職位", "text": "職      位：" },
+    "label-url": { "label": "網址", "text": "網      址：" },
+    "label-tel": { "label": "電話", "text": "電      話：" },
+    "label-email": { "label": "郵箱", "text": "郵      箱：" },
+    "label-fax": { "label": "傳真", "text": "傳      真：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
+    "label-description": { "label": "備註", "text": "備      註：" },
+    "button-add-contact": { "text": "加為好友","tooltip": "點擊申請添加好友" }
+  },
+  "register-dialog": {
+    "title": "註冊新帳號",
+    "label-account": { "text": "登錄帳號：" },
+    "label-password": { "text": "登錄密碼：" },
+    "label-confirm": { "text": "確認密碼：" },
+    "label-user-name": { "text": "用戶名稱：" },
+    "label-ent-name": { "text": "公司名稱：" },
+    "edit-account": { "tooltip": "請輸入註冊新帳號！", "bg-text": "請輸入註冊新帳號"}
+  },
+  "on-appid-response": {
+  	"not-support-version" : {"title": "", "text": "系統不支持當前版本：<br>請更新客戶端重試！"},
+  	"timeout-error": { "title": "驗證APPID", "text": "服務器連接超時，請檢查網絡，或退出程式重新進入，或檢查修改服務器地址後重試！<br>錯誤代碼: [STATE_CODE]" },
+  	"other-error": { "title": "驗證APPID", "text": "系統APPID驗證失敗，請檢查網絡，或退出程式重新進入，或檢查修改服務器地址後重試！<br>錯誤代碼: [STATE_CODE]" }
+
+  },
+  "on-group-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "新建成功：<br>[GROUP_NAME]([GROUP_ID])"},
+  	"edit-state-ok" : {"title": "", "text": "修改成功：<br>[GROUP_NAME]([GROUP_ID])"},
+  	"not-auth-error" : {"title": "", "text": "沒有權限：<br>請聯繫管理員！"},
+  	"other-error" : {"title": "", "text": "操作失敗，請聯繫公司客服：<br>錯誤代碼: [STATE_CODE]"}
+  },
+  "on-member-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "新建成功！"},
+  	"edit-state-ok" : {"title": "", "text": "修改成功！"},
+  	"oauth-forward" : {"title": "", "text": "邀請成員成功：<br>等待對方通過驗證！"},
+  	"not-auth-error" : {"title": "", "text": "沒有權限：<br>請聯繫管理員！"},
+  	"account-already-exist" : {"title": "", "text": "帳號已經存在：<br>請重新輸入！"},
+  	"another-ent-account" : {"title": "", "text": "其他企業員工帳號：<br>請重新輸入！"},
+  	"other-error" : {"title": "", "text": "操作失敗，請聯繫公司客服：<br>錯誤代碼: [STATE_CODE]"}
+  },
+  "on-register-response": {
+  	"ok-send-mail" : {"title": "", "text": "註冊成功：<br>請及時查閱郵件，完成帳號驗證！"},
+  	"ok-login" : {"title": "", "text": "註冊成功：\r\n請使用 \"[ACCOUNT]\" 或 \"[USERID]\" 登錄！"},
+  	"not-auth-error": {"title": "", "text": "沒有權限：<br>請重試或聯繫公司客服！"},
+  	"number-not-auth" : {"title": "", "text": "不支持全數字帳號註冊：<br>請更換帳號重試！"},
+  	"content-big-length" : {"title": "", "text": "字段內容超過最大長度：<br>請重新輸入！"},
+  	"error" : {"title": "", "text": "註冊失敗：<br>請重試或聯繫公司客服！"},
+  	"account-already-exist" : {"title": "", "text": "帳號已經存在：<br>請更換帳號重試！"},
+  	"enterprise-already-exist" : {"title": "", "text": "公司名稱已經被註冊：<br>請確認後重試！"},
+  	"appid-key-error" : {"title": "", "text": "APPID KEY錯誤：<br>請重試或聯繫公司客服！"},
+  	"disable-register-account" : {"title": "", "text": "禁止用戶註冊功能：<br>請聯繫公司客服！"},
+  	"disable-register-ent" : {"title": "", "text": "禁止企業註冊功能：<br>請聯繫公司客服！"},
+  	"disable-register-account" : {"title": "", "text": "禁止用戶註冊功能：<br>請聯繫公司客服！"},
+  	"other-error" : {"title": "", "text": "註冊失敗，請重試或聯繫公司客服：<br>錯誤代碼: [STATE_CODE]"}
+  },
+  "on-logon-response": {
+  	"unauth-error" : {"title": "", "text": "帳號未激活，請查收郵件，完成註冊！<br>錯誤代碼: [STATE_CODE]"},
+  	"account-freeze" : {"title": "", "text": "帳號已经被臨時凍結，請聯繫公司客服！<br>錯誤代碼: [STATE_CODE]"},
+  	"max-retry-error" : {"title": "", "text": "錯誤次數太多，帳號被臨時鎖住，請稍候再試！<br>錯誤代碼: [STATE_CODE]"},
+  	"not-auth-error" : {"title": "", "text": "沒有權限錯誤！<br>錯誤代碼: [STATE_CODE]"},
+  	"account-not-exist" : {"title": "", "text": "帳號不存在，請重新輸入！<br>錯誤代碼: [STATE_CODE]"},
+  	"acc-pwd-error" : {"title": "", "text": "帳號或密碼錯誤，請重新輸入！<br>錯誤代碼: [STATE_CODE]"},
+  	"logon-timeout" : {"title": "", "text": "登錄超時，請重新登錄！<br>錯誤代碼: [STATE_CODE]"},
+  	"appid-key-error" : {"title": "登錄失敗", "text": "系統APPID KEY錯誤，需要重新驗證！<br>錯誤代碼: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "登錄失敗，請重試！<br>錯誤代碼: [STATE_CODE]"}
+	},
+  "on-send-file": {
+  	"group-forbid-speech" : {"title": "", "text": "群禁言中：<br>不能發送群文件！"},
+  	"forbid-speech" : {"title": "", "text": "你被禁言中：<br>不能發送群文件！"},
+  	"not-auth-error" : {"title": "", "text": "你被禁言中：<br>不能發送群文件！"},
+  	"file-big-long" : {"title": "", "text": "當前文件大小超出系統最大配額：<br>請發送更小文件，或聯繫公司客服！"},
+  	"timeout-error" : {"title": "", "text": "文件發送超時：<br>請重新發送！"},
+  	"not-member-error" : {"title": "", "text": "沒有其他群組成員：<br>不能發送文件！"},
+  	"other-error" : {"title": "", "text": "文件發送失敗，請檢查後重試！<br>錯誤代碼: [STATE_CODE]"}
+ 
+  },
+
+  "on-call-response": {
+  	"account-not-exist" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 不存在！"},
+  	"user-offline" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 離線狀態！"},
+  	"unauth-error" : {"title": "", "text": "帳號：<br>[USER_ACCOUNT]([USER_ID]) 未通過驗證！"},
+  	"account-freeze" : {"title": "", "text": "帳號：<br>[USER_ACCOUNT]([USER_ID]) 已被臨時凍結！"},
+  	"max-retry-error" : {"title": "", "text": "錯誤次數太頻繁：<br>帳號已經被臨時鎖住，請稍候再試！"},
+  	"user-busy" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 忙！"},
+  	"timeout-error" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 會話超時！"},
+  	"user-hangup" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 取消會話！"},
+  	"account-disable-offcall" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 不在線，對方屏蔽接收離線消息功能！"},
+  	"account-disable-extcall" : {"title": "", "text": "用戶：<br>[USER_ACCOUNT]([USER_ID]) 屏蔽外部聊天功能！"},
+  	"oauth-forward" : {"title": "", "text": "操作成功，等待對方：<br>[USER_ACCOUNT]([USER_ID]) 通過驗證！"},
+  	"other-error" : {"title": "", "text": "請求會話：br>[USER_ACCOUNT]([USER_ID]) 失敗<br>錯誤代碼: [STATE_CODE]"}
+  },
+  "on-editinfo-response": {
+  	"modify-password-ok" : {"title": "", "text": "密碼修改成功：<br>請重新登錄。"},
+  	"modify-password-error" : {"title": "", "text": "密碼修改失敗，請重試！<br>錯誤代碼: [STATE_CODE]"},
+  	"state-ok" : {"title": "", "text": "個人資料修改成功！"},
+  	"acc-pwd-error" : {"title": "", "text": "密碼錯誤，請重新輸入！<br>錯誤代碼: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "個人資料修改失敗，請重試！<br>錯誤代碼: [STATE_CODE]"}
+  },
+  "account-info-widget" : {
+  	"label-account": { "label": "帳號", "text": "帳      號：" },
+  	"label-name": { "label": "名稱", "text": "名      稱：" },
+  	"label-gender": { "label": "性別", "text": "性      別：" },
+  	"label-birthday": { "label": "生日", "text": "生      日：" },
+  	"date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+  	"label-phone": { "label": "手機", "text": "手      機：" },
+  	"label-tel": { "label": "電話", "text": "電      話：" },
+  	"label-email": { "label": "郵箱", "text": "郵      箱" },
+  	"label-url": { "label": "主頁", "text": "主      頁：" },
+  	"label-area": { "label": "地區", "text": "地      區" },
+  	"label-address": { "label": "地址", "text": "地      址：" },
+  	"label-zipcode": { "label": "郵編", "text": "郵      编：" },
+  	"label-description": { "label": "備註", "text": "備      註：" }
+  },
+  "my-center-dialog": {
+    "title": "個人中心",
+    "button-account-info": { "text": "帳號信息", "tooltip": ""},
+    "button-my-setting": { "text": "個人設置", "tooltip": "" },
+    "button-message-notify": { "text": "通知提醒", "tooltip": "" },
+    "button-modify-password": { "text": "修改密碼", "tooltip": "" },
+    "button-video-setting": { "text": "視頻設置", "tooltip": "" },
+    "account-info-widget" : {
+    	"label-account": { "text": "帳      號：" },
+    	"label-name": { "text": "名      稱：" },
+    	"label-gender": { "text": "性      別：" },
+    	"label-birthday": { "text": "生      日：" },
+    	"date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+    	"label-phone": { "text": "手      機：" },
+    	"label-tel": { "text": "電      話：" },
+    	"label-email": { "text": "郵      箱" },
+    	"label-url": { "text": "主      頁：" },
+    	"label-area": { "text": "地      區" },
+    	"label-address": { "text": "地      址：" },
+    	"label-zipcode": { "text": "郵      编：" },
+    	"label-description": { "text": "備      註：" }
+    },
+    "modify-password-widget" : {
+    	"label-current-password": { "text": "當前密碼：", "bg-text": "當前密碼" },
+    	"label-new-password": { "text": "新密碼：", "bg-text": "新密碼" },
+    	"label-confirm-password": { "text": "確認密碼：", "bg-text": "確認密碼" }
+    },
+    "video-setting-widget" : {
+    	"combo-video-devices": { "tooltip": "選擇視頻設備，開啟預覽視頻，保存默認通話設備。" },
+    	"button-open": { "text": "開啟", "tooltip": "開啟本地視頻預覽" },
+    	"button-close": { "text": "關閉", "tooltip": "關閉本地視頻" }
+    },
+    "button-default-member": { "text": "默認名片", "tooltip": "顯示默認名片信息" }
+  },
+  "select-user-dialog": {
+    "title": "選擇用戶",
+    "button-group": { "text": "部門", "tooltip": ""},
+    "button-contact": { "text": "聯繫人", "tooltip": "" },
+    "button-enterprise": { "text": "公司", "tooltip": "" },
+    "edit-search": { "bg-text": "搜索：用戶、帳號、聯繫人", "tooltip": "輸入查找關鍵字" },
+    "label-selected": { "text": "已選擇用戶：" },
+    "button-add": { "tooltip": "添加" },
+    "button-delete": { "tooltip": "刪除" }
+  },
+  "change-head-dialog": {
+    "title": "更換頭像",
+    "button-default": { "text": "默認頭像", "tooltip": ""},
+    "button-custom": { "text": "自定義頭像", "tooltip": "" },
+    "button-open-file": { "text": "本地圖片", "tooltip": "點擊選擇本地圖片" },
+    "button-open-video": { "text": "自拍頭像", "tooltip": "" },
+    "button-ok": { "text": "更換頭像" },
+    "open-file-dialog": { "caption": "選擇本地圖片文件", "filter":"圖片文件" },
+    "label-image-file-tip": { "text": "圖片文件" },
+    "label-image-result-tip": { "text": "頭像效果" }
+  },
+  "connect-setting-dialog": {
+    "title": "連接設置",
+    "label-server-address": { "text": "服務器地址：" },
+    "edit-server-address": {
+      "tooltip": "格式：IP:端口（域名:端口）；例如：192.168.10.100:18012",
+      "bg-text": "留空默認連接公有雲環境！"
+    }
+  },
+  "pop-tip-dialog": {
+  	"0": { "title": "驗證消息", "button": {"text": "我的消息", "tooltip": "點擊進入我的消息" } },
+  	"1": { "title": "通知消息", "button": {"text": "我的消息", "tooltip": "點擊進入我的消息" } },
+  	"2": { "title": "廣播消息", "button": {"text": "我的消息", "tooltip": "點擊進入我的消息" } },
+  	"type-bc-message": "廣播消息\n[MESSAGE_TITLE]",
+  	"type-request-join-to-group": "驗證消息：\n[USER_ACCOUNT]申請加入群組[GROUP_ID]",
+  	"type-invite-join-to-group": "驗證消息：\n[USER_ACCOUNT]邀請加入群組[GROUP_ID]",
+  	"type-group-message": "驗證消息：\n帳號\"[USER_ACCOUNT]\" 群組\"[GROUP_ID]\"",
+  	"type-request-add-contact": "驗證消息：\n[USER_ACCOUNT]申請加為好友",
+  	"type-rejest-add-contact": "通知消息：\n[USER_ACCOUNT]拒絕加為好友",
+  	"request-add-to-group": "<font color=\"#6c6c6c\">用戶：[USER_ACCOUNT]<br>申請加入群組：[GROUP_ID]<br>附加消息：[DESCRIPTION]</font>",
+  	"invite-add-to-group": "<font color=\"#6c6c6c\">用戶：[USER_ACCOUNT]<br>邀請你加入群組：[GROUP_NAME]<br>附加消息：[DESCRIPTION]</font>",
+  	"request-add-contact": "<font color=\"#6c6c6c\">用戶：[USER_ACCOUNT]<br>申請加為好友<br>附加消息：[DESCRIPTION]</font>",
+  	"reject-add-contact": "<font color=\"#6c6c6c\">用戶：[USER_ACCOUNT]<br>拒絕加為好友<br>附加消息：[DESCRIPTION]</font>",
+  	"accept-add-contact": "<font color=\"#6c6c6c\">用戶：[CONTACT_NAME]<br>添加好友成功</font>"
+  },
+  "chat-msg-text": {
+  	"visitor": "遊客",
+  	"text": "文本",
+  	"image": "圖片",
+  	"voice": "語音",
+  	"map-pos": "地圖位置",
+  	"user-ecard": "個人名片",
+  	"user-data": "用戶自定義數據",
+  	"file": "文件",
+  	"download": "下載",
+  	"group-share": "群共享",
+    "new-message": "新消息",
+
+  	"history-msg-separate": "-------- 以上是歷史消息  --------",
+  	"group-video-reqeust-ok": "開啟本地視頻加入視頻會議...",
+  	"video-reqeust-ok": "邀請對方視頻通話...",
+  	"group-video-ack-ok": "成功申請視頻會議，可以“開啟視頻”加入視頻會議，然後“退出會議”！",
+  	"group-video-ack-error": "申請視頻會議失敗！",
+  	"video-ack-ok": "接受對方視頻通話，視頻通話中...",
+  	"member-video-request": "[MEMBER_NAME] 開啟視頻會議視頻...",
+  	"dest-video-request": "對方邀請視頻通話...",
+  	"member-video-accept": "[MEMBER_NAME] 開啟我的視頻會議視頻...",
+  	"dest-video-accept": "對方接受視頻通話，視頻通話中...",
+  	"member-video-exit": "[MEMBER_NAME] 退出視頻會議",
+  	"dest-video-reject": "對方拒絕視頻通話",
+  	"video-request-timeout": "請求視頻通話超時",
+  	"member-video-close": "[MEMBER_NAME] 關閉視頻會議視頻",
+  	"local-video-close": "關閉本地視頻會議視頻",
+  	"video-end": "視頻同話結束",
+  	
+  	"file-not-exist": "文件不存在",
+  	"file-saveas-ok": "文件另存成功",
+  	"voice-msg": "語音消息",
+  	"voice-msg-not-exist": "語音消息不存在",
+  	"voice-msg-format-error": "語音消息格式錯誤",
+
+  	"save2-cloud-ok": "成功存入個人雲盤！",
+  	"save2-cloud-error": "存入個人雲盤失敗！([STATE_CODE])",
+  	"down-file-ok": "成功下載文件",
+  	"receive-file-ok": "成功接收文件",
+  	"send-file-ok": "成功發送文件",
+  	"send-group-file": "上傳群共享文件",
+  	"send-off-file-ok": "成功發送離線文件",
+  	"change-p2p-sending": "對方在線，使用P2P點對點發送",
+  	"send-file": "發送文件",
+  	"cancel-file": "取消文件",
+  	"dest-send-off-file": "對方發送離線文件",
+  	"dest-send-file": "對方發送文件",
+  	"dest-reject-file": "對方拒絕接收文件",
+  	"dest-receive-file": "對方已經接收文件",
+  	"user-reject-file": "拒絕接收文件",
+  	"user-receive-file": "已經接收文件",
+  	"on-user-exit": "對方已經退出本次會話！",
+  	"on-alerting-call": "對方已經退出本次會話，正在重新邀請，請稍候...！",
+    "send-rich-timeout": "發送超時，請稍候或檢查網絡連接后再試！",
+    "send-rich-error": "發送失敗，請稍候或檢查網絡連接后再試！",
+  	
+  	"max-capacity-error": "超過最大消息長度！",
+  	"group-forbid-speech": "群禁言中！",
+  	"forbid-speech": "你被禁言中！",
+  	"your-forbid-speech": "你被禁言",
+  	"your-forbid-speech-forever": "你被永久禁言：",
+  	"your-delete-forbid-speech": "你已經被解除禁言：",
+  	"group-delete-forbid-speech": "已經被解決禁言：",
+  	"group-forbid-speech-tip": "群禁言中，群管理員可以發言：",
+  	"excess-quota-error": "發送不成功，對方離綫消息空間已滿！",
+  	"not-member-error": "沒有其他群組成員，不能發送聊天消息！",
+  	"send-rich-error": "發送失敗，請重試！錯誤代碼: [STATE_CODE]"
+  },
+  "withdraw-msg-response": {
+  	"state-ok": "請求撤回一條消息！",
+  	"state-ok-update": "[撤回一條消息]",
+  	"other-error": "發送時間超過2分鐘的消息：<br>不能撤回！",
+  	"msg-receipt-dest": "對方撤回一條消息！",
+  	"msg-receipt-group": "[USER_NAME] 撤回一條消息！"
+  },
+  "message-show": {
+    "logon-another": "已經在其他地方登錄，退出當前連接。",
+  	"finger-up-cancel": "手指快速上滑 取消發送",
+  	"press-again-exit": "再按一次退出",
+  	"video-not-auth-error": "禁止視頻會議功能權限：<br>請聯繫公司客服！",
+  	"video-excess-quota-error": "超過視頻會議用戶數量：<br>請聯繫公司客服！",
+  	"video-devices-empty-tip": "本地找不到視頻設備：<br>請檢查設備後重試！",
+  	"open-video-device-error": "開啟視頻攝像頭失敗：<br>請檢查攝像頭是否被佔用或其他硬件故障！",
+  	"open-mic-device-error": "開啟麥克風失敗：<br>請檢查麥克風是否被佔用或其他硬件故障！",
+  	"disable-group-share-tip": "禁用群共享：<br>請使用一對一聊天窗口發送文件！",
+  	"forbid-send-ecard-tip": "禁言限制中：<br>不能發送文件！",
+  	"forbid-send-file-tip": "禁言限制中：<br>不能發送文件！",
+  	"add-user-not-auth": "沒有管理員權限：<br>不能邀請好友！",
+  	"file-exclusive-error": "文件被佔用：<br>請關閉文件後重試！",
+  	"collect-msg-ok": "消息收藏成功！",
+  	"collect-msg-not-auth": "沒有操作權限：<br>消息收藏失敗！",
+  	"collect-msg-error": "消息不存在或者已經被刪除：<br>消息收藏失敗！",
+  	"withdraw-msg-ok": "[撤回一條消息]",
+  	"withdraw-msg-dest": "[USER_NAME] 撤回一條消息！",
+  	"withdraw-msg-error": "發送時間超過2分鐘的消息：<br>不能撤回！",
+  	"new-email-tip":"新郵件:",
+  	"unread-email-tip":"你一共有 [%1] 封未讀郵件！\n點擊查看！",
+  	"clear-chrome-cache-ok":"成功清除 Chrome 瀏覽器本地緩存",
+  	"group-empty-error": "[GROUP_TYPE_NAME]名稱不能為空：<br>請輸入！",
+  	"remove-from-group": "你被管理員移出：<br>[GROUP_NAME]([GROUP_ID])",
+  	"delete-group": "[GROUP_NAME] ([GROUP_ID])<br>已經被解散！",
+  	"delete-has-sub-group": "存在下一級子部門：<br>不能刪除[GROUP_TYPE_NAME]資料！",
+  	"delete-group-has-member": "[GROUP_TYPE_MEMBER]不為空：<br>不能刪除！",
+  	"member-exit-group": "[USER_NAME]([USER_ACCOUNT])<br>已經退出：[GROUP_NAME]([GROUP_ID])",
+  	"delete-logon-account-error": "刪除用戶數據失敗：<br>請重試！",
+  	"account-empty-error": "帳號不能為空：<br>請輸入帳號！",
+  	"user-name-empty-error": "用戶名稱不能為空：<br>請重新輸入！",
+  	"contact-name-empty-error": "聯繫人姓名不能為空：<br>請重新輸入！",
+  	"not-support-auth-contact": "暫時未開放添加好友功能：<br>請聯繫管理員！",
+  	"account-exist-error": "[USER_ACCOUNT]帳號已經存在<br>請重新輸入！",
+  	"account-format-error": "帳號格式錯誤：<br>請重新輸入！",
+  	"password-empty": "密碼不能為空：<br>請輸入密碼！",
+  	"current-pwd-empty": "當前密碼不能為空：<br>請輸入！",
+  	"new-pwd-empty": "新密碼不能為空：<br>請輸入！",
+  	"confirm-pwd-empty": "確認密碼不能為空：<br>請輸入！",
+  	"password-not-equal": "密碼不一致：<br>請重新輸入！",
+  	"password-equal-warning": "新密碼和當前密碼一樣：<br>請重新輸入！",
+  	"ebum-start-error": "本地服務啟動失敗：<br>請重試！",
+  	"open-image-error": "開啟圖片文件失敗：<br>請重試！",
+  	"image-save-error": "圖片轉換保存失敗：<br>請重試！",
+  	"head-image-too-large": "頭像文件超過 500KB：<br>請重新選擇！"
+  },
+  "message-box": {
+  	"delete-contact-empty-group": { "title": "刪除分組", "text": "確定刪除：<br>\"[GROUP_NAME]\" 分組嗎？" },
+  	"delete-contact-group": { "title": "刪除分組", "text": "確定刪除：<br>\"[GROUP_NAME]\" 並將該分組所有聯繫人移動到默認分組嗎？" },
+  	"delete-download-file": { "title": "刪除文件", "text": "確定刪除文件：<br>\"[FILE_NAME]\" 和下載記錄？" },
+  	"delete-chat-file": { "title": "刪除文件", "text": "確定刪除文件：<br>\"[FILE_NAME]\" 和聊天記錄嗎？" },
+  	"clear-session": { "title": "清空會話記錄", "text": "確定清空：<br>所有會話記錄和聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"clear-group-chat-record": { "title": "清空聊天記錄", "text": "確定清空：\"[GROUP_NAME]\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"clear-user-chat-record": { "title": "清空聊天記錄", "text": "確定清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"delete-session-group-chat": { "title": "刪除聊天", "text": "確定刪除：\"[GROUP_NAME]\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"delete-session-user-chat": { "title": "刪除聊天", "text": "確定刪除：\"[USER_NAME]([USER_ID])\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"clear-session-group-chat-record": { "title": "清空聊天記錄", "text": "已經刪除會話記錄，確定同時清空：\"[GROUP_NAME]\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"clear-session-user-chat-record": { "title": "清空聊天記錄", "text": "已經刪除會話記錄，確定同時清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天記錄（包括臨時圖片和文件）嗎？" },
+  	"creator-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_MANAGER]退出，將會解散當前[GROUP_TYPE_NAME]<br>確定解散：<br>\"[GROUP_NAME]\" 嗎？" },
+  	"member-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "確定退出：<br>\"[GROUP_NAME]\" 嗎？" },
+  	"video-chat-exit-chat": { "title": "退出聊天會話", "text": "正在視頻通話：<br>確定退出嗎？" },
+  	"tran-file-exit-chat": { "title": "退出聊天會話", "text": "正在傳輸文件：<br>確定退出嗎？" },
+  	"delete-chat-msg": { "title": "刪除聊天消息", "text": "確定刪除當前聊天消息嗎？" },
+  	"clear-all-history": { "title": "清除所有聊天記錄", "text": "確定要清除：<br>所有瀏覽記錄嗎？" },
+  	"clear-chrome-cache": { "title": "清除 Chrome 本地緩存", "text": "確定要清除：<br>本程式內置 Chrome 瀏覽器本地緩存嗎？" },
+  	"delete-member": { "title": "移除成員", "text": "確定移除：<br>\"[USER_ACCOUNT]([USER_ID])\" 嗎？" },
+  	"delete-auth-contact": { "title": "刪除聯繫人", "text": "確定刪除聯繫人：<br>\"[USER_NAME]([USER_ACCOUNT])\" 同時從對方聯繫人列表中消息嗎？" },
+  	"delete-contact": { "title": "刪除聯繫人", "text": "確定刪除聯繫人：<br>\"[USER_NAME]([USER_ACCOUNT])\" 嗎？" },
+  	"exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "確定退出：<br>\"[GROUP_NAME]([GROUP_ID])\" 嗎？" },
+  	"delete-group": { "title": "解散[GROUP_TYPE_NAME]", "text": "確定解散：<br>\"[GROUP_NAME]([GROUP_ID])\" 嗎？" },
+  	"change-server": { "title": "修改服務器地址", "text": "需要重新載入驗證流程才能生效：<br>確定立即載入嗎？" },
+  	"delete-logon-account": { "title": "刪除登錄信息", "text": "確定刪除本地：<br>\"[USER_ACCOUNT]([USER_ID])\" 帳號及所有聊天信息嗎？" },
+  	"not-support-visitor": { "title": "", "text": "當前系統不支持遊客登錄：<br>請聯繫公司客服！" },
+  	"ebc-file-error": { "title": "", "text": "當前安裝目錄文件損壞：<br>請重新安裝或聯繫公司客服！" }
+  },
+  "main-frame": {
+  	"window-size": { "0": {"width": 1180, "height": 668}, "1" : {"width": 288, "height": 568} },
+    "window-text": "[PRODUCT_NAME]-登錄介面",
+    "label-user-head": { "tooltip": "點擊開啟個人中心" },
+    "edit-user-description": { "bg-text": "[個人簽名]", "tooltip": "點擊修改個人簽名" },
+    "up-button-my-center": { "tooltip": "個人中心" },
+    "up-button-file-manager": { "tooltip": "文件管理" },
+    "up-button-my-share": { "tooltip": "個人雲盤" },
+    "up-button-apps": { "tooltip": "集成應用" },
+    "edit-search": { "bg-text": "搜索用戶、瀏覽記錄、集成應用(/)", "tooltip": "搜索" },
+    "mid-button-my-group": { "text": "部門群組", "tooltip": "我的部門（群和討論組）" },
+    "mid-button-my-contact": { "text": "我的好友", "tooltip": "我的好友（聯繫人）" },
+    "mid-button-my-session": { "tooltip": "最近會話" },
+    "mid-button-my-ent": { "text": "公司架構", "tooltip": "公司組織架構" },
+    "mid-button-my-app": { "tooltip": "集成應用" },
+    "button-call": { "text": "", "tooltip": "開啟會話" },
+    "button-edit": { "text": "", "tooltip": "修改我的名片" },
+    "button-select": { "text": "", "tooltip": "添加" },
+    "button-add-contact": { "text": "", "tooltip": "添加到我的聯繫人" },
+    "button-delete-session": { "text": "", "tooltip": "刪除會話記錄" },
+    "delete-chat": { "label": "刪除聊天" },
+    "main-phone" : {
+    	"chat": "聊天",
+    	"contact": "聯系人",
+    	"application": "應用",
+    	"me": "我"
+    	}
+
+  },
+  "emotion-select-dialog": {
+    "title": "默認表情"
+  },
+  "find-text-frame": {
+    "edit-search": { "bg-text": "在當前頁查找" },
+    "button-up": { "tooltip": "上一個" },
+    "button-down": { "tooltip": "下一個" },
+    "button-close": { "tooltip": "關閉查找欄" }
+  },
+  "search-bar": {
+    "button-back": { "tooltip": "轉到上一頁" },
+    "button-forward": { "tooltip": "轉到下一頁" },
+    "button-refresh": { "tooltip": "重新載入當前網頁" },
+    "button-stop": { "tooltip": "停止載入當前網頁" },
+    "button-options": { "tooltip": "選項" },
+    "options-menu" : {
+  		"save-url-history": { "text": "保存當前瀏覽記錄", "tooltip": "" },
+  		"clear-all-history": { "text": "清楚所有瀏覽記錄...", "tooltip": "" },
+  		"clear-chrome-cache": { "text": "清除 Chrome 本地緩存...", "tooltip": "" }
+   	}
+  },
+  "search-result": {
+    "context-menu" : {
+    	"copy": { "text": "複製(&C)", "tooltip": "" },
+   	  "delete": { "text": "刪除(&D)", "tooltip": "" },
+   	  "open-chat": { "text": "開啟會話", "tooltip": "" }
+   	}
+  },
+  "file-manager": {
+  	"title" : "文件管理",
+  	"button-traning-file": { "text": "正在傳輸","tooltip": "" },
+  	"button-traned-file": { "text": "接收文件","tooltip": "" },
+  	"edit-search": { "bg-text": "搜索文件","tooltip": "" },
+  	"button-refresh": { "text": "刷新","tooltip": "" },
+  	"button-delete-file": { "tooltip": "刪除文件" },
+  	"button-open-file": { "tooltip": "開啟文件" },
+  	"button-open-dir": { "tooltip": "開啟目錄" }
+ 	},
+  "tran-file": {
+  	"title" : "文件傳輸",
+  	"button-save-cloud": { "text": "存到雲盤","tooltip": "保存到我的雲盤" },
+  	"button-save-as": {
+  		"text": "另存","tooltip": "保存文件到指定目錄",
+  		"file-dialog": { "caption": "文件另存", "filter": "所有文件" }
+  	},
+  	"button-save": { "text": "保存","tooltip": "保存文件到默認目錄" },
+  	"button-reject": { "text": "拒絕","tooltip": "拒絕接收文件" },
+  	"button-reject-cancel": { "text": "取消","tooltip": "停止接收文件" },
+  	"button-off-send": { "text": "離綫發送","tooltip": "發送離綫文件" },
+  	"button-cancel-send": { "text": "取消","tooltip": "取消發送" },
+  	"button-cancel-down": { "text": "取消","tooltip": "取消下載文件" }
+ 	},
+  "user-info": {
+  	"title": "電子名片",
+    "label-user-name": { "text": "姓名：" },
+    "label-account": { "text": "帳號：" },
+    "label-tel": { "text": "電話：" },
+    "label-phone": { "text": "手機：" },
+    "label-email": { "text": "郵箱：" },
+    "label-job-title": { "text": "職務：" },
+    "label-group-name": { "text": "部門：" },
+    "label-enterprise": { "text": "公司：" },
+    "label-address": { "text": "地址：" },
+    "button-add-contact": { "text": "加為好友","tooltip": "點擊申請加為好友" }
+  },
+  "user-list": {
+  	"title": "群成員"
+  },
+  "chat-record": {
+  	"title": "聊天記錄",
+  	"button-view-all": { "text": "全部", "tooltip": "" },
+  	"button-view-image": { "text": "圖片", "tooltip": "" },
+  	"button-view-file": { "text": "文件", "tooltip": "" },
+  	"button-view-audio": { "text": "語音", "tooltip": "" },
+  	"button-view-text": { "text": "文本", "tooltip": "" },
+  	"edit-search": { "bg-text": "搜索本地聊天記錄", "tooltip": "" },
+  	"button-clear-all": { "text": "清空記錄", "tooltip": "刪除當前會話所有本地聊天記錄" },
+  	"checkbox-online-msg": { "text": "查看漫遊消息", "tooltip": "查看漫遊消息（在綫聊天記錄）" },
+  	"date-search": { "format": "yyyy年MM月dd日" },
+  	"button-move-first": { "tooltip": "第一頁" },
+  	"button-move-prev": { "tooltip": "上一頁" },
+  	"button-move-next": { "tooltip": "下一頁" },
+  	"button-move-last": { "tooltip": "最後一頁" }
+  },
+  "video-frame": {
+  	"title": "視頻面板",
+  	"button-on-group": { "text": "開啟視頻", "tooltip": "開啟本地視頻" },
+  	"button-end-group": { "text": "關閉視頻", "tooltip": "關閉本地視頻" },
+  	"button-group-join": { "text": "加入會議", "tooltip": "加入視頻會議" },
+  	"button-group-exit": { "text": "退出會議", "tooltip": "退出視頻會議" },
+  	"button-accept": { "text": "接受", "tooltip": "接收視頻通話" },
+  	"button-end": { "text": "結束", "tooltip": "結束視頻通話" },
+  	"button-reject": { "text": "拒絕", "tooltip": "拒絕視頻通話" }
+  },
+  "work-frame": {
+  	"user-list": { "text": "群成員", "tooltip": "成員列表" },
+  	"about-blank": { "text": "新標籤頁" },
+    "button-showhide-show": { "tooltip": "顯示應用導航欄" },
+    "button-showhide-hide": { "tooltip": "隱藏應用導航欄" },
+    "button-add": { "tooltip": "開啟新標籤頁" }
+  },
+  "frame-list": {
+  	"window-size": { "width": 1180, "height": 668 },
+  	"work-frame" : {"text": "工作臺", "tooltip": "工作臺" },
+  	"main-frame" : {"text": "聯繫人", "tooltip": "" },
+    "button-showhide-show": { "tooltip": "展開面板" },
+    "button-showhide-hide": { "tooltip": "收起面板" },
+    "context-menu" :
+    	{
+    		"show-icon-only": { "text": "僅顯示圖標", "tooltip": "" },
+    		"open-work-frame": { "text": "開啟工作臺", "tooltip": "" }
+    	}
+  },
+  "chat-base-dialog": {
+  	"button-add-user": { "label": "邀請好友", "tooltip": "邀請多人聊天" },
+  	"button-send-file": { "tooltip": "發送文件" },
+  	"button-video-chat": { "tooltip": "開始視頻通話（語音聊天）" },
+  	"button-group-video": { "tooltip": "申請加入視頻會議（多人語音）" },
+  	"button-group-share": { "tooltip": "開啟群共享" },
+  	"button-chat-apps": { "tooltip": "集成應用" },
+  	"button-exit-chat": { "tooltip": "退出會話" }
+  },
+  "chat-input-widget": {
+  	"button-emotion": { "tooltip": "發送表情" },
+  	"button-msg-record": { "label": "消息記錄", "tooltip": "查看消息記錄" },
+  	"button-close": { "text": "關閉(&C)",  "tooltip": "關閉" },
+  	"press-speech": { "label": "按住說話" },
+  	"button-send": {
+  		"label": "發送",
+  		"text": "發送(&S)",
+  		"tooltip": { "1": "按Enter鍵發送消息，按Ctrl+Enter換行", "2": "按Ctrl+Enter鍵發送消息，按Enter換行" },
+  		"switch-menu" : { "1": "按Enter鍵發送消息", "2": "按Ctrl+Enter鍵發送消息" }
+  	}  	
+  },
+  "chat-toolbar": {
+  	"selected-text": {
+  		"copy": { "text": "複製", "tooltip": "複製選擇文本到剪貼板" },
+  		"saveas": {
+  			"text": "另存為...", "tooltip": "選擇文本另存到文件",
+  			"file-dialog": { "caption": "保存到文本文件", "filter": "文本文件" }
+  		}
+  	},
+  	"point-image": {
+  		"open": { "text": "開啟", "tooltip": "開啟圖片" },
+  		"open-dir": { "text": "開啟目錄", "tooltip": "開啟圖片文件存放目錄" },
+  		"copy": { "text": "複製", "tooltip": "複製圖片到剪貼板" },
+  		"saveas": {
+  			"text": "另存為...", "tooltip": "圖片另存為" ,
+  			"file-dialog": { "caption": "圖片另存到文件", "filter": "圖片文件" }
+  		}
+  	},
+  	"point-file": {
+  		"open": { "text": "開啟", "tooltip": "開啟文件" },
+  		"open-dir": { "text": "開啟目錄", "tooltip": "開啟文件存放目錄" },
+  		"copy": { "text": "複製", "tooltip": "複製文件到剪貼板" },
+  		"saveas": {
+  			"text": "另存為...", "tooltip": "文件另存為" ,
+  			"file-dialog": { "caption": "文件另存", "filter": "所有文件" }
+  		}
+  	},
+  	"point-user-head": {
+  		"delete": { "text": "刪除", "tooltip": "刪除本地聊天消息" },
+  		"collect": { "text": "收藏", "tooltip": "添加消息到個人收藏" },
+  		"withdraw": { "text": "撤回", "tooltip": "撤回消息" }
+  	}
+
+  },
+  "message-notify-setting" : {
+  	"title": "消息通知提醒設置", 
+  	"new-message-notify": "接收新消息通知", 
+  	"detail-message-notify": "通知顯示消息詳情", 
+  	"voice": "聲音",
+  	"vibrate": "振動",
+  	"checked": "開",
+  	"uncheck": "關"
+ 
+  }
+
+  
+}

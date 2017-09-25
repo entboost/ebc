@@ -392,6 +392,7 @@ const int	EB_MAX_REQUEST_OS_COUNT	= 140;		// 一次最多请求数据补偿数�
 #define EB_CALL_NAME_UM_GINFO			"eb_u_ginfo"
 #define EB_CALL_NAME_UM_MGR				"eb_u_mgr"
 #define EB_CALL_NAME_UM_SHEAD			"eb_u_shead"
+#define EB_CALL_NAME_UM_SPUSH			"eb_u_spush"
 #define EB_CALL_NAME_UM_ONLINE			"eb_u_online"
 #define EB_CALL_NAME_UM_LOAD			"eb_u_load"
 #define EB_CALL_NAME_UM_LOAD2			"eb_u_load2"

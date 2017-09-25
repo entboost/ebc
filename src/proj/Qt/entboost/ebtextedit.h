@@ -3,7 +3,7 @@
 
 #include <ebclientapp.h>
 #include <QTextEdit>
-const QString theMimeDataResourceName("mime-resource:");
+//const QString theMimeDataResourceName("mime-resource:");
 
 class EbTextEdit : public QTextEdit
 {

@@ -81,7 +81,7 @@ EbDialogLogin::EbDialogLogin(QWidget *parent)
 
     /// 产品名称 & 登录LOGO
     updateProductName();
-    updateEntLogo(theApp->getAppImgPath() + "/entlogo");    /// 企业定制LOGO，空或不存在使用系统默认
+    updateEntLogo(theApp->appImgPath() + "/entlogo");    /// 企业定制LOGO，空或不存在使用系统默认
 
     EbIconHelper::Instance()->SetIcon(ui->pushButtonSetting,QChar(0xf0d7),10);
     {
@@ -128,7 +128,7 @@ EbDialogLogin::EbDialogLogin(QWidget *parent)
 #ifdef WIN32
         const int const_checkbox_width = 70;
 #else
-        const int const_checkbox_width = 75;
+        const int const_checkbox_width = 80;    /// 75
 #endif
         const int const_checkbox_height = 14;
         ui->checkBoxSavePwd->setGeometry( const_left_interval, y,const_checkbox_width, const_checkbox_height );
@@ -228,6 +228,7 @@ void EbDialogLogin::updateLocaleInfo()
     ui->lineEditPassword->setToolTip( theLocales.getLocalText("login-dialog.edit-password.tooltip", "") );
     ui->lineEditPassword->setPlaceholderText( theLocales.getLocalText("login-dialog.edit-password.bg-text", "Password") );
     ui->checkBoxSavePwd->setText( theLocales.getLocalText("login-dialog.checkbox-savepwd.text", "SavePwd") );
+    ui->checkBoxSavePwd->setToolTip( theLocales.getLocalText("login-dialog.checkbox-savepwd.tooltip", "") );
     ui->checkBoxAutoRun->setText( theLocales.getLocalText("login-dialog.checkbox-autorun.text", "AutoRun") );
     ui->pushButtonLogon->setText( theLocales.getLocalText("login-dialog.button-logon.text", "Login") );
     ui->pushButtonLogon->setToolTip( theLocales.getLocalText("login-dialog.button-logon.tooltip", "") );
@@ -336,6 +337,7 @@ void EbDialogLogin::loadLoginData(void)
         const mycp::tstring sAccount( pRecord->getVector()[1]->getStr() );
         const mycp::tstring sRealAccount( pRecord->getVector()[2]->getStr() );
         if (sAccount.empty() || sRealAccount.empty() || m_pLoginInfoList.exist(nUserId)) {
+            pRecord = theApp->m_sqliteEbc->next(nCookie);
             continue;
         }
         const mycp::tstring sPassword( pRecord->getVector()[3]->getStr() );
@@ -519,17 +521,17 @@ void EbDialogLogin::onAppIdSuccess(QEvent *)
 //    const EB_Event * pEvent = (EB_Event*)e;
     updateProductName();
     if (theApp->isLicenseUser())
-        updateEntLogo(theApp->getAppImgPath() + "/entlogo");    /// 企业定制LOGO，空或不存在使用系统默认
+        updateEntLogo(theApp->appImgPath() + "/entlogo");    /// 企业定制LOGO，空或不存在使用系统默认
     else
         updateEntLogo("");
     ui->pushButtonLogon->setEnabled(true);
     ui->pushButtonVisitorLogon->setVisible(theApp->isOpenVisitor()?true:false);
     ui->pushButtonRegister->setVisible(theApp->openRegister()==0?false:true);
-    if (!theApp->isOpenVisitor() && theApp->openRegister()) {
+    if (!theApp->isOpenVisitor() && theApp->isOpenRegister()) {
         /// 优化 “我的注册” 按钮，自动显示在最左边
         ui->pushButtonRegister->move(ui->pushButtonVisitorLogon->geometry().topLeft());
     }
-    else if (theApp->isOpenVisitor() && theApp->openRegister()) {
+    else if (theApp->isOpenVisitor() && theApp->isOpenRegister()) {
         /// 优化 “我的注册” 按钮，自动显示在第二个
         const int x = ui->pushButtonVisitorLogon->geometry().left()+const_button_interval;
         const int y = ui->pushButtonVisitorLogon->geometry().y();
@@ -1005,7 +1007,7 @@ void EbDialogLogin::onClickedPushButtonDeleteAccount(void)
     setErrorText( "",false );
 
     const mycp::tstring sRealUserAccount(loginInfo->m_sRealAccount);
-    const QString sUserDirectory = theApp->getAppUsersPath() + "/" + QString::fromStdString(sRealUserAccount.string());
+    const QString sUserDirectory = theApp->appUsersPath() + "/" + QString::fromStdString(sRealUserAccount.string());
     if (QFile::exists(sUserDirectory)) {
         QString title = theLocales.getLocalText("message-box.delete-logon-account.title", "删除登录信息");
         if (title.isEmpty())

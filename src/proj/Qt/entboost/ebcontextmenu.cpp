@@ -187,13 +187,16 @@ EbContextMenu::EbContextMenu(Type type,QWidget * parent)
         this->connect( action,SIGNAL(triggered()),this,SLOT(onTriggeredActionEditGroup()) );
         m_actionList.insert( actionData,action );
         /// 解散该群
-        text = theLocales.getLocalText("context-menu.delete-group.text","Delete Group");
-        text.replace( "[GROUP_TYPE_NAME]", theLocales.getGroupTypeName((int)EB_GROUP_TYPE_GROUP)->name().c_str() );
-        action = m_menuContext->addAction( text );
-        action->setToolTip( theLocales.getLocalText("context-menu.delete-group.tooltip","") );
-        actionData = EB_COMMAND_DELETE_DEPARTMENT;
-        this->connect( action,SIGNAL(triggered()),this,SLOT(onTriggeredActionDeleteGroup()) );
-        m_actionList.insert( actionData,action );
+        if (m_type!=UserList) {
+            /// 用户列表暂时不支持解散群组功能
+            text = theLocales.getLocalText("context-menu.delete-group.text","Delete Group");
+            text.replace( "[GROUP_TYPE_NAME]", theLocales.getGroupTypeName((int)EB_GROUP_TYPE_GROUP)->name().c_str() );
+            action = m_menuContext->addAction( text );
+            action->setToolTip( theLocales.getLocalText("context-menu.delete-group.tooltip","") );
+            actionData = EB_COMMAND_DELETE_DEPARTMENT;
+            this->connect( action,SIGNAL(triggered()),this,SLOT(onTriggeredActionDeleteGroup()) );
+            m_actionList.insert( actionData,action );
+        }
         /// 退出该群
         text = theLocales.getLocalText("context-menu.exit-group.text","Exit Group");
         text.replace( "[GROUP_TYPE_NAME]", theLocales.getGroupTypeName((int)EB_GROUP_TYPE_GROUP)->name().c_str() );
@@ -922,12 +925,11 @@ void EbContextMenu::onTriggeredActionDeleteMember()
     /// 确定移除：\r\n%s(%s) 吗？
     QString text = theLocales.getLocalText("message-box.delete-member.text","Confirm Delete Member?");
     text.replace( "[USER_ACCOUNT]", m_itemInfo->m_sAccount.string().c_str() );
-    char lpszUserId[24];
-    sprintf(lpszUserId,"%lld", m_itemInfo->m_nUserId);
-    text.replace( "[USER_ID]", lpszUserId );
+    text.replace( "[USER_ID]", QString::number(m_itemInfo->m_nUserId) );
     const int ret = EbMessageBox::doExec( 0,title, QChar::Null, text, EbMessageBox::IMAGE_QUESTION );
     if (ret==QDialog::Accepted) {
-        theApp->m_ebum.EB_DeleteMember(m_itemInfo->m_sMemberCode);
+        theApp->m_ebum.EB_DeleteMember(m_itemInfo->m_sGroupCode, m_itemInfo->m_nUserId);
+//        theApp->m_ebum.EB_DeleteMember(m_itemInfo->m_sMemberCode);
     }
 }
 

@@ -7,7 +7,7 @@
     "setting-button": { "tooltip": "设置" },
     "minimize-button": { "text": "最小化", "tooltip": "最小化" },
     "maximize-button": { "text": "最大化", "tooltip": "最大化" },
-    "exit-button": { "tooltip": "退出" },
+    "exit-button": { "text": "退出", "tooltip": "退出" },
     "ok-button": { "text": "确定" },
     "yes-button": { "text": "是" },
     "retry-button": { "text": "重试" },
@@ -19,6 +19,7 @@
     "no-button": { "tooltip": "否" },
     "ignore-button": { "tooltip": "忽略" },
     "register-button": { "text": "注册" },
+    "new-button": { "text": "新建" },
     "request-contact": {"text": "申请", "tooltip": "点击发送申请好友请求" },
     "add-contact-button": {"text": "加为好友", "tooltip": "点击申请添加好友" },
     "send-msg-button": {"text": "发送消息", "tooltip": "点击发送消息" }
@@ -93,6 +94,7 @@
   	"system-manager": { "text": "管理中心", "tooltip": "" },
   	"new-sub-group": { "text": "新建下级[GROUP_TYPE_NAME]", "tooltip": "" },
   	
+    "add-member": { "text": "添加成员", "tooltip": "" },
   	"new-group": { "text": "新建[GROUP_TYPE_NAME]", "tooltip": "" },
   	"edit-group": { "text": "修改[GROUP_TYPE_NAME]资料", "tooltip": "" },
   	"delete-group": { "text": "解散该[GROUP_TYPE_NAME]", "tooltip": "" },
@@ -123,6 +125,9 @@
     "quit": { "text": "退出", "tooltip": "退出" }
   },
   "name-text": {
+  	"group-chat": "群聊",
+  	"more": "更多",
+  	"detail": "详细资料",
   	"mobile": "手机",
   	"tel": "电话",
   	"fax": "传真",
@@ -135,8 +140,15 @@
   	"default-group-name": "默认分组",
   	"visitor": "游客",
   	"text": "文本",
+  	"file": "文件",
+    "ecard": "名片",
+    "album": "相册",
+  	"shoot": "拍摄",
   	"image": "图片",
   	"yesterday": "昨天",
+  	"year": "年",
+  	"month": "月",
+  	"date": "日",
   	"day": "天",
   	"hour": "小时",
   	"minute": "分钟"
@@ -187,44 +199,49 @@
   },
   "group-info-dialog": {
   	"title": "[GROUP_TYPE_NAME]资料",
-    "label-group-name": { "text": "[GROUP_TYPE_NAME]：" },
-    "edit-group-name": { "bg-text": "**[GROUP_TYPE_NAME]名称**"},
+    "label-group-name": { "label": "[GROUP_TYPE_NAME]名称", "text": "[GROUP_TYPE_NAME]：" },
+    "edit-group-name": { "bg-text": "请输入[GROUP_TYPE_NAME]名称"},
     "label-manager": { "text": "[GROUP_TYPE_MANAGER]：" },
+    "set-manager": { "label": "设为[GROUP_TYPE_MANAGER]" },
     "label-manager-user-name": { "tooltip": "点击设置[GROUP_TYPE_MANAGER]" },
-    "label-tel": { "text": "电      话：" },
-    "label-fax": { "text": "传      真：" },
-    "label-email": { "text": "邮      箱：" },
-    "label-url": { "text": "网      址：" },
-    "label-address": { "text": "地      址：" },
+    "label-tel": { "label": "电话", "text": "电      话：" },
+    "label-fax": { "label": "传真", "text": "传      真：" },
+    "label-email": { "label": "邮箱", "text": "邮      箱：" },
+    "label-url": { "label": "网址", "text": "网      址：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
     "label-display-index": { "text": "显示排序：" },
-    "label-description": { "text": "备      注：" }
+    "label-description": { "label": "备注", "text": "备      注：" },
+    "label-parent-group": { "label": "上级"},
+    "label-sub-group": { "label": "下级"},
+    "label-enterprise": { "label": "公司"}    
   },
   "member-info-dialog": {
     "title": "[GROUP_TYPE_MEMBER]资料",
     "label-user-head": { "tooltip": "点击更换头像" },
-    "label-account": { "text": "帐号：" },
+    "label-account": { "label": "帐号", "text": "帐号：" },
     "edit-account": {
       "tooltip": "登录帐号",
-      "bg-text": "**请输入登录帐号**"
+      "bg-text": "请输入登录帐号"
     },
-    "label-group-name": { "text": "[GROUP_TYPE_NAME]：" },
-    "label-user-name": { "text": "姓      名：" },
+    "label-group-name": { "label": "[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_NAME]：" },
+    "label-enterprise": { "label": "公司" },
+    "label-user-name": { "label": "姓名", "text": "姓      名：" },
     "edit-user-name": {
       "tooltip": "用户名称",
-      "bg-text": "**请输入用户名称姓名**"
+      "bg-text": "请输入用户名称"
     },
-    "label-job-title": { "text": "职      位：" },
-    "label-gender": { "text": "性      别：" },
-    "label-job-position": { "text": "岗位级别：" },
-    "label-birthday": { "text": "生      日：" },
+    "label-job-title": { "label": "职位", "text": "职      位：" },
+    "label-gender": { "label": "性别", "text": "性      别：" },
+    "label-job-position": { "label": "岗位", "text": "岗位级别：" },
+    "label-birthday": { "label": "生日", "text": "生      日：" },
     "date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
-    "label-tel": { "text": "电      话：" },
-    "label-phone": { "text": "手      机：" },
-    "label-fax": { "text": "传      真：" },
-    "label-email": { "text": "邮      箱：" },
+    "label-tel": { "label": "电话", "text": "电      话：" },
+    "label-phone": { "label": "手机", "text": "手      机：" },
+    "label-fax": { "label": "传真", "text": "传      真：" },
+    "label-email": { "label": "邮箱", "text": "邮      箱：" },
     "label-display-index": { "text": "显示排序：" },
-    "label-address": { "text": "地      址：" },
-    "label-description": { "text": "个性签名：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
+    "label-description": { "label": "签名", "text": "个性签名：" },
 
     "edit-account": { "tooltip": "请输入注册新帐号！", "bg-text": "请输入注册新帐号"},
     "button-default-member": { "text-0":"设为默认名片", "text-1":"当前默认名片", "tooltip": "默认名片用于聊天窗口显示电子名片" }
@@ -238,26 +255,26 @@
   },
   "contact-info-dialog": {
     "title": "联系人资料",
-    "label-contact": { "text": "联  系  人：" },
+    "label-contact": { "label": "联系人", "text": "联  系  人：" },
     "edit-contact": {
       "tooltip": "联系人帐号",
       "bg-text": "**请输入联系人帐号**"
     },
-    "label-group-name": { "text": "分      组：" },
-    "label-user-name": { "text": "姓      名：" },
+    "label-group-name": { "label": "分组", "text": "分      组：" },
+    "label-user-name": { "label": "姓名", "text": "姓      名：" },
     "edit-user-name": {
       "tooltip": "用户名称",
       "bg-text": "**请输入联系人姓名"
     },
-    "label-phone": { "text": "手      机：" },
-    "label-enterprise": { "text": "公      司：" },
-    "label-job-title": { "text": "职      位：" },
-    "label-url": { "text": "网      址：" },
-    "label-tel": { "text": "电      话：" },
-    "label-email": { "text": "邮      箱：" },
-    "label-fax": { "text": "传      真：" },
-    "label-address": { "text": "地      址：" },
-    "label-description": { "text": "备      注：" },
+    "label-phone": { "label": "手机", "text": "手      机：" },
+    "label-enterprise": { "label": "公司", "text": "公      司：" },
+    "label-job-title": { "label": "职位", "text": "职      位：" },
+    "label-url": { "label": "网址", "text": "网      址：" },
+    "label-tel": { "label": "电话", "text": "电      话：" },
+    "label-email": { "label": "邮箱", "text": "邮      箱：" },
+    "label-fax": { "label": "传真", "text": "传      真：" },
+    "label-address": { "label": "地址", "text": "地      址：" },
+    "label-description": { "label": "备注", "text": "备      注：" },
     "button-add-contact": { "text": "加为好友","tooltip": "点击申请添加好友" }
   },
   "register-dialog": {
@@ -271,8 +288,8 @@
   },
   "on-appid-response": {
   	"not-support-version" : {"title": "", "text": "系统不支持当前版本：<br>请更新客户端后重试！"},
-  	"timeout-error": { "title": "验证APPID", "text": "服务器连接超时，请退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" },
-  	"other-error": { "title": "验证APPID", "text": "系统APPID验证失败，请退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" }
+  	"timeout-error": { "title": "验证APPID", "text": "服务器连接超时，请检查网络，或退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" },
+  	"other-error": { "title": "验证APPID", "text": "系统APPID验证失败，请检查网络，或退出程序后重新进入，或检查修改连接服务器地址后重试！<br>错误代码: [STATE_CODE]" }
 
   },
   "on-group-edit-response": {
@@ -348,10 +365,27 @@
   	"acc-pwd-error" : {"title": "", "text": "密码错误，请重新输入！<br>错误代码: [STATE_CODE]"},
   	"other-error" : {"title": "", "text": "个人资料修改失败，请重试！<br>错误代码: [STATE_CODE]"}
   },
+  "account-info-widget" : {
+		"label-account": { "label": "帐号", "text": "帐      号：" },
+		"label-name": { "label": "名称", "text": "名      称：" },
+		"label-gender": { "label": "性别", "text": "性      别：" },
+		"label-birthday": { "label": "生日", "text": "生      日：" },
+		"date-birthday": { "format": "yyyy 年 MM 月 dd 日" },
+		"label-phone": { "label": "手机", "text": "手      机：" },
+		"label-tel": { "label": "电话", "text": "电      话：" },
+		"label-email": { "label": "邮箱", "text": "邮      箱" },
+		"label-url": { "label": "主页", "text": "主      页：" },
+		"label-area": { "label": "地区", "text": "地      区" },
+		"label-address": { "label": "地址", "text": "地      址：" },
+		"label-zipcode": { "label": "邮编", "text": "邮      编：" },
+		"label-description": { "label": "备注", "text": "备      注：" }
+},
+
   "my-center-dialog": {
     "title": "个人中心",
     "button-account-info": { "text": "帐号信息", "tooltip": ""},
     "button-my-setting": { "text": "个人设置", "tooltip": "" },
+    "button-message-notify": { "text": "通知提醒", "tooltip": "" },
     "button-modify-password": { "text": "修改密码", "tooltip": "" },
     "button-video-setting": { "text": "视频设置", "tooltip": "" },
     "account-info-widget" : {
@@ -366,13 +400,13 @@
     	"label-url": { "text": "主      页：" },
     	"label-area": { "text": "地      区" },
     	"label-address": { "text": "地      址：" },
-    	"label-zipcode": { "text": "邮      箱：" },
+    	"label-zipcode": { "text": "邮      编：" },
     	"label-description": { "text": "备      注：" }
     },
     "modify-password-widget" : {
-    	"label-current-password": { "text": "当前密码：" },
-    	"label-new-password": { "text": "新密码：" },
-    	"label-confirm-password": { "text": "确认密码：" }
+    	"label-current-password": { "text": "当前密码：", "bg-text": "当前密码" },
+    	"label-new-password": { "text": "新密码：", "bg-text": "新密码" },
+    	"label-confirm-password": { "text": "确认密码：", "bg-text": "确认密码" }
     },
     "video-setting-widget" : {
     	"combo-video-devices": { "tooltip": "选择视频设备，打开预览视频，保存默认视频通话设备。" },
@@ -396,6 +430,7 @@
     "button-default": { "text": "默认头像", "tooltip": ""},
     "button-custom": { "text": "自定义头像", "tooltip": "" },
     "button-open-file": { "text": "本地图片", "tooltip": "点击选择本地图片文件" },
+    "button-open-video": { "text": "自拍头像", "tooltip": "" },
     "button-ok": { "text": "更换头像" },
     "open-file-dialog": { "caption": "选择本地图片文件", "filter":"图片文件" },
     "label-image-file-tip": { "text": "图片文件" },
@@ -405,7 +440,7 @@
     "title": "连接设置",
     "label-server-address": { "text": "服务器地址：" },
     "edit-server-address": {
-      "tooltip": "格式：IP:PORT（域名:PORT）；例如：192.168.10.100:18012",
+      "tooltip": "格式：IP:端口（域名:端口）；例如：192.168.10.100:18012",
       "bg-text": "留空默认连接公有云环境！"
     }
   },
@@ -436,6 +471,7 @@
   	"file": "文件",
   	"download": "下载",
   	"group-share": "群共享",
+    "new-message": "新消息",
 
   	"history-msg-separate": "-------- 以上是历史消息  --------",
   	"group-video-reqeust-ok": "打开本地视频加入视频会议...",
@@ -478,6 +514,8 @@
   	"user-receive-file": "已经接收文件",
   	"on-user-exit": "对方已经退出本次会话！",
   	"on-alerting-call": "对方已经退出本次会话，正在重新邀请，请稍候...！",
+    "send-rich-timeout": "发送超时，请稍候或检查网络连接后再试！",
+    "send-rich-error": "发送失败，请稍候或检查网络连接再试！",
   	
   	"max-capacity-error": "超过最大消息长度！",
   	"group-forbid-speech": "群禁言中！",
@@ -499,6 +537,9 @@
   	"msg-receipt-group": "[USER_NAME] 撤回了一条消息！"
   },
   "message-show": {
+    "logon-another": "已经在其他地方登录，退出当前连接。",
+    "finger-up-cancel": "手指快速上滑 取消发送",
+  	"press-again-exit": "再按一次退出",
   	"video-not-auth-error": "禁止视频会议功能权限：<br>请联系公司客服！",
   	"video-excess-quota-error": "超过视频会议用户数量：<br>请联系公司客服！",
   	"video-devices-empty-tip": "本地找不到视频设备：<br>请检查设备后重试一次！",
@@ -550,6 +591,8 @@
   	"clear-session": { "title": "清空会话记录", "text": "确定清空：<br>所有会话记录和聊天记录（包括临时图片和文件）吗？" },
   	"clear-group-chat-record": { "title": "清空聊天记录", "text": "确定清空：\"[GROUP_NAME]\"<br>本地聊天记录（包括临时图片和文件）吗？" },
   	"clear-user-chat-record": { "title": "清空聊天记录", "text": "确定清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"delete-session-group-chat": { "title": "删除聊天", "text": "确定删除：\"[GROUP_NAME]\"<br>本地聊天记录（包括临时图片和文件）吗？" },
+  	"delete-session-user-chat": { "title": "删除聊天", "text": "确定删除：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
   	"clear-session-group-chat-record": { "title": "清空聊天记录", "text": "已经删除会话记录，确定同时清空：\"[GROUP_NAME]\"<br>本地聊天记录（包括临时图片和文件）吗？" },
   	"clear-session-user-chat-record": { "title": "清空聊天记录", "text": "已经删除会话记录，确定同时清空：\"[USER_NAME]([USER_ID])\"<br>本地聊天记录（包括临时图片和文件）吗？" },
   	"creator-exit-group": { "title": "退出[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_MANAGER]退出，将会解散当前[GROUP_TYPE_NAME]<br>确定解散：<br>\"[GROUP_NAME]\" 吗？" },
@@ -579,16 +622,23 @@
     "up-button-my-share": { "tooltip": "个人云盘" },
     "up-button-apps": { "tooltip": "集成应用" },
     "edit-search": { "bg-text": "搜索用户、浏览记录、集成应用(/)", "tooltip": "搜索" },
-    "mid-button-my-group": { "tooltip": "我的部门（群和讨论组）" },
-    "mid-button-my-contact": { "tooltip": "联系人" },
+    "mid-button-my-group": { "text": "部门群组", "tooltip": "我的部门（群和讨论组）" },
+    "mid-button-my-contact": { "text": "我的好友", "tooltip": "我的好友（联系人）" },
     "mid-button-my-session": { "tooltip": "最近会话" },
-    "mid-button-my-ent": { "tooltip": "公司组织架构" },
+    "mid-button-my-ent": { "text": "公司架构", "tooltip": "公司组织架构" },
     "mid-button-my-app": { "tooltip": "集成应用" },
     "button-call": { "text": "", "tooltip": "打开会话" },
     "button-edit": { "text": "", "tooltip": "修改我的名片" },
     "button-select": { "text": "", "tooltip": "添加" },
     "button-add-contact": { "text": "", "tooltip": "添加到我的联系人" },
-    "button-delete-session": { "text": "", "tooltip": "删除会话记录" }
+    "button-delete-session": { "text": "", "tooltip": "删除会话记录" },
+    "delete-chat": { "label": "删除聊天" },
+    "main-phone" : {
+    	"chat": "聊天",
+    	"contact": "联系人",
+    	"application": "应用",
+    	"me": "我"
+    	}
   },
   "emotion-select-dialog": {
     "title": "默认表情"
@@ -704,7 +754,7 @@
     	}
   },
   "chat-base-dialog": {
-  	"button-add-user": { "tooltip": "邀请多人聊天" },
+  	"button-add-user": { "label": "邀请好友", "tooltip": "邀请多人聊天" },
   	"button-send-file": { "tooltip": "发送文件" },
   	"button-video-chat": { "tooltip": "开始视频通话（语音聊天）" },
   	"button-group-video": { "tooltip": "申请加入视频会议（多人语音）" },
@@ -714,9 +764,11 @@
   },
   "chat-input-widget": {
   	"button-emotion": { "tooltip": "发送表情" },
-  	"button-msg-record": { "tooltip": "查看消息记录" },
+  	"button-msg-record": { "label": "消息记录", "tooltip": "查看消息记录" },
   	"button-close": { "text": "关闭(&C)",  "tooltip": "关闭" },
+  	"press-speech": { "label": "按住说话" },
   	"button-send": {
+  		"label": "发送",
   		"text": "发送(&S)",
   		"tooltip": { "1": "按Enter键发送消息，按Ctrl+Enter换行", "2": "按Ctrl+Enter键发送消息，按Enter换行" },
   		"switch-menu" : { "1": "按Enter键发送消息", "2": "按Ctrl+Enter键发送消息" }
@@ -754,6 +806,16 @@
   		"withdraw": { "text": "撤回", "tooltip": "撤回消息" }
   	}
 
+  },
+  "message-notify-setting" : {
+  	"title": "消息通知提醒设置", 
+  	"new-message-notify": "接收新消息通知", 
+  	"detail-message-notify": "通知显示消息详情", 
+  	"voice": "声音",
+  	"vibrate": "振动",
+  	"checked": "开",
+  	"uncheck": "关"
+ 
   }
   
 }

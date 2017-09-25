@@ -7,12 +7,27 @@ using namespace boost::property_tree;
 #ifdef _QT_MAKE_
 #include <QString>
 #endif
+#ifdef _QT_QML_
+#include <QtQuick/QQuickItem>
+#endif
 #include <boost/shared_ptr.hpp>
 #include <QColor>
 #include <vector>
 
 class EbGroupTypeName
+        #ifdef _QT_QML_
+        : public QQuickItem
+        #endif
+
 {
+#ifdef _QT_QML_
+    Q_OBJECT
+    Q_PROPERTY(int value READ value WRITE setValue)
+    Q_PROPERTY(QString groupTypeName READ groupTypeName)
+    Q_PROPERTY(QString groupTypeShortName READ groupTypeShortName)
+    Q_PROPERTY(QString groupTypeMember READ groupTypeMember)
+    Q_PROPERTY(QString groupTypeManager READ groupTypeManager)
+#endif
 public:
     typedef boost::shared_ptr<EbGroupTypeName> pointer;
     static EbGroupTypeName::pointer create(int value, const std::string &name, const std::string &shortName);
@@ -25,6 +40,15 @@ public:
     void setManager(const std::string &v) {m_manager=v;}
     const std::string &manager(void) const {return m_manager;}
     EbGroupTypeName(int value, const std::string &name, const std::string &shortName);
+#ifdef _QT_QML_
+    EbGroupTypeName(QQuickItem *parent=0);
+    EbGroupTypeName(const EbGroupTypeName *other, QQuickItem *parent=0);
+    QString groupTypeName() const {return QString::fromStdString(m_name);}
+    QString groupTypeShortName() const {return QString::fromStdString(m_shortName);}
+    QString groupTypeMember() const {return QString::fromStdString(m_member);}
+    QString groupTypeManager() const {return QString::fromStdString(m_manager);}
+#endif
+
 private:
     int m_value;            /// 0,1,2,9
     std::string m_name;         /// 部门/
@@ -104,18 +128,21 @@ public:
     bool loadLocaleFile(const std::string &fileName);
     void loadLocaleFile(void);
     int getLocalInt(const char *textPath, int defaultInt);
-    std::string getLocalStdString(const char *textPath, const char *defaultText);
+    std::string getLocalStdString(const char *textPath, const char *defaultText) const;
 #ifdef _QT_MAKE_
-    Q_INVOKABLE QString getLocalText(const QString &textPath, const QString &defaultText);
-    QString getLocalText(const char *textPath, const char *defaultText);
+    Q_INVOKABLE QString getLocalText(const QString &textPath, const QString &defaultText) const;
+    QString getLocalText(const char *textPath, const char *defaultText) const;
 #else
-    std::string getLocalText(const char *textPath, const char *defaultText);
+    std::string getLocalText(const char *textPath, const char *defaultText) const;
 #endif
 
     int titleBackgroundHeight(void) const {return m_titleBackgroundHeight;}
     const std::vector<EbColorInfo::pointer> &colors(void) const {return m_colors;}
     const EbDayOfWeekInfo::pointer &getDayOfWeekInfo(int dayOfWeek) const;
     const EbGroupTypeName::pointer &getGroupTypeName(int groupType) const;
+#ifdef _QT_QML_
+    Q_INVOKABLE EbGroupTypeName *getGroupTypeInfo(int groupType) const;
+#endif
     const std::vector<EbLocaleInfo::pointer> &localeInfoList(void) const {return m_localeInfoList;}
 private:
     ptree m_pt;

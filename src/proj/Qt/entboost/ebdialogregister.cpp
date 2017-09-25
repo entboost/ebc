@@ -67,7 +67,7 @@ void EbDialogRegister::accept(void)
         ui->lineEditAccount->setFocus();
         /// 帐号不能为空：<br>请重新输入！
         EbMessageBox::doShow( NULL, "", QChar::Null,
-                              theLocales.getLocalText( "message-show.account-empty-error","Account Empty" ),
+                              theLocales.getLocalText("message-show.account-empty-error", "Account Empty"),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         return;
     }
@@ -76,7 +76,7 @@ void EbDialogRegister::accept(void)
         ui->lineEditPassword->setFocus();
         /// 密码不能为空：<br>请输入密码！
         EbMessageBox::doShow( NULL, "", QChar::Null,
-                              theLocales.getLocalText( "message-show.password-empty","Password Empty" ),
+                              theLocales.getLocalText("message-show.password-empty", "Password Empty"),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         return;
     }
@@ -85,7 +85,7 @@ void EbDialogRegister::accept(void)
         ui->lineEditPwdConfirm->setFocus();
         /// 确认密码不能为空：<br>请输入确认密码！
         EbMessageBox::doShow( NULL, "", QChar::Null,
-                              theLocales.getLocalText( "message-show.confirm-pwd-empty","Confirm Password Empty" ),
+                              theLocales.getLocalText("message-show.confirm-pwd-empty", "Confirm Password Empty"),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         return;
     }
@@ -94,7 +94,7 @@ void EbDialogRegister::accept(void)
         ui->lineEditPassword->selectAll();
         /// 密码不一致：<br>请重新输入！
         EbMessageBox::doShow( NULL, "", QChar::Null,
-                              theLocales.getLocalText( "message-show.password-not-equal","Password Not Equal" ),
+                              theLocales.getLocalText("message-show.password-not-equal", "Password Not Equal"),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         return;
     }
@@ -105,7 +105,7 @@ void EbDialogRegister::accept(void)
     if (!m_pEBAppClient.EB_IsInited()) {
         /// 本地服务启动失败：<br>请重试！
         EbMessageBox::doShow( NULL, "", QChar::Null,
-                              theLocales.getLocalText( "message-show.ebum-start-error","EBUM Start Error" ),
+                              theLocales.getLocalText("message-show.ebum-start-error", "EBUM Start Error"),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         return;
     }
@@ -116,9 +116,9 @@ void EbDialogRegister::accept(void)
     m_sEnterpriseName = ui->lineEditEntName->text();
     const eb::bigint sAppId = theApp->m_ebum.EB_GetDevAppId();
     const tstring sAppOnlineKey = theApp->m_ebum.EB_GetDevAppOnlineKey();
-    m_pEBAppClient.EB_SetDevAppOnlineKey(sAppId,sAppOnlineKey.c_str());
-    m_pEBAppClient.EB_Register(m_sAccount.toStdString().c_str(),m_sPassword.toStdString().c_str(),
-                               m_sUserName.toStdString().c_str(),m_sEnterpriseName.toStdString().c_str());
+    m_pEBAppClient.EB_SetDevAppOnlineKey(sAppId, sAppOnlineKey.c_str());
+    m_pEBAppClient.EB_Register(m_sAccount.toStdString().c_str(), m_sPassword.toStdString().c_str(),
+                               m_sUserName.toStdString().c_str(), m_sEnterpriseName.toStdString().c_str());
     return;
 
 //    if (m_oldServer==m_newServer) {
@@ -163,15 +163,15 @@ void EbDialogRegister::onRegisterResponse(QEvent *e)
         break;
     }
     case EB_STATE_CONTENT_BIG_LENGTH:
-        // 字段内容超过最大长度：<br>请重新输入！
+        /// 字段内容超过最大长度：<br>请重新输入！
         EbMessageBox::doShow( NULL, "", QChar::Null,
                               theLocales.getLocalText( "on-register-response.content-big-length.text","EB_STATE_CONTENT_BIG_LENGTH" ),
                               EbMessageBox::IMAGE_WARNING,default_warning_auto_close );
         break;
     case EB_STATE_OK: {
         m_nRegisterUserId = pEvent->GetEventBigParameter();
-        if (theApp->sendRegMail()) {
-            // 注册成功：<br>请及时查阅邮件，完成帐号验证！
+        if (theApp->isSendRegMail()) {
+            /// 注册成功：<br>请及时查阅邮件，完成帐号验证！
             sMessageText = theLocales.getLocalText( "on-register-response.ok-send-mail.text","EB_STATE_OK" );
         }
         else {
@@ -192,30 +192,30 @@ void EbDialogRegister::onRegisterResponse(QEvent *e)
         return;
     }
     case EB_STATE_ACCOUNT_ALREADY_EXIST:
-        // 帐号已经存在：<br>请更换帐号后重试！
+        /// 帐号已经存在：<br>请更换帐号后重试！
         sMessageText = theLocales.getLocalText( "on-register-response.account-already-exist.text","EB_STATE_ACCOUNT_ALREADY_EXIST" );
         break;
     case EB_STATE_ENTERPRISE_ALREADY_EXIST:
-        // 公司名称已经被注册：<br>请确认后重试！
+        /// 公司名称已经被注册：<br>请确认后重试！
         sMessageText = theLocales.getLocalText( "on-register-response.enterprise-already-exist.text","EB_STATE_ENTERPRISE_ALREADY_EXIST" );
         break;
     case EB_STATE_APPID_KEY_ERROR:
-        // APPID KEY错误：<br>请重试或联系公司客服！
+        /// APPID KEY错误：<br>请重试或联系公司客服！
         sMessageText = theLocales.getLocalText( "on-register-response.appid-key-error.text","EB_STATE_APPID_KEY_ERROR" );
         break;
     case EB_STATE_DISABLE_REGISTER_USER:
-        // 禁止用户注册功能：<br>请联系公司客服！
+        /// 禁止用户注册功能：<br>请联系公司客服！
         sMessageText = theLocales.getLocalText( "on-register-response.disable-register-account.text","EB_STATE_DISABLE_REGISTER_USER" );
         break;
     case EB_STATE_DISABLE_REGISTER_ENT:
         sMessageText = theLocales.getLocalText( "on-register-response.disable-register-ent.text","EB_STATE_DISABLE_REGISTER_ENT" );
         break;
     case EB_STATE_ERROR:
-        // 注册失败：<br>请重试！
+        /// 注册失败：<br>请重试！
         sMessageText = theLocales.getLocalText( "on-register-response.error.text","EB_STATE_ERROR" );
         break;
     default:
-        // 注册失败，请重试或联系公司客服：<br>错误代码：[STATE_CODE]
+        /// 注册失败，请重试或联系公司客服：<br>错误代码：[STATE_CODE]
         sMessageText = theLocales.getLocalText( "on-register-response.other-error.text","Other Error" );
         break;
     }

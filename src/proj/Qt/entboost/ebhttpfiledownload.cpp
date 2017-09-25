@@ -10,6 +10,7 @@ EbHttpFileDownload::EbHttpFileDownload(QObject *parent) : QObject(parent)
   , m_file(NULL)
 
   , m_downloadFinished(false)
+  , m_contentLength(0)
   , m_lastErrorCode(QNetworkReply::NoError)
 
 {
@@ -56,6 +57,7 @@ void EbHttpFileDownload::doDownloadHttpFile(void)
     m_reply = m_networkManager->get(request);
 //    connect(m_reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(onDownloadProgress(qint64, qint64)));
     connect(m_reply, SIGNAL(readyRead()), this, SLOT(replyReadyRead()));
+    connect(m_reply, SIGNAL(bytesWritten(qint64)), this, SLOT(replyBytesWritten(qint64)));
     connect(m_reply, SIGNAL(finished()), this, SLOT(replyFinished()));
     connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(replyError(QNetworkReply::NetworkError)));
 
@@ -85,8 +87,8 @@ void EbHttpFileDownload::replyReadyRead(void)
         return;
     }
     if (m_file==NULL) {
-        QVariant lastModified = m_reply->header(QNetworkRequest::LastModifiedHeader);
-        m_lastModified = lastModified.toString();
+        m_contentLength = m_reply->attribute(QNetworkRequest::OriginalContentLengthAttribute).toLongLong();
+        m_lastModified = m_reply->header(QNetworkRequest::LastModifiedHeader).toString();
         if (!m_oldLastModifited.isEmpty() && m_oldLastModifited==m_lastModified) {
             m_lastErrorCode = QNetworkReply::OperationCanceledError;
             m_downloadFinished = true;
@@ -99,6 +101,14 @@ void EbHttpFileDownload::replyReadyRead(void)
         m_file->open(QIODevice::WriteOnly);   /// 只写方式打开文件
     }
     m_file->write(m_reply->readAll());
+}
+
+void EbHttpFileDownload::replyBytesWritten(qint64 bytes)
+{
+    ///
+    const qint64 size = m_reply->size();
+    const qint64 contentLength = m_contentLength; /// downloadPercent;
+    int i=0;
 }
 
 void EbHttpFileDownload::replyFinished(void)

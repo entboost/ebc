@@ -1,0 +1,7 @@
+﻿{
+  "locales": [
+		{"language": "语言", "name": "中文简体", "file": "zh-CN.json" }, 
+		{"language": "語言", "name": "中文繁體", "file": "zh-TW.json" }
+  ]
+
+}

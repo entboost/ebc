@@ -7,6 +7,24 @@ EbGroupTypeName::EbGroupTypeName(int value, const std::string& name, const std::
     : m_value(value), m_name(name), m_shortName(shortName)
 {
 }
+
+
+#ifdef _QT_QML_
+EbGroupTypeName::EbGroupTypeName(QQuickItem *parent)
+    : QQuickItem(parent)
+    , m_value(0)
+{
+
+}
+EbGroupTypeName::EbGroupTypeName(const EbGroupTypeName *other, QQuickItem *parent)
+    : QQuickItem(parent)
+    , m_value(other->value()), m_name(other->name()), m_shortName(other->shortName())
+    , m_member(other->member()), m_manager(other->manager())
+{
+
+}
+#endif
+
 EbGroupTypeName::pointer EbGroupTypeName::create(int value, const std::string& name, const std::string& shortName)
 {
     return EbGroupTypeName::pointer(new EbGroupTypeName(value, name, shortName));
@@ -226,7 +244,7 @@ int EbcLocales::getLocalInt(const char* textPath, int defaultInt)
     return defaultInt;
 }
 
-std::string EbcLocales::getLocalStdString(const char* textPath, const char* defaultText)
+std::string EbcLocales::getLocalStdString(const char* textPath, const char* defaultText) const
 {
     try {
         return m_pt.get(textPath, defaultText);
@@ -239,7 +257,7 @@ std::string EbcLocales::getLocalStdString(const char* textPath, const char* defa
 }
 
 #ifdef _QT_MAKE_
-QString EbcLocales::getLocalText(const QString &textPath, const QString &defaultText)
+QString EbcLocales::getLocalText(const QString &textPath, const QString &defaultText) const
 {
     try {
         return QString::fromStdString(m_pt.get(textPath.toStdString(), defaultText.toStdString()));
@@ -253,9 +271,9 @@ QString EbcLocales::getLocalText(const QString &textPath, const QString &default
 #endif
 
 #ifdef _QT_MAKE_
-QString EbcLocales::getLocalText(const char* textPath, const char* defaultText)
+QString EbcLocales::getLocalText(const char* textPath, const char* defaultText) const
 #else
-std::string EbcLocales::getLocalText(const char* textPath, const char* defaultText)
+std::string EbcLocales::getLocalText(const char* textPath, const char* defaultText) const
 #endif
 {
     try {
@@ -293,6 +311,24 @@ const EbGroupTypeName::pointer & EbcLocales::getGroupTypeName(int groupType) con
     m_groupTypeNameTemp->setValue(groupType);
     return m_groupTypeNameTemp;
 }
+
+#ifdef _QT_QML_
+EbGroupTypeName *EbcLocales::getGroupTypeInfo(int groupType) const
+{
+    if (groupType==9) {
+        groupType = 3;  /// 临时讨论组
+    }
+    EbGroupTypeName::pointer result;
+    if (groupType>=0 && (groupType+1)<=(int)m_groupTypeNames.size()) {
+        result  = m_groupTypeNames[groupType];
+    }
+    else {
+        m_groupTypeNameTemp->setValue(groupType);
+        result = m_groupTypeNameTemp;
+    }
+    return new EbGroupTypeName(result.get());
+}
+#endif
 
 EbLocaleInfo::EbLocaleInfo(const QString &language, const QString &name, const QString &file)
     : m_language(language)

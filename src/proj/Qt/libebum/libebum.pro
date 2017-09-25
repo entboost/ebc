@@ -8,7 +8,7 @@
 QT       -= gui
 QT       += network
 android {
-QT       += quick
+QT       += quick androidextras
 }
 else {
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

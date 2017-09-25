@@ -15,6 +15,10 @@ EbTextBrowser::EbTextBrowser(const EbcCallInfo::pointer& pCallInfo,QWidget* pare
     , m_callInfo(pCallInfo)
     , m_timerIdFindTextBlockFromPosition(0)
 {
+    m_nLastMsgId = 0;
+    m_nFromUid = 0;
+    m_nToUid = 0;
+
 //    str.replace("&","&amp;");
 //    str.replace(">","&gt;");
 //    str.replace("<","&lt;");
@@ -227,6 +231,7 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
     tstring sInToName(sToName);
     theApp->m_sqliteUser->escape_string_in(sInToName);
 
+    int nDisplayIndex = 0;
     int nOutMsgLength = 0;
     const std::vector<EB_ChatRoomMsgItem*>& pRichMsgList = pRichMsg->GetList();
     for (size_t i=0; i<pRichMsgList.size(); i++) {
@@ -249,10 +254,11 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
                 CSqliteCdbc::escape_string_in(sText);
                 while (!sText.empty()) {
                     const tstring sSaveText = sText.size()>theMaxDatabaseTextSize?sText.substr(0,theMaxDatabaseTextSize):sText;
-                    sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_text,read_flag) "
-                                 "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s',%d)",
+                    sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_text,read_flag,display_index) "
+                                 "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s',%d,%d)",
                             sDBMsgTimeField.c_str(),sDBMsgTimeValue,pRichMsg->GetMsgId(),m_callInfo->m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendFrom,sInFromName.c_str(),
-                        sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),(int)MRT_TEXT,sSaveText.c_str(),nReadFlag);
+                            sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),(int)MRT_TEXT,sSaveText.c_str(),nReadFlag,
+                            nDisplayIndex++);
                     theApp->m_sqliteUser->execute(sSql);
                     sText = sText.substr(sSaveText.size());
                 }
@@ -285,10 +291,11 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
 //                this->insertHtml(sTemp);
 
                 if (saveHistory && theApp->isSaveConversationLocal() && !theApp->m_ebum.EB_IsLogonVisitor()) {
-                    sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag) "
-                                 "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s',%d)",
+                    sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag,display_index) "
+                                 "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s',%d,%d)",
                             sDBMsgTimeField.c_str(),sDBMsgTimeValue,pRichMsg->GetMsgId(),this->m_callInfo->m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendFrom,sInFromName.c_str(),
-                        sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),(int)MRT_JPG,sImageFileName.toStdString().c_str(),sDescription.c_str(),nReadFlag);
+                            sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),(int)MRT_JPG,sImageFileName.toStdString().c_str(),sDescription.c_str(),nReadFlag,
+                            nDisplayIndex++);
                     theApp->m_sqliteUser->execute(sSql);
                 }
             }
@@ -336,7 +343,8 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
                     const unsigned long dwDataSize = pMsgItem->GetSize();
                     FILE * hFile = fopen(sObjectFileName.toLocal8Bit().constData(),"wb");
                     if (hFile!=0) {
-                        fwrite(lpObjectData,dwDataSize,1,hFile);
+                        fwrite(lpObjectData,1,dwDataSize,hFile);
+//                        fwrite(lpObjectData,dwDataSize,1,hFile);
                         fclose(hFile);
                     }
                 }
@@ -1182,11 +1190,11 @@ void EbTextBrowser::loadHistoryMsg(int loadLastCount)
     char sql[512];
     if (m_callInfo->isGroupCall()) {
         sprintf( sql, "select Datetime(msg_time,'localtime'),msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag FROM msg_record_t "
-                      "WHERE dep_code=%lld ORDER BY msg_time DESC LIMIT %d",m_callInfo->groupId(),loadLastCount);
+                      "WHERE dep_code=%lld ORDER BY msg_time DESC,display_index DESC LIMIT %d",m_callInfo->groupId(),loadLastCount);
     }
     else if (m_callInfo->fromUserId()>0) {
         sprintf( sql, "select Datetime(msg_time,'localtime'),msg_id,off_time,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag FROM msg_record_t "
-                      "WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) ORDER BY msg_time DESC LIMIT %d",
+                      "WHERE dep_code=0 AND (from_uid=%lld OR to_uid=%lld) ORDER BY msg_time DESC,display_index DESC LIMIT %d",
                  m_callInfo->fromUserId(),m_callInfo->fromUserId(),loadLastCount);
     }
     else {
@@ -1198,10 +1206,9 @@ void EbTextBrowser::loadHistoryMsg(int loadLastCount)
 void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
 {
     this->clear();
-
-    //    m_nLastMsgId = 0;
-    //    m_nFromUid = 0;
-    //    m_nToUid = 0;
+    m_nLastMsgId = 0;
+    m_nFromUid = 0;
+    m_nToUid = 0;
     //CString sMsgTime;
     //time_t nLocalMsgTime = 0;
     tstring sToWriteString;
@@ -1229,7 +1236,9 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         pRecord = desc?theApp->m_sqliteUser->previous(nCookie):theApp->m_sqliteUser->next(nCookie);
 
         /// 前面未显示，并且当前文本不是最长文本，显示前面内容。
+//        if (!sToWriteString.empty() && msgId!=nLastMsgId) {
         if (!sToWriteString.empty() && nMsgSize!=theMaxDatabaseTextSize) {
+//            this->insertHtml(QString::fromStdString(sToWriteString.string()) );
             this->insertPlainTextEb( QString::fromStdString(sToWriteString.string()),QColor(64,64,64) );
             sToWriteString.clear();
         }
@@ -1242,8 +1251,9 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         time_t nMsgTime = 0;
         libEbc::ChangeTime(sMsgTime.c_str(),nMsgTime);
         const bool writeLeft = receive;
-        writeTitle( writeLeft,msgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag );
-        addChatMsgBlock( msgId,receive );
+        if (writeTitle( writeLeft,msgId,nPrivate==1,sFromAccount,sFromName,sToAccount,sToName,nMsgTime,nReadFlag )) {
+            addChatMsgBlock( msgId,receive );
+        }
         if ((nReadFlag&EBC_READ_FLAG_WITHDRAW)==EBC_READ_FLAG_WITHDRAW) {
             if (nLastWithdrawMsgId!=msgId) {
                 nLastWithdrawMsgId = msgId;
@@ -1262,6 +1272,7 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         }
         case MRT_TEXT: {
             /// 先临时保存，后面显示；处理分段保存长文本；
+//            sToWriteString = sToWriteString + sMsgText;
             if (sToWriteString.empty())
                 sToWriteString = sMsgText;
             else
@@ -1271,6 +1282,10 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
         case MRT_JPG: {
             /// 图片
             insertImage(sMsgName.c_str(), sMsgText.c_str());
+//            QString richText;
+//            insertImage(sMsgName.c_str(), sMsgText.c_str(), &richText);
+//            sToWriteString = sToWriteString + richText.toStdString();
+
 //            QString sTemp = QString("<img src=\"%1\" alt=\"%2\"/>").arg(sMsgName.c_str()).arg(sMsgText.c_str());
 //            this->insertHtml(sTemp);
             break;
@@ -1436,10 +1451,16 @@ void EbTextBrowser::getFromToName(bool bReceive,eb::bigint fromUserId, eb::bigin
 
 }
 
-void EbTextBrowser::writeTitle(bool writeLeft,eb::bigint msgId, bool bPrivate, eb::bigint nFromUid, const cgcSmartString &sFromName,
+bool EbTextBrowser::writeTitle(bool writeLeft,eb::bigint msgId, bool bPrivate, eb::bigint nFromUid, const cgcSmartString &sFromName,
                                eb::bigint nToUid, const cgcSmartString &/*sToName*/, time_t tMsgTime, int nReadFlag,
                                QString * pOutWindowText)
 {
+    if (m_nLastMsgId==msgId && m_nFromUid==nFromUid && m_nToUid==nToUid)
+        return false;
+    m_nLastMsgId = msgId;
+    m_nFromUid = nFromUid;
+    m_nToUid = nToUid;
+
     writeMsgDate(tMsgTime);
     const bool bReceive = nFromUid!=theApp->logonUserId()?true:false;
     QString sPrivateText;
@@ -1540,9 +1561,10 @@ void EbTextBrowser::writeTitle(bool writeLeft,eb::bigint msgId, bool bPrivate, e
 
 //    const long nReceiptFlag = (nReadFlag&EBC_READ_FLAG_RECEIPT)==EBC_READ_FLAG_RECEIPT?(EBC_CONTRON_RECEIPT_FLAG_SHOW|EBC_CONTRON_RECEIPT_FLAG_TRUE):EBC_CONTRON_RECEIPT_FLAG_SHOW;
 
+    return true;
 }
 
-bool EbTextBrowser::insertImage(const QString &filePath, const QString &alt)
+bool EbTextBrowser::insertImage(const QString &filePath, const QString &alt, QString *pOutText)
 {
     const QImage image(filePath);
     const int imageWidth = image.width();
@@ -1556,20 +1578,38 @@ bool EbTextBrowser::insertImage(const QString &filePath, const QString &alt)
     if (imageWidth>const_max_image_width) {
         const int width = const_max_image_width;
         const int height = (imageHeight*const_max_image_width)/imageWidth;
-        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+//        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"></img>")
                 .arg(filePath).arg(width).arg(height).arg(alt);
-        this->insertHtml(html);
+        if (pOutText!=0) {
+            *pOutText = html;
+        }
+        else {
+            this->insertHtml(html);
+        }
     }
     else if (imageHeight>const_max_image_height) {
         const int height = const_max_image_height;
         const int width = (imageWidth*const_max_image_height)/imageHeight;
-        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+//        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"/><br>")
+        const QString html = QString("<img src=\"%1\" width=\"%2\" height=\"%3\" alt=\"%4\"></img>")
                 .arg(filePath).arg(width).arg(height).arg(filePath);
-        this->insertHtml(html);
+        if (pOutText!=0) {
+            *pOutText = html;
+        }
+        else {
+            this->insertHtml(html);
+        }
     }
     else {
-        const QString html = QString("<img src=\"%1\" alt=\"%2\"/><br>").arg(filePath).arg(filePath);
-        this->insertHtml(html);
+//        const QString html = QString("<img src=\"%1\" alt=\"%2\"/><br>").arg(filePath).arg(filePath);
+        const QString html = QString("<img src=\"%1\" alt=\"%2\"></img").arg(filePath).arg(filePath);
+        if (pOutText!=0) {
+            *pOutText = html;
+        }
+        else {
+            this->insertHtml(html);
+        }
     }
     return true;
 }
