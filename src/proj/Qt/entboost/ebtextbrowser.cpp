@@ -441,10 +441,11 @@ void EbTextBrowser::addRichMsg(bool saveHistory, bool receive, const CCrRichInfo
             }
             if (saveHistory && theApp->isSaveConversationLocal() && !theApp->m_ebum.EB_IsLogonVisitor()) {
                 CSqliteCdbc::escape_string_in(sObjectSaveData);
-                sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag) "
-                             "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s',%d)",
+                sprintf(sSql,"INSERT INTO msg_record_t(%smsg_id,dep_code,from_uid,from_name,to_uid,to_name,private,msg_type,msg_name,msg_text,read_flag,display_index) "
+                             "VALUES(%s%lld,%lld,%lld,'%s',%lld,'%s',%d,%d,'%s','%s',%d,%d)",
                         sDBMsgTimeField.c_str(),sDBMsgTimeValue,pRichMsg->GetMsgId(),this->m_callInfo->m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendFrom,sInFromName.c_str(),
-                        sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),nRecordType,sObjectFileName.toStdString().c_str(),sObjectSaveData.c_str(),nReadFlag);
+                        sSaveDbToAccount,sInToName.c_str(),(int)(pCrMsgInfo->m_bPrivate?1:0),nRecordType,sObjectFileName.toStdString().c_str(),sObjectSaveData.c_str(),nReadFlag,
+                        nDisplayIndex++);
                 theApp->m_sqliteUser->execute(sSql);
             }
         }
