@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
+				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;_DEBUG;_USRDLL;CGCLIB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
+				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;NDEBUG;_USRDLL;CGCLIB_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -143,150 +143,6 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="../../build/$(ProjectName)90.lib"
-				AdditionalLibraryDirectories="..\..\ThirdParty\build;&quot;$(BOOST_ROOT)\stage\lib&quot;"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug_S|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="false"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
-				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;_DEBUG;_USRDLL;CGCLIB_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-				CompileAs="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="../../build/$(ProjectName)90sd.lib"
-				AdditionalLibraryDirectories="..\..\ThirdParty\build;&quot;$(BOOST_ROOT)\stage\lib&quot;"
-				IgnoreDefaultLibraryNames=""
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release_S|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="false"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
-				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;NDEBUG;_USRDLL;CGCLIB_EXPORTS"
-				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-				CompileAs="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="../../build/$(ProjectName)90s.lib"
 				AdditionalLibraryDirectories="..\..\ThirdParty\build;&quot;$(BOOST_ROOT)\stage\lib&quot;"
 			/>
 			<Tool
