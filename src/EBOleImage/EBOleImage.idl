@@ -1,0 +1,46 @@
+// EBOleImage.idl : IDL source for EBOleImage
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (EBOleImage.tlb) and marshalling code.
+
+#include "olectl.h"
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(3A989DB7-10CA-4BA9-AB6F-5C5ED86B064B),
+	dual,
+	nonextensible,
+	helpstring("IEBImage Interface"),
+	pointer_default(unique)
+]
+interface IEBImage : IDispatch{
+	[id(1), helpstring("method LoadImageEx")] HRESULT LoadImageEx([in] BSTR strImageFile,[in]LONG hParentHwnd);
+	[propget, id(2), helpstring("property ShowImage")] HRESULT ShowImage([out, retval] VARIANT_BOOL* pVal);
+	[propput, id(2), helpstring("property ShowImage")] HRESULT ShowImage([in] VARIANT_BOOL newVal);
+	[id(3), helpstring("method ShowNextFrame")] HRESULT ShowNextFrame(LONG nNowTime);
+	[id(4), helpstring("method GetImagePath")] HRESULT GetImagePath([out,retval] BSTR* pOutImagePath);
+	[id(5), helpstring("method SetColorKey")] HRESULT SetColorKey([in] LONG colorLow, [in] LONG colorHigh);
+	[id(6), helpstring("method ClearColorKey")] HRESULT ClearColorKey(void);
+};
+
+[
+	uuid(3D03D003-0292-4F18-87FF-0634AC7F68CA),
+	version(1.0),
+	helpstring("EBOleImage 1.0 Type Library")
+]
+library EBOleImageLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(17EAB0AC-1593-4EF7-BB31-866E76A8983E),
+		control,
+		helpstring("EBImage Class")
+	]
+	coclass EBImage
+	{
+		[default] interface IEBImage;
+	};
+};

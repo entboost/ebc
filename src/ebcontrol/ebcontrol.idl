@@ -1,0 +1,194 @@
+// ebcontrol.idl : IDL source for ebcontrol
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ebcontrol.tlb) and marshalling code.
+
+#include "olectl.h"
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+[
+	uuid(65B1940C-8323-4070-BBCC-AEEA226F6F2A),
+	version(1.0),
+	helpstring("ebcontrol 1.0 Type Library")
+]
+library ebcontrolLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(15F70F2C-20F6-4a0c-A95E-3A8193E83CD8),
+		helpstring("_IEBRichMessageEvents Interface")
+	]
+	dispinterface _IEBRichMessageEvents
+	{
+		properties:
+		methods:
+			[id(1), helpstring("method onContextMenuCopy")] void onContextMenuCopy([in] BSTR sCopyString);
+			[id(2), helpstring("method onContextMenuDelete")] void onContextMenuDelete([in] LONGLONG nMsgId, [in] LONG nIndex);
+			[id(11), helpstring("method onContextMenuSelect")] void onContextMenuSelect([in] ULONG nItemData, [in] BSTR sSelectString, [in] LONGLONG nSelectMsgId);
+			[id(12), helpstring("method onItemLBtnClick")] void onItemLBtnClick([in] LONG nLineId, [in] LONG nItemId, [in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId);
+			[id(13), helpstring("method onItemLBtnDblClick")] void onItemLBtnDblClick([in] LONG nLineId, [in] LONG nItemId, [in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId);
+			[id(14), helpstring("method onItemRBtnClick")] void onItemRBtnClick([in] LONG nLineId, [in] LONG nItemId, [in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId);
+			[id(21), helpstring("method onItemMoveEnter")] void onItemMoveEnter([in] LONG nLineId, [in] LONG nItemId, [in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId, [in] ULONG nParam);
+			[id(22), helpstring("method onItemMoveLeave")] void onItemMoveLeave([in] LONG nLineId, [in] LONG nItemId, [in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId);
+			//[id(23), helpstring("method onItemMoveEnter")] void onItemMoveEnter([in] ULONG nData1, [in] BSTR sData2, [in] LONGLONG nSelectMsgId);
+	};
+
+	[
+		object,
+		uuid(D97129F9-F99D-4E2F-B87A-979651F392AE),
+		dual,
+		nonextensible,
+		helpstring("IEBRichMessage Interface"),
+		pointer_default(unique)
+	]
+	interface IEBRichMessage : IDispatch{
+		[id(1), helpstring("method SetLineInterval")] HRESULT SetLineInterval([in] SHORT nLineInterval);
+		[id(2), helpstring("method SetBackgroundColor")] HRESULT SetBackgroundColor([in] ULONG colorRef);
+		[id(3), helpstring("method SetSelectedColor")] HRESULT SetSelectedColor([in] ULONG colorRef);
+		[id(6), helpstring("method SetAlignmentFormat 0:left 1:center 3:right")] HRESULT SetAlignmentFormat([in] SHORT nAlignmentFormat);
+		[id(7), helpstring("method SetAlignmentValue")] HRESULT SetAlignmentValue([in] SHORT nAlignment1, [in] SHORT nAlignment2);
+		[id(8), helpstring("method UpdateSize")] HRESULT UpdateSize([in] VARIANT_BOOL bRepaint);
+		[id(9), helpstring("method ScrollToPos;-1:end 0:begin")] HRESULT ScrollToPos([in] LONG nScrollPos);
+		[id(10), helpstring("method IsScrollBegin")] HRESULT IsScrollBegin([out,retval] VARIANT_BOOL * pVal);
+		[id(11), helpstring("method IsScrollEnd")] HRESULT IsScrollEnd([out,retval] VARIANT_BOOL * pVal);
+		[id(12), helpstring("method Clear")] HRESULT Clear(void);
+		[id(13), helpstring("method AddLine")] HRESULT AddLine([in] LONGLONG nMsgId);
+		[id(14), helpstring("method DeleteLine")] HRESULT DeleteLine([in] LONGLONG nMsgId);
+		[id(15), helpstring("method ViewLine")] HRESULT ViewLine([in] LONGLONG nMsgId);
+		[id(16), helpstring("method GetLineCount")] HRESULT GetLineCount([out,retval] LONG* pVal);
+		[id(17), helpstring("method SetFrameArc")] HRESULT SetFrameArc([in] SHORT nArcOffset, [in] SHORT nPoloygonWidth, [in] SHORT nPoloygonHeight);
+		[id(18), helpstring("method SetFrameBorderColor")] HRESULT SetFrameBorderColor([in] ULONG colorRef);
+		[id(19), helpstring("method SetFrameBackGroundColor")] HRESULT SetFrameBackGroundColor([in] ULONG colorRef);
+		[id(20), helpstring("method WriteString; parser URL...")] HRESULT WriteString([in] BSTR sString, [in] ULONG colorRef);
+		[id(21), helpstring("method WriteText")] HRESULT WriteText([in] BSTR sText, [in] ULONG colorRef);
+		[id(22), helpstring("method WriteImage")] HRESULT WriteImage([in] BSTR sImageFilePath, [in] LONG nLimitWidth, [in] LONG nLimitHeight);
+		[id(23), helpstring("method WriteWav")] HRESULT WriteWav([in] BSTR sTitle, [in] BSTR sWavFilePath, [in] LONG nCtrlType);
+		[id(24), helpstring("method WriteHICON")] HRESULT WriteHICON([in] ULONG* hIcon, [in] BSTR sUrl, [in] LONG nCtrlType);
+		[id(25), helpstring("method WriteTime, time_t type")] HRESULT WriteTime([in] ULONG nTimeValue, [in]BSTR sTimeFormat);
+		[id(26), helpstring("method WriteUrl")] HRESULT WriteUrl([in] BSTR sTitle, [in] BSTR sUrl, [in] LONG nCtrlType, [in] ULONG colorRef);
+		[id(27), helpstring("method WriteLine")] HRESULT WriteLine(void);
+		[id(28), helpstring("method WriteSpace")] HRESULT WriteSpace([in] ULONG nSpaceNumber);
+		[id(30), helpstring("method WriteOpenFile")] HRESULT WriteOpenFile([in] BSTR sTitle, [in] BSTR sFilePath);
+		[id(31), helpstring("method WriteOpenDir")] HRESULT WriteOpenDir([in] BSTR sTitle, [in] BSTR sFilePath);
+		[id(32), helpstring("method WritePic")] HRESULT WritePic([in] LONG nPicType, [in] LONG x, [in] LONG y, [in] LONG w, [in] LONG h, [in] ULONG colorRef, [in] LONG nCtrlType, [in] ULONG nData1);
+		[id(33), helpstring("method DeleteLineItem")] HRESULT DeleteLineItem([in] LONG nLineId, [in] LONG nItemId);
+		[id(40), helpstring("method AddContextMenuItem")] HRESULT AddContextMenuItem([in] BSTR sName, [in] ULONG nItemData, [in] VARIANT_BOOL bSingleSelect);
+		[id(41), helpstring("method ClearContextMenuItem")] HRESULT ClearContextMenuItem(void);
+		[id(42), helpstring("method GetSelectString")] HRESULT GetSelectString([out, retval] BSTR* pVal);
+		[id(51), helpstring("method SetSelectCbData1")] HRESULT SetSelectCbData1([in] ULONG nData1);
+		[id(52), helpstring("method SetDefaultUrlCbData1")] HRESULT SetDefaultUrlCbData1([in] ULONG nData1);
+		[id(55), helpstring("method SetParameter")] HRESULT SetParameter([in] LONG nParameter, [in] LONG nValue);
+		[id(56), helpstring("method GetParameter")] HRESULT GetParameter([in] LONG nParameter, [out,retval] LONG* pValue);
+		[id(57), helpstring("method FreeParameter")] HRESULT FreeParameter([in] LONG nParameter, [in] LONG nValue);
+		//[id(61), helpstring("method AddLine2")] HRESULT AddLine2([in] LONGLONG nMsgId, [in] LONG nReceiptFlag);
+		[id(61), helpstring("method SetReceiptFlag")] HRESULT SetReceiptFlag([in] LONG nReceiptFlag);
+		[id(62), helpstring("method SetMsgReceiptFlag")] HRESULT SetMsgReceiptFlag([in] LONGLONG nMsgId, [in] LONG nReceiptFlag);
+		//[id(63), helpstring("method EnableMsgRecept")] HRESULT SetReceiptFlag([in] LONG nReceiptFlag);
+		[id(64), helpstring("method UpdateMsgText")] HRESULT UpdateMsgText([in] LONGLONG nMsgId, [in] LONG nLineOffset, [in] BSTR sNewText, [in] ULONG colorRef);
+	};
+
+	[
+		object,
+		uuid(DAF5454E-F08B-46B4-B023-3431C4F4EBEF),
+		dual,
+		nonextensible,
+		helpstring("IEBEmotionView Interface"),
+		pointer_default(unique)
+	]
+	interface IEBEmotionView : IDispatch{
+		[id(1), helpstring("method AddEmotion")] HRESULT AddEmotion([in] BSTR sEmotionFilePath, [in] BSTR sDescription, [in] ULONG nUserData);
+		[id(2), helpstring("method MoveWindow")] HRESULT MoveWindow([in] LONG x, [in] LONG y, [in] LONG width, [in] LONG height, [in] VARIANT_BOOL bRepaint);
+		[id(3), helpstring("method SetBorderColor")] HRESULT SetBorderColor([in] BYTE r, [in] BYTE g, [in] BYTE b);
+		[id(4), helpstring("method SetBorderColor2")] HRESULT SetBorderColor2([in] BYTE a, [in] BYTE r, [in] BYTE g, [in] BYTE b);
+		[id(5), helpstring("method SetBackGroundColor")] HRESULT SetBackGroundColor([in] BYTE r, [in] BYTE g, [in] BYTE b);
+		[id(6), helpstring("method SetBackGroundColor2")] HRESULT SetBackGroundColor2([in] BYTE a, [in] BYTE r, [in] BYTE g, [in] BYTE b);
+		[propget, id(7), helpstring("property EmotionWidth")] HRESULT EmotionWidth([out, retval] USHORT* pVal);
+		[propput, id(7), helpstring("property EmotionWidth")] HRESULT EmotionWidth([in] USHORT newVal);
+		[propget, id(8), helpstring("property EmotionHeight")] HRESULT EmotionHeight([out, retval] USHORT* pVal);
+		[propput, id(8), helpstring("property EmotionHeight")] HRESULT EmotionHeight([in] USHORT newVal);
+		[propget, id(9), helpstring("property TopInterval")] HRESULT TopInterval([out, retval] USHORT* pVal);
+		[propput, id(9), helpstring("property TopInterval")] HRESULT TopInterval([in] USHORT newVal);
+		[propget, id(10), helpstring("property LeftInterval")] HRESULT LeftInterval([out, retval] USHORT* pVal);
+		[propput, id(10), helpstring("property LeftInterval")] HRESULT LeftInterval([in] USHORT newVal);
+		[propget, id(11), helpstring("property LineInterval")] HRESULT LineInterval([out, retval] USHORT* pVal);
+		[propput, id(11), helpstring("property LineInterval")] HRESULT LineInterval([in] USHORT newVal);
+		[propget, id(12), helpstring("property HCount")] HRESULT HCount([out, retval] USHORT* pVal);
+		[propput, id(12), helpstring("property HCount")] HRESULT HCount([in] USHORT newVal);
+		[propget, id(13), helpstring("property VCount")] HRESULT VCount([out, retval] USHORT* pVal);
+		[propput, id(13), helpstring("property VCount")] HRESULT VCount([in] USHORT newVal);
+		[propget, id(14), helpstring("property EmotionCount")] HRESULT EmotionCount([out, retval] ULONG* pVal);
+	};
+
+	[
+		object,
+		uuid(235FDFA2-5E2E-45A9-A8B0-D664674A0360),
+		dual,
+		nonextensible,
+		helpstring("IEBSkinVBar Interface"),
+		pointer_default(unique)
+	]
+	interface IEBSkinVBar : IDispatch{
+		[id(1), helpstring("method UpdatePosition")] HRESULT UpdatePosition(void);
+		[id(2), helpstring("method SetMsgHwnd")] HRESULT SetMsgHwnd([in] ULONG hWnd);
+		[id(3), helpstring("method SetCallback")] HRESULT SetCallback([in] IUnknown* pCallback);
+		[id(4), helpstring("method SetBackGroundColor")] HRESULT SetBackGroundColor([in] BYTE r, [in] BYTE g, [in] BYTE b);
+		[id(5), helpstring("method SetBackGroundColor2")] HRESULT SetBackGroundColor2([in] BYTE a, [in] BYTE r, [in] BYTE g, [in] BYTE b);
+
+	};
+
+	[
+		object,
+		uuid(F3A22ACD-90AB-4026-9F61-F08C1E2AFB3C),
+		dual,
+		nonextensible,
+		helpstring("IEBSkinVBarCallback Interface"),
+		pointer_default(unique)
+	]
+	interface IEBSkinVBarCallback : IUnknown
+	{
+		[id(1), helpstring("method GetScrollMax")] HRESULT GetScrollMax([out] LONG* pOutMax);
+		[id(2), helpstring("method GetScrollMin")] HRESULT GetScrollMin([out] LONG* pOutMin);
+		[id(3), helpstring("method GetScrollPos")] HRESULT GetScrollPos([out] LONG* pOutPos);
+		[id(4), helpstring("method ScrollPageUp")] HRESULT ScrollPageUp(void);
+		[id(5), helpstring("method ScrollPageDown")] HRESULT ScrollPageDown(void);
+		[id(6), helpstring("method ScrollLineUp")] HRESULT ScrollLineUp(void);
+		[id(7), helpstring("method ScrollLineDown")] HRESULT ScrollLineDown(void);
+		[id(8), helpstring("method ScrollBy")] HRESULT ScrollBy([in] LONG nScrollTimes);
+		[id(9), helpstring("method ScrollTo")] HRESULT ScrollTo([in] LONG nScrollPos);
+		[id(10), helpstring("method OnVBarKillFocus")] HRESULT OnVBarKillFocus(void);
+	};
+
+	[
+		uuid(B398C6B0-449F-44C9-B59E-E4889ACBECBE),
+		control,
+		helpstring("EBEmotionView Class")
+	]
+	coclass EBEmotionView
+	{
+		[default] interface IEBEmotionView;
+	};
+	[
+		uuid(12F88578-9D1E-45E3-BBF0-685CB9BF4B79),
+		control,
+		helpstring("EBSkinVBar Class")
+	]
+	coclass EBSkinVBar
+	{
+		[default] interface IEBSkinVBar;
+	};
+
+	[
+		uuid(43487AD3-EDF3-4AFE-9D27-885487B11353),
+		control,
+		helpstring("EBRichMessage Class")
+	]
+	coclass EBRichMessage
+	{
+		[default] interface IEBRichMessage;
+		[default, source] dispinterface _IEBRichMessageEvents;
+	};
+};
