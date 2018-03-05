@@ -359,6 +359,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DlgToolExt.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DlgTools.cpp"
 				>
 			</File>
@@ -414,6 +418,10 @@
 			>
 			<File
 				RelativePath=".\DlgSelect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgToolExt.h"
 				>
 			</File>
 			<File

@@ -5,6 +5,7 @@
 #pragma once
 #include "DlgSelect.h"
 #include "DlgTools.h"
+#include "DlgToolExt.h"
 #include "CDialogSK.h"
 
 #define EBDCBASEDIALOG CDialogSK
