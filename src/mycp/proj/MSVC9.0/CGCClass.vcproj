@@ -44,8 +44,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+<<<<<<< master
 				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;_DEBUG;_USRDLL"
+=======
+				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
+>>>>>>> local
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -116,8 +121,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+<<<<<<< master
 				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
 				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;NDEBUG;_USRDLL"
+=======
+				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
+>>>>>>> local
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"

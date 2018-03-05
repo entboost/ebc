@@ -44,7 +44,33 @@ public:
 	void SetPrivateKey(const std::string& sKey) {m_sPrivateKey = sKey;}
 	const std::string& GetPrivateKey(void) const {return m_sPrivateKey;}
 
-	void rsa_generatekey_file(int bits=RSA_BITS){
+//        void rsa_generatekey_file2(int bits=RSA_BITS){
+//            /* 生成公钥 */
+//            RSA* rsa = RSA_new();
+//            BIGNUM* bne = BN_new();
+//            BN_set_word(bne,RSA_F4);
+//            BN_rand(bne, bits, 0, rand());
+//            RSA_generate_key_ex(rsa,bits,bne,NULL);
+//            //RSA* rsa = RSA_generate_key( bits, RSA_F4, NULL, NULL);
+//            BIO *bp = BIO_new( BIO_s_file() );
+//            BIO_write_filename( bp, (void*)m_sPublicFile.c_str() );
+//            /// -----BEGIN PUBLIC KEY-----
+//            /// -----END PUBLIC KEY-----
+//            PEM_write_bio_RSA_PUBKEY(bp, rsa);
+//            BIO_free_all( bp );
+//            /* 生成私钥 */
+//            bp = BIO_new_file(m_sPrivateFile.c_str(), "w+");
+//            // EVP_des_ede3
+//            if (m_sPrivatePwd.empty())
+//                PEM_write_bio_RSAPrivateKey(bp, rsa, NULL, NULL, 0, NULL, NULL);
+//            else
+//                PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
+//            BIO_free_all( bp );
+//            RSA_free(rsa);
+//            BN_clear_free(bne);
+//        }
+
+        void rsa_generatekey_file(int bits=RSA_BITS){
 		/* 生成公钥 */  
 		RSA* rsa = RSA_new();
 		BIGNUM* bne = BN_new();
@@ -54,16 +80,21 @@ public:
 		//RSA* rsa = RSA_generate_key( bits, RSA_F4, NULL, NULL);  
 		BIO *bp = BIO_new( BIO_s_file() );  
 		BIO_write_filename( bp, (void*)m_sPublicFile.c_str() );  
-		PEM_write_bio_RSAPublicKey(bp, rsa);  
+                /// -----BEGIN RSA PUBLIC KEY-----
+                /// -----END RSA PUBLIC KEY-----
+                PEM_write_bio_RSAPublicKey(bp, rsa);
 		BIO_free_all( bp );  
 		/* 生成私钥 */  
-		bp = BIO_new_file(m_sPrivateFile.c_str(), "w+");
-		// EVP_des_ede3
-		PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
+                bp = BIO_new_file(m_sPrivateFile.c_str(), "w+");
+                // EVP_des_ede3
+                if (m_sPrivatePwd.empty())
+                    PEM_write_bio_RSAPrivateKey(bp, rsa, NULL, NULL, 0, NULL, NULL);
+                else
+                    PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
 		BIO_free_all( bp );
 		RSA_free(rsa);
 		BN_clear_free(bne);
-	}
+        }
 	void rsa_generatekey_mem(int bits=RSA_BITS){
 		/* 生成公钥 */  
 		RSA* rsa = RSA_new();
@@ -84,7 +115,10 @@ public:
 		/* 生成私钥 */  
 		bp = BIO_new( BIO_s_mem() );  
 		// EVP_des_ede3
-		PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
+                if (m_sPrivatePwd.empty())
+                    PEM_write_bio_RSAPrivateKey(bp, rsa, NULL, NULL, 0, NULL, NULL);
+                else
+                    PEM_write_bio_RSAPrivateKey(bp, rsa, EVP_des_ede3_cbc(), NULL, 0, &pem_password_cb, (void*)m_sPrivatePwd.c_str());
 		buffer=NULL;
 		BIO_get_mem_ptr(bp,&buffer);
 		if (buffer!=NULL && buffer->length>0)
@@ -97,13 +131,15 @@ public:
 	}
 	static int pem_password_cb(char *buf, int size, int rwflag, void *userdata)
 	{
-		if (userdata==NULL)	return 0;
-		strcpy(buf,(const char*)userdata);
-		return (int)strlen(buf);
+                if (userdata==NULL) return 0;
+                const int ret = strlen((const char*)userdata);
+                if (ret==0) return 0;
+                strcpy(buf, (const char*)userdata);
+                return ret;
 	}
 	bool rsa_open_private_file(void){
-		if (m_pPrivateRSA == NULL)
-		{
+                if (m_pPrivateRSA == NULL)
+                {
 			//OpenSSL_add_all_algorithms();
 			m_pPrivateBIO = BIO_new( BIO_s_file() );
 			BIO_read_filename( m_pPrivateBIO, m_sPrivateFile.c_str() );  
@@ -111,11 +147,11 @@ public:
 			m_pPrivateRSA = PEM_read_bio_RSAPrivateKey( m_pPrivateBIO, NULL, &pem_password_cb, (void*)m_sPrivatePwd.c_str());  
 			//PEM_read_bio_PrivateKey(m_pPrivateBIO,NULL
 			//PEM_read_PrivateKey(
-			if (m_pPrivateRSA==NULL)
-			{
+                        if (m_pPrivateRSA==NULL)
+                        {
 				BIO_free_all( m_pPrivateBIO );  
 				m_pPrivateBIO = NULL;
-			}
+                        }
 		}
 		return m_pPrivateRSA==NULL?false:true;
 	}
@@ -147,38 +183,59 @@ public:
 			m_pPrivateRSA = NULL;
 		}
 	}
-	bool rsa_open_public_file(void){
-		if (m_pPublicRSA == NULL)
-		{
-			//OpenSSL_add_all_algorithms();
-			m_pPublicBIO = BIO_new( BIO_s_file() );
-			BIO_read_filename( m_pPublicBIO, m_sPublicFile.c_str() );  
-			m_pPublicRSA = PEM_read_bio_RSAPublicKey( m_pPublicBIO, NULL, NULL, NULL);  
-			//r1 = PEM_read_bio_RSA_PUBKEY(key1, NULL,NULL,NULL);
-			//openssl_to_keys(r, 1024, priv, pub);
-			if (m_pPublicRSA==NULL)
-			{
-				BIO_free_all( m_pPublicBIO );  
-				m_pPublicBIO = NULL;
-			}
-		}
-		return m_pPublicRSA==NULL?false:true;
-	}
+        bool rsa_open_public_file(void){
+            if (m_pPublicRSA == NULL) {
+                //OpenSSL_add_all_algorithms();
+                m_pPublicBIO = BIO_new( BIO_s_file() );
+                BIO_read_filename( m_pPublicBIO, m_sPublicFile.c_str() );
+                /// -----BEGIN RSA PUBLIC KEY-----
+                /// -----END RSA PUBLIC KEY-----
+                m_pPublicRSA = PEM_read_bio_RSAPublicKey(m_pPublicBIO, NULL, NULL, NULL);
+//                    openssl_to_keys(m_pPublicRSA, 1024, priv, pub);
+                if (m_pPublicRSA == NULL) {
+                    BIO_seek(m_pPublicBIO, 0);
+                    /// -----BEGIN PUBLIC KEY-----
+                    /// -----END PUBLIC KEY-----
+                    m_pPublicRSA = PEM_read_bio_RSA_PUBKEY(m_pPublicBIO, NULL, NULL, NULL);
+                }
+                if (m_pPublicRSA == NULL) {
+                    BIO_free_all( m_pPublicBIO );
+                    m_pPublicBIO = NULL;
+                }
+            }
+            return m_pPublicRSA==NULL?false:true;
+        }
+//        bool rsa_open_public_file2(void) {
+//            if (m_pPublicRSA == NULL) {
+//                //OpenSSL_add_all_algorithms();
+//                m_pPublicBIO = BIO_new( BIO_s_file() );
+//                BIO_read_filename( m_pPublicBIO, m_sPublicFile.c_str() );
+//                m_pPublicRSA = PEM_read_bio_RSA_PUBKEY(m_pPublicBIO, NULL, NULL, NULL);
+//                if (m_pPublicRSA == NULL) {
+//                    BIO_free_all( m_pPublicBIO );
+//                    m_pPublicBIO = NULL;
+//                }
+//            }
+//            return m_pPublicRSA==NULL?false:true;
+//        }
+
 	bool rsa_open_public_mem(void){
-		if (m_pPublicRSA == NULL)
-		{
-			//OpenSSL_add_all_algorithms();
-			m_pPublicBIO = BIO_new( BIO_s_mem() );
-			BIO_puts( m_pPublicBIO, m_sPublicKey.c_str() );  
-			m_pPublicRSA = PEM_read_bio_RSAPublicKey( m_pPublicBIO, NULL, NULL, NULL);
-			//m_pPublicRSA = PEM_read_bio_PUBKEY(m_pPublicBIO, NULL, NULL, NULL);
-			if (m_pPublicRSA==NULL)
-			{
-				BIO_free_all( m_pPublicBIO );  
-				m_pPublicBIO = NULL;
-			}
-		}
-		return m_pPublicRSA==NULL?false:true;
+            if (m_pPublicRSA == NULL) {
+                //OpenSSL_add_all_algorithms();
+                m_pPublicBIO = BIO_new( BIO_s_mem() );
+                BIO_puts( m_pPublicBIO, m_sPublicKey.c_str() );
+                m_pPublicRSA = PEM_read_bio_RSAPublicKey( m_pPublicBIO, NULL, NULL, NULL);
+                //m_pPublicRSA = PEM_read_bio_PUBKEY(m_pPublicBIO, NULL, NULL, NULL);
+                if (m_pPublicRSA == NULL) {
+                    BIO_seek(m_pPublicBIO, 0);
+                    m_pPublicRSA = PEM_read_bio_RSA_PUBKEY(m_pPublicBIO, NULL, NULL, NULL);
+                }
+                if (m_pPublicRSA==NULL) {
+                    BIO_free_all( m_pPublicBIO );
+                    m_pPublicBIO = NULL;
+                }
+            }
+            return m_pPublicRSA==NULL?false:true;
 	}
 	void rsa_close_public(void){
 		//CRYPTO_cleanup_all_ex_data();  
