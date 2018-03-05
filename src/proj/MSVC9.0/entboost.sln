@@ -2,18 +2,35 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebc", "..\..\POP\POP.vcproj", "{65300D25-DE55-4DEA-9384-0B10285E13BA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{557A8E42-FE79-40F0-88AA-6CCE58BD1205} = {557A8E42-FE79-40F0-88AA-6CCE58BD1205}
+		{4CC772C9-8109-4C81-A8C2-D818F919669D} = {4CC772C9-8109-4C81-A8C2-D818F919669D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eblogin", "..\..\eblogin\eblogin.vcproj", "{4CC772C9-8109-4C81-A8C2-D818F919669D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{557A8E42-FE79-40F0-88AA-6CCE58BD1205} = {557A8E42-FE79-40F0-88AA-6CCE58BD1205}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libebcm", "..\..\libchatroom\libchatroom.vcproj", "{882951A6-6C8C-4034-A66B-8914690D9924}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libebum", "..\..\libpopusermanager\libpopusermanager.vcproj", "{557A8E42-FE79-40F0-88AA-6CCE58BD1205}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E724FA82-1E06-4BA2-9BAD-07D61285DF12} = {E724FA82-1E06-4BA2-9BAD-07D61285DF12}
+		{882951A6-6C8C-4034-A66B-8914690D9924} = {882951A6-6C8C-4034-A66B-8914690D9924}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebcontrol", "..\..\ebcontrol\ebcontrol.vcproj", "{F1D6DEB5-6791-422A-B036-9C004629079C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libebrd", "..\..\libebrd\libebrd.vcproj", "{E724FA82-1E06-4BA2-9BAD-07D61285DF12}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eboleimage", "..\..\EBOleImage\EBOleImage.vcproj", "{5970EB78-53D6-41B6-818D-01FFC754163D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebsc", "..\..\ebsc\ebsc.vcproj", "{C4C6C220-2763-4930-8F10-803CF7B764B8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebupdate2", "..\..\ebupdate2\ebupdate2.vcproj", "{B396FE6D-E48F-4673-895C-D863B90883B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebstesttool", "..\..\ebstesttool\ebstesttool.vcproj", "{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +88,30 @@ Global
 		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|Win32.Build.0 = Release|Win32
 		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|x64.ActiveCfg = Release|x64
 		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|x64.Build.0 = Release|x64
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Debug|Win32.Build.0 = Debug|Win32
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Debug|x64.ActiveCfg = Debug|x64
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Debug|x64.Build.0 = Debug|x64
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Release|Win32.ActiveCfg = Release|Win32
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Release|Win32.Build.0 = Release|Win32
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Release|x64.ActiveCfg = Release|x64
+		{C4C6C220-2763-4930-8F10-803CF7B764B8}.Release|x64.Build.0 = Release|x64
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Debug|Win32.Build.0 = Debug|Win32
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Debug|x64.ActiveCfg = Debug|x64
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Debug|x64.Build.0 = Debug|x64
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Release|Win32.ActiveCfg = Release|Win32
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Release|Win32.Build.0 = Release|Win32
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Release|x64.ActiveCfg = Release|x64
+		{B396FE6D-E48F-4673-895C-D863B90883B5}.Release|x64.Build.0 = Release|x64
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Debug|Win32.Build.0 = Debug|Win32
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Debug|x64.ActiveCfg = Debug|x64
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Debug|x64.Build.0 = Debug|x64
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|Win32.ActiveCfg = Release|Win32
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|Win32.Build.0 = Release|Win32
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|x64.ActiveCfg = Release|x64
+		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
