@@ -1,0 +1,34 @@
+HKCR
+{
+	EBOleImage.EBImage.1 = s 'EBImage Class'
+	{
+		CLSID = s '{17EAB0AC-1593-4EF7-BB31-866E76A8983E}'
+	}
+	EBOleImage.EBImage = s 'EBImage Class'
+	{
+		CLSID = s '{17EAB0AC-1593-4EF7-BB31-866E76A8983E}'
+		CurVer = s 'EBOleImage.EBImage.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {17EAB0AC-1593-4EF7-BB31-866E76A8983E} = s 'EBImage Class'
+		{
+			ProgID = s 'EBOleImage.EBImage.1'
+			VersionIndependentProgID = s 'EBOleImage.EBImage'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			ForceRemove 'Control'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 103'
+			'MiscStatus' = s '0'
+			{
+			    '1' = s '%OLEMISC%'
+			}
+			'TypeLib' = s '{3D03D003-0292-4F18-87FF-0634AC7F68CA}'
+			'Version' = s '1.0'
+		}
+	}
+}

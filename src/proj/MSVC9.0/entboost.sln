@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebcontrol", "..\..\ebcontro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libebrd", "..\..\libebrd\libebrd.vcproj", "{E724FA82-1E06-4BA2-9BAD-07D61285DF12}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eboleimage", "..\..\EBOleImage\EBOleImage.vcproj", "{5970EB78-53D6-41B6-818D-01FFC754163D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -61,6 +63,14 @@ Global
 		{E724FA82-1E06-4BA2-9BAD-07D61285DF12}.Release|Win32.Build.0 = Release|Win32
 		{E724FA82-1E06-4BA2-9BAD-07D61285DF12}.Release|x64.ActiveCfg = Release|x64
 		{E724FA82-1E06-4BA2-9BAD-07D61285DF12}.Release|x64.Build.0 = Release|x64
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Debug|Win32.Build.0 = Debug|Win32
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Debug|x64.ActiveCfg = Debug|x64
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Debug|x64.Build.0 = Debug|x64
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|Win32.ActiveCfg = Release|Win32
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|Win32.Build.0 = Release|Win32
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|x64.ActiveCfg = Release|x64
+		{5970EB78-53D6-41B6-818D-01FFC754163D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
