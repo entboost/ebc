@@ -44,22 +44,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< master
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
-=======
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;$(BOOST_ROOT)&quot;"
->>>>>>> develop
-				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;_DEBUG;_USRDLL;CGCLIB_EXPORTS"
-=======
 				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;CGCLIB_EXPORTS"
->>>>>>> local
-=======
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;CGCLIB_EXPORTS"
->>>>>>> 8ce69a66e4489907ef3ca4ca2f9073d4b8bdc0c3
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -132,22 +118,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< master
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;$(BOOST_ROOT)&quot;"
-=======
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;$(BOOST_ROOT)&quot;"
->>>>>>> develop
-				PreprocessorDefinitions="win32_define;WIN32;_WINDOWS;NDEBUG;_USRDLL;CGCLIB_EXPORTS"
-=======
 				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;CGCLIB_EXPORTS"
->>>>>>> local
-=======
-				AdditionalIncludeDirectories="..\..\ThirdParty;&quot;..\..\ThirdParty\zlib-1.2.8&quot;;&quot;..\..\ThirdParty\openssl-1.0.2k\inc32&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;CGCLIB_EXPORTS"
->>>>>>> 8ce69a66e4489907ef3ca4ca2f9073d4b8bdc0c3
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
