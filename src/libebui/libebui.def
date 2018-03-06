@@ -1,0 +1,19 @@
+; libebui.def : Declares the module parameters for the DLL.
+
+LIBRARY      "libebui"
+
+EXPORTS
+    ; Explicit exports can go here
+	EBUI_SetHandler
+	EBUI_IMOAuth
+	EBUI_IMLogin
+	EBUI_IMIsLogined
+	EBUI_IMLogout
+	EBUI_MainFrameCreate
+	EBUI_MainFrameGetSafeHwnd
+	EBUI_MainFrameDestroy
+	EBUI_MainFrameShowWindow
+	EBUI_MainFrameMoveWindow
+	;EBUI_SetMainColor
+	;EBUI_GetMainColor
+	
