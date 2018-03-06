@@ -2,10 +2,10 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libebrd"
-	ProjectGUID="{E724FA82-1E06-4BA2-9BAD-07D61285DF12}"
-	RootNamespace="libebrd"
-	Keyword="MFCDLLProj"
+	Name="ebcore"
+	ProjectGUID="{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}"
+	RootNamespace="ebcore"
+	Keyword="AtlProj"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -21,11 +21,13 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
-			CharacterSet="2"
+			UseOfMFC="0"
+			UseOfATL="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -43,12 +45,20 @@
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/ebcore.tlb"
+				HeaderFileName="ebcore_i.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="ebcore_i.c"
+				ProxyFileName="ebcore_p.c"
+				ValidateParameters="true"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../mycp;../mycp/ThirdParty;&quot;..\mycp\ThirdParty\zlib-1.2.8&quot;;&quot;..\mycp\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;..\thirdparty\xvidcore-1.3.2\src&quot;;&quot;..\thirdparty\ffmpeg-3.3.2\vc2008\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_AFXEXT;__STDC_CONSTANT_MACROS"
+				AdditionalIncludeDirectories="../include;..\libebrd;..\libpopusermanager;..\mycp;..\mycp\ThirdParty"
+				PreprocessorDefinitions="NOT_EXPORTS_PARSESETTING;WIN32;_WINDOWS;_DEBUG;_USRDLL;EBSTRING_USES_BSTR;USES_CHATROOM;CGC_SMART_STRING_USES_BSTR"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -70,15 +80,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE"
+				RegisterOutput="true"
+				IgnoreImportLibrary="true"
 				OutputFile="../build/$(ProjectName)d.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../mycp/build;&quot;..\mycp\ThirdParty\zlib-1.2.8\contrib\vstudio\vc9\x86&quot;;&quot;..\mycp\ThirdParty\openssl-1.0.2k\vc2008dll&quot;;&quot;..\thirdparty\ffmpeg-3.3.2\vc2008\bin&quot;;&quot;..\thirdparty\xvidcore-1.3.2\lib&quot;"
-				IgnoreDefaultLibraryNames="libcmtd.lib"
-				ModuleDefinitionFile=""
+				AdditionalLibraryDirectories="..\build"
+				ModuleDefinitionFile=".\ebcore.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -105,11 +114,13 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
-			CharacterSet="2"
+			UseOfMFC="0"
+			UseOfATL="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -128,11 +139,18 @@
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="false"
 				TargetEnvironment="3"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/ebcore.tlb"
+				HeaderFileName="ebcore_i.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="ebcore_i.c"
+				ProxyFileName="ebcore_p.c"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_AFXEXT"
+				AdditionalIncludeDirectories="../include"
+				PreprocessorDefinitions="NOT_EXPORTS_PARSESETTING;WIN32;_WINDOWS;_DEBUG;_USRDLL;EBSTRING_USES_BSTR;USES_CHATROOM"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -154,14 +172,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE"
+				RegisterOutput="true"
+				IgnoreImportLibrary="true"
 				OutputFile="../build/$(ProjectName)d.dll"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile=""
+				AdditionalLibraryDirectories="..\build"
+				ModuleDefinitionFile=".\ebcore.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -188,12 +206,12 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
+			UseOfATL="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -211,15 +229,21 @@
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/ebcore.tlb"
+				HeaderFileName="ebcore_i.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="ebcore_i.c"
+				ProxyFileName="ebcore_p.c"
+				ValidateParameters="true"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../mycp;../mycp/ThirdParty;&quot;..\mycp\ThirdParty\zlib-1.2.8&quot;;&quot;..\mycp\ThirdParty\openssl-1.0.2k\inc32&quot;;&quot;..\thirdparty\xvidcore-1.3.2\src&quot;;&quot;..\thirdparty\ffmpeg-3.3.2\vc2008\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT;__STDC_CONSTANT_MACROS"
+				AdditionalIncludeDirectories="../include;..\libebrd;..\libpopusermanager;..\mycp;..\mycp\ThirdParty"
+				PreprocessorDefinitions="NOT_EXPORTS_PARSESETTING;WIN32;_WINDOWS;NDEBUG;_USRDLL;EBSTRING_USES_BSTR;USES_CHATROOM;CGC_SMART_STRING_USES_BSTR"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -238,13 +262,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE"
+				RegisterOutput="true"
+				IgnoreImportLibrary="true"
 				OutputFile="../build/$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../mycp/build;&quot;..\mycp\ThirdParty\zlib-1.2.8\contrib\vstudio\vc9\x86&quot;;&quot;..\mycp\ThirdParty\openssl-1.0.2k\vc2008dll&quot;;&quot;..\thirdparty\ffmpeg-3.3.2\vc2008\bin&quot;;&quot;..\thirdparty\xvidcore-1.3.2\lib&quot;"
+				AdditionalLibraryDirectories="..\build"
 				UACExecutionLevel="0"
-				IgnoreDefaultLibraryNames="libcmt.lib"
-				ModuleDefinitionFile=""
+				ModuleDefinitionFile=".\ebcore.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -275,12 +299,12 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
+			UseOfATL="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -299,14 +323,19 @@
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="false"
 				TargetEnvironment="3"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/ebcore.tlb"
+				HeaderFileName="ebcore_i.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="ebcore_i.c"
+				ProxyFileName="ebcore_p.c"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT"
+				AdditionalIncludeDirectories="../include"
+				PreprocessorDefinitions="NOT_EXPORTS_PARSESETTING;WIN32;_WINDOWS;NDEBUG;_USRDLL;EBSTRING_USES_BSTR;USES_CHATROOM"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -325,11 +354,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE"
+				RegisterOutput="true"
+				IgnoreImportLibrary="true"
 				OutputFile="../build/$(ProjectName).dll"
 				LinkIncremental="1"
 				UACExecutionLevel="0"
-				ModuleDefinitionFile=""
+				ModuleDefinitionFile=".\ebcore.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -408,11 +438,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\libebrd.cpp"
+				RelativePath=".\EBClientCore.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\libebrd.def"
+				RelativePath=".\ebcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ebcore.def"
+				>
+			</File>
+			<File
+				RelativePath=".\ebcore.idl"
+				>
+			</File>
+			<File
+				RelativePath=".\EBRemoteDesktop.cpp"
 				>
 			</File>
 			<File
@@ -458,6 +500,22 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\_IEBClientCoreEvents_CP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dllmain.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EBClientCore.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EBRemoteDesktop.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Resource.h"
 				>
 			</File>
@@ -476,19 +534,28 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\libebrd.rc"
+				RelativePath=".\EBClientCore.rgs"
 				>
 			</File>
 			<File
-				RelativePath=".\res\libebrd.rc2"
+				RelativePath=".\ebcore.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\ebcore.rgs"
+				>
+			</File>
+			<File
+				RelativePath=".\EBRemoteDesktop.rgs"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="rd"
+			Name="Generated Files"
+			SourceControlFiles="false"
 			>
 			<File
-				RelativePath=".\AVCodecProxy.cpp"
+				RelativePath=".\ebcore_i.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -496,6 +563,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -504,6 +572,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -512,6 +581,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -520,134 +590,19 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\AVCodecProxy.h"
-				>
-			</File>
-			<File
-				RelativePath=".\BitmapManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BitmapManager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DesktopWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DesktopWindow.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ebrd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ebrd.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\EBRtpManager.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\include\EBRtpManager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RDWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RDWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ScrollStatic.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ScrollStatic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\XvidProxy.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\XvidProxy.h"
+				RelativePath=".\ebcore_i.h"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="F:\git\oschina\entboost\doc\ENTBOOST云通讯平台_SDK_C++开发入门.pdf"
+			>
+		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

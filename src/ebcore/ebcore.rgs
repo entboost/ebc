@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'ebcore'
+		'ebcore.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

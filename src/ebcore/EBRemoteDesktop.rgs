@@ -1,0 +1,26 @@
+HKCR
+{
+	ebcore.EBRemoteDesktop.1 = s 'EBRemoteDesktop Class'
+	{
+		CLSID = s '{840A40FB-F3E9-487C-9236-89B7AFB0FC42}'
+	}
+	ebcore.EBRemoteDesktop = s 'EBRemoteDesktop Class'
+	{
+		CLSID = s '{840A40FB-F3E9-487C-9236-89B7AFB0FC42}'
+		CurVer = s 'ebcore.EBRemoteDesktop.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {840A40FB-F3E9-487C-9236-89B7AFB0FC42} = s 'EBRemoteDesktop Class'
+		{
+			ProgID = s 'ebcore.EBRemoteDesktop.1'
+			VersionIndependentProgID = s 'ebcore.EBRemoteDesktop'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{271991DA-DE4A-4B5C-8732-619613915A05}'
+		}
+	}
+}

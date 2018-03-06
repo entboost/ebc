@@ -4,11 +4,13 @@
 
 //#include <string>
 #include <CGCBase/cgcSmartString.h>
+using namespace mycp;
 //#include "ebstring.h"
 #include "time.h"
 #include "eb_define.h"
 #ifndef CEBString
-#define CEBString tstring
+#define CEBString cgcSmartString
+//#define CEBString tstring
 #endif
 #ifdef _QT_MAKE_
 #include <QEvent>

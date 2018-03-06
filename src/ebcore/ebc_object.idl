@@ -1,0 +1,138 @@
+// ebc_object.h file here
+#ifndef __ebc_object_h__
+#define __ebc_object_h__
+
+//#include "eb_define.h"
+
+/*==========================================================
+表情信息
+===========================================================*/
+struct EBC_EmotionInfo
+{
+	BSTR m_sResId;
+	BSTR m_sResFile;
+	LONG m_nIndex;
+	LONG m_nType;
+	BSTR m_sAccount;
+	BSTR m_sEnterpriseCode;	// 空为个人表情
+};
+
+/*==========================================================
+版本信息
+===========================================================*/
+struct EBC_VersionInfo
+{
+	BSTR m_sVersion;			// 版本号: x.x.x.x
+	BSTR m_sDescription;		// 更新说明
+	BSTR m_sUpdateTime;		// 更新时间
+	LONG m_nUpdateType;				// 更新类型 0：普通更新；1：强制更新（更新才能继续使用）
+	BSTR m_sVersionFile;		// 打包文件
+	BSTR m_sResourceId;
+};
+
+/*==========================================================
+群组（部门）成员信息
+===========================================================*/
+
+
+/*==========================================================
+企业信息
+===========================================================*/
+struct EBC_EnterpriseInfo
+{
+	BSTR m_sEnterpriseCode;
+	BSTR m_sEnterpriseName;
+	BSTR m_sDescription;
+	BSTR m_sPhone;
+	BSTR m_sFax;
+	BSTR m_sEmail;
+	BSTR m_sUrl;
+	BSTR m_sAddress;
+	BSTR m_sCreateTime;
+	BSTR m_sCreator;
+};
+
+/*==========================================================
+群组（部门）信息
+===========================================================*/
+struct EBC_GroupInfo
+{
+	BSTR m_sEnterpriseCode;
+	BSTR m_sGroupCode;
+	BSTR m_sGroupName;
+	BSTR m_sParentCode;
+	BSTR m_sDescription;
+	BSTR m_sPhone;
+	BSTR m_sFax;
+	BSTR m_sEmail;
+	BSTR m_sUrl;
+	BSTR m_sAddress;
+	BSTR m_sCreateTime;
+	BSTR m_sCreator;
+	SHORT m_nGroupType;
+};
+
+/*==========================================================
+通讯录（联系人）信息
+===========================================================*/
+struct EBC_ContactInfo
+{
+	BSTR m_sContact;
+	BSTR m_sGroup;
+	BSTR m_sName;
+	BSTR m_sPhone;
+	BSTR m_sEmail;
+	BSTR m_sAddress;
+	BSTR m_sDescription;
+};
+
+
+/*==========================================================
+会话视频信息
+===========================================================*/
+struct EBC_VideoInfo
+{
+	BSTR m_sCallId;
+	SHORT m_nVideoType;
+};
+
+/*==========================================================
+用户视频信息
+===========================================================*/
+struct EBC_UserVideoInfo
+{
+	BSTR m_sUserAccount;
+	LONG m_nUserVideoId;
+};
+
+/*==========================================================
+呼叫（会话）信息
+===========================================================*/
+struct EBC_CallInfo
+{
+	BSTR m_sGroupCode;
+	BSTR m_sCallId;
+	BSTR m_sFromAccount;
+	//LONG m_nStateCode;
+	//bool m_bOwner;
+};
+
+
+/*==========================================================
+呼叫连接信息
+===========================================================*/
+enum CONNECTED_FLAG
+{
+	CONNECTED_OFFLINE_USER		= 0x001
+	, CONNECTED_OWNER_CALL		= 0x002
+	, CONNECTED_AUTO_ACK			= 0x004
+	, CONNECTED_ONLINE_INCALL	= 0x008
+};
+struct EBC_ConnectInfo
+	//: public EB_CallInfo
+{
+
+	LONG m_nConnectedFlag;
+};
+
+#endif // __ebc_object_h__

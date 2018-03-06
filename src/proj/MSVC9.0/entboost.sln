@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebpwdmgr", "..\..\ebpwdmgr\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebs_config_win", "..\..\ebs_config_win\ebs_config_win.vcproj", "{0F25071C-D099-4108-AB11-D42E0E998088}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebcore", "..\..\ebcore\ebcore.vcproj", "{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -132,6 +134,14 @@ Global
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Release|Win32.Build.0 = Release|Win32
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Release|x64.ActiveCfg = Release|x64
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Release|x64.Build.0 = Release|x64
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Debug|Win32.Build.0 = Debug|Win32
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Debug|x64.ActiveCfg = Debug|x64
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Debug|x64.Build.0 = Debug|x64
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Release|Win32.ActiveCfg = Release|Win32
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Release|Win32.Build.0 = Release|Win32
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Release|x64.ActiveCfg = Release|x64
+		{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
