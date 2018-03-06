@@ -50,7 +50,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm148"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\lib\libCoder;.\;../libpopusermanager;../mycp;../mycp/ThirdParty;../mycp/ThirdParty/Bodb/bodb"
+				AdditionalIncludeDirectories=".\;..\lib\libCoder;../libpopusermanager;..\other;..\thirdparty\sqlite3\inc;../mycp;../mycp/ThirdParty;../mycp/ThirdParty/Bodb/bodb"
 				PreprocessorDefinitions="CGC_SMART_STRING_USES_BSTR;WIN32;_WINDOWS;_DEBUG;_CRTDBG_MAP_ALLOC;USES_LIBCEF"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -78,7 +78,7 @@
 				AdditionalOptions="/FORCE:MULTIPLE"
 				OutputFile="../build/ebcd.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../build;../mycp/build;../mycp/ThirdParty/Bodb/build"
+				AdditionalLibraryDirectories="../build;..\thirdparty\sqlite3\vc2008;../mycp/build;../mycp/ThirdParty/Bodb/build"
 				UACExecutionLevel="2"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="true"
@@ -227,7 +227,7 @@
 				AdditionalOptions="-Zm148"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\lib\libCoder;.\;../libpopusermanager;../mycp;../mycp/ThirdParty;../mycp/ThirdParty/Bodb/bodb"
+				AdditionalIncludeDirectories=".\;..\lib\libCoder;../libpopusermanager;..\other;..\thirdparty\sqlite3\inc;../mycp;../mycp/ThirdParty;../mycp/ThirdParty/Bodb/bodb"
 				PreprocessorDefinitions="CGC_SMART_STRING_USES_BSTR;WIN32;_WINDOWS;NDEBUG;USES_LIBCEF"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
@@ -255,7 +255,7 @@
 				AdditionalOptions="/FORCE:MULTIPLE"
 				OutputFile="../build/ebc.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../build;../mycp/build;../mycp/ThirdParty/Bodb/build"
+				AdditionalLibraryDirectories="../build;..\thirdparty\sqlite3\vc2008;../mycp/build;../mycp/ThirdParty/Bodb/build"
 				UACExecutionLevel="2"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -380,6 +380,8 @@
 		</Configuration>
 		<Configuration
 			Name="EBCOM_Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -522,6 +524,8 @@
 		</Configuration>
 		<Configuration
 			Name="EBCOM_Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool

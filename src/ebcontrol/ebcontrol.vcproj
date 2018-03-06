@@ -56,6 +56,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\mycp;..\mycp\ThirdParty"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;EBSTRING_USES_BSTR;CGC_SMART_STRING_USES_BSTR"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -235,6 +236,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				AdditionalIncludeDirectories="..\mycp;..\mycp\ThirdParty"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;EBSTRING_USES_BSTR;CGC_SMART_STRING_USES_BSTR"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
