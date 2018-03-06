@@ -1302,10 +1302,10 @@ namespace bo
 
 	const std::string & replace(std::string & strSource, const std::string & strFind, const std::string &strReplace)
 	{
-		std::string::size_type pos=0;
-		std::string::size_type findlen=strFind.size();
-		std::string::size_type replacelen=strReplace.size();
-		while ((pos=strSource.find(strFind, pos)) != std::string::npos)
+		tstring::size_type pos=0;
+		tstring::size_type findlen=strFind.size();
+		tstring::size_type replacelen=strReplace.size();
+		while ((pos=strSource.find(strFind, pos)) != tstring::npos)
 		{
 			strSource.replace(pos, findlen, strReplace);
 			pos += replacelen;
