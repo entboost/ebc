@@ -1,0 +1,266 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\ebs_config_win.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\ebs_config_win.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About ebs_config_win"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "ebs_config_win, Version 2.2",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2014-2016",IDC_STATIC,42,26,114,8
+    DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+IDD_EBS_CONFIG_WIN_DIALOG DIALOGEX 0, 0, 410, 317
+STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "恩布企业IM服务端配置程序"
+FONT 9, "新宋体", 400, 0, 0x86
+BEGIN
+    GROUPBOX        "连接配置（服务器地址：防火墙内网IP必须使用外网IP或域名安装，例如：im.entboost.com）",IDC_STATIC,10,10,385,95
+    LTEXT           "通讯端口：",IDC_STATIC,20,25,40,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_EB_PORT,65,25,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "HTTP端口：",IDC_STATIC,20,45,40,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_HTTP_PORT,65,45,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "HTTPS端口：",IDC_STATIC,100,45,40,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_HTTPS_PORT,150,45,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "服务器地址：",IDC_STATIC,20,65,47,14,SS_CENTERIMAGE
+    CONTROL         "服务启动时，智能识别服务器地址变动，并自动更换（集群环境无效）",IDC_CHECK_AUTO_CHANGEIP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,85,264,10
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE_CLIENTINFO,345,65,40,14
+    PUSHBUTTON      "更换IP",IDC_BUTTON_CHANGE_IP,345,85,40,14
+    GROUPBOX        "**数据库配置",IDC_STATIC,10,110,385,60
+    LTEXT           "数据库地址：",IDC_STATIC,20,125,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_IP,65,125,80,14,ES_AUTOHSCROLL
+    LTEXT           "端口：",IDC_STATIC,160,125,25,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_PORT,190,125,50,14,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_COMBO_DBTYPE,250,125,85,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "数据库名称：",IDC_STATIC,20,145,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_NAME,65,145,80,14,ES_AUTOHSCROLL
+    LTEXT           "帐号：",IDC_STATIC,160,145,25,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_ACCOUNT,190,145,50,14,ES_AUTOHSCROLL
+    LTEXT           "密码：",IDC_STATIC,250,145,25,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_SECURE,280,145,55,14,ES_PASSWORD | ES_AUTOHSCROLL
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE_DBINFO,345,125,40,14
+    PUSHBUTTON      "新建帐号",IDC_BUTTON_NEW_DBACCOUNT,345,145,40,14,NOT WS_VISIBLE | WS_DISABLED
+    GROUPBOX        "**导入初始数据库（导入成功后，管理员帐号和密码，可用于登录恩布互联客户端，务必妥善保存！）",IDC_STATIC,10,175,385,55
+    LTEXT           "导入数据库：",IDC_STATIC,20,190,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_DB_BACKUP,65,190,80,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "打开...",IDC_BUTTON_SET_BACKUP_FILE,150,190,35,14
+    LTEXT           "公司名称：",IDC_STATIC,20,210,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_COMPANY_NAME,65,210,120,14,ES_AUTOHSCROLL
+    LTEXT           "管理员帐号：",IDC_STATIC,190,190,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_ADMIN_ACCOUNT,245,190,90,14,ES_AUTOHSCROLL
+    LTEXT           "管理员密码：",IDC_STATIC,190,210,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_ADMIN_SECURE,245,210,90,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "导入数据",IDC_BUTTON_INIT_DB,345,210,40,14
+    GROUPBOX        "在线客服设置",IDC_STATIC,10,235,385,35
+    LTEXT           "电话号码：",IDC_STATIC,20,250,45,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_CS_TEL,65,250,120,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE_CSINFO,345,250,40,14
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE_HTTPPORT,345,25,40,14,NOT WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "测试连接",IDC_BUTTON_DB_TEST,346,158,40,14,NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "IP地址状态...",IDC_STATIC_IP_STATE,155,65,185,14,SS_CENTERIMAGE
+    LTEXT           "（用于网页服务和REST API访问）",IDC_STATIC_IP_STATE2,185,45,120,14,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO_SERVER_IPS,65,65,85,52,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "（恩布IM客户端通讯端口，UDP协议）",IDC_STATIC_IP_STATE3,100,25,150,14,SS_CENTERIMAGE
+    LTEXT           "*支持免安装使用，不需要配置保存和导入数据，直接运行/ebs/CGCP.exe即可使用（默认SQLite数据库）",IDC_STATIC_IP_STATE4,15,275,380,14,SS_CENTERIMAGE
+    LTEXT           "*安装步骤：1:填写正确服务器IP地址，端口，数据库信息，点击保存；2:导入数据。",IDC_STATIC_IP_STATE5,15,290,380,14,SS_CENTERIMAGE
+END
+
+IDD_DLG_MYSQL_ROOTPWD DIALOGEX 0, 0, 216, 49
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "请输入mysql数据库root密码（密码空直接确定）"
+FONT 9, "新宋体", 400, 0, 0x86
+BEGIN
+    EDITTEXT        IDC_EDIT_ROOTPWD,20,20,120,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "确定",IDOK,145,20,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,2,0,274
+ PRODUCTVERSION 2,2,0,274
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Entboost.com, Inc."
+            VALUE "FileDescription", "恩布IM服务端安装程序"
+            VALUE "FileVersion", "2, 2, 0, 274"
+            VALUE "InternalName", "ebs_config_win.exe"
+            VALUE "LegalCopyright", "深圳恩布网络科技有限公司.  All rights reserved."
+            VALUE "OriginalFilename", "ebs_config_win.exe"
+            VALUE "ProductName", "恩布IM服务端安装程序"
+            VALUE "ProductVersion", "2, 2, 0, 274"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_EBS_CONFIG_WIN_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 403
+        TOPMARGIN, 10
+        BOTTOMMARGIN, 310
+    END
+
+    IDD_DLG_MYSQL_ROOTPWD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 209
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About ebs_config_win..."
+END
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\ebs_config_win.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
