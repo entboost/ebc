@@ -42,6 +42,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libebui", "..\..\libebui\li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebvideoroom", "..\..\ebvideoroom\ebvideoroom.vcproj", "{BA79C3B9-1F32-4443-BC26-789371E67680}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebd", "..\..\ebd\ebd.vcproj", "{DD394B6B-92FF-4EA4-B58F-51666FCB869E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E724FA82-1E06-4BA2-9BAD-07D61285DF12} = {E724FA82-1E06-4BA2-9BAD-07D61285DF12}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -160,6 +165,14 @@ Global
 		{BA79C3B9-1F32-4443-BC26-789371E67680}.Release|Win32.Build.0 = Release|Win32
 		{BA79C3B9-1F32-4443-BC26-789371E67680}.Release|x64.ActiveCfg = Release|x64
 		{BA79C3B9-1F32-4443-BC26-789371E67680}.Release|x64.Build.0 = Release|x64
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Debug|Win32.Build.0 = Debug|Win32
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Debug|x64.ActiveCfg = Debug|x64
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Debug|x64.Build.0 = Debug|x64
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Release|Win32.ActiveCfg = Release|Win32
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Release|Win32.Build.0 = Release|Win32
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Release|x64.ActiveCfg = Release|x64
+		{DD394B6B-92FF-4EA4-B58F-51666FCB869E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
