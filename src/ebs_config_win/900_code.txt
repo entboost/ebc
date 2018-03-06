@@ -1,0 +1,1 @@
+<script type="text/javascript" src="http://192.168.1.102:82/webim/js/onlinecall.js?to_account=9009301234" charset="UTF-8"></script>
