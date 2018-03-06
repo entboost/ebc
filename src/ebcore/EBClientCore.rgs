@@ -1,0 +1,26 @@
+HKCR
+{
+	ebcore.EBClientCore.1 = s 'EBClientCore Class'
+	{
+		CLSID = s '{B26BB29E-A61D-48E7-8068-6CF59FDD7680}'
+	}
+	ebcore.EBClientCore = s 'EBClientCore Class'
+	{
+		CLSID = s '{B26BB29E-A61D-48E7-8068-6CF59FDD7680}'
+		CurVer = s 'ebcore.EBClientCore.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B26BB29E-A61D-48E7-8068-6CF59FDD7680} = s 'EBClientCore Class'
+		{
+			ProgID = s 'ebcore.EBClientCore.1'
+			VersionIndependentProgID = s 'ebcore.EBClientCore'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{271991DA-DE4A-4B5C-8732-619613915A05}'
+		}
+	}
+}

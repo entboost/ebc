@@ -1,0 +1,1523 @@
+// ebcore.idl : IDL source for ebcore
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ebcore.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+//import "ebc_object.idl";
+
+
+[
+	uuid(271991DA-DE4A-4B5C-8732-619613915A05),
+	version(1.0),
+	helpstring("ebcore 1.0 Type Library")
+]
+library ebcoreLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		object,
+		uuid(87A6A822-C818-4521-8ED8-1B5BA736356D),
+		dual,
+		nonextensible,
+		helpstring("IEBRemoteDesktop Interface"),
+		pointer_default(unique)
+	]
+	interface IEBRemoteDesktop : IDispatch{
+		[id(1), helpstring("method RD_Init")] HRESULT RD_Init([in] BSTR sAddress, [in] ULONG nBindPort);
+		[id(2), helpstring("method RD_IsInited")] HRESULT RD_IsInited([out, retval] VARIANT_BOOL * pVal);
+		[id(3), helpstring("method RD_UnInit")] HRESULT RD_UnInit(void);
+		[id(4), helpstring("method RD_Register")] HRESULT RD_Register([in] ULONGLONG nRoomId, [in] ULONGLONG nSourceId, [in] ULONGLONG nParam, [in] VARIANT_BOOL bIsGroup);
+		[propget, id(5), helpstring("property RD_RoomId")] HRESULT RD_RoomId([out, retval] ULONGLONG* pVal);
+		[propget, id(6), helpstring("property RD_SourceId")] HRESULT RD_SourceId([out, retval] ULONGLONG* pVal);
+		//[propget, id(7), helpstring("property RD_Param")] HRESULT RD_Param([out, retval] ULONGLONG* pVal);
+		[id(8), helpstring("method RD_UnRegister")] HRESULT RD_UnRegister(void);
+		[id(9), helpstring("method RD_AddSink")] HRESULT RD_AddSink([in] ULONGLONG nDestId, [in] ULONG nParentWnd);
+		[id(10), helpstring("method RD_MoveSinkWindow")] HRESULT RD_MoveSinkWindow([in] ULONGLONG nDestId, [in] LONG x, [in] LONG y, [in] LONG width, [in] LONG height, [in] VARIANT_BOOL bRepaint);
+		[propget, id(11), helpstring("property RD_ControlSinkDesktop")] HRESULT RD_ControlSinkDesktop([in] ULONGLONG nDestId, [out, retval] LONG* pVal);
+		[propput, id(11), helpstring("property RD_ControlSinkDesktop")] HRESULT RD_ControlSinkDesktop([in] ULONGLONG nDestId, [in] LONG nMouseMoveFPS);
+		[id(12), helpstring("method RD_DelSink")] HRESULT RD_DelSink([in] ULONGLONG nDestId);
+		[id(13), helpstring("method RD_DelAllSink")] HRESULT RD_DelAllSink(void);
+		[id(14), helpstring("method RD_StartLocalDesktop")] HRESULT RD_StartLocalDesktop([in] ULONG quant, [in] ULONG fps);
+		[propget, id(15), helpstring("property RD_LocalDesktopFPS")] HRESULT RD_LocalDesktopFPS([out, retval] ULONG* pVal);
+		[propget, id(16), helpstring("property RD_EnableControlLocalDesktop")] HRESULT RD_EnableControlLocalDesktop([out, retval] ULONGLONG* pVal);
+		[propput, id(16), helpstring("property RD_EnableControlLocalDesktop")] HRESULT RD_EnableControlLocalDesktop([in] ULONGLONG newVal);
+		[id(17), helpstring("method RD_StopLocalDesktop")] HRESULT RD_StopLocalDesktop(void);
+	};
+
+	[
+		object,
+		uuid(C9C3E857-46ED-4eec-B9D9-E781D96BF47A),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_APMsgInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property FromAppId")] HRESULT FromAppId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property FromAppId")] HRESULT FromAppId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property GroupId")] HRESULT GroupId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property GroupId")] HRESULT GroupId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property UserId")] HRESULT UserId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property UserId")] HRESULT UserId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property Account")] HRESULT Account([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property Account")] HRESULT Account([in] BSTR newVal);
+		[propget, id(5), helpstring("property MsgId")] HRESULT MsgId([out, retval] ULONGLONG* pVal);
+		[propput, id(5), helpstring("property MsgId")] HRESULT MsgId([in] ULONGLONG newVal);
+		[propget, id(6), helpstring("property MsgType")] HRESULT MsgType([out, retval] LONG* pVal);
+		[propput, id(6), helpstring("property MsgType")] HRESULT MsgType([in] LONG newVal);
+		[propget, id(7), helpstring("property MsgName")] HRESULT MsgName([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property MsgName")] HRESULT MsgName([in] BSTR newVal);
+		[propget, id(8), helpstring("property MsgContent")] HRESULT MsgContent([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property MsgContent")] HRESULT MsgContent([in] BSTR newVal);
+		[propget, id(9), helpstring("property MsgTime")] HRESULT MsgTime([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property MsgTime")] HRESULT MsgTime([in] BSTR newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sFromAppId;
+		BSTR	sAccount;
+		ULONGLONG	nMsgId;
+		LONG	nMsgType;
+		BSTR	sMsgName;
+		BSTR	sMsgContent;
+		BSTR	sMsgTime;
+	}SEB_APMsgInfo;
+
+	[
+		object,
+		uuid(6E03616D-9DAE-4490-AA3F-6CA23199CD47),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ResourceInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property ResId")] HRESULT ResId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property ResId")] HRESULT ResId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property ParentResId")] HRESULT ParentResId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property ParentResId")] HRESULT ParentResId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property Name")] HRESULT Name([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+		[propget, id(4), helpstring("property ResType")] HRESULT ResType([out, retval] LONG* pVal);
+		[propput, id(4), helpstring("property ResType")] HRESULT ResType([in] LONG newVal);
+		[propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(6), helpstring("property FromId")] HRESULT FromId([out, retval] ULONGLONG* pVal);
+		[propput, id(6), helpstring("property FromId")] HRESULT FromId([in] ULONGLONG newVal);
+		[propget, id(7), helpstring("property FromType")] HRESULT FromType([out, retval] LONG* pVal);
+		[propput, id(7), helpstring("property FromType")] HRESULT FromType([in] LONG newVal);
+		//[propget, id(6), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([out, retval] ULONGLONG* pVal);
+		//[propput, id(6), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([in] ULONGLONG newVal);
+		//[propget, id(7), helpstring("property GroupCode")] HRESULT GroupCode([out, retval] ULONGLONG* pVal);
+		//[propput, id(7), helpstring("property GroupCode")] HRESULT GroupCode([in] ULONGLONG newVal);
+		[propget, id(8), helpstring("property CreateUserId")] HRESULT CreateUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(8), helpstring("property CreateUserId")] HRESULT CreateUserId([in] ULONGLONG newVal);
+		[propget, id(9), helpstring("property Time")] HRESULT Time([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property Time")] HRESULT Time([in] BSTR newVal);
+		[propget, id(10), helpstring("property Downloads")] HRESULT Downloads([out, retval] ULONG* pVal);
+		[propput, id(10), helpstring("property Downloads")] HRESULT Downloads([in] ULONG newVal);
+		[propget, id(11), helpstring("property Size")] HRESULT Size([out, retval] ULONGLONG* pVal);
+		[propput, id(11), helpstring("property Size")] HRESULT Size([in] ULONGLONG newVal);
+		[propget, id(12), helpstring("property Share")] HRESULT Share([out, retval] LONG* pVal);
+		[propput, id(12), helpstring("property Share")] HRESULT Share([in] LONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sResId;
+		ULONGLONG	sParentResId;
+		BSTR	sName;
+		SHORT	nResType;
+		BSTR	sDescription;
+		ULONGLONG	sEnterpriseCode;
+		ULONGLONG	sGroupCode;
+		ULONGLONG	nCreateUserId;
+		BSTR	sTime;
+		ULONG	nDownloads;
+		ULONGLONG	nSize;
+	}SEB_ResourceInfo;
+
+	[
+		object,
+		uuid(C19E1F84-4A7A-4c8f-9E3A-276A97C4F9FD),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ECardInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property AccountType")] HRESULT AccountType([out, retval] SHORT* pVal);
+		[propput, id(1), helpstring("property AccountType")] HRESULT AccountType([in] SHORT newVal);
+		[propget, id(2), helpstring("property MemberCode")] HRESULT MemberCode([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property MemberCode")] HRESULT MemberCode([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property MemberUserId")] HRESULT MemberUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property MemberUserId")] HRESULT MemberUserId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property Name")] HRESULT Name([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+		[propget, id(5), helpstring("property Phone")] HRESULT Phone([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property Phone")] HRESULT Phone([in] BSTR newVal);
+		[propget, id(6), helpstring("property Tel")] HRESULT Tel([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property Tel")] HRESULT Tel([in] BSTR newVal);
+		[propget, id(7), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(8), helpstring("property Title")] HRESULT Title([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+		[propget, id(9), helpstring("property GroupName")] HRESULT GroupName([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property GroupName")] HRESULT GroupName([in] BSTR newVal);
+		[propget, id(10), helpstring("property GroupCode")] HRESULT GroupCode([out, retval] ULONGLONG* pVal);
+		[propput, id(10), helpstring("property GroupCode")] HRESULT GroupCode([in] ULONGLONG newVal);
+		[propget, id(11), helpstring("property Enterprise")] HRESULT Enterprise([out, retval] BSTR* pVal);
+		[propput, id(11), helpstring("property Enterprise")] HRESULT Enterprise([in] BSTR newVal);
+		[propget, id(12), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(12), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(13), helpstring("property UserSignId")] HRESULT UserSignId([out, retval] ULONGLONG* pVal);
+		[propput, id(13), helpstring("property UserSignId")] HRESULT UserSignId([in] ULONGLONG newVal);
+		[propget, id(14), helpstring("property FromIp")] HRESULT FromIp([out, retval] ULONGLONG* pVal);
+		[propput, id(14), helpstring("property FromIp")] HRESULT FromIp([in] ULONGLONG newVal);
+		[propget, id(15), helpstring("property HeadResId")] HRESULT HeadResId([out, retval] ULONGLONG* pVal);
+		[propput, id(15), helpstring("property HeadResId")] HRESULT HeadResId([in] ULONGLONG newVal);
+		[propget, id(16), helpstring("property HeadCmServer")] HRESULT HeadCmServer([out, retval] BSTR* pVal);
+		[propput, id(16), helpstring("property HeadCmServer")] HRESULT HeadCmServer([in] BSTR newVal);
+		[propget, id(17), helpstring("property HeadHttpServer")] HRESULT HeadHttpServer([out, retval] BSTR* pVal);
+		[propput, id(17), helpstring("property HeadHttpServer")] HRESULT HeadHttpServer([in] BSTR newVal);
+		[propget, id(18), helpstring("property HeadMd5")] HRESULT HeadMd5([out, retval] BSTR* pVal);
+		[propput, id(18), helpstring("property HeadMd5")] HRESULT HeadMd5([in] BSTR newVal);
+		[propget, id(19), helpstring("property HeadResourceFile")] HRESULT HeadResourceFile([out, retval] BSTR* pVal);
+		[propput, id(19), helpstring("property HeadResourceFile")] HRESULT HeadResourceFile([in] BSTR newVal);
+	};
+	typedef struct
+	{
+		SHORT	nAccountType;
+		ULONGLONG	sMemberCode;
+		BSTR	sName;
+		BSTR	sPhone;
+		BSTR	sTel;
+		BSTR	sEmail;
+		BSTR	sTitle;
+		BSTR	sGroupName;
+		ULONGLONG	sGroupCode;
+		BSTR	sEnterprise;
+	}SEB_ECardInfo;
+
+	[
+		object,
+		uuid(DC51E93C-6CB0-4ba7-B093-F3CF92184BDA),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_AreaInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property AreaCode")] HRESULT AreaCode([out, retval] LONG* pVal);
+		[propput, id(1), helpstring("property AreaCode")] HRESULT AreaCode([in] LONG newVal);
+		[propget, id(2), helpstring("property ParentCode")] HRESULT ParentCode([out, retval] LONG* pVal);
+		[propput, id(2), helpstring("property ParentCode")] HRESULT ParentCode([in] LONG newVal);
+		[propget, id(3), helpstring("property AreaName")] HRESULT AreaName([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property AreaName")] HRESULT AreaName([in] BSTR newVal);
+		[propget, id(4), helpstring("property AreaDigit")] HRESULT AreaDigit([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property AreaDigit")] HRESULT AreaDigit([in] BSTR newVal);
+	};
+
+	[
+		object,
+		uuid(760B8010-0172-4804-998B-F0351FD780CE),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_AccountInfo : IDispatch//IEB_ECardInfo
+	{
+		[propget, id(1), helpstring("property UserId")] HRESULT UserId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property UserId")] HRESULT UserId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property Account")] HRESULT Account([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property Account")] HRESULT Account([in] BSTR newVal);
+		[propget, id(3), helpstring("property Passwd")] HRESULT Passwd([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property Passwd")] HRESULT Passwd([in] BSTR newVal);
+		[propget, id(4), helpstring("property UserName")] HRESULT UserName([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property UserName")] HRESULT UserName([in] BSTR newVal);
+		[propget, id(5), helpstring("property Gender")] HRESULT Gender([out, retval] SHORT* pVal);
+		[propput, id(5), helpstring("property Gender")] HRESULT Gender([in] SHORT newVal);
+		[propget, id(6), helpstring("property Birthday")] HRESULT Birthday([out, retval] LONG* pVal);
+		[propput, id(6), helpstring("property Birthday")] HRESULT Birthday([in] LONG newVal);
+		[propget, id(7), helpstring("property Mobile")] HRESULT Mobile([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property Mobile")] HRESULT Mobile([in] BSTR newVal);
+		[propget, id(8), helpstring("property Tel")] HRESULT Tel([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Tel")] HRESULT Tel([in] BSTR newVal);
+		[propget, id(9), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(10), helpstring("property Area1")] HRESULT Area1([out, retval] LONG* pVal);
+		[propput, id(10), helpstring("property Area1")] HRESULT Area1([in] LONG newVal);
+		[propget, id(11), helpstring("property Area1String")] HRESULT Area1String([out, retval] BSTR* pVal);
+		[propput, id(11), helpstring("property Area1String")] HRESULT Area1String([in] BSTR newVal);
+		[propget, id(12), helpstring("property Area2")] HRESULT Area2([out, retval] LONG* pVal);
+		[propput, id(12), helpstring("property Area2")] HRESULT Area2([in] LONG newVal);
+		[propget, id(13), helpstring("property Area2String")] HRESULT Area2String([out, retval] BSTR* pVal);
+		[propput, id(13), helpstring("property Area2String")] HRESULT Area2String([in] BSTR newVal);
+		[propget, id(14), helpstring("property Area3")] HRESULT Area3([out, retval] LONG* pVal);
+		[propput, id(14), helpstring("property Area3")] HRESULT Area3([in] LONG newVal);
+		[propget, id(15), helpstring("property Area3String")] HRESULT Area3String([out, retval] BSTR* pVal);
+		[propput, id(15), helpstring("property Area3String")] HRESULT Area3String([in] BSTR newVal);
+		[propget, id(16), helpstring("property Area4")] HRESULT Area4([out, retval] LONG* pVal);
+		[propput, id(16), helpstring("property Area4")] HRESULT Area4([in] LONG newVal);
+		[propget, id(17), helpstring("property Area4String")] HRESULT Area4String([out, retval] BSTR* pVal);
+		[propput, id(17), helpstring("property Area4String")] HRESULT Area4String([in] BSTR newVal);
+		[propget, id(18), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(18), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(19), helpstring("property Url")] HRESULT Url([out, retval] BSTR* pVal);
+		[propput, id(19), helpstring("property Url")] HRESULT Url([in] BSTR newVal);
+		[propget, id(20), helpstring("property ZipCode")] HRESULT ZipCode([out, retval] BSTR* pVal);
+		[propput, id(20), helpstring("property ZipCode")] HRESULT ZipCode([in] BSTR newVal);
+		[propget, id(21), helpstring("property LogonType")] HRESULT LogonType([out, retval] ULONG* pVal);
+		[propput, id(21), helpstring("property LogonType")] HRESULT LogonType([in] ULONG newVal);
+		[propget, id(22), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(22), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(23), helpstring("property ECardInfo")] HRESULT ECardInfo([out, retval] IEB_ECardInfo** pVal);
+		[propput, id(23), helpstring("property ECardInfo")] HRESULT ECardInfo([in] IEB_ECardInfo* newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG nUserId;
+		BSTR	sAccount;
+		BSTR	sPassword;
+		BSTR	sUsername;
+		BSTR	sDescription;
+		IEB_ECardInfo* pECardInfo;
+	}SEB_AccountInfo;
+
+	[
+		object,
+		uuid(209AC18D-634B-4a2e-8858-699E1D1E8750),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_SubscribeFuncInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property SubscribeId")] HRESULT SubscribeId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property SubscribeId")] HRESULT SubscribeId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property Location")] HRESULT Location([out, retval] LONG* pVal);
+		[propput, id(2), helpstring("property Location")] HRESULT Location([in] LONG newVal);
+		[propget, id(3), helpstring("property IconResId")] HRESULT IconResId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property IconResId")] HRESULT IconResId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property ResFile")] HRESULT ResFile([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property ResFile")] HRESULT ResFile([in] BSTR newVal);
+		[propget, id(5), helpstring("property FuncName")] HRESULT FuncName([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property FuncName")] HRESULT FuncName([in] BSTR newVal);
+		[propget, id(6), helpstring("property FuncName")] HRESULT FuncUrl([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property FuncName")] HRESULT FuncUrl([in] BSTR newVal);
+		[propget, id(7), helpstring("property FuncMode")] HRESULT FuncMode([out, retval] SHORT* pVal);
+		[propput, id(7), helpstring("property FuncMode")] HRESULT FuncMode([in] SHORT newVal);
+		[propget, id(8), helpstring("property WindowWidth")] HRESULT WindowWidth([out, retval] LONG* pVal);
+		[propput, id(8), helpstring("property WindowWidth")] HRESULT WindowWidth([in] LONG newVal);
+		[propget, id(9), helpstring("property WindowHeight")] HRESULT WindowHeight([out, retval] LONG* pVal);
+		[propput, id(9), helpstring("property WindowHeight")] HRESULT WindowHeight([in] LONG newVal);
+		[propget, id(10), helpstring("property DisableContextMenu")] HRESULT DisableContextMenu([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(10), helpstring("property DisableContextMenu")] HRESULT DisableContextMenu([in] VARIANT_BOOL newVal);
+		[propget, id(11), helpstring("property DisableScrollBar")] HRESULT DisableScrollBar([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(11), helpstring("property DisableScrollBar")] HRESULT DisableScrollBar([in] VARIANT_BOOL newVal);
+		[propget, id(12), helpstring("property ClosePrompt")] HRESULT ClosePrompt([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(12), helpstring("property ClosePrompt")] HRESULT ClosePrompt([in] VARIANT_BOOL newVal);
+		[propget, id(13), helpstring("property WinResizable")] HRESULT WinResizable([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(13), helpstring("property WinResizable")] HRESULT WinResizable([in] VARIANT_BOOL newVal);
+		[propget, id(14), helpstring("property DisplayIndex")] HRESULT DisplayIndex([out, retval] LONG* pVal);
+		[propput, id(14), helpstring("property DisplayIndex")] HRESULT DisplayIndex([in] LONG newVal);
+	};
+
+	[
+		object,
+		uuid(59F63E6E-E894-4bd6-9B1D-05817793F4C4),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatMsgItem : IDispatch
+	{
+		[propget, id(1), helpstring("property Type")] HRESULT Type([out, retval] SHORT* pVal);
+		[propput, id(1), helpstring("property Type")] HRESULT Type([in] SHORT newVal);
+		[propget, id(2), helpstring("property Text")] HRESULT Text([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property Text")] HRESULT Text([in] BSTR newVal);
+		[propget, id(3), helpstring("property Data")] HRESULT Data([out, retval] BYTE** pVal);
+		[propput, id(3), helpstring("property Data")] HRESULT Data([in] BYTE* newVal);
+		[propget, id(4), helpstring("property Size")] HRESULT Size([out, retval] ULONG* pVal);
+		[propput, id(4), helpstring("property Size")] HRESULT Size([in] ULONG newVal);
+	};
+	typedef struct
+	{
+		SHORT	nType;
+		BSTR	sText;
+		BYTE*	pData;
+		ULONG	nSize;
+	}SEB_ChatMsgItem;
+
+	[
+		object,
+		uuid(15C78396-67B2-442e-B221-51F4D3D30CCB),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_MemberInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property MemberCode")] HRESULT MemberCode([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property MemberCode")] HRESULT MemberCode([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property GroupCode")] HRESULT GroupCode([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property GroupCode")] HRESULT GroupCode([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property MemberUserId")] HRESULT MemberUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property MemberUserId")] HRESULT MemberUserId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property MemberAccount")] HRESULT MemberAccount([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property MemberAccount")] HRESULT MemberAccount([in] BSTR newVal);
+		[propget, id(5), helpstring("property UserName")] HRESULT UserName([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property UserName")] HRESULT UserName([in] BSTR newVal);
+		[propget, id(6), helpstring("property JobTitle")] HRESULT JobTitle([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property JobTitle")] HRESULT JobTitle([in] BSTR newVal);
+		[propget, id(7), helpstring("property JobPosition")] HRESULT JobPosition([out, retval] LONG* pVal);
+		[propput, id(7), helpstring("property JobPosition")] HRESULT JobPosition([in] LONG newVal);
+		[propget, id(8), helpstring("property CellPhone")] HRESULT CellPhone([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property CellPhone")] HRESULT CellPhone([in] BSTR newVal);
+		[propget, id(9), helpstring("property Fax")] HRESULT Fax([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property Fax")] HRESULT Fax([in] BSTR newVal);
+		[propget, id(10), helpstring("property WorkPhone")] HRESULT WorkPhone([out, retval] BSTR* pVal);
+		[propput, id(10), helpstring("property WorkPhone")] HRESULT WorkPhone([in] BSTR newVal);
+		[propget, id(11), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(11), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(12), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(12), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(13), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(13), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		//[propget, id(14), helpstring("property ManagerLevel")] HRESULT ManagerLevel([out, retval] LONG* pVal);
+		//[propput, id(14), helpstring("property ManagerLevel")] HRESULT ManagerLevel([in] LONG newVal);
+		[propget, id(15), helpstring("property Gender")] HRESULT Gender([out, retval] SHORT* pVal);
+		[propput, id(15), helpstring("property Gender")] HRESULT Gender([in] SHORT newVal);
+		[propget, id(16), helpstring("property Birthday")] HRESULT Birthday([out, retval] LONG* pVal);
+		[propput, id(16), helpstring("property Birthday")] HRESULT Birthday([in] LONG newVal);
+		[propget, id(17), helpstring("property LineState")] HRESULT LineState([out, retval] LONG* pVal);
+		[propput, id(17), helpstring("property LineState")] HRESULT LineState([in] LONG newVal);
+		[propget, id(18), helpstring("property HeadResourceId")] HRESULT HeadResourceId([out, retval] ULONGLONG* pVal);
+		[propput, id(18), helpstring("property HeadResourceId")] HRESULT HeadResourceId([in] ULONGLONG newVal);
+		[propget, id(19), helpstring("property HeadResourceFile")] HRESULT HeadResourceFile([out, retval] BSTR* pVal);
+		[propput, id(19), helpstring("property HeadResourceFile")] HRESULT HeadResourceFile([in] BSTR newVal);
+		[propget, id(20), helpstring("property CSId")] HRESULT CSId([out, retval] ULONGLONG* pVal);
+		[propput, id(20), helpstring("property CSId")] HRESULT CSId([in] ULONGLONG newVal);
+		[propget, id(21), helpstring("property CSExt")] HRESULT CSExt([out, retval] LONG* pVal);
+		[propput, id(21), helpstring("property CSExt")] HRESULT CSExt([in] LONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sMemberCode;
+		ULONGLONG	sGroupCode;
+		ULONGLONG	nMemberUserId;
+		BSTR	sMemberAccount;
+		BSTR	sUserName;
+		BSTR	sJobTitle;
+		LONG	nJobPosition;
+		BSTR	sCellPhone;
+		BSTR	sFax;
+		BSTR	sWorkPhone;
+		BSTR	sEmail;
+		BSTR	sAddress;
+		BSTR	sDescription;
+		LONG	nManagerLevel;
+		SHORT	nGender;				// 0:unknown 1:M 2:F
+		LONG	nBirthday;				// 19790101
+		LONG	nLineState;
+		ULONGLONG	sHeadResourceId;
+		BSTR	sHeadResourceFile;
+		ULONGLONG	nCSId;
+		LONG	nCSExt;
+	}SEB_MemberInfo;
+
+	[
+		object,
+		uuid(E10C2970-F867-49aa-ACB1-55CCC0C27C02),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_UGInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property UGId")] HRESULT UGId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property UGId")] HRESULT UGId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property GroupName")] HRESULT GroupName([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property GroupName")] HRESULT GroupName([in] BSTR newVal);
+	};
+
+	[
+		object,
+		uuid(6F4BBE55-8FDC-4444-A2AD-097395B71F89),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ContactInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property ContactId")] HRESULT ContactId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property ContactId")] HRESULT ContactId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property ContactType")] HRESULT ContactType([out, retval] SHORT* pVal);
+		[propput, id(2), helpstring("property ContactType")] HRESULT ContactType([in] SHORT newVal);
+		[propget, id(3), helpstring("property UGId")] HRESULT UGId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property UGId")] HRESULT UGId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property GroupName")] HRESULT GroupName([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property GroupName")] HRESULT GroupName([in] BSTR newVal);
+		[propget, id(5), helpstring("property ContactUserId")] HRESULT ContactUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(5), helpstring("property ContactUserId")] HRESULT ContactUserId([in] ULONGLONG newVal);
+		[propget, id(6), helpstring("property Contact")] HRESULT Contact([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property Contact")] HRESULT Contact([in] BSTR newVal);
+		[propget, id(7), helpstring("property Name")] HRESULT Name([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+		[propget, id(8), helpstring("property Company")] HRESULT Company([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Company")] HRESULT Company([in] BSTR newVal);
+		[propget, id(9), helpstring("property JobTitle")] HRESULT JobTitle([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property JobTitle")] HRESULT JobTitle([in] BSTR newVal);
+		[propget, id(10), helpstring("property Tel")] HRESULT Tel([out, retval] BSTR* pVal);
+		[propput, id(10), helpstring("property Tel")] HRESULT Tel([in] BSTR newVal);
+		[propget, id(11), helpstring("property Fax")] HRESULT Fax([out, retval] BSTR* pVal);
+		[propput, id(11), helpstring("property Fax")] HRESULT Fax([in] BSTR newVal);
+		[propget, id(12), helpstring("property Phone")] HRESULT Phone([out, retval] BSTR* pVal);
+		[propput, id(12), helpstring("property Phone")] HRESULT Phone([in] BSTR newVal);
+		[propget, id(13), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(13), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(14), helpstring("property Phone")] HRESULT Url([out, retval] BSTR* pVal);
+		[propput, id(14), helpstring("property Phone")] HRESULT Url([in] BSTR newVal);
+		[propget, id(15), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(15), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(16), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(16), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(17), helpstring("property LineState")] HRESULT LineState([out, retval] LONG* pVal);
+		[propput, id(17), helpstring("property LineState")] HRESULT LineState([in] LONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG nContactId;
+		SHORT nContactType;
+		ULONGLONG nUGId;
+		BSTR	sGroupName;
+		ULONGLONG nContactUserId;
+		BSTR	sContact;
+		BSTR	sName;
+		BSTR	sCompany;
+		BSTR	sJobTitle;
+		BSTR	sTel;
+		BSTR	sFax;
+		BSTR	sPhone;
+		BSTR	sEmail;
+		BSTR	sUrl;
+		BSTR	sAddress;
+		BSTR	sDescription;
+	}SEB_ContactInfo;
+
+	[
+		object,
+		uuid(596755A9-E61D-4221-8BEE-FF7BAE112978),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_EnterpriseInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property EnterpriseName")] HRESULT EnterpriseName([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property EnterpriseName")] HRESULT EnterpriseName([in] BSTR newVal);
+		[propget, id(3), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(4), helpstring("property Phone")] HRESULT Phone([out, retval] BSTR* pVal);
+		[propput, id(4), helpstring("property Phone")] HRESULT Phone([in] BSTR newVal);
+		[propget, id(5), helpstring("property Fax")] HRESULT Fax([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property Fax")] HRESULT Fax([in] BSTR newVal);
+		[propget, id(6), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(7), helpstring("property Url")] HRESULT Url([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property Url")] HRESULT Url([in] BSTR newVal);
+		[propget, id(8), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(9), helpstring("property CreateTime")] HRESULT CreateTime([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property CreateTime")] HRESULT CreateTime([in] BSTR newVal);
+		[propget, id(10), helpstring("property CreateUserId")] HRESULT CreateUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(10), helpstring("property CreateUserId")] HRESULT CreateUserId([in] ULONGLONG newVal);
+		[propget, id(11), helpstring("property EntExt")] HRESULT EntExt([out, retval] ULONG* pVal);
+		[propput, id(11), helpstring("property EntExt")] HRESULT EntExt([in] ULONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sEnterpriseCode;
+		BSTR	sEnterpriseName;
+		BSTR	sDescription;
+		BSTR	sPhone;
+		BSTR	sFax;
+		BSTR	sEmail;
+		BSTR	sUrl;
+		BSTR	sAddress;
+		BSTR	sCreateTime;
+		ULONGLONG nCreateUserId;
+		ULONG nEntExt;
+	}SEB_EnterpriseInfo;
+
+	[
+		object,
+		uuid(5BD33024-BF7A-47dd-83AF-4F996F41623A),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_GroupInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property GroupCode")] HRESULT GroupCode([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property GroupCode")] HRESULT GroupCode([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property GroupName")] HRESULT GroupName([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property GroupName")] HRESULT GroupName([in] BSTR newVal);
+		[propget, id(4), helpstring("property ParentCode")] HRESULT ParentCode([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property ParentCode")] HRESULT ParentCode([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(6), helpstring("property Phone")] HRESULT Phone([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property Phone")] HRESULT Phone([in] BSTR newVal);
+		[propget, id(7), helpstring("property Fax")] HRESULT Fax([out, retval] BSTR* pVal);
+		[propput, id(7), helpstring("property Fax")] HRESULT Fax([in] BSTR newVal);
+		[propget, id(8), helpstring("property Email")] HRESULT Email([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Email")] HRESULT Email([in] BSTR newVal);
+		[propget, id(9), helpstring("property Url")] HRESULT Url([out, retval] BSTR* pVal);
+		[propput, id(9), helpstring("property Url")] HRESULT Url([in] BSTR newVal);
+		[propget, id(10), helpstring("property Address")] HRESULT Address([out, retval] BSTR* pVal);
+		[propput, id(10), helpstring("property Address")] HRESULT Address([in] BSTR newVal);
+		[propget, id(11), helpstring("property CreateTime")] HRESULT CreateTime([out, retval] BSTR* pVal);
+		[propput, id(11), helpstring("property CreateTime")] HRESULT CreateTime([in] BSTR newVal);
+		[propget, id(12), helpstring("property CreateUserId")] HRESULT CreateUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(12), helpstring("property CreateUserId")] HRESULT CreateUserId([in] ULONGLONG newVal);
+		[propget, id(13), helpstring("property GroupType")] HRESULT GroupType([out, retval] SHORT* pVal);
+		[propput, id(13), helpstring("property GroupType")] HRESULT GroupType([in] SHORT newVal);
+		[propget, id(14), helpstring("property MyEmpId")] HRESULT MyEmpId([out, retval] ULONGLONG* pVal);
+		[propput, id(14), helpstring("property MyEmpId")] HRESULT MyEmpId([in] ULONGLONG newVal);
+		[propget, id(15), helpstring("property EmpCount")] HRESULT EmpCount([out, retval] LONG* pVal);
+		[propput, id(15), helpstring("property EmpCount")] HRESULT EmpCount([in] LONG newVal);
+		[propget, id(16), helpstring("property GroupVer")] HRESULT GroupVer([out, retval] ULONGLONG* pVal);
+		[propput, id(16), helpstring("property GroupVer")] HRESULT GroupVer([in] ULONGLONG newVal);
+		[propget, id(17), helpstring("property DisplayIndex")] HRESULT DisplayIndex([out, retval] LONG* pVal);
+		[propput, id(17), helpstring("property DisplayIndex")] HRESULT DisplayIndex([in] LONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sEnterpriseCode;
+		ULONGLONG	sGroupCode;
+		BSTR	sGroupName;
+		ULONGLONG	sParentCode;
+		BSTR	sDescription;
+		BSTR	sPhone;
+		BSTR	sFax;
+		BSTR	sEmail;
+		BSTR	sUrl;
+		BSTR	sAddress;
+		BSTR	sCreateTime;
+		ULONGLONG nCreateUserId;
+		SHORT	nGroupType;
+		ULONGLONG nMyEmpId;
+		LONG nEmpCount;
+		ULONGLONG nGroupVer;
+		LONG nDisplayIndex;
+	}SEB_GroupInfo;
+
+	[
+		object,
+		uuid(077A26BA-FCEC-4dda-BAF9-0C033C1E612C),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_EmotionInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property ResId")] HRESULT ResId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property ResId")] HRESULT ResId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property ResFile")] HRESULT ResFile([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property ResFile")] HRESULT ResFile([in] BSTR newVal);
+		[propget, id(3), helpstring("property Index")] HRESULT Index([out, retval] ULONG* pVal);
+		[propput, id(3), helpstring("property Index")] HRESULT Index([in] ULONG newVal);
+		[propget, id(4), helpstring("property Type")] HRESULT Type([out, retval] SHORT* pVal);
+		[propput, id(4), helpstring("property Type")] HRESULT Type([in] SHORT newVal);
+		[propget, id(5), helpstring("property UserId")] HRESULT UserId([out, retval] ULONGLONG* pVal);
+		[propput, id(5), helpstring("property UserId")] HRESULT UserId([in] ULONGLONG newVal);
+		[propget, id(6), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([out, retval] ULONGLONG* pVal);
+		[propput, id(6), helpstring("property EnterpriseCode")] HRESULT EnterpriseCode([in] ULONGLONG newVal);
+		[propget, id(7), helpstring("property EnterpriseCode")] HRESULT ResType([out, retval] SHORT* pVal);
+		[propput, id(7), helpstring("property EnterpriseCode")] HRESULT ResType([in] SHORT newVal);
+		[propget, id(8), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sResId;
+		BSTR	sResFile;
+		ULONG	nIndex;
+		SHORT	nType;
+		ULONGLONG	nUserId;
+		ULONGLONG	sEnterpriseCode;	// 0为个人表情
+		BSTR sDescription;
+	}SEB_EmotionInfo;
+
+	[
+		object,
+		uuid(802622AB-04AF-4dd0-AFAA-AB5D2CF3449E),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_CallInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property GroupCode")] HRESULT GroupCode([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property GroupCode")] HRESULT GroupCode([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property OldCallId")] HRESULT OldCallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property OldCallId")] HRESULT OldCallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property FromUserId")] HRESULT FromUserId([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property FromUserId")] HRESULT FromUserId([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property FromAccount")] HRESULT FromAccount([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property FromAccount")] HRESULT FromAccount([in] BSTR newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sGroupCode;
+		ULONGLONG	sOldCallId;
+		ULONGLONG	sCallId;
+		ULONGLONG	sFromUserId;
+		BSTR		sFromAccount;
+	}SEB_CallInfo;
+
+	[
+		object,
+		uuid(D1C5A550-5F89-4cd4-82DD-43B95A36002C),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_VideoInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property VideoType")] HRESULT VideoType([out, retval] SHORT* pVal);
+		[propput, id(2), helpstring("property VideoType")] HRESULT VideoType([in] SHORT newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	sCallId;
+		SHORT	nVideoType;
+	}SEB_VideoInfo;
+
+	[
+		object,
+		uuid(4FF82297-F579-4c4f-AF10-8368C632B113),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_UserVideoInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property UserId")] HRESULT UserId([out, retval] ULONGLONG* pVal);
+		[propput, id(1), helpstring("property UserId")] HRESULT UserId([in] ULONGLONG newVal);
+		[propget, id(2), helpstring("property OnVideo")] HRESULT OnVideo([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(2), helpstring("property OnVideo")] HRESULT OnVideo([in] VARIANT_BOOL newVal);
+		//[propget, id(2), helpstring("property UserVideoId")] HRESULT UserVideoId([out, retval] ULONG* pVal);
+		//[propput, id(2), helpstring("property UserVideoId")] HRESULT UserVideoId([in] ULONG newVal);
+	};
+	typedef struct
+	{
+		ULONGLONG	nUserId;
+		ULONG	nUserVideoId;
+	}SEB_UserVideoInfo;
+
+	[
+		object,
+		uuid(E41A4F27-7DE7-4d01-AE78-CF15E9D4BA23),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_VersionInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Version")] HRESULT Version([out, retval] BSTR* pVal);
+		[propput, id(1), helpstring("property Version")] HRESULT Version([in] BSTR newVal);
+		[propget, id(2), helpstring("property Description")] HRESULT Description([out, retval] BSTR* pVal);
+		[propput, id(2), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(3), helpstring("property UpdateTime")] HRESULT UpdateTime([out, retval] BSTR* pVal);
+		[propput, id(3), helpstring("property UpdateTime")] HRESULT UpdateTime([in] BSTR newVal);
+		[propget, id(4), helpstring("property UpdateType")] HRESULT UpdateType([out, retval] SHORT* pVal);
+		[propput, id(4), helpstring("property UpdateType")] HRESULT UpdateType([in] SHORT newVal);
+		[propget, id(5), helpstring("property VersionFile")] HRESULT VersionFile([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property VersionFile")] HRESULT VersionFile([in] BSTR newVal);
+		[propget, id(6), helpstring("property ResId")] HRESULT ResId([out, retval] ULONGLONG* pVal);
+		[propput, id(6), helpstring("property ResId")] HRESULT ResId([in] ULONGLONG newVal);
+	};
+	typedef struct
+	{
+		BSTR	sVersion;			// 版本号: x.x.x.x
+		BSTR	sDescription;		// 更新说明
+		BSTR	sUpdateTime;		// 更新时间
+		SHORT	nUpdateType;		// 更新类型 0：普通更新；1：强制更新（更新才能继续使用）
+		BSTR	sVersionFile;		// 打包文件
+		ULONGLONG	sResId;
+	}SEB_VersionInfo;
+
+	[
+		object,
+		uuid(2CCED152-7D32-47c1-AD29-920FD8CC0A3D),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+	};
+
+	[
+		object,
+		uuid(0B956FBC-E17E-4027-AA92-762CAA64F155),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatAccountInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property UserId")] HRESULT UserId([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property UserId")] HRESULT UserId([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property FromInfo")] HRESULT FromInfo([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property FromInfo")] HRESULT FromInfo([in] BSTR newVal);
+	};
+
+	[
+		object,
+		uuid(B8C5ACFE-7CBF-48f2-A1C8-606661114930),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatRichInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property RichMsg")] HRESULT RichMsg([out, retval] VARIANT* pVal);
+		[propput, id(4), helpstring("property RichMsg")] HRESULT RichMsg([in] VARIANT* newVal);
+		[propget, id(5), helpstring("property SendFrom")] HRESULT SendFrom([out, retval] ULONGLONG* pVal);
+		[propput, id(5), helpstring("property SendFrom")] HRESULT SendFrom([in] ULONGLONG newVal);
+		[propget, id(6), helpstring("property SendTo")] HRESULT SendTo([out, retval] ULONGLONG* pVal);
+		[propput, id(6), helpstring("property SendTo")] HRESULT SendTo([in] ULONGLONG newVal);
+		[propget, id(7), helpstring("property Private")] HRESULT Private([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(7), helpstring("property Private")] HRESULT Private([in] VARIANT_BOOL newVal);
+	};
+
+	[
+		object,
+		uuid(4146C76F-B0F5-4f77-8039-E60EE7DB3916),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatFileInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property ResId")] HRESULT ResId([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property ResId")] HRESULT ResId([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property ResCmServer	")] HRESULT ResCmServer([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property ResCmServer")] HRESULT ResCmServer([in] BSTR newVal);
+		[propget, id(6), helpstring("property ResCmAppName")] HRESULT ResCmAppName([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property ResCmAppName")] HRESULT ResCmAppName([in] BSTR newVal);
+		[propget, id(7), helpstring("property MsgId")] HRESULT MsgId([out, retval] ULONGLONG* pVal);
+		[propput, id(7), helpstring("property MsgId")] HRESULT MsgId([in] ULONGLONG newVal);
+		[propget, id(8), helpstring("property FileName")] HRESULT FileName([out, retval] BSTR* pVal);
+		[propput, id(8), helpstring("property FileName")] HRESULT FileName([in] BSTR newVal);
+		[propget, id(9), helpstring("property FileSize")] HRESULT FileSize([out, retval] ULONGLONG* pVal);
+		[propput, id(9), helpstring("property FileSize")] HRESULT FileSize([in] ULONGLONG newVal);
+		[propget, id(10), helpstring("property FileTime")] HRESULT FileTime([out, retval] BSTR* pVal);
+		[propput, id(10), helpstring("property FileTime")] HRESULT FileTime([in] BSTR newVal);
+		[propget, id(11), helpstring("property OffFile")] HRESULT OffFile([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(11), helpstring("property OffFile")] HRESULT OffFile([in] VARIANT_BOOL newVal);
+		[propget, id(12), helpstring("property SendFrom")] HRESULT SendFrom([out, retval] ULONGLONG* pVal);
+		[propput, id(12), helpstring("property SendFrom")] HRESULT SendFrom([in] ULONGLONG newVal);
+		[propget, id(13), helpstring("property SendTo")] HRESULT SendTo([out, retval] ULONGLONG* pVal);
+		[propput, id(13), helpstring("property SendTo")] HRESULT SendTo([in] ULONGLONG newVal);
+		[propget, id(14), helpstring("property Private")] HRESULT Private([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(14), helpstring("property Private")] HRESULT Private([in] VARIANT_BOOL newVal);
+		[propget, id(15), helpstring("property ReceiveAccount")] HRESULT ReceiveAccount([out, retval] ULONGLONG* pVal);
+		[propput, id(15), helpstring("property ReceiveAccount")] HRESULT ReceiveAccount([in] ULONGLONG newVal);
+		//[id(20), helpstring("method CopyRawData")] HRESULT CopyRawData([in] void* pVal);
+		//[id(21), helpstring("method FromRawData")] HRESULT FromRawData([in] void* pVal);
+	};
+
+	[
+		object,
+		uuid(E0066A4B-EA86-47b7-A992-452F376B9976),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_ChatFilePercent : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property ResId")] HRESULT ResId([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property ResId")] HRESULT ResId([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property MsgId")] HRESULT MsgId([out, retval] ULONGLONG* pVal);
+		[propput, id(5), helpstring("property MsgId")] HRESULT MsgId([in] ULONGLONG newVal);
+		[propget, id(6), helpstring("property Percent")] HRESULT Percent([out, retval] DOUBLE* pVal);
+		[propput, id(6), helpstring("property Percent")] HRESULT Percent([in] DOUBLE newVal);
+		[propget, id(7), helpstring("property TranSeconds")] HRESULT TranSeconds([out, retval] ULONG* pVal);
+		[propput, id(7), helpstring("property TranSeconds")] HRESULT TranSeconds([in] ULONG newVal);
+		[propget, id(8), helpstring("property LeftSeconds")] HRESULT LeftSeconds([out, retval] ULONG* pVal);
+		[propput, id(8), helpstring("property LeftSeconds")] HRESULT LeftSeconds([in] ULONG newVal);
+		[propget, id(9), helpstring("property CurSpeed")] HRESULT CurSpeed([out, retval] ULONG* pVal);
+		[propput, id(9), helpstring("property CurSpeed")] HRESULT CurSpeed([in] ULONG newVal);
+		[propget, id(10), helpstring("property AvrSpeed")] HRESULT AvrSpeed([out, retval] ULONG* pVal);
+		[propput, id(10), helpstring("property AvrSpeed")] HRESULT AvrSpeed([in] ULONG newVal);
+
+	};
+
+	[
+		object,
+		uuid(E8AD1A98-1814-41c6-A66E-AAFB8EED6FB0),
+		dual,
+		nonextensible,
+		pointer_default(unique)
+	]
+	interface IEB_P2PInfo : IDispatch
+	{
+		[propget, id(1), helpstring("property Param")] HRESULT Param([out, retval] ULONG* pVal);
+		[propput, id(1), helpstring("property Param")] HRESULT Param([in] ULONG newVal);
+		[propget, id(2), helpstring("property CallId")] HRESULT CallId([out, retval] ULONGLONG* pVal);
+		[propput, id(2), helpstring("property CallId")] HRESULT CallId([in] ULONGLONG newVal);
+		[propget, id(3), helpstring("property ChatId")] HRESULT ChatId([out, retval] ULONGLONG* pVal);
+		[propput, id(3), helpstring("property ChatId")] HRESULT ChatId([in] ULONGLONG newVal);
+		[propget, id(4), helpstring("property FromAccount")] HRESULT FromAccount([out, retval] ULONGLONG* pVal);
+		[propput, id(4), helpstring("property FromAccount")] HRESULT FromAccount([in] ULONGLONG newVal);
+		[propget, id(5), helpstring("property FromLocalAddress")] HRESULT FromLocalAddress([out, retval] BSTR* pVal);
+		[propput, id(5), helpstring("property FromLocalAddress")] HRESULT FromLocalAddress([in] BSTR newVal);
+		[propget, id(6), helpstring("property FromRemoteAddress")] HRESULT FromRemoteAddress([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property FromRemoteAddress")] HRESULT FromRemoteAddress([in] BSTR newVal);
+		[propget, id(7), helpstring("property P2PData")] HRESULT P2PData([out, retval] ULONG* pVal);
+		[propput, id(7), helpstring("property P2PData")] HRESULT P2PData([in] ULONG newVal);
+	};
+
+	[
+		object,
+		uuid(AB361265-FC02-4fb4-A801-455AE51E3651),
+		dual,
+		nonextensible,
+		helpstring("IEBParseSetting Interface"),
+		pointer_default(unique)
+	]
+	interface IEBParseSetting : IDispatch{
+		[id(1), helpstring("method Load")] HRESULT Load([in] BSTR sFileName);
+		[propget, id(2), helpstring("property ServerAddress")] HRESULT ServerAddress([out, retval] BSTR* pVal);
+		[propget, id(3), helpstring("property DefaultColor")] HRESULT DefaultColor([out, retval] ULONG* pVal);
+		[propget, id(4), helpstring("property Version")] HRESULT Version([out, retval] BSTR* pVal);
+		[propget, id(5), helpstring("property Enterprise")] HRESULT Enterprise([out, retval] BSTR* pVal);
+	};
+
+	[
+		object,
+		uuid(413DD6A4-7AB1-43B5-8AC9-921555ED38F5),
+		dual,
+		nonextensible,
+		helpstring("IEBClientCore Interface"),
+		pointer_default(unique)
+	]
+	interface IEBClientCore : IDispatch{
+		[id(1), helpstring("method EB_Init")] HRESULT EB_Init([in] BSTR sAddress, [in] BSTR sInitParameter);
+		[propget, id(2), helpstring("property EB_IsInited")] HRESULT EB_IsInited([out, retval] VARIANT_BOOL* pVal);
+		//[id(3), helpstring("method EB_SetCallBack")] HRESULT EB_SetCallBack([in] IDispatch* pCallback);
+		//[id(3), helpstring("method EB_SetMsgHwnd")] HRESULT EB_SetMsgHwnd([in] ULONG hWnd);
+		[id(4), helpstring("method EB_UnInit")] HRESULT EB_UnInit(void);
+		[propget, id(5), helpstring("property EB_LastStateCode")] HRESULT EB_LastStateCode([out, retval] LONG* pVal);
+		[propget, id(6), helpstring("property EB_Address")] HRESULT EB_Address([out, retval] BSTR* pVal);
+		[propput, id(6), helpstring("property EB_Address")] HRESULT EB_Address([in] BSTR newVal);
+		[propget, id(7), helpstring("property EB_AppPath")] HRESULT EB_AppPath([out, retval] BSTR* pVal);
+		[propget, id(8), helpstring("property EB_ResourcePath")] HRESULT EB_ResourcePath([out, retval] BSTR* pVal);
+		[propget, id(9), helpstring("property EB_AppDataPath")] HRESULT EB_AppDataPath([out, retval] BSTR* pVal);
+		[propget, id(10), helpstring("property EB_AppDataTempPath")] HRESULT EB_AppDataTempPath([out, retval] BSTR* pVal);
+		[id(20), helpstring("method EB_CheckVersion")] HRESULT EB_CheckVersion([in] BSTR sClientVersion);
+		[id(21), helpstring("method EB_GetAreaInfo")] HRESULT EB_GetAreaInfo([in] LONG nParent, [in] ULONG nParameter);
+
+		[id(30), helpstring("method EB_GetMyEmotionList")] HRESULT EB_GetMyEmotionList([out,retval] VARIANT* pVal);
+		[id(31), helpstring("method EB_GetDefaultHeadList")] HRESULT EB_GetDefaultHeadList([out,retval] VARIANT* pVal);
+
+		[id(40), helpstring("method EB_FindAllGroupInfo")] HRESULT EB_FindAllGroupInfo([in] IDispatch* pConnection, [in] ULONGLONG sEnterpriseCode, [in] ULONG ulParam);
+		[id(41), helpstring("method EB_FindAllContactInfo")] HRESULT EB_FindAllContactInfo([in] IDispatch* pConnection, [in] ULONG ulParam);
+		[id(42), helpstring("method EB_SearchUserInfo")] HRESULT EB_SearchUserInfo([in] IDispatch* pConnection, [in] BSTR sSearchKey, [in] ULONG ulParam);
+
+		//[id(50), helpstring("method UTF82ACP")] HRESULT UTF82ACP([in] BSTR sUtf8String, [out,retval] BSTR* pVal);
+		//[id(51), helpstring("method ACP2UTF8")] HRESULT ACP2UTF8([in] BSTR sCapString, [out,retval] BSTR* pVal);
+		//[id(52), helpstring("method GetAccountAddress")] HRESULT GetAccountAddress([in] BSTR sAccount, [out,retval] BSTR* pVal);
+
+		[id(61), helpstring("method EB_Register")] HRESULT EB_Register([in] BSTR sAccount, [in] BSTR sPassword, [in] BSTR sUserName, [in] BSTR sEnterpriseName);
+		[id(62), helpstring("method EB_LogonByVisitor")] HRESULT EB_LogonByVisitor([in] BSTR sReqCode);
+		[id(63), helpstring("method EB_LogonByAccount")] HRESULT EB_LogonByAccount([in] BSTR sAccount, [in] BSTR sPassword, [in] BSTR sReqCode, [in]BSTR sOAuthKey, [in] LONG nNewLineState, [in] LONG nLogonType);
+		[id(64), helpstring("method EB_LogonOAuth")] HRESULT EB_LogonOAuth([in] ULONGLONG nUserId, [in] BSTR sOAuthKey, [in] LONG nNewLineState);
+		[id(65), helpstring("method EB_ReLogon")] HRESULT EB_ReLogon(void);
+		[propget, id(66), helpstring("property EB_IsLogoned")] HRESULT EB_IsLogoned([out, retval] VARIANT_BOOL* pVal);
+		[propget, id(67), helpstring("property EB_IsLogonVisitor")] HRESULT EB_IsLogonVisitor([out, retval] VARIANT_BOOL* pVal);
+		[id(68), helpstring("method EB_Logout")] HRESULT EB_Logout(void);
+
+		[id(71), helpstring("method EB_SetDevAppId")] HRESULT EB_SetDevAppId([in] ULONGLONG sAppId, [in] BSTR sAppKey, [in] VARIANT_BOOL bReLoadAppOnlineKey);
+		[id(72), helpstring("method EB_SetDevAppOnlineKey")] HRESULT EB_SetDevAppOnlineKey([in] ULONGLONG sAppId, [in] BSTR sAppOnlineKey);
+		[id(73), helpstring("method EB_GetDevAppId")] HRESULT EB_GetDevAppId([out,retval] ULONGLONG* pVal);
+		[id(74), helpstring("method EB_GetDevAppOnlineKey")] HRESULT EB_GetDevAppOnlineKey([out,retval] BSTR* pVal);
+		[id(75), helpstring("method EB_GetSystemParameter")] HRESULT EB_GetSystemParameter([in] LONG nParameter, [out,retval] ULONG* pParameterVal);
+		[id(76), helpstring("method EB_FreeSystemParameter")] HRESULT EB_FreeSystemParameter([in] LONG nParameter, [in] ULONG pParameterVal);
+
+		[id(81), helpstring("method EB_LoadInfo")] HRESULT EB_LoadInfo(void);
+		[id(82), helpstring("method EB_GetMyAccountInfo")] HRESULT EB_GetMyAccountInfo([out,retval] IEB_AccountInfo** pVal);
+		[id(83), helpstring("method EB_GetMyAccountInfo2")] HRESULT EB_GetMyAccountInfo2([out,retval] SEB_AccountInfo* pVal);
+		[propget, id(84), helpstring("property EB_MyDefaultMemberCode")] HRESULT EB_MyDefaultMemberCode([out, retval] ULONGLONG* pVal);
+		[propput, id(84), helpstring("property EB_MyDefaultMemberCode")] HRESULT EB_MyDefaultMemberCode([in] ULONGLONG newVal);
+		[id(85), helpstring("method EB_GetMyDefaultMemberInfo")] HRESULT EB_GetMyDefaultMemberInfo([out,retval] IEB_MemberInfo** pVal);
+		[id(86), helpstring("method EB_GetMyDefaultMemberInfo2")] HRESULT EB_GetMyDefaultMemberInfo2([out,retval] SEB_MemberInfo* pVal);
+		[id(87), helpstring("method EB_GetMyDefaultMemberHeadFile")] HRESULT EB_GetMyDefaultMemberHeadFile([out,retval] BSTR* pVal);
+		[propget, id(88), helpstring("property EB_MyAccountSetting")] HRESULT EB_MyAccountSetting([out, retval] LONG* pVal);
+		[propput, id(88), helpstring("property EB_MyAccountSetting")] HRESULT EB_MyAccountSetting([in] LONG newVal);
+		[propget, id(89), helpstring("property EB_LogonAccount")] HRESULT EB_LogonAccount([out, retval] BSTR* pVal);
+		[propget, id(90), helpstring("property EB_LogonUserId")] HRESULT EB_LogonUserId([out, retval] ULONGLONG* pVal);
+		[propget, id(91), helpstring("property EB_Description")] HRESULT EB_Description([out, retval] BSTR* pVal);
+		[propput, id(91), helpstring("property EB_Description")] HRESULT EB_Description([in] BSTR newVal);
+		[propget, id(92), helpstring("property EB_LineState")] HRESULT EB_LineState([out, retval] LONG* pVal);
+		[propput, id(92), helpstring("property EB_LineState")] HRESULT EB_LineState([in] LONG newVal);
+		[propget, id(93), helpstring("property EB_UserName")] HRESULT EB_UserName([out, retval] BSTR* pVal);
+		[propput, id(93), helpstring("property EB_UserName")] HRESULT EB_UserName([in] BSTR newVal);
+		[propget, id(94), helpstring("property EB_Password")] HRESULT EB_Password([out, retval] BSTR* pVal);
+		//[propput, id(94), helpstring("property EB_Password")] HRESULT EB_Password([in] BSTR newVal);
+		[id(95), helpstring("method EB_SetPassword")] HRESULT EB_SetPassword([in] BSTR sOldPassword,[in] BSTR sNewPassword);
+
+		[id(101), helpstring("method EB_LoadOrg")] HRESULT EB_LoadOrg(void);
+		[id(102), helpstring("method EB_LoadGroup")] HRESULT EB_LoadGroup([in] ULONGLONG sGroupCode, [in] VARIANT_BOOL bLoadMember);
+		[id(103), helpstring("method EB_GetEnterpriseInfo")] HRESULT EB_GetEnterpriseInfo([in] ULONGLONG sEnterpriseCode, [out,retval] IEB_EnterpriseInfo** pVal);
+		[id(104), helpstring("method EB_GetEnterpriseInfo2")] HRESULT EB_GetEnterpriseInfo2([in] ULONGLONG sEnterpriseCode, [out,retval] SEB_EnterpriseInfo* pVal);
+		[id(105), helpstring("method EB_IsEnterpriseUser")] HRESULT EB_IsEnterpriseUser([in] ULONGLONG sEnterpriseCode, [out,retval] VARIANT_BOOL* pVal);
+		[id(106), helpstring("method EB_GetEnterpriseName")] HRESULT EB_GetEnterpriseName([in] ULONGLONG sEnterpriseCode, [out,retval] BSTR* pVal);
+		[id(107), helpstring("method EB_GetEnterpriseMemberSize")] HRESULT EB_GetEnterpriseMemberSize([in] ULONGLONG sEnterpriseCode, [out] LONG* pOutMemberSize, [out] LONG* pOutOnlineSize);
+		[id(108), helpstring("method EB_EditEnterprise")] HRESULT EB_EditEnterprise([in] IDispatch* newVal);
+		[id(109), helpstring("method EB_EditEnterprise2")] HRESULT EB_EditEnterprise2([in] SEB_EnterpriseInfo* newVal);
+		[id(110), helpstring("method EB_EditGroup")] HRESULT EB_EditGroup([in] IDispatch* newVal);
+		[id(111), helpstring("method EB_EditGroup2")] HRESULT EB_EditGroup2([in] SEB_GroupInfo* newVal);
+		[id(112), helpstring("method EB_DeleteGroup")] HRESULT EB_DeleteGroup([in] ULONGLONG sGroupCode);
+		[id(113), helpstring("method EB_ExitGroup")] HRESULT EB_ExitGroup([in] ULONGLONG sGroupCode);
+		[id(114), helpstring("method EB_SetMyGroupHeadFile")] HRESULT EB_SetMyGroupHeadFile([in] ULONGLONG sGroupCode, [in] BSTR sImagePath);
+		[id(115), helpstring("method EB_SetMyGroupHeadRes")] HRESULT EB_SetMyGroupHeadRes([in] ULONGLONG sGroupCode, [in] ULONGLONG sResId);
+		[id(116), helpstring("method EB_GetGroupInfo")] HRESULT EB_GetGroupInfo([in] ULONGLONG sGroupCode, [out,retval] IEB_GroupInfo** pVal);
+		[id(117), helpstring("method EB_GetGroupInfo2")] HRESULT EB_GetGroupInfo2([in] ULONGLONG sGroupCode, [out,retval] SEB_GroupInfo* pVal);
+		[id(118), helpstring("method EB_GetGroupName")] HRESULT EB_GetGroupName([in] ULONGLONG sGroupCode, [out,retval] BSTR* pVal);
+		[id(119), helpstring("method EB_GetGroupCreator")] HRESULT EB_GetGroupCreator([in] ULONGLONG sGroupCode, [out,retval] ULONGLONG* pVal);
+		[id(120), helpstring("method EB_GetGroupType")] HRESULT EB_GetGroupType([in] ULONGLONG sGroupCode, [out,retval] SHORT* pVal);
+		[id(121), helpstring("method EB_GetGroupMemberInfoList")] HRESULT EB_GetGroupMemberInfoList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+		[id(122), helpstring("method EB_GetGroupMemberUserIdList")] HRESULT EB_GetGroupMemberUserIdList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+		[id(123), helpstring("method EB_GetGroupMemberCodeList")] HRESULT EB_GetGroupMemberCodeList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+		[id(124), helpstring("method EB_GetGroupMemberAccountList")] HRESULT EB_GetGroupMemberAccountList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+		[id(125), helpstring("method EB_GetGroupMemberSize")] HRESULT EB_GetGroupMemberSize([in] ULONGLONG sGroupCode, [in] SHORT nGetType, [out,retval] ULONG* pVal);
+		[id(126), helpstring("method EB_GetGroupOnlineSize")] HRESULT EB_GetGroupOnlineSize([in] ULONGLONG sGroupCode, [in] SHORT nGetType, [out,retval] ULONG* pVal);
+		[id(127), helpstring("method EB_IsMyGroup")] HRESULT EB_IsMyGroup([in] ULONGLONG sGroupCode, [out,retval] VARIANT_BOOL* pVal);
+		[id(128), helpstring("method EB_EditMember")] HRESULT EB_EditMember([in] IDispatch* newVal);
+		[id(129), helpstring("method EB_EditMember2")] HRESULT EB_EditMember2([in] SEB_MemberInfo* newVal);
+		[id(130), helpstring("method EB_DeleteMember")] HRESULT EB_DeleteMember([in] ULONGLONG sMemberCode, [in] VARIANT_BOOL bDeleteAccount);
+		[id(131), helpstring("method EB_GetMemberInfoByUserId")] HRESULT EB_GetMemberInfoByUserId([in] ULONGLONG sGroupCode, [in] ULONGLONG nMemberUserId, [out,retval] IEB_MemberInfo** pVal);
+		[id(132), helpstring("method EB_GetMemberInfoByUserId2")] HRESULT EB_GetMemberInfoByUserId2([in] ULONGLONG nMemberUserId, [out,retval] IEB_MemberInfo** pVal);
+		[id(133), helpstring("method EB_GetMemberInfoByAccount")] HRESULT EB_GetMemberInfoByAccount([in] ULONGLONG sGroupCode, [in] BSTR sAccount, [out,retval] IEB_MemberInfo** pVal);
+		[id(134), helpstring("method EB_GetMemberInfoByAccount2")] HRESULT EB_GetMemberInfoByAccount2([in] BSTR sAccount, [out,retval] IEB_MemberInfo** pVal);
+		//[id(133), helpstring("method EB_GetMemberInfoByAccount2")] HRESULT EB_GetMemberInfoByAccount2([in] ULONGLONG sGroupCode, [in] BSTR sAccount, [out,retval] SEB_MemberInfo* pVal);
+		[id(135), helpstring("method EB_GetMemberInfoByMemberCode")] HRESULT EB_GetMemberInfoByMemberCode([in] ULONGLONG sMemberCode, [out,retval] IEB_MemberInfo** pVal);
+		[id(136), helpstring("method EB_GetMemberInfoByMemberCode2")] HRESULT EB_GetMemberInfoByMemberCode2([in] ULONGLONG sMemberCode, [out,retval] SEB_MemberInfo* pVal);
+		[id(137), helpstring("method EB_GetMemberNameByUserId")] HRESULT EB_GetMemberNameByUserId([in] ULONGLONG sGroupCode, [in] ULONGLONG nMemberUserId, [out,retval] BSTR* pVal);
+		[id(138), helpstring("method EB_GetMemberNameByMemberCode")] HRESULT EB_GetMemberNameByMemberCode([in] ULONGLONG sMemberCode, [out,retval] BSTR* pVal);
+		[id(139), helpstring("method EB_GetMemberLineState")] HRESULT EB_GetMemberLineState([in] ULONGLONG sMemberCode, [out,retval] SHORT* pVal);
+		[id(140), helpstring("method EB_GetMyMemberInfo")] HRESULT EB_GetMyMemberInfo([in] ULONGLONG sGroupCode, [out,retval] IEB_MemberInfo** pVal);
+		[id(141), helpstring("method EB_GetMyMemberInfo2")] HRESULT EB_GetMyMemberInfo2([in] ULONGLONG sGroupCode, [out,retval] SEB_MemberInfo* pVal);
+		[id(142), helpstring("method EB_GetMyMemberList")] HRESULT EB_GetMyMemberList([out,retval] VARIANT* pVal);
+		[id(143), helpstring("method EB_IsExistMemberByUserId")] HRESULT EB_IsExistMemberByUserId([in] ULONGLONG sGroupCode, [in] ULONGLONG nMemberUserId, [out,retval] VARIANT_BOOL* pVal);
+		[id(144), helpstring("method EB_IsExistMemberByAccount")] HRESULT EB_IsExistMemberByAccount([in] ULONGLONG sGroupCode, [in] BSTR sMemberAccount, [out,retval] VARIANT_BOOL* pVal);
+		[id(145), helpstring("method EB_IsExistMemberByMemberCode")] HRESULT EB_IsExistMemberByMemberCode([in] ULONGLONG sMemberCode, [out,retval] VARIANT_BOOL* pVal);
+
+		[id(151), helpstring("method EB_LoadContact")] HRESULT EB_LoadContact(void);
+		[id(152), helpstring("method EB_EditUGInfo")] HRESULT EB_EditUGInfo([in] ULONGLONG nUGId, [in] BSTR bstrGroupName);
+		[id(153), helpstring("method EB_DeleteUGInfo")] HRESULT EB_DeleteUGInfo([in] ULONGLONG nUGId);
+		[id(154), helpstring("method EB_GetUGInfoList")] HRESULT EB_GetUGInfoList([out,retval] VARIANT* pVal);
+		[id(155), helpstring("method EB_ReqAddContact")] HRESULT EB_ReqAddContact([in] ULONGLONG nContactUserId, [in] BSTR bstrDescription);
+		[id(156), helpstring("method EB_EditContact")] HRESULT EB_EditContact([in] IDispatch* pVal);
+		[id(157), helpstring("method EB_EditContact2")] HRESULT EB_EditContact2([in] SEB_ContactInfo* newVal);
+		[id(158), helpstring("method EB_DeleteContact")] HRESULT EB_DeleteContact([in] ULONGLONG nContactId, [in] VARIANT_BOOL bDeleteDest);
+		[id(159), helpstring("method EB_GetContactList")] HRESULT EB_GetContactList([out,retval] VARIANT* pVal);
+		[id(160), helpstring("method EB_GetContactInfo1")] HRESULT EB_GetContactInfo1([in] ULONGLONG nContactId, [out,retval] IEB_ContactInfo** pVal);
+		[id(161), helpstring("method EB_GetContactInfo2")] HRESULT EB_GetContactInfo2([in] ULONGLONG nContactUserId, [out,retval] IEB_ContactInfo** pVal);
+		[id(162), helpstring("method EB_IsMyContactAccount1")] HRESULT EB_IsMyContactAccount1([in] ULONGLONG nContactId, [out,retval] VARIANT_BOOL* pVal);
+		[id(163), helpstring("method EB_IsMyContactAccount2")] HRESULT EB_IsMyContactAccount2([in] ULONGLONG nContactUserId, [out,retval] VARIANT_BOOL* pVal);
+
+		[id(171), helpstring("method EB_CallMember")] HRESULT EB_CallMember([in] ULONGLONG sMemberCode, [in] ULONGLONG sExistCallId);
+		[id(172), helpstring("method EB_CallAccount")] HRESULT EB_CallAccount([in] BSTR sToAccount, [in] ULONGLONG sExistCallId);
+		[id(173), helpstring("method EB_CallUserId")] HRESULT EB_CallUserId([in] ULONGLONG nUserId, [in] ULONGLONG sExistCallId);
+		[id(174), helpstring("method EB_Call2Group")] HRESULT EB_Call2Group([in] ULONGLONG sCallId, [in] BSTR sToAccount);
+		[id(175), helpstring("method EB_CallGroup")] HRESULT EB_CallGroup([in] ULONGLONG sGroupCode);
+		[id(176), helpstring("method EB_CallAnswer")] HRESULT EB_CallAnswer([in] ULONGLONG sCallId, [in] VARIANT_BOOL bAccept);
+		[id(177), helpstring("method EB_CallHangup")] HRESULT EB_CallHangup([in] ULONGLONG sCallId);
+		[id(178), helpstring("method EB_CallExit")] HRESULT EB_CallExit([in] ULONGLONG sCallId);
+		//[id(179), helpstring("method EB_CheckReCall")] HRESULT EB_CheckReCall([in] ULONGLONG sCallId,[in]VARIANT_BOOL bOffReCall);
+		[id(180), helpstring("method EB_RichBufferAddText")] HRESULT EB_RichBufferAddText([in] ULONGLONG sCallId, [in] BSTR sText);
+		[id(181), helpstring("method EB_RichBufferAddObject")] HRESULT EB_RichBufferAddObject([in] ULONGLONG sCallId, [in] BYTE* pData, [in]ULONG nSize);
+		[id(182), helpstring("method EB_RichBufferAddObject2")] HRESULT EB_RichBufferAddObject2([in] ULONGLONG sCallId, [in] VARIANT* pData, [in]ULONG nSize);
+		[id(183), helpstring("method EB_RichBufferAddResource")] HRESULT EB_RichBufferAddResource([in] ULONGLONG sCallId, [in] BSTR sResource);
+		[id(184), helpstring("method EB_RichBufferClear")] HRESULT EB_RichBufferClear([in] ULONGLONG sCallId);
+		[id(185), helpstring("method EB_SendRichBuffer")] HRESULT EB_SendRichBuffer([in] ULONGLONG sCallId, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+		[id(186), helpstring("method EB_SendText")] HRESULT EB_SendText([in] ULONGLONG sCallId, [in] BSTR sTextMsg, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+		[id(187), helpstring("method EB_SendRich")] HRESULT EB_SendRich([in] ULONGLONG sCallId, [in] VARIANT* pRichMsg, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+		[id(188), helpstring("method EB_SendFile")] HRESULT EB_SendFile([in] ULONGLONG sCallId, [in] BSTR sFilePath, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate, [in] VARIANT_BOOL bOffFile);
+		[id(189), helpstring("method EB_AcceptFile")] HRESULT EB_AcceptFile([in] ULONGLONG sCallId, [in] ULONGLONG nMsgId, [in] BSTR sSaveTo);
+		[id(190), helpstring("method EB_Save2CloudDrive")] HRESULT EB_Save2CloudDrive([in] ULONGLONG sCallId, [in] ULONGLONG nMsgId);
+		//[id(169), helpstring("method EB_AcceptFileRes")] HRESULT EB_AcceptFileRes([in] ULONGLONG sCallId, [in] ULONGLONG sResId, [in] BSTR sSaveTo);
+		[id(191), helpstring("method EB_CancelFile")] HRESULT EB_CancelFile([in] ULONGLONG sCallId, [in] ULONGLONG nMsgId);
+		[id(192), helpstring("method EB_GetCallAccountInfoList")] HRESULT EB_GetCallAccountInfoList([in] ULONGLONG sCallId, [out,retval] VARIANT* pVal);
+		[id(193), helpstring("method EB_GetCallUserIdList")] HRESULT EB_GetCallUserIdList([in] ULONGLONG sCallId, [out,retval] VARIANT* pVal);
+		[id(194), helpstring("method EB_GetCallAccountList")] HRESULT EB_GetCallAccountList([in] ULONGLONG sCallId, [out,retval] VARIANT* pVal);
+		[id(195), helpstring("method EB_GetCallAccountInfo")] HRESULT EB_GetCallAccountInfo([in] ULONGLONG sCallId, [in] ULONGLONG nUserId, [out,retval] IEB_AccountInfo** pVal);
+		[id(196), helpstring("method EB_GetCallAccountInfo2")] HRESULT EB_GetCallAccountInfo2([in] ULONGLONG sCallId, [in] ULONGLONG nUserId, [out,retval] SEB_AccountInfo* pVal);
+
+		[id(201), helpstring("method EB_GetVideoDeviceList")] HRESULT EB_GetVideoDeviceList([out,retval] VARIANT* pVal);
+		//[id(202), helpstring("method EB_GetDefaultVideoMediaType")] HRESULT EB_GetDefaultVideoMediaType([out,retval] LONG* pVal);
+		[id(203), helpstring("method EB_SetVideoCallback")] HRESULT EB_SetVideoCallback([in] ULONGLONG sCallId, [in] IDispatch* pVideoDataCallback, [in] IDispatch* pAudioDataCallback);
+		[id(204), helpstring("method EB_VideoRequest")] HRESULT EB_VideoRequest([in] ULONGLONG sCallId, [in] SHORT nVideoType);
+		[id(205), helpstring("method EB_VideoAck")] HRESULT EB_VideoAck([in] ULONGLONG sCallId, [in] VARIANT_BOOL bAccept,[in] ULONGLONG nToUserId);
+		[id(206), helpstring("method EB_VideoEnd")] HRESULT EB_VideoEnd([in] ULONGLONG sCallId);
+		[id(207), helpstring("method EB_GetUserVideoInfo")] HRESULT EB_GetUserVideoInfo([in] ULONGLONG sCallId, [out,retval] VARIANT* pOutMemberVideoInfo);
+		[id(208), helpstring("method EB_OpenLocalVideo")] HRESULT EB_OpenLocalVideo([in] ULONGLONG sCallId, [in] SHORT nLocalVideoIndex, [in] ULONG nVideoParentWnd, [in] ULONG ulParam);
+		[id(209), helpstring("method EB_OpenUserVideo")] HRESULT EB_OpenUserVideo([in] ULONGLONG sCallId, [in] ULONGLONG nUserId, [in] ULONG nVideoParentWnd, [in] ULONG ulParam);
+		[id(210), helpstring("method EB_SetVideoOpenClose")] HRESULT EB_SetVideoOpenClose([in] ULONGLONG sCallId, [in] ULONGLONG nUserId, [in] VARIANT_BOOL newVal);
+		[id(211), helpstring("method EB_SetAudioOpenClose")] HRESULT EB_SetAudioOpenClose([in] ULONGLONG sCallId, [in] ULONGLONG nUserId, [in] VARIANT_BOOL newVal);
+		//[id(210), helpstring("method EB_OpenVideoByUserVideoId")] HRESULT EB_OpenVideoByUserVideoId([in] ULONGLONG sCallId, [in] ULONG nUserVideoId, [in] IDispatch* pAudioDataCallback, [in] ULONG nUserData);
+		[id(212), helpstring("method EB_CloseAllVideo")] HRESULT EB_CloseAllVideo([in] ULONGLONG sCallId);
+
+		[id(221), helpstring("method EB_LoadRes")] HRESULT EB_LoadRes([in] ULONGLONG sGroupCode);
+		[id(222), helpstring("method EB_GetDirAllRes")] HRESULT EB_GetDirAllRes([in] ULONGLONG sParentResId, [out,retval] VARIANT* pOutResourceList);
+		[id(223), helpstring("method EB_GetNotDirAllRes")] HRESULT EB_GetNotDirAllRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+		[id(224), helpstring("method EB_HasSubRes")] HRESULT EB_HasSubRes([in] ULONGLONG sParentResId, [out,retval] VARIANT_BOOL* pVal);
+		[id(225), helpstring("method EB_GetAllRes")] HRESULT EB_GetAllRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+		[id(226), helpstring("method EB_GetAllFileRes")] HRESULT EB_GetAllFileRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+		[id(227), helpstring("method EB_GetAllNoteRes")] HRESULT EB_GetAllNoteRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+		[id(228), helpstring("method EB_AddDirRes")] HRESULT EB_AddDirRes([in] BSTR sDirName, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+		[id(229), helpstring("method EB_AddFileRes")] HRESULT EB_AddFileRes([in] BSTR sFilePath, [in] BSTR sFileName, [in] BSTR sDescription, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+		[id(230), helpstring("method EB_AddTempGroupFileRes")] HRESULT EB_AddTempGroupFileRes([in] BSTR sFilePath, [in] BSTR sFileName, [in] ULONGLONG sGroupCode);
+		[id(231), helpstring("method EB_AddNoteRes")] HRESULT EB_AddNoteRes([in] BSTR sNoteName, [in] BSTR sDescription, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+		[id(232), helpstring("method EB_EditRes")] HRESULT EB_EditRes([in] ULONGLONG sResId, [in] BSTR sName, [in] BSTR sDescription);
+		[id(233), helpstring("method EB_MoveRes2Dir")] HRESULT EB_MoveRes2Dir([in] ULONGLONG sResId, [in] ULONGLONG sParentResId);
+		[id(234), helpstring("method EB_DeleteRes")] HRESULT EB_DeleteRes([in] ULONGLONG sResId);
+		[id(235), helpstring("method EB_GetResourceInfo")] HRESULT EB_GetResourceInfo([in] ULONGLONG sResId, [out,retval] IEB_ResourceInfo** pVal);
+		[id(236), helpstring("method EB_GetResourceCmInfo")] HRESULT EB_GetResourceCmInfo([in] ULONGLONG sResId, [out,retval] BSTR* pVal);
+		[id(237), helpstring("method EB_DownloadFileRes")] HRESULT EB_DownloadFileRes([in] ULONGLONG sResId, [in] BSTR sSaveTo);
+		[id(238), helpstring("method EB_CancelFileRes")] HRESULT EB_CancelFileRes([in] ULONGLONG sResId, [in] ULONGLONG nMsgId);
+
+		[propget, id(241), helpstring("property EB_CanEditEnterprise")] HRESULT EB_CanEditEnterprise([in] ULONGLONG sEnterpriseCode, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(242), helpstring("property EB_CanEditGroupInfo")] HRESULT EB_CanEditGroupInfo([in] ULONGLONG sEnterpriseCode, [in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(243), helpstring("property EB_CanDeleteGroupInfo")] HRESULT EB_CanDeleteGroupInfo([in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(244), helpstring("property EB_CanEditMemberInfo")] HRESULT EB_CanEditMemberInfo([in] ULONGLONG sGroupCode, [in] ULONGLONG nMemberUserId, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(245), helpstring("property EB_CanEditMyBaseMemberInfo")] HRESULT EB_CanEditMyBaseMemberInfo([in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(246), helpstring("property EB_CanDeleteMemberInfo")] HRESULT EB_CanDeleteMemberInfo([in] ULONGLONG sGroupCode, [in] ULONGLONG nMemberUserId, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(247), helpstring("property EB_CanDeleteMemberInfo2")] HRESULT EB_CanDeleteMemberInfo2([in] ULONGLONG sMemberCode, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(248), helpstring("property EB_CanEditGroupRes")] HRESULT EB_CanEditGroupRes([in] ULONGLONG sGroupCode, [in] ULONGLONG nResourceId, [out, retval] VARIANT_BOOL* pVal);
+		[propget, id(249), helpstring("property EB_CanDeleteGroupRes")] HRESULT EB_CanDeleteGroupRes([in] ULONGLONG sGroupCode, [in] ULONGLONG nResourceId, [out, retval] VARIANT_BOOL* pVal);
+
+		[id(251), helpstring("method EB_LogonAppCenter")] HRESULT EB_LogonAppCenter(void);
+		[id(252), helpstring("method EB_LogoutAppCenter")] HRESULT EB_LogoutAppCenter(void);
+		[id(253), helpstring("method EB_SendAPMsg")] HRESULT EB_SendAPMsg([in] IDispatch* pAPMsgInfoInterface, [in] VARIANT_BOOL bSaveOffMsg);
+		[id(254), helpstring("method EB_SendAPMsg2")] HRESULT EB_SendAPMsg2([in] SEB_APMsgInfo* pAPMsgInfoStruct, [in] VARIANT_BOOL bSaveOffMsg);
+		[id(255), helpstring("method EB_APMsgAck")] HRESULT EB_APMsgAck([in] ULONGLONG nMsgId);
+
+		[id(261), helpstring("method EB_GetSubscribeFuncInfo")] HRESULT EB_GetSubscribeFuncInfo([in] ULONGLONG nSubId, [out,retval] IEB_SubscribeFuncInfo** pVal);
+		[id(262), helpstring("method EB_GetSubscribeFuncList")] HRESULT EB_GetSubscribeFuncList([in] ULONG nLocation, [out,retval] VARIANT* pVal);
+		[id(263), helpstring("method EB_GetSubscribeFuncSize")] HRESULT EB_GetSubscribeFuncSize([in] ULONG nLocation, [out,retval] ULONG* pVal);
+		[id(264), helpstring("method EB_GetSubscribeFuncUrl")] HRESULT EB_GetSubscribeFuncUrl([in] ULONGLONG nSubscribeId,[in]ULONGLONG nCallId,[in]ULONGLONG nFromUserId,[in]BSTR sFromAccount,[in]ULONGLONG nGroupId, [out,retval] BSTR* pVal);
+		[id(265), helpstring("method EB_GetConversationsUrl")] HRESULT EB_GetConversationsUrl([in] ULONGLONG nFromUserId, [in]ULONGLONG nGroupId, [out,retval] BSTR* pVal);
+
+		[id(270), helpstring("method EB_AckMsg")] HRESULT EB_AckMsg([in] ULONGLONG nMsgId,[in] VARIANT_BOOL bAccept);
+
+	};
+
+	//[
+	//	object,
+	//	uuid(603F2A66-82BC-4c8d-9658-4EA0BF4B763C),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreVideo Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreVideo : IDispatch{
+	//	[id(1), helpstring("method EB_GetVideoDeviceList")] HRESULT EB_GetVideoDeviceList([out,retval] VARIANT* pVal);
+	//	[id(2), helpstring("method EB_GetDefaultVideoMediaType")] HRESULT EB_GetDefaultVideoMediaType([out,retval] LONG* pVal);
+	//	[id(3), helpstring("method EB_SetVideoCallback")] HRESULT EB_SetVideoCallback([in] ULONGLONG sCallId, [in] IDispatch* pVideoDataCallback, [in] ULONG nUserData);
+	//	[id(4), helpstring("method EB_VideoRequest")] HRESULT EB_VideoRequest([in] ULONGLONG sCallId, [in] SHORT nVideoType);
+	//	[id(5), helpstring("method EB_VideoAck")] HRESULT EB_VideoAck([in] ULONGLONG sCallId, [in] VARIANT_BOOL bAccept);
+	//	[id(6), helpstring("method EB_VideoEnd")] HRESULT EB_VideoEnd([in] ULONGLONG sCallId);
+	//	[id(7), helpstring("method EB_GetUserVideoId")] HRESULT EB_GetUserVideoId([in] ULONGLONG sCallId, [out] VARIANT* pOutMemberVideoInfo, [out] VARIANT* pOutOnVideoInfo, [out,retval] ULONG* pOutMyVideoId);
+	//	[id(8), helpstring("method EB_OpenLocalVideo")] HRESULT EB_OpenLocalVideo([in] ULONGLONG sCallId, [in] SHORT nLocalVideoIndex, [in] IDispatch* pAudioDataCallback, [in] ULONG nUserData, [out,retval] SHORT* pOutVideoMediaType);
+	//	[id(9), helpstring("method EB_OpenVideoByUserAccount")] HRESULT EB_OpenVideoByUserAccount([in] ULONGLONG sCallId, [in] BSTR sUserAccount, [in] IDispatch* pAudioDataCallback, [in] ULONG nUserData);
+	//	[id(10), helpstring("method EB_OpenVideoByUserVideoId")] HRESULT EB_OpenVideoByUserVideoId([in] ULONGLONG sCallId, [in] ULONG nUserVideoId, [in] IDispatch* pAudioDataCallback, [in] ULONG nUserData);
+	//	[id(11), helpstring("method EB_CloseAllVideo")] HRESULT EB_CloseAllVideo([in] ULONGLONG sCallId);
+	//};
+	//[
+	//	object,
+	//	uuid(218AE946-C2CC-46ca-A7B5-5ED22D556190),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreOrg Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreOrg : IDispatch{
+	//	[id(1), helpstring("method EB_LoadOrg")] HRESULT EB_LoadOrg(void);
+	//	[id(2), helpstring("method EB_GetEnterpriseInfo")] HRESULT EB_GetEnterpriseInfo([in] ULONGLONG sEnterpriseCode, [out,retval] IEB_EnterpriseInfo** pVal);
+	//	[id(3), helpstring("method EB_GetEnterpriseInfo2")] HRESULT EB_GetEnterpriseInfo2([in] ULONGLONG sEnterpriseCode, [out,retval] SEB_EnterpriseInfo* pVal);
+	//	[id(4), helpstring("method EB_GetEnterpriseName")] HRESULT EB_GetEnterpriseName([in] ULONGLONG sEnterpriseCode, [out,retval] BSTR* pVal);
+	//	[id(5), helpstring("method EB_EditEnterprise")] HRESULT EB_EditEnterprise([in] IDispatch* newVal);
+	//	[id(6), helpstring("method EB_EditEnterprise2")] HRESULT EB_EditEnterprise2([in] SEB_EnterpriseInfo* newVal);
+	//	[id(7), helpstring("method EB_EditGroup")] HRESULT EB_EditGroup([in] IDispatch* newVal);
+	//	[id(8), helpstring("method EB_EditGroup2")] HRESULT EB_EditGroup2([in] SEB_GroupInfo* newVal);
+	//	[id(9), helpstring("method EB_DeleteGroup")] HRESULT EB_DeleteGroup([in] ULONGLONG sGroupCode);
+	//	[id(10), helpstring("method EB_ExitGroup")] HRESULT EB_ExitGroup([in] ULONGLONG sGroupCode);
+	//	[id(11), helpstring("method EB_SetMyGroupHead")] HRESULT EB_SetMyGroupHead([in] ULONGLONG sGroupCode, [in] BSTR sImagePath);
+	//	[id(12), helpstring("method EB_GetGroupInfo")] HRESULT EB_GetGroupInfo([in] ULONGLONG sGroupCode, [out,retval] IEB_GroupInfo** pVal);
+	//	[id(13), helpstring("method EB_GetGroupInfo2")] HRESULT EB_GetGroupInfo2([in] ULONGLONG sGroupCode, [out,retval] SEB_GroupInfo* pVal);
+	//	[id(14), helpstring("method EB_GetGroupName")] HRESULT EB_GetGroupName([in] ULONGLONG sGroupCode, [out,retval] BSTR* pVal);
+	//	[id(15), helpstring("method EB_GetGroupCreator")] HRESULT EB_GetGroupCreator([in] ULONGLONG sGroupCode, [out,retval] BSTR* pVal);
+	//	[id(16), helpstring("method EB_GetGroupType")] HRESULT EB_GetGroupType([in] ULONGLONG sGroupCode, [out,retval] SHORT* pVal);
+	//	[id(17), helpstring("method EB_GetGroupMemberInfoList")] HRESULT EB_GetGroupMemberInfoList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+	//	[id(18), helpstring("method EB_GetGroupMemberAccountList")] HRESULT EB_GetGroupMemberAccountList([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pVal);
+	//	[id(19), helpstring("method EB_GetGroupMemberSize")] HRESULT EB_GetGroupMemberSize([in] ULONGLONG sGroupCode, [out,retval] ULONG* pVal);
+	//	[id(20), helpstring("method EB_IsMyGroup")] HRESULT EB_IsMyGroup([in] ULONGLONG sGroupCode, [out,retval] VARIANT_BOOL* pVal);
+	//	[id(21), helpstring("method EB_EditMember")] HRESULT EB_EditMember([in] IDispatch* newVal);
+	//	[id(22), helpstring("method EB_EditMember2")] HRESULT EB_EditMember2([in] SEB_MemberInfo* newVal);
+	//	[id(23), helpstring("method EB_DeleteMember")] HRESULT EB_DeleteMember([in] ULONGLONG sMemberCode, [in] VARIANT_BOOL bDeleteAccount);
+	//	[id(24), helpstring("method EB_GetMemberInfoByAccount")] HRESULT EB_GetMemberInfoByAccount([in] ULONGLONG sGroupCode, [in] BSTR sAccount, [out,retval] IEB_MemberInfo** pVal);
+	//	[id(25), helpstring("method EB_GetMemberInfoByAccount2")] HRESULT EB_GetMemberInfoByAccount2([in] ULONGLONG sGroupCode, [in] BSTR sAccount, [out,retval] SEB_MemberInfo* pVal);
+	//	[id(26), helpstring("method EB_GetMemberInfoByMemberCode")] HRESULT EB_GetMemberInfoByMemberCode([in] ULONGLONG sMemberCode, [out,retval] IEB_MemberInfo** pVal);
+	//	[id(27), helpstring("method EB_GetMemberInfoByMemberCode2")] HRESULT EB_GetMemberInfoByMemberCode2([in] ULONGLONG sMemberCode, [out,retval] SEB_MemberInfo* pVal);
+	//	[id(28), helpstring("method EB_GetMemberName")] HRESULT EB_GetMemberName([in] ULONGLONG sMemberCode, [out,retval] BSTR* pVal);
+	//	[id(29), helpstring("method EB_GetMemberLineState")] HRESULT EB_GetMemberLineState([in] ULONGLONG sMemberCode, [out,retval] SHORT* pVal);
+	//	[id(30), helpstring("method EB_GetMyMemberInfo")] HRESULT EB_GetMyMemberInfo([in] ULONGLONG sGroupCode, [out,retval] IEB_MemberInfo** pVal);
+	//	[id(31), helpstring("method EB_GetMyMemberInfo2")] HRESULT EB_GetMyMemberInfo2([in] ULONGLONG sGroupCode, [out,retval] SEB_MemberInfo* pVal);
+	//	[id(32), helpstring("method EB_GetMyMemberList")] HRESULT EB_GetMyMemberList([out,retval] VARIANT* pVal);
+	//	[id(33), helpstring("method EB_IsExistMemberByAccount")] HRESULT EB_IsExistMemberByAccount([in] ULONGLONG sGroupCode, [in] BSTR sMemberAccount, [out,retval] VARIANT_BOOL* pVal);
+	//	[id(34), helpstring("method EB_IsExistMemberByMemberCode")] HRESULT EB_IsExistMemberByMemberCode([in] ULONGLONG sMemberCode, [out,retval] VARIANT_BOOL* pVal);
+	//};
+	//[
+	//	object,
+	//	uuid(7F9A1322-FDB1-4217-8803-0256F5E1AC5C),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreContact Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreContact : IDispatch{
+	//	[id(1), helpstring("method EB_LoadContact")] HRESULT EB_LoadContact(void);
+	//	[id(2), helpstring("method EB_EditContact")] HRESULT EB_EditContact([in] IDispatch* pVal);
+	//	[id(3), helpstring("method EB_EditContact2")] HRESULT EB_EditContact2([in] SEB_ContactInfo* newVal);
+	//	[id(4), helpstring("method EB_DeleteContact")] HRESULT EB_DeleteContact([in] BSTR sContactAccount);
+	//	[id(5), helpstring("method EB_GetContactList")] HRESULT EB_GetContactList([out,retval] VARIANT* pVal);
+	//	[id(6), helpstring("method EB_GetContactInfo")] HRESULT EB_GetContactInfo([in] BSTR sContactAccount, [out,retval] IEB_ContactInfo** pVal);
+	//	[id(7), helpstring("method EB_GetContactInfo2")] HRESULT EB_GetContactInfo2([in] BSTR sContactAccount, [out,retval] SEB_ContactInfo* pVal);
+	//};
+	//[
+	//	object,
+	//	uuid(D3AF5DBB-158D-41d9-A639-8F1638E3F752),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreCall Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreCall : IDispatch{
+	//	[id(1), helpstring("method EB_CallUser")] HRESULT EB_CallUser([in] BSTR sCallee, [in] ULONGLONG sMemberCode, [in] ULONGLONG sExistCallId);
+	//	[id(2), helpstring("method EB_Call2Group")] HRESULT EB_Call2Group([in] ULONGLONG sCallId, [in] ULONGLONG sToUserId, [in] ULONGLONG sMemberCode);
+	//	[id(3), helpstring("method EB_CallGroup")] HRESULT EB_CallGroup([in] ULONGLONG sGroupCode);
+	//	[id(4), helpstring("method EB_CallAnswer")] HRESULT EB_CallAnswer([in] ULONGLONG sCallId, [in] VARIANT_BOOL bAccept);
+	//	[id(5), helpstring("method EB_CallHangup")] HRESULT EB_CallHangup([in] ULONGLONG sCallId);
+	//	[id(6), helpstring("method EB_CallExit")] HRESULT EB_CallExit([in] ULONGLONG sCallId);
+	//	[id(7), helpstring("method EB_CheckReCall")] HRESULT EB_CheckReCall([in] ULONGLONG sCallId);
+	//	[id(8), helpstring("method EB_RichBufferAddText")] HRESULT EB_RichBufferAddText([in] ULONGLONG sCallId, [in] BSTR sText);
+	//	[id(9), helpstring("method EB_RichBufferAddObject")] HRESULT EB_RichBufferAddObject([in] ULONGLONG sCallId, [in] BYTE* pData, [in]ULONG nSize);
+	//	[id(10), helpstring("method EB_RichBufferAddObject2")] HRESULT EB_RichBufferAddObject2([in] ULONGLONG sCallId, [in] VARIANT* pData, [in]ULONG nSize);
+	//	[id(11), helpstring("method EB_RichBufferAddResource")] HRESULT EB_RichBufferAddResource([in] ULONGLONG sCallId, [in] BSTR sResource);
+	//	[id(12), helpstring("method EB_RichBufferClear")] HRESULT EB_RichBufferClear([in] ULONGLONG sCallId);
+	//	[id(13), helpstring("method EB_SendRichBuffer")] HRESULT EB_SendRichBuffer([in] ULONGLONG sCallId, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+	//	[id(14), helpstring("method EB_SendText")] HRESULT EB_SendText([in] ULONGLONG sCallId, [in] BSTR sTextMsg, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+	//	[id(15), helpstring("method EB_SendRich")] HRESULT EB_SendRich([in] ULONGLONG sCallId, [in] VARIANT* pRichMsg, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate);
+	//	[id(16), helpstring("method EB_SendFile")] HRESULT EB_SendFile([in] ULONGLONG sCallId, [in] BSTR sFilePath, [in] ULONGLONG sToUserId, [in] VARIANT_BOOL bPrivate, [in] VARIANT_BOOL bOffFile);
+	//	[id(17), helpstring("method EB_AcceptFile")] HRESULT EB_AcceptFile([in] ULONGLONG sCallId, [in] BSTR sMsgId, [in] BSTR sSaveTo);
+	//	//[id(18), helpstring("method EB_AcceptFileRes")] HRESULT EB_AcceptFileRes([in] ULONGLONG sCallId, [in] ULONGLONG sResId, [in] BSTR sSaveTo);
+	//	[id(19), helpstring("method EB_CancelFile")] HRESULT EB_CancelFile([in] ULONGLONG sCallId, [in] BSTR sMsgId);
+	//	[id(20), helpstring("method EB_GetCallAccountInfoList")] HRESULT EB_GetCallAccountInfoList([in] ULONGLONG sCallId, [out,retval] VARIANT* pVal);
+	//	[id(21), helpstring("method EB_GetCallAccountList")] HRESULT EB_GetCallAccountList([in] ULONGLONG sCallId, [out,retval] VARIANT* pVal);
+	//	[id(22), helpstring("method EB_GetCallAccountInfo")] HRESULT EB_GetCallAccountInfo([in] ULONGLONG sCallId, [in] BSTR sAccount, [out,retval] IEB_AccountInfo** pVal);
+	//	[id(23), helpstring("method EB_GetCallAccountInfo2")] HRESULT EB_GetCallAccountInfo2([in] ULONGLONG sCallId, [in] BSTR sAccount, [out,retval] SEB_AccountInfo* pVal);
+	//};
+	//[
+	//	object,
+	//	uuid(B9F830E8-76E0-49b9-8575-A16EBA5C38F2),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreRes Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreRes : IDispatch{
+	//	[id(1), helpstring("method EB_LoadRes")] HRESULT EB_LoadRes([in] ULONGLONG sGroupCode);
+	//	[id(2), helpstring("method EB_GetDirAllRes")] HRESULT EB_GetDirAllRes([in] ULONGLONG sParentResId, [out,retval] VARIANT* pOutResourceList);
+	//	[id(3), helpstring("method EB_GetNotDirAllRes")] HRESULT EB_GetNotDirAllRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+	//	[id(4), helpstring("method EB_HasSubRes")] HRESULT EB_HasSubRes([in] ULONGLONG sParentResId, [out,retval] VARIANT_BOOL* pVal);
+	//	[id(5), helpstring("method EB_GetAllRes")] HRESULT EB_GetAllRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+	//	[id(6), helpstring("method EB_GetAllFileRes")] HRESULT EB_GetAllFileRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+	//	[id(7), helpstring("method EB_GetAllNoteRes")] HRESULT EB_GetAllNoteRes([in] ULONGLONG sGroupCode, [out,retval] VARIANT* pOutResourceList);
+	//	[id(8), helpstring("method EB_AddDirRes")] HRESULT EB_AddDirRes([in] BSTR sDirName, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+	//	[id(9), helpstring("method EB_AddFileRes")] HRESULT EB_AddFileRes([in] BSTR sFilePath, [in] BSTR sFileName, [in] BSTR sDescription, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+	//	[id(10), helpstring("method EB_AddNoteRes")] HRESULT EB_AddNoteRes([in] BSTR sNoteName, [in] BSTR sDescription, [in] ULONGLONG sParentResId, [in] ULONGLONG sGroupCode);
+	//	[id(11), helpstring("method EB_EditRes")] HRESULT EB_EditRes([in] ULONGLONG sResId, [in] BSTR sName, [in] BSTR sDescription);
+	//	[id(12), helpstring("method EB_MoveRes2Dir")] HRESULT EB_MoveRes2Dir([in] ULONGLONG sResId, [in] ULONGLONG sParentResId);
+	//	[id(13), helpstring("method EB_DeleteRes")] HRESULT EB_DeleteRes([in] ULONGLONG sResId);
+	//	[id(14), helpstring("method EB_GetResourceInfo")] HRESULT EB_GetResourceInfo([in] ULONGLONG sResId, [out,retval] IEB_ResourceInfo** pVal);
+	//	[id(15), helpstring("method EB_GetResourceCmInfo")] HRESULT EB_GetResourceCmInfo([in] ULONGLONG sResId, [out,retval] BSTR* pVal);
+	//	[id(16), helpstring("method EB_DownloadFileRes")] HRESULT EB_DownloadFileRes([in] ULONGLONG sResId, [in] BSTR sSaveTo);
+	//	[id(17), helpstring("method EB_CancelFileRes")] HRESULT EB_CancelFileRes([in] ULONGLONG sResId, [in] BSTR sMsgId);
+	//};
+	//[
+	//	object,
+	//	uuid(3549098C-CC5F-4c46-9865-DC4311C0FE6C),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreLevel Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreLevel : IDispatch{
+	//	[propget, id(1), helpstring("property EB_CanEditEnterprise")] HRESULT EB_CanEditEnterprise([in] ULONGLONG sEnterpriseCode, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(2), helpstring("property EB_CanEditGroupInfo")] HRESULT EB_CanEditGroupInfo([in] ULONGLONG sEnterpriseCode, [in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(3), helpstring("property EB_CanDeleteGroupInfo")] HRESULT EB_CanDeleteGroupInfo([in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(4), helpstring("property EB_CanEditMemberInfo")] HRESULT EB_CanEditMemberInfo([in] ULONGLONG sGroupCode, [in] BSTR sMemberAccount, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(5), helpstring("property EB_CanDeleteMemberInfo")] HRESULT EB_CanDeleteMemberInfo([in] ULONGLONG sGroupCode, [in] BSTR sMemberAccount, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(6), helpstring("property EB_CanDeleteMemberInfo2")] HRESULT EB_CanDeleteMemberInfo2([in] ULONGLONG sMemberCode, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(7), helpstring("property EB_CanEditGroupRes")] HRESULT EB_CanEditGroupRes([in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(8), helpstring("property EB_CanDeleteGroupRes")] HRESULT EB_CanDeleteGroupRes([in] ULONGLONG sGroupCode, [out, retval] VARIANT_BOOL* pVal);
+	//};
+	//[
+	//	object,
+	//	uuid(8D8FA44D-1AF8-4d4b-B0A2-44EF57629C07),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreMgr Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreMgr : IDispatch{
+	//	[id(1), helpstring("method EB_LoadInfo")] HRESULT EB_LoadInfo(void);
+	//	[id(2), helpstring("method EB_GetMyAccountInfo")] HRESULT EB_GetMyAccountInfo([out,retval] IEB_AccountInfo** pVal);
+	//	[id(3), helpstring("method EB_GetMyAccountInfo2")] HRESULT EB_GetMyAccountInfo2([out,retval] SEB_AccountInfo* pVal);
+	//	[propget, id(4), helpstring("property EB_MyDefaultMemberCode")] HRESULT EB_MyDefaultMemberCode([out, retval] BSTR* pVal);
+	//	[propput, id(4), helpstring("property EB_MyDefaultMemberCode")] HRESULT EB_MyDefaultMemberCode([in] BSTR newVal);
+	//	[id(5), helpstring("method EB_GetMyDefaultMemberInfo")] HRESULT EB_GetMyDefaultMemberInfo([out,retval] IEB_MemberInfo** pVal);
+	//	[id(6), helpstring("method EB_GetMyDefaultMemberInfo2")] HRESULT EB_GetMyDefaultMemberInfo2([out,retval] SEB_MemberInfo* pVal);
+	//	[id(7), helpstring("method EB_GetMyDefaultMemberHeadFile")] HRESULT EB_GetMyDefaultMemberHeadFile([out,retval] BSTR* pVal);
+	//	[propget, id(8), helpstring("property EB_MyAccountSetting")] HRESULT EB_MyAccountSetting([out, retval] LONG* pVal);
+	//	[propput, id(8), helpstring("property EB_MyAccountSetting")] HRESULT EB_MyAccountSetting([in] LONG newVal);
+	//	[propget, id(9), helpstring("property EB_LogonAccount")] HRESULT EB_LogonAccount([out, retval] BSTR* pVal);
+	//	[propget, id(10), helpstring("property EB_Description")] HRESULT EB_Description([out, retval] BSTR* pVal);
+	//	[propput, id(10), helpstring("property EB_Description")] HRESULT EB_Description([in] BSTR newVal);
+	//	[propget, id(11), helpstring("property EB_LineState")] HRESULT EB_LineState([out, retval] LONG* pVal);
+	//	[propput, id(11), helpstring("property EB_LineState")] HRESULT EB_LineState([in] LONG newVal);
+	//	[propget, id(12), helpstring("property EB_UserName")] HRESULT EB_UserName([out, retval] BSTR* pVal);
+	//	[propput, id(12), helpstring("property EB_UserName")] HRESULT EB_UserName([in] BSTR newVal);
+	//	[propget, id(13), helpstring("property EB_Password")] HRESULT EB_Password([out, retval] BSTR* pVal);
+	//	[propput, id(13), helpstring("property EB_Password")] HRESULT EB_Password([in] BSTR newVal);
+	//};
+	//[
+	//	object,
+	//	uuid(AC9C59C7-8FB6-4c2d-96E6-D2D9D8284D0F),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreAuth Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreAuth : IDispatch{
+	//	[id(1), helpstring("method EB_Register")] HRESULT EB_Register([in] BSTR sAccount, [in] BSTR sPassword, [in] BSTR sUserName, [in] BSTR sEnterpriseName);
+	//	[id(2), helpstring("method EB_LogonVisitor")] HRESULT EB_LogonVisitor(void);
+	//	[id(3), helpstring("method EB_LogonAccount")] HRESULT EB_LogonAccount([in] BSTR sAccount, [in] BSTR sPassword, [in] LONG nNewLineState);
+	//	[id(4), helpstring("method EB_LogonOAuth")] HRESULT EB_LogonOAuth([in] BSTR sAccount, [in] LONG nNewLineState);
+	//	[id(5), helpstring("method EB_ReLogon")] HRESULT EB_ReLogon(void);
+	//	[propget, id(6), helpstring("property EB_IsLogoned")] HRESULT EB_IsLogoned([out, retval] VARIANT_BOOL* pVal);
+	//	[propget, id(7), helpstring("property EB_IsLogonVisitor")] HRESULT EB_IsLogonVisitor([out, retval] VARIANT_BOOL* pVal);
+	//	[id(8), helpstring("method EB_Logout")] HRESULT EB_Logout(void);
+	//};
+	//[
+	//	object,
+	//	uuid(DAC6EEB7-CE3D-45a9-8105-3D5C35C43789),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreAp Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreAp : IDispatch{
+	//	[id(1), helpstring("method EB_LogonAppCenter")] HRESULT EB_LogonAppCenter(void);
+	//	[id(2), helpstring("method EB_LogoutAppCenter")] HRESULT EB_LogoutAppCenter(void);
+	//	[id(3), helpstring("method EB_SendAPMsg")] HRESULT EB_SendAPMsg([in] IDispatch* pAPMsgInfoInterface, [in] VARIANT_BOOL bSaveOffMsg);
+	//	[id(4), helpstring("method EB_SendAPMsg2")] HRESULT EB_SendAPMsg2([in] SEB_APMsgInfo* pAPMsgInfoStruct, [in] VARIANT_BOOL bSaveOffMsg);
+	//	[id(5), helpstring("method EB_APMsgAck")] HRESULT EB_APMsgAck([in] BSTR sMsgId);
+	//};
+	//[
+	//	object,
+	//	uuid(F43D4121-9A81-43bc-8D08-39E4486395EC),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBCoreDev Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBCoreDev : IDispatch{
+	//	[id(1), helpstring("method EB_SetDevAppId")] HRESULT EB_SetDevAppId([in] BSTR sAppId, [in] BSTR sAppKey, [in] VARIANT_BOOL bReLoadAppOnlineKey);
+	//	[id(2), helpstring("method EB_SetDevAppOnlineKey")] HRESULT EB_SetDevAppOnlineKey([in] BSTR sAppId, [in] BSTR sAppOnlineKey);
+	//	[id(3), helpstring("method EB_GetDevAppId")] HRESULT EB_GetDevAppId([out,retval] BSTR* pVal);
+	//	[id(4), helpstring("method EB_GetDevAppOnlineKey")] HRESULT EB_GetDevAppOnlineKey([out,retval] BSTR* pVal);
+	//};
+	//[
+	//	object,
+	//	uuid(B24274F8-67C3-45e3-8221-CC5E63E9B467),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBLib Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBLib : IDispatch{
+	//	[id(1), helpstring("method UTF82ACP")] HRESULT UTF82ACP([in] BSTR sUtf8String, [out,retval] BSTR* pVal);
+	//	[id(2), helpstring("method ACP2UTF8")] HRESULT ACP2UTF8([in] BSTR sCapString, [out,retval] BSTR* pVal);
+	//	[id(3), helpstring("method GetAccountAddress")] HRESULT GetAccountAddress([in] BSTR sAccount, [out,retval] BSTR* pVal);
+	//	
+	//};
+
+	//[
+	//	uuid(1E0A140D-0A85-4a26-A247-452C98958481),
+	//	helpstring("_IEBClientCoreEvents Interface")
+	//]
+	//dispinterface _IEBClientCoreEvents
+	//{
+	//	properties:
+	//	methods:
+	//		[id(1), helpstring("method onAppIdSuccess")] void onAppIdSuccess([in] BSTR sAppId, [in] BSTR sAppOnlineKey);
+	//};
+
+	[
+		uuid(F702F0DB-8C0E-4891-8F6F-D964E846A2F2),
+		helpstring("_IEBClientCoreEvents Interface")
+	]
+	dispinterface _IEBClientCoreEvents
+	{
+		properties:
+		methods:
+			[id(1), helpstring("method onAppIdSuccess")] void onAppIdSuccess([in] ULONGLONG sAppId, [in] BSTR sAppOnlineKey);
+			[id(2), helpstring("method onAppIdError")] void onAppIdError([in] SHORT nStateCode);
+			[id(3), helpstring("method onLogonAppCenter")] void onLogonAppCenter([in] SHORT nStateCode);
+			[id(4), helpstring("method onLogoutAppCenter")] void onLogoutAppCenter([in] SHORT nStateCode);
+			[id(5), helpstring("method onAPMsgInfo")] void onAPMsgInfo([in] IDispatch* pAPMsgInfo);
+			[id(6), helpstring("method onRegisterResponse")] void onRegisterResponse([in] SHORT nStateCode,[in]ULONGLONG nUserId);
+			[id(7), helpstring("method onOAuthForward")] void onOAuthForward([in] BSTR sOAuthUrl);
+			[id(8), helpstring("method onLogonSuccess")] void onLogonSuccess([in] IDispatch* pAccountInfo);
+			[id(9), helpstring("method onLogonTimeout")] void onLogonTimeout([in] IDispatch* pAccountInfo);
+			[id(10), helpstring("method onLogonError")] void onLogonError([in] IDispatch* pAccountInfo, [in] SHORT nStateCode);
+			[id(11), helpstring("method onOnlineAnother")] void onOnlineAnother(void);
+			[id(12), helpstring("method onLogout")] void onLogout(void);
+			[id(13), helpstring("method onEditInfoResponse")] void onEditInfoResponse([in] SHORT nStateCode);
+			[id(14), helpstring("method onUserStateChange")] void onUserStateChange([in] IDispatch* pAccountInfo, [in] VARIANT_BOOL bIsOwnerMember);
+			[id(15), helpstring("method onUserHeadChange")] void onUserHeadChange([in] IDispatch* pAccountInfo, [in] VARIANT_BOOL bIsOwnerMember);
+			[id(20), helpstring("method onCallIncoming")] void onCallIncoming([in] IDispatch* pCallInfo, [in] IDispatch* pFromAccount);
+			[id(21), helpstring("method onCallAlerting")] void onCallAlerting([in] IDispatch* pCallInfo);
+			[id(22), helpstring("method onCallBusy")] void onCallBusy([in] IDispatch* pCallInfo);
+			[id(23), helpstring("method onCallHangup")] void onCallHangup([in] IDispatch* pCallInfo, [in] VARIANT_BOOL bIsOwnerMember);
+			[id(24), helpstring("method onCallError")] void onCallError([in] IDispatch* pCallInfo, [in] SHORT nStateCode);
+			[id(25), helpstring("method onCallConnected")] void onCallConnected([in] IDispatch* pCallInfo, [in] LONG nConnectFlag);
+			[id(30), helpstring("method onVRequestResponse")] void onVRequestResponse([in] IDispatch* pVideoInfo, [in] SHORT nStateCode);
+			[id(31), helpstring("method onVAckResponse")] void onVAckResponse([in] IDispatch* pVideoInfo, [in] SHORT nStateCode);
+			[id(32), helpstring("method onVideoRequest")] void onVideoRequest([in] IDispatch* pVideoInfo, [in] IDispatch* sFromAccount);
+			[id(33), helpstring("method onVideoAccept")] void onVideoAccept([in] IDispatch* pVideoInfo, [in] IDispatch* sFromAccount);
+			[id(34), helpstring("method onVideoReject")] void onVideoReject([in] IDispatch* pVideoInfo, [in] IDispatch* sFromAccount);
+			[id(35), helpstring("method onVideoClose")] void onVideoClose([in] IDispatch* pVideoInfo, [in] IDispatch* sFromAccount);
+			[id(40), helpstring("method onEnterpriseInfo")] void onEnterpriseInfo([in] IDispatch* pEnterpriseInfo);
+			[id(41), helpstring("method onGroupInfo")] void onGroupInfo([in] IDispatch* pGroupInfo, [in] VARIANT_BOOL bIsMyGroup);
+			[id(42), helpstring("method onGroupDelete")] void onGroupDelete([in] IDispatch* pGroupInfo, [in] VARIANT_BOOL bIsMyGroup);
+			[id(43), helpstring("method onGroupEditError")] void onGroupEditError([in] IDispatch* pGroupInfo, [in] SHORT nStateCode);
+			[id(44), helpstring("method onRemoveGroup")] void onRemoveGroup([in] IDispatch* pGroupInfo, [in] IDispatch* pMemberInfo);
+			[id(45), helpstring("method onExitGroup")] void onExitGroup([in] IDispatch* pGroupInfo, [in] IDispatch* pMemberInfo);
+			[id(120), helpstring("method onRequestAdd2Group")] void onRequestAdd2Group([in] IDispatch* pGroupInfo, [in] IDispatch* pMemberInfo);
+			[id(121), helpstring("method onInviteAdd2Group")] void onInviteAdd2Group([in] IDispatch* pGroupInfo, [in] IDispatch* pMemberInfo);
+			[id(122), helpstring("method onRejectAdd2Group")] void onRejectAdd2Group([in] IDispatch* pGroupInfo, [in] IDispatch* pMemberInfo);
+			[id(46), helpstring("method onMemberInfo")] void onMemberInfo([in] IDispatch* pMemberInfo, [in] VARIANT_BOOL bIsMyDefaultMember);
+			[id(47), helpstring("method onMemberDelete")] void onMemberDelete([in] IDispatch* pMemberInfo, [in] VARIANT_BOOL bIsMyDefaultMember);
+			[id(48), helpstring("method onMemberEditError")] void onMemberEditError([in] IDispatch* pMemberInfo, [in] SHORT nStateCode);
+			[id(50), helpstring("method onContactInfo")] void onContactInfo([in] IDispatch* pContactInfo);
+			[id(51), helpstring("method onContactDelete")] void onContactDelete([in] IDispatch* pContactInfo);
+			[id(53), helpstring("method onUGInfo")] void onUGInfo([in] IDispatch* pUGInfo);
+			[id(54), helpstring("method onUGelete")] void onUGelete([in] IDispatch* pUGInfo);
+			[id(55), helpstring("method onRequestAddContact")] void onRequestAddContact([in] IDispatch* pAccountInfo, [in] IDispatch* pApMsgInfo);
+			[id(56), helpstring("method onRejectAddContact")] void onRejectAddContact([in] IDispatch* pAccountInfo, [in] IDispatch* pApMsgInfo);
+			[id(57), helpstring("method onAcceptAddContact")] void onAcceptAddContact([in] IDispatch* pContactInfo);
+			[id(58), helpstring("method onContactStateChange")] void onContactStateChange([in] IDispatch* pContactInfo);
+			[id(60), helpstring("method onResourceInfo")] void onResourceInfo([in] IDispatch* pResourceInfo);
+			[id(61), helpstring("method onResourceDelete")] void onResourceDelete([in] IDispatch* pResourceInfo);
+			[id(62), helpstring("method onResourceMove")] void onResourceMove([in] IDispatch* pResourceInfo, [in] BSTR sOldParentResId);
+			[id(130), helpstring("method onBroadcastMsg")] void onBroadcastMsg([in] IDispatch* pAccountInfo, [in] IDispatch* pApMsgInfo);
+			[id(131), helpstring("method onAreaInfo")] void onAreaInfo([in] IDispatch* pAreaInfo, [in] ULONG nParameter);
+			[id(70), helpstring("method onNewVersion")] void onNewVersion([in] IDispatch* pVersionInfo);
+			[id(71), helpstring("method onServerChange")] void onServerChange([in] SHORT nServerState);
+			[id(75), helpstring("method onStateCode")] void onStateCode([in] SHORT nStateCode,[in]LONG nParam);
+			[id(80), helpstring("method OnEnterRoom")] void OnEnterRoom([in] IDispatch* pCrInfo, [in] SHORT nStateCode);
+			[id(81), helpstring("method OnExitRoom")] void OnExitRoom([in] IDispatch* pCrInfo);
+			[id(82), helpstring("method OnUserEnterRoom")] void OnUserEnterRoom([in] IDispatch* pAccountInfo);
+			[id(83), helpstring("method OnUserExitRoom")] void OnUserExitRoom([in] IDispatch* pAccountInfo,[in]VARIANT_BOOL bHangup);
+			[id(84), helpstring("method OnSendRich")] void OnSendRich([in] IDispatch* pRichInfo, [in] SHORT nStateCode);
+			[id(85), helpstring("method OnReceiveRich")] void OnReceiveRich([in] IDispatch* pRichInfo);
+			[id(86), helpstring("method OnSendingFile")] void OnSendingFile([in] IDispatch* pFileInfo, [in] SHORT nStateCode);
+			[id(87), helpstring("method OnSentFile")] void OnSentFile([in] IDispatch* pFileInfo, [in] SHORT nStateCode);
+			[id(88), helpstring("method OnCancelFile")] void OnCancelFile([in] IDispatch* pFileInfo);
+			[id(89), helpstring("method OnReceivingFile")] void OnReceivingFile([in] IDispatch* pFileInfo);
+			[id(90), helpstring("method OnReceivedFile")] void OnReceivedFile([in] IDispatch* pFileInfo);
+			[id(91), helpstring("method OnFilePercent")] void OnFilePercent([in] IDispatch* pFilePercent);
+			[id(92), helpstring("method OnSave2CloudDrive")] void OnSave2CloudDrive([in] IDispatch* pFileInfo, [in] SHORT nStateCode);
+			[id(100), helpstring("method OnEnterAnother")] void OnEnterAnother([in] IDispatch* pCrInfo);
+			[id(110), helpstring("method OnP2PRequest")] void OnP2PRequest([in] IDispatch* pCrP2PInfo);
+			[id(111), helpstring("method OnP2PResponse")] void OnP2PResponse([in] IDispatch* pCrP2PInfo, [in] SHORT nFlag);
+			[id(112), helpstring("method OnP2POk")] void OnP2POk([in] IDispatch* pCrP2PInfo);
+	};
+	[
+		uuid(B26BB29E-A61D-48E7-8068-6CF59FDD7680),
+		helpstring("EBClientCore Class")
+	]
+	coclass EBClientCore
+	{
+		[default] interface IEBClientCore;
+		[default, source] dispinterface _IEBClientCoreEvents;
+	};
+	[
+		uuid(840A40FB-F3E9-487C-9236-89B7AFB0FC42),
+		helpstring("EBRemoteDesktop Class")
+	]
+	coclass EBRemoteDesktop
+	{
+		[default] interface IEBRemoteDesktop;
+	};
+};
