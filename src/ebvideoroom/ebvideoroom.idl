@@ -1,0 +1,179 @@
+// ebvideoroom.idl : IDL source for ebvideoroom
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ebvideoroom.tlb) and marshalling code.
+
+#include "olectl.h"
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+
+[
+	uuid(EB8A5629-115C-43BC-B286-2F1B8FEC3740),
+	version(1.0),
+	helpstring("ebvideoroom 1.0 Type Library")
+]
+library ebvideoroomLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		object,
+		uuid(D4942E56-6BBA-4A6D-A7F2-E69EA8FE8228),
+		dual,
+		nonextensible,
+		helpstring("IEBMMRoom Interface"),
+		pointer_default(unique)
+	]
+	interface IEBMMRoom : IDispatch{
+		[id(1), helpstring("method Start")] HRESULT Start([in] BSTR sAudioAddress, [in] BSTR sVideoAddress, [in] USHORT nBindPort);
+		[propget, id(2), helpstring("property IsStart")] HRESULT IsStart([out, retval] VARIANT_BOOL* pVal);
+		[id(3), helpstring("method Stop")] HRESULT Stop(void);
+		[id(4), helpstring("method Register")] HRESULT Register([in] LONGLONG nRoomId, [in] LONGLONG nSourceId, [in] LONGLONG nParam, [in] VARIANT_BOOL bIsGroup);
+		[propget, id(5), helpstring("property RoomId")] HRESULT RoomId([out, retval] LONGLONG* pVal);
+		[propget, id(6), helpstring("property SourceId")] HRESULT SourceId([out, retval] LONGLONG* pVal);
+		[id(7), helpstring("method UnRegister")] HRESULT UnRegister(void);
+		[id(8), helpstring("method AddAudioSink")] HRESULT AddAudioSink([in] LONGLONG nDestId);
+		[propget, id(9), helpstring("property IsAudioSink")] HRESULT IsAudioSink([in] LONGLONG nDestId, [out, retval] VARIANT_BOOL* pVal);
+		[id(10), helpstring("method AddVideoSink")] HRESULT AddVideoSink([in] LONGLONG nDestId, [in] ULONG hVideoWndParent);
+		[propget, id(11), helpstring("property IsVideoSink")] HRESULT IsVideoSink([in] LONGLONG nDestId, [out, retval] VARIANT_BOOL* pVal);
+		[id(12), helpstring("method DelAudioSink")] HRESULT DelAudioSink([in] LONGLONG nDestId);
+		[id(13), helpstring("method DelVideoSink")] HRESULT DelVideoSink([in] LONGLONG nDestId);
+		[id(14), helpstring("method DelDestSink")] HRESULT DelDestSink([in] LONGLONG nDestId);
+		[id(15), helpstring("method DelAllSink")] HRESULT DelAllSink(void);
+		[propget, id(16), helpstring("property AudioP2PStatus")] HRESULT AudioP2PStatus([out, retval] SHORT* pVal);
+		[propget, id(17), helpstring("property VideoP2PStatus")] HRESULT VideoP2PStatus([out, retval] SHORT* pVal);
+		[propget, id(18), helpstring("property VideoDeviceList")] HRESULT VideoDeviceList([out, retval] VARIANT* pVal);
+		[propget, id(19), helpstring("property VideoDeviceSize")] HRESULT VideoDeviceSize([out, retval] SHORT* pVal);
+		[id(20), helpstring("method InitVideoCapture")] HRESULT InitVideoCapture([in] SHORT nVideoDeviceIndex, [in] SHORT nVideoQuality);
+		[id(21), helpstring("method InitAudioCapture")] HRESULT InitAudioCapture(void);
+		[id(22), helpstring("method StartVideoCapture")] HRESULT StartVideoCapture([in] ULONG hLocalVideoWndParent);
+		[id(23), helpstring("method StopVideoCapture")] HRESULT StopVideoCapture(void);
+		[id(24), helpstring("method StartAudioCapture")] HRESULT StartAudioCapture(void);
+		[id(25), helpstring("method StopAudioCapture")] HRESULT StopAudioCapture(void);
+		[id(26), helpstring("method StartVideoGraph")] HRESULT StartVideoGraph([in] LONGLONG nUserId);
+		[id(27), helpstring("method MoveVideoWindow")] HRESULT MoveVideoWindow([in] LONGLONG nUserId, [in] LONG x, [in] LONG y, [in] LONG width, [in] LONG height);
+		[id(28), helpstring("method ShowVideoWindow")] HRESULT ShowVideoWindow([in] LONGLONG nUserId, [in] VARIANT_BOOL bShow);
+		[id(29), helpstring("method SaveVideoBitmapFile")] HRESULT SaveVideoBitmapFile([in] LONGLONG nUserId, [in] BSTR sSaveToFile);
+		[propget, id(40), helpstring("property LocalVideoSend")] HRESULT LocalVideoSend([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(40), helpstring("property LocalVideoSend")] HRESULT LocalVideoSend([in] VARIANT_BOOL newVal);
+		[propget, id(41), helpstring("property LocalAudioSend")] HRESULT LocalAudioSend([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(41), helpstring("property LocalAudioSend")] HRESULT LocalAudioSend([in] VARIANT_BOOL newVal);
+		[propget, id(42), helpstring("property LocalVideoPlay")] HRESULT LocalVideoPlay([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(42), helpstring("property LocalVideoPlay")] HRESULT LocalVideoPlay([in] VARIANT_BOOL newVal);
+		[propget, id(43), helpstring("property LocalAudioPlay")] HRESULT LocalAudioPlay([out, retval] VARIANT_BOOL* pVal);
+		[propput, id(43), helpstring("property LocalAudioPlay")] HRESULT LocalAudioPlay([in] VARIANT_BOOL newVal);
+		[propget, id(44), helpstring("property SinkVideoPlay")] HRESULT SinkVideoPlay([in] LONGLONG nUserId, [out, retval] VARIANT_BOOL* pVal);
+		[propput, id(44), helpstring("property SinkVideoPlay")] HRESULT SinkVideoPlay([in] LONGLONG nUserId, [in] VARIANT_BOOL newVal);
+		[propget, id(45), helpstring("property SinkAudioPlay")] HRESULT SinkAudioPlay([in] LONGLONG nUserId, [out, retval] VARIANT_BOOL* pVal);
+		[propput, id(45), helpstring("property SinkAudioPlay")] HRESULT SinkAudioPlay([in] LONGLONG nUserId, [in] VARIANT_BOOL newVal);
+		[id(46), helpstring("method SetUserData")] HRESULT SetUserData([in] LONGLONG nUserId, [in] ULONG nUserData);
+	};
+
+	//[
+	//	object,
+	//	uuid(5ADFE014-14C6-4D11-93F9-C5DD1B94AB77),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBVWindow Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBVWindow : IDispatch{
+	//	[id(1), helpstring("method VW_BuildVideoWindow")] HRESULT VW_BuildVideoWindow([in] SHORT nVideoType, [in] SHORT nVideoWidth, [in] SHORT nVideoHeight);
+	//	[id(2), helpstring("method VW_BuildGraph")] HRESULT VW_BuildGraph([in] VARIANT_BOOL bDefaultRender);
+	//	[id(3), helpstring("method VW_StartGraph")] HRESULT VW_StartGraph(void);
+	//	[id(4), helpstring("method VW_StopGraph")] HRESULT VW_StopGraph(void);
+	//	[id(5), helpstring("method VW_ReleaseGraph")] HRESULT VW_ReleaseGraph(void);
+	//	[id(6), helpstring("method VW_DrawVideo")] HRESULT VW_DrawVideo([in] BYTE* pVideoData, [in] ULONG nVideoSize);
+	//	[id(7), helpstring("method VW_DrawVideo2")] HRESULT VW_DrawVideo2([in] VARIANT* pVideoData, [in] ULONG nVideoSize);
+	//	[id(8), helpstring("method VW_SaveBitmapFile")] HRESULT VW_SaveBitmapFile([in] BSTR sSaveImageTo);
+	//	[id(9), helpstring("method VW_ShowVideoWindow")] HRESULT VW_ShowVideoWindow([in] VARIANT_BOOL newVal);
+	//};
+
+	//[
+	//	object,
+	//	uuid(F8AD7C34-B4CC-4EF5-9791-281771A061A5),
+	//	dual,
+	//	nonextensible,
+	//	helpstring("IEBVRoom Interface"),
+	//	pointer_default(unique)
+	//]
+	//interface IEBVRoom : IDispatch{
+	//	[id(1), helpstring("method VR_GetVideoDevices")] HRESULT VR_GetVideoDevices([out,retval] VARIANT* pVal);
+	//	[id(2), helpstring("method VR_Init")] HRESULT VR_Init([in] LONG nLocalId);
+	//	[id(3), helpstring("method VR_UnInit")] HRESULT VR_UnInit(void);
+	//	[id(4), helpstring("method VR_SetVideoServer")] HRESULT VR_SetVideoServer([in] BSTR sAddress, [in] USHORT nPort);
+	//	[id(5), helpstring("method VR_SetAudioServer")] HRESULT VR_SetAudioServer([in] BSTR sAddress, [in] USHORT nPort);
+	//	[id(6), helpstring("method VR_InitVideoCapture")] HRESULT VR_InitVideoCapture([in] USHORT nVideoIndex, [in] USHORT nVideoQuality);
+	//	[id(7), helpstring("method VR_InitAudioCapture")] HRESULT VR_InitAudioCapture(void);
+	//	[propget, id(8), helpstring("property VR_VideoType")] HRESULT VR_VideoType([out, retval] USHORT* pVal);
+	//	[propget, id(9), helpstring("property VR_VideoSend")] HRESULT VR_VideoSend([out, retval] VARIANT_BOOL* pVal);
+	//	[propput, id(9), helpstring("property VR_VideoSend")] HRESULT VR_VideoSend([in] VARIANT_BOOL newVal);
+	//	[propget, id(10), helpstring("property VR_AudioSend")] HRESULT VR_AudioSend([out, retval] VARIANT_BOOL* pVal);
+	//	[propput, id(10), helpstring("property VR_AudioSend")] HRESULT VR_AudioSend([in] VARIANT_BOOL newVal);
+	//	[propput, id(11), helpstring("property VR_StartVideoCapture")] HRESULT VR_StartVideoCapture([in] VARIANT_BOOL newVal);
+	//	[propput, id(12), helpstring("property VR_StartAudioCapture")] HRESULT VR_StartAudioCapture([in] VARIANT_BOOL newVal);
+	//	[id(13), helpstring("method VR_AddMeLooks")] HRESULT VR_AddMeLooks([in] LONGLONG nUserId);
+	//	[id(14), helpstring("method VR_DelMeLook")] HRESULT VR_DelMeLook([in] LONGLONG nUserId);
+	//	[id(15), helpstring("method VR_AddLookMes")] HRESULT VR_AddLookMes([in] LONGLONG nUserId);
+	//	[id(16), helpstring("method VR_DelLookMes")] HRESULT VR_DelLookMes([in] LONGLONG nUserId);
+	//	[id(17), helpstring("method VR_AddVideoStream")] HRESULT VR_AddVideoStream([in] LONGLONG nUserId, [in] ULONG nUserData, [in] VARIANT_BOOL bLocalVideo);
+	//	[id(18), helpstring("method VR_DelVideoStream")] HRESULT VR_DelVideoStream([in] LONGLONG nUserId);
+	//	[id(19), helpstring("method VR_SetLocalAudiolStream")] HRESULT VR_SetLocalAudiolStream([in] LONGLONG nUserId, [in] ULONG nUserData);
+	//	[id(20), helpstring("method VR_AddAudioStream")] HRESULT VR_AddAudioStream([in] LONGLONG nUserId, [in] ULONG nUserData);
+	//	[id(21), helpstring("method VR_DelAudioStream")] HRESULT VR_DelAudioStream([in] LONGLONG nUserId);
+	//	[id(22), helpstring("method VR_PauseAudioStream")] HRESULT VR_PauseAudioStream([in] LONGLONG nUserId);
+	//	[id(23), helpstring("method VR_PlayAudioStream")] HRESULT VR_PlayAudioStream([in] LONGLONG nUserId);
+	//};
+
+	//[
+	//	uuid(661BC217-2344-47F2-BDF8-29CF9920FAFF),
+	//	helpstring("_IEBVRoomEvents Interface")
+	//]
+	//dispinterface _IEBVRoomEvents
+	//{
+	//	properties:
+	//	methods:
+	//		[id(1), helpstring("method onVideoStream")] HRESULT onVideoStream([in] LONGLONG nUserId, [in] BYTE* pVideoData, [in] ULONG nVideoSize, [in] ULONG nUserData);
+	//		[id(2), helpstring("method onAudioStream")] HRESULT onAudioStream([in] LONGLONG nUserId, [in] BYTE* pAudioData, [in] ULONG nAudioSize, [in] ULONG nUserData);
+	//};
+	//[
+	//	uuid(41677E9E-542C-4761-BF4B-AFC1907F1B7D),
+	//	helpstring("EBVRoom Class")
+	//]
+	//coclass EBVRoom
+	//{
+	//	[default] interface IEBVRoom;
+	//	[default, source] dispinterface _IEBVRoomEvents;
+	//};
+	//[
+	//	uuid(E9AB3479-EEC2-4656-87B9-5CF67B05BE1A),
+	//	control,
+	//	helpstring("EBVWindow Class")
+	//]
+	//coclass EBVWindow
+	//{
+	//	[default] interface IEBVWindow;
+	//};
+	[
+		uuid(B03AD113-A680-4AF9-B070-19C8EF07A200),
+		helpstring("_IEBMMRoomEvents Interface")
+	]
+	dispinterface _IEBMMRoomEvents
+	{
+		properties:
+		methods:
+			[id(1), helpstring("method onVideoCallBack")] HRESULT onVideoCallBack([in] LONGLONG nUserId, [in] LONG nCallBackType, [in] ULONG lParam, [in] ULONG wParam, [in] ULONG nUserData);
+	};
+	[
+		uuid(5B890ECF-EB3E-4C72-871B-AC86B2F41238),
+		helpstring("EBMMRoom Class")
+	]
+	coclass EBMMRoom
+	{
+		[default] interface IEBMMRoom;
+		[default, source] dispinterface _IEBMMRoomEvents;
+	};
+};

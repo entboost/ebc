@@ -1,0 +1,26 @@
+HKCR
+{
+	ebvideoroom.EBMMRoom.1 = s 'EBMMRoom Class'
+	{
+		CLSID = s '{5B890ECF-EB3E-4C72-871B-AC86B2F41238}'
+	}
+	ebvideoroom.EBMMRoom = s 'EBMMRoom Class'
+	{
+		CLSID = s '{5B890ECF-EB3E-4C72-871B-AC86B2F41238}'
+		CurVer = s 'ebvideoroom.EBMMRoom.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {5B890ECF-EB3E-4C72-871B-AC86B2F41238} = s 'EBMMRoom Class'
+		{
+			ProgID = s 'ebvideoroom.EBMMRoom.1'
+			VersionIndependentProgID = s 'ebvideoroom.EBMMRoom'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{EB8A5629-115C-43BC-B286-2F1B8FEC3740}'
+		}
+	}
+}

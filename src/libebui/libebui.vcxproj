@@ -1,0 +1,571 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DEBUG_S|Win32">
+      <Configuration>DEBUG_S</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_U|Win32">
+      <Configuration>Debug_U</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RELEASE_s|Win32">
+      <Configuration>RELEASE_s</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{87298E18-0471-4022-9E10-7F8B0C4E007B}</ProjectGuid>
+    <RootNamespace>libebui</RootNamespace>
+    <Keyword>MFCDLLProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm133 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_AFXEXT;EBUI_EXPORTS;EBSTRING_USES_BSTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/FORCE:MULTIPLE  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>../build/$(ProjectName)d.dll</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm133 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;EBUI_EXPORTS;EBSTRING_USES_BSTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>../build/$(ProjectName).dll</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm133 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;EBUI_EXPORTS;EBSTRING_USES_BSTR;USES_EBUI_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/FORCE:MULTIPLE  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>../build/$(ProjectName)sd.dll</OutputFile>
+      <ModuleDefinitionFile>.\libebui.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm133 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;EBUI_EXPORTS;EBSTRING_USES_BSTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>../build/$(ProjectName)s.dll</OutputFile>
+      <ModuleDefinitionFile>.\libebui.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm133 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_AFXEXT;EBUI_EXPORTS;EBSTRING_USES_BSTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/FORCE:MULTIPLE  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>../build/$(ProjectName)ud.dll</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\include\ebc_public.cpp" />
+    <ClCompile Include="..\include\EbDialogBase.cpp" />
+    <ClCompile Include="BroadcastView.cpp" />
+    <ClCompile Include="Core\BitComboBox.cpp" />
+    <ClCompile Include="Core\CDialogSK.cpp" />
+    <ClCompile Include="Core\DlgVoiceBar.cpp" />
+    <ClCompile Include="Core\Draw.cpp" />
+    <ClCompile Include="Core\EbTranEdit.cpp" />
+    <ClCompile Include="Core\Explorer.cpp" />
+    <ClCompile Include="Core\HoverEdit.cpp" />
+    <ClCompile Include="Core\HTMLWnd.cpp" />
+    <ClCompile Include="Core\ImageEx.cpp" />
+    <ClCompile Include="Core\LabelEx.cpp" />
+    <ClCompile Include="Core\MenuEx.cpp" />
+    <ClCompile Include="Core\MenuXP.cpp" />
+    <ClCompile Include="Core\OleRichEditCtrl.cpp" />
+    <ClCompile Include="Core\PeakMeterCtrl.cpp" />
+    <ClCompile Include="Core\ProgressST.cpp" />
+    <ClCompile Include="Core\SkinMemDC.cpp" />
+    <ClCompile Include="Core\SplitterControl.cpp" />
+    <ClCompile Include="Core\Tools.cpp" />
+    <ClCompile Include="Core\TraButton.cpp" />
+    <ClCompile Include="Core\Utility.cpp" />
+    <ClCompile Include="Core\VividTree.cpp" />
+    <ClCompile Include="Core\webbrowser2.cpp" />
+    <ClCompile Include="Core\WebUIController.cpp" />
+    <ClCompile Include="DlgAlertingCall.cpp" />
+    <ClCompile Include="DlgAppFrame.cpp" />
+    <ClCompile Include="DlgAppWindow.cpp" />
+    <ClCompile Include="DlgChangeHead.cpp" />
+    <ClCompile Include="DlgChatInput.cpp" />
+    <ClCompile Include="DlgChatRight.cpp" />
+    <ClCompile Include="DlgContactInfo.cpp" />
+    <ClCompile Include="DlgDialog.cpp" />
+    <ClCompile Include="DlgDiaRecord.cpp" />
+    <ClCompile Include="DlgEditAccInfo.cpp" />
+    <ClCompile Include="DlgEditAccSetting.cpp" />
+    <ClCompile Include="DlgEditInfo.cpp" />
+    <ClCompile Include="DlgEditPasswd.cpp" />
+    <ClCompile Include="DlgEditVideo.cpp" />
+    <ClCompile Include="DlgEmotionSelect.cpp" />
+    <ClCompile Include="DlgEnterpriseInfo.cpp" />
+    <ClCompile Include="DlgFileManager.cpp" />
+    <ClCompile Include="DlgFrameList.cpp" />
+    <ClCompile Include="DlgFuncWindow.cpp" />
+    <ClCompile Include="DlgGroupInfo.cpp" />
+    <ClCompile Include="DlgIncomingCall.cpp" />
+    <ClCompile Include="DlgLogin.cpp" />
+    <ClCompile Include="DlgMainFrame.cpp" />
+    <ClCompile Include="DlgMemberInfo.cpp" />
+    <ClCompile Include="DlgMessageBox.cpp" />
+    <ClCompile Include="DlgMsgRecord.cpp" />
+    <ClCompile Include="DlgMyContacts.cpp" />
+    <ClCompile Include="DlgMyEnterprise.cpp" />
+    <ClCompile Include="DlgMyGroup.cpp" />
+    <ClCompile Include="DlgMySession.cpp" />
+    <ClCompile Include="DlgOAuth.cpp" />
+    <ClCompile Include="DlgRDWindows.cpp" />
+    <ClCompile Include="DlgRemoteDesktop.cpp" />
+    <ClCompile Include="DlgResourceMgr.cpp" />
+    <ClCompile Include="DlgSelectHead.cpp" />
+    <ClCompile Include="DlgSelectUser.cpp" />
+    <ClCompile Include="DlgShrinkageBar.cpp" />
+    <ClCompile Include="DlgTranFile.cpp" />
+    <ClCompile Include="DlgUserInfo.cpp" />
+    <ClCompile Include="DlgUserList.cpp" />
+    <ClCompile Include="DlgVideo.cpp" />
+    <ClCompile Include="DlgVideoControl.cpp" />
+    <ClCompile Include="DlgVideoPhoto.cpp" />
+    <ClCompile Include="DlgViewContactInfo.cpp" />
+    <ClCompile Include="dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="EBFuncButton.cpp" />
+    <ClCompile Include="ebui.cpp" />
+    <ClCompile Include="EBUIApp.cpp" />
+    <ClCompile Include="libebui.cpp" />
+    <ClCompile Include="PanelBrowserNavigate.cpp" />
+    <ClCompile Include="PanelFiles.cpp" />
+    <ClCompile Include="PanelRemoteDesktop.cpp" />
+    <ClCompile Include="PanelSearch.cpp" />
+    <ClCompile Include="PanelVideos.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DEBUG_S|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_U|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RELEASE_s|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libebui.def" />
+    <None Include="res\libebui.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\ebc_public.h" />
+    <ClInclude Include="..\include\EbDialogBase.h" />
+    <ClInclude Include="BroadcastView.h" />
+    <ClInclude Include="Core\BitComboBox.h" />
+    <ClInclude Include="Core\CDialogSK.h" />
+    <ClInclude Include="Core\DlgVoiceBar.h" />
+    <ClInclude Include="Core\Draw.h" />
+    <ClInclude Include="Core\EbTranEdit.h" />
+    <ClInclude Include="Core\Explorer.h" />
+    <ClInclude Include="Core\HoverEdit.h" />
+    <ClInclude Include="Core\HTMLWnd.h" />
+    <ClInclude Include="Core\ImageEx.h" />
+    <ClInclude Include="Core\LabelEx.h" />
+    <ClInclude Include="Core\MenuEx.h" />
+    <ClInclude Include="Core\MenuXP.h" />
+    <ClInclude Include="Core\OleRichEditCtrl.h" />
+    <ClInclude Include="Core\PeakMeterCtrl.h" />
+    <ClInclude Include="Core\ProgressST.h" />
+    <ClInclude Include="Core\SkinMemDC.h" />
+    <ClInclude Include="Core\SplitterControl.h" />
+    <ClInclude Include="Core\Tools.h" />
+    <ClInclude Include="Core\TraButton.h" />
+    <ClInclude Include="Core\Utility.h" />
+    <ClInclude Include="Core\VividTree.h" />
+    <ClInclude Include="Core\webbrowser2.h" />
+    <ClInclude Include="Core\WebUIController.h" />
+    <ClInclude Include="DlgAlertingCall.h" />
+    <ClInclude Include="DlgAppFrame.h" />
+    <ClInclude Include="DlgAppWindow.h" />
+    <ClInclude Include="DlgChangeHead.h" />
+    <ClInclude Include="DlgChatInput.h" />
+    <ClInclude Include="DlgChatRight.h" />
+    <ClInclude Include="DlgContactInfo.h" />
+    <ClInclude Include="DlgDialog.h" />
+    <ClInclude Include="DlgDiaRecord.h" />
+    <ClInclude Include="DlgEditAccInfo.h" />
+    <ClInclude Include="DlgEditAccSetting.h" />
+    <ClInclude Include="DlgEditInfo.h" />
+    <ClInclude Include="DlgEditPasswd.h" />
+    <ClInclude Include="DlgEditVideo.h" />
+    <ClInclude Include="DlgEmotionSelect.h" />
+    <ClInclude Include="DlgEnterpriseInfo.h" />
+    <ClInclude Include="DlgFileManager.h" />
+    <ClInclude Include="DlgFrameList.h" />
+    <ClInclude Include="DlgFuncWindow.h" />
+    <ClInclude Include="DlgGroupInfo.h" />
+    <ClInclude Include="DlgIncomingCall.h" />
+    <ClInclude Include="DlgLogin.h" />
+    <ClInclude Include="DlgMainFrame.h" />
+    <ClInclude Include="DlgMemberInfo.h" />
+    <ClInclude Include="DlgMessageBox.h" />
+    <ClInclude Include="DlgMsgRecord.h" />
+    <ClInclude Include="DlgMyContacts.h" />
+    <ClInclude Include="DlgMyEnterprise.h" />
+    <ClInclude Include="DlgMyGroup.h" />
+    <ClInclude Include="DlgMySession.h" />
+    <ClInclude Include="DlgOAuth.h" />
+    <ClInclude Include="DlgRDWindows.h" />
+    <ClInclude Include="DlgRemoteDesktop.h" />
+    <ClInclude Include="DlgResourceMgr.h" />
+    <ClInclude Include="DlgSelectHead.h" />
+    <ClInclude Include="DlgSelectUser.h" />
+    <ClInclude Include="DlgShrinkageBar.h" />
+    <ClInclude Include="DlgTranFile.h" />
+    <ClInclude Include="DlgUserInfo.h" />
+    <ClInclude Include="DlgUserList.h" />
+    <ClInclude Include="DlgVideo.h" />
+    <ClInclude Include="DlgVideoControl.h" />
+    <ClInclude Include="DlgVideoPhoto.h" />
+    <ClInclude Include="DlgViewContactInfo.h" />
+    <ClInclude Include="EBFuncButton.h" />
+    <ClInclude Include="ebui.h" />
+    <ClInclude Include="EBUIApp.h" />
+    <ClInclude Include="PanelBrowserNavigate.h" />
+    <ClInclude Include="PanelFiles.h" />
+    <ClInclude Include="PanelRemoteDesktop.h" />
+    <ClInclude Include="PanelSearch.h" />
+    <ClInclude Include="PanelVideos.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\btnhotdeleteS.png" />
+    <Image Include="res\mainframe.ico" />
+    <Image Include="res\skin\btn.png" />
+    <Image Include="res\skin\btn68X27g.png" />
+    <Image Include="res\skin\btn71X32g.png" />
+    <Image Include="res\skin\btnadduser.png" />
+    <Image Include="res\skin\btnaudiochat.png" />
+    <Image Include="res\skin\btnchatfunc.png" />
+    <Image Include="res\skin\btnclose.png" />
+    <Image Include="res\skin\btnebcs.png" />
+    <Image Include="res\skin\btnemotion.png" />
+    <Image Include="res\skin\btnexitchat.png" />
+    <Image Include="res\skin\BtnFile.bmp" />
+    <Image Include="res\skin\btnfilemgr.png" />
+    <Image Include="res\skin\BtnFont.bmp" />
+    <Image Include="res\skin\btngroupshare.png" />
+    <Image Include="res\skin\btnhotcall.png" />
+    <Image Include="res\skin\btnhotcallS.png" />
+    <Image Include="res\skin\btnhotdelete.png" />
+    <Image Include="res\skin\btnhotdeleteS.png" />
+    <Image Include="res\skin\btnhotdown.png" />
+    <Image Include="res\skin\btnhotedit.png" />
+    <Image Include="res\skin\btnhoteditS.png" />
+    <Image Include="res\skin\btnhotnew.png" />
+    <Image Include="res\skin\btnhotnewS.png" />
+    <Image Include="res\skin\btnhotopendir.png" />
+    <Image Include="res\skin\btnhotopenfile.png" />
+    <Image Include="res\skin\btnlogin.png" />
+    <Image Include="res\skin\btnmainfunc.png" />
+    <Image Include="res\skin\btnmax.png" />
+    <Image Include="res\skin\btnmin.png" />
+    <Image Include="res\skin\btnmsgrecord.png" />
+    <Image Include="res\skin\btnmycenter.png" />
+    <Image Include="res\skin\btnmyshare.png" />
+    <Image Include="res\skin\btnremotedesktop.png" />
+    <Image Include="res\skin\btnrestore.png" />
+    <Image Include="res\skin\btnselimg.png" />
+    <Image Include="res\skin\btnselmyvideo.png" />
+    <Image Include="res\skin\btnsendfile.png" />
+    <Image Include="res\skin\btnskin.png" />
+    <Image Include="res\skin\btnstateaway.png" />
+    <Image Include="res\skin\btnstatebusy.png" />
+    <Image Include="res\skin\btnstateonline.png" />
+    <Image Include="res\skin\btnvideochat.png" />
+    <Image Include="res\skin\btn_arrowdown72X18.png" />
+    <Image Include="res\skin\btn_goback72X18.png" />
+    <Image Include="res\skin\btn_goforward72X18.png" />
+    <Image Include="res\skin\btn_refresh72X18.png" />
+    <Image Include="res\skin\checkbox.png" />
+    <Image Include="res\skin\combo_center.bmp" />
+    <Image Include="res\skin\combo_left.bmp" />
+    <Image Include="res\skin\combo_right.bmp" />
+    <Image Include="res\skin\img1cloud.png" />
+    <Image Include="res\skin\img1group.png" />
+    <Image Include="res\skin\img1org.png" />
+    <Image Include="res\skin\img1people.png" />
+    <Image Include="res\skin\img2cloud.png" />
+    <Image Include="res\skin\imgcontact.png" />
+    <Image Include="res\skin\imgdefaultdepartment.png" />
+    <Image Include="res\skin\imgdefaultgroup.png" />
+    <Image Include="res\skin\imgdefaultorg.png" />
+    <Image Include="res\skin\imgdefaultproject.png" />
+    <Image Include="res\skin\imgdefaulttempgroup.png" />
+    <Image Include="res\skin\imgdefaultvisitor.png" />
+    <Image Include="res\skin\imgerror.png" />
+    <Image Include="res\skin\imgquestion.png" />
+    <Image Include="res\skin\imgstateaway.png" />
+    <Image Include="res\skin\imgstatebusy.png" />
+    <Image Include="res\skin\imgtip.png" />
+    <Image Include="res\skin\imgwarning.png" />
+    <Image Include="res\skin\Progress.bmp" />
+    <Image Include="res\skin\stavcspeek.png" />
+    <Image Include="res\skin\stavcvideo.png" />
+    <Image Include="res\skin\tab56X24.png" />
+    <Image Include="res\skin\tab86X49.png" />
+    <Image Include="res\skin\tab86X69.png" />
+    <Image Include="res\skin\tabaccinfo.png" />
+    <Image Include="res\skin\tabaccsetting.png" />
+    <Image Include="res\skin\tabcontact.png" />
+    <Image Include="res\skin\tabdep.png" />
+    <Image Include="res\skin\tabent.png" />
+    <Image Include="res\skin\tabselcontact.png" />
+    <Image Include="res\skin\tabselgroup.png" />
+    <Image Include="res\skin\tabselorg.png" />
+    <Image Include="res\skin\tabses.png" />
+    <Image Include="res\skin\tabsetpwd.png" />
+    <Image Include="res\skin\tabsetvideo.png" />
+    <Image Include="res\skin\Tab_ChatRight.bmp" />
+    <Image Include="res\skin\tree_closed.bmp" />
+    <Image Include="res\skin\tree_opened.bmp" />
+    <Image Include="res\skin\VideoControl_Bg.BMP" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="libebui.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="libebui.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

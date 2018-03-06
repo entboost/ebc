@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'ebvideoroom'
+		'ebvideoroom.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

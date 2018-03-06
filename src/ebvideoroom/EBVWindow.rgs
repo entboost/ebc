@@ -1,0 +1,34 @@
+HKCR
+{
+	ebvideoroom.EBVWindow.1 = s 'EBVWindow Class'
+	{
+		CLSID = s '{E9AB3479-EEC2-4656-87B9-5CF67B05BE1A}'
+	}
+	ebvideoroom.EBVWindow = s 'EBVWindow Class'
+	{
+		CLSID = s '{E9AB3479-EEC2-4656-87B9-5CF67B05BE1A}'
+		CurVer = s 'ebvideoroom.EBVWindow.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {E9AB3479-EEC2-4656-87B9-5CF67B05BE1A} = s 'EBVWindow Class'
+		{
+			ProgID = s 'ebvideoroom.EBVWindow.1'
+			VersionIndependentProgID = s 'ebvideoroom.EBVWindow'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			ForceRemove 'Control'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 103'
+			'MiscStatus' = s '0'
+			{
+			    '1' = s '%OLEMISC%'
+			}
+			'TypeLib' = s '{EB8A5629-115C-43BC-B286-2F1B8FEC3740}'
+			'Version' = s '1.0'
+		}
+	}
+}
