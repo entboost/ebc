@@ -1,7 +1,7 @@
 
 ## 服务端安装文档
-[《Linux安装》](ENTBOOST_Server_Setup_Linux.pdf)
-[《Windows安装》](ENTBOOST_Server_Setup_Windows.pdf)
+[《Linux安装》](服务端安装/ENTBOOST_Server_Setup_Linux.pdf)
+[《Windows安装》](服务端安装/ENTBOOST_Server_Setup_Windows.pdf)
 
 [《PostgreSQL数据库安装》](PostgreSQL_Setup.pdf)
 
