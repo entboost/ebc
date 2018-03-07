@@ -43,7 +43,7 @@ namespace bo
 			fs::path currentPath(fs::initial_path());
 			m_path = currentPath.string();
 		}
-		boosttpath pathRoot(m_path);
+		boosttpath pathRoot(m_path.string());
 		//boosttpath pathRoot(m_path, fs::native);
 		if (!boost::filesystem::exists(pathRoot))
 		{
@@ -68,7 +68,7 @@ namespace bo
 #endif
 
 		namespace fs = boost::filesystem;
-		boosttpath pathRoot(m_path);
+		boosttpath pathRoot(m_path.string());
 		//boosttpath pathRoot(m_path, fs::native);
 		if (!boost::filesystem::is_directory(pathRoot) ||
 			!boost::filesystem::exists(pathRoot))
@@ -154,7 +154,7 @@ namespace bo
 		if (!m_started) return database;
 
 		namespace fs = boost::filesystem;
-		boosttpath pathRoot(m_path);
+		boosttpath pathRoot(m_path.string());
 		//boosttpath pathRoot(m_path, fs::native);
 		if (!boost::filesystem::is_directory(pathRoot) ||
 			!boost::filesystem::exists(pathRoot))
@@ -164,7 +164,7 @@ namespace bo
 		tstring dbfile(m_path);
 		dbfile.append(_T("/"));
 		dbfile.append(dbname);
-		boosttpath pathDatabase(dbfile);
+		boosttpath pathDatabase(dbfile.string());
 		//boosttpath pathDatabase(dbfile, fs::native);
 		if (fs::exists(pathDatabase))
 			return database;
