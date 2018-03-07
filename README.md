@@ -1,5 +1,5 @@
 
-# 恩布协同办公、企业即时通讯软件平台
+# 恩布开源企业IM、协同办公管理平台
 + [服务端下载](http://doc.entboost.com/index.php/Downloads)
 + [恩布开源项目](http://doc.entboost.com/index.php/Im_source)
 
