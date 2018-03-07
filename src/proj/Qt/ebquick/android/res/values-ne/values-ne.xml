@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"रोक्नुहोस्"</string>
+    <string name="hms_abort_message">"डाउनलोड रोक्ने?"</string>
+    <string name="hms_cancel">"रद्द गर्नुहोस्"</string>
+    <string name="hms_check_failure">"अद्यावधिकहरू जाँच गर्न सकिएन।"</string>
+    <string name="hms_check_no_update">"तपाईं पहिले नै नवीनतम संस्करण प्रयोग गर्दै हुनुहुन्छ।"</string>
+    <string name="hms_checking">"अद्यावधिकहरू जाँच गर्दै..."</string>
+    <string name="hms_confirm">"ठीक छ"</string>
+    <string name="hms_download_failure">"Huawei मोबाइल सेवाको प्याकेज डाउनलोड गर्न सकिएन।"</string>
+    <string name="hms_download_no_space">"पर्याप्त खाली ठाउँ छैन। डाउनलोड कार्य सम्पन्न गर्न सकिँदैन।"</string>
+    <string name="hms_download_retry">"डाउनलोड गर्न सकिएन। पुन: प्रयास गर्ने हो?"</string>
+    <string name="hms_downloading">"Huawei Mobile सेवा डाउनलोड हुँदैछ | पूरा भएको: %d%%"</string>
+    <string name="hms_install">"स्थापना गर्नुहोस्"</string>
+    <string name="hms_install_message">"यो सुविधा प्रयोग गर्न अनिवार्य रूपमा Huawei मोबाइल सेवा स्थापना गर्नु पर्दछ। स्थापना गर्ने?"</string>
+    <string name="hms_retry">"पुनः प्रयास गर्नुहोस्"</string>
+    <string name="hms_update">"अद्यावधिक गर्नुहोस्"</string>
+    <string name="hms_update_message">"यो सुविधा प्रयोग गर्न Huawei मोबाइल सेवाको नवीनतम संस्करणमा अद्यावधिक गर्नुहोस्। अहिले अद्यावधिक गर्न चाहनुहुन्छ?"</string>
+    <string name="hms_update_title">"Huawei मोबाइल सेवा"</string>
+</resources>

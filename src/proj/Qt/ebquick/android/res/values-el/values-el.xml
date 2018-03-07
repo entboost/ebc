@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Διακοπή"</string>
+    <string name="hms_abort_message">"Να διακοπεί η λήψη;"</string>
+    <string name="hms_cancel">"Ακύρωση"</string>
+    <string name="hms_check_failure">"Απέτυχε ο έλεγχος για ενημερώσεις."</string>
+    <string name="hms_check_no_update">"Χρησιμοποιείτε ήδη την τελευταία έκδοση."</string>
+    <string name="hms_checking">"Έλεγχος για ενημερώσεις…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Η λήψη του πακέτου Υπηρεσιών κινητής τηλεφωνίας Huawei απέτυχε."</string>
+    <string name="hms_download_no_space">"Δεν υπάρχει αρκετός ελεύθερος χώρος. Η λήψη δεν μπορεί να ολοκληρωθεί."</string>
+    <string name="hms_download_retry">"Η λήψη απέτυχε. Επανάληψη;"</string>
+    <string name="hms_downloading">"Λήψη των Υπηρεσιών κινητής τηλεφωνίας Huawei | πρόοδος: %d%%"</string>
+    <string name="hms_install">"Εγκατάσταση"</string>
+    <string name="hms_install_message">"Πρέπει να εγκατασταθεί το στοιχείο Υπηρεσίες Huawei Mobile για τη χρήση αυτής της λειτουργίας. Να γίνει εγκατάσταση;"</string>
+    <string name="hms_retry">"Επανάληψη"</string>
+    <string name="hms_update">"Ενημέρωση"</string>
+    <string name="hms_update_message">"Για να χρησιμοποιήσετε αυτή τη λειτουργία πρέπει να κάνετε ενημέρωση στην τελευταία έκδοση των Υπηρεσιών κινητής τηλεφωνίας Huawei. Ενημέρωση τώρα;"</string>
+    <string name="hms_update_title">"Υπηρεσίες κινητής τηλεφωνίας Huawei"</string>
+</resources>

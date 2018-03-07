@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Peata"</string>
+    <string name="hms_abort_message">"Peatada allalaadimine?"</string>
+    <string name="hms_cancel">"Tühista"</string>
+    <string name="hms_check_failure">"Värskenduste kontrollimine nurjus."</string>
+    <string name="hms_check_no_update">"Kasutate juba uusimat versiooni."</string>
+    <string name="hms_checking">"Värskenduste kontrollimine…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Huawei mobiiliteenuste paketi allalaadimine nurjus."</string>
+    <string name="hms_download_no_space">"Pole piisavalt vaba ruumi. Allalaadimist ei saa lõpetada."</string>
+    <string name="hms_download_retry">"Allalaadimine nurjus. Kas proovida uuesti?"</string>
+    <string name="hms_downloading">"Huawei mobiiliteenuste allalaadimine | edenemine: %d%%"</string>
+    <string name="hms_install">"Installi"</string>
+    <string name="hms_install_message">"Selle funktsiooni kasutamiseks peab Huawei mobiiliteenused olema installitud. Installida?"</string>
+    <string name="hms_retry">"Proovi uuesti"</string>
+    <string name="hms_update">"Värskenda"</string>
+    <string name="hms_update_message">"Selle funktsiooni kasutamiseks värskendage Huawei mobiiliteenused uusimale versioonile. Kas värskendada kohe?"</string>
+    <string name="hms_update_title">"Huawei mobiiliteenused"</string>
+</resources>

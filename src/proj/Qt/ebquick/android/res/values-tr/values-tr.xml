@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Durdur"</string>
+    <string name="hms_abort_message">"İndirme durdurulsun mu?"</string>
+    <string name="hms_cancel">"İptal"</string>
+    <string name="hms_check_failure">"Güncelleme kontrolü gerçekleştirilemedi."</string>
+    <string name="hms_check_no_update">"Şu anda zaten en son sürümü kullanıyorsunuz."</string>
+    <string name="hms_checking">"Güncellemeler kontrol ediliyor..."</string>
+    <string name="hms_confirm">"Tamam"</string>
+    <string name="hms_download_failure">"Huawei Mobil Hizmetleri paketi indirilemedi."</string>
+    <string name="hms_download_no_space">"Yeterli boş alan yok. İndirme işlemi tamamlanamıyor."</string>
+    <string name="hms_download_retry">"İndirme başarısız. Tekrar denensin mi?"</string>
+    <string name="hms_downloading">"Huawei Mobil Hizmetleri indiriliyor | ilerleme: %d%%"</string>
+    <string name="hms_install">"Yükle"</string>
+    <string name="hms_install_message">"Bu özelliği kullanmak için Huawei Mobil Hizmetleri yüklü olmalıdır. Yüklensin mi?"</string>
+    <string name="hms_retry">"Tekrar dene"</string>
+    <string name="hms_update">"Güncelle"</string>
+    <string name="hms_update_message">"Bu özelliği kullanmak için Huawei Mobil Hizmetlerini son sürümüne güncelleyin. Şimdi güncellensin mi?"</string>
+    <string name="hms_update_title">"Huawei Mobil Hizmetleri"</string>
+</resources>

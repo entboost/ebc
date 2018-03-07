@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Parar"</string>
+    <string name="hms_abort_message">"Parar a transferência?"</string>
+    <string name="hms_cancel">"Cancelar"</string>
+    <string name="hms_check_failure">"Falha ao procurar atualizações."</string>
+    <string name="hms_check_no_update">"Já está a utilizar a versão mais recente."</string>
+    <string name="hms_checking">"A procurar atualizações…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Falha ao transferir o pacote do Huawei Mobile Services."</string>
+    <string name="hms_download_no_space">"Sem espaço disponível. Não é possível concluir a transferência."</string>
+    <string name="hms_download_retry">"Falha na transferência. Tentar novamente?"</string>
+    <string name="hms_downloading">"A transferir Huawei Mobile Services: %d%%"</string>
+    <string name="hms_install">"Instalar"</string>
+    <string name="hms_install_message">"O Huawei Mobile Services deve estar instalado para utilizar esta funcionalidade. Instalar?"</string>
+    <string name="hms_retry">"OK"</string>
+    <string name="hms_update">"Atualizar"</string>
+    <string name="hms_update_message">"Atualize para a versão mais recente do Huawei Mobile Services para utilizar esta funcionalidade. Atualizar?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

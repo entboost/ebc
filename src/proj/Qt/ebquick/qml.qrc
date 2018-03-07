@@ -1,0 +1,79 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Page1.qml</file>
+        <file>Page1Form.ui.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>EbButton.qml</file>
+        <file>EbLogin.qml</file>
+        <file>res/fontawesome-webfont.ttf</file>
+        <file>EbLoginSetting.qml</file>
+        <file>storage.js</file>
+        <file>EbConnectSetting.qml</file>
+        <file>EbTitleBar.qml</file>
+        <file>res/entlogo.png</file>
+        <file>EbBackAnimation.qml</file>
+        <file>EbLoginRecord.qml</file>
+        <file>EbMessageDialog.qml</file>
+        <file>EbRegister.qml</file>
+        <file>EbInputLine.qml</file>
+        <file>EbTabButton.qml</file>
+        <file>EbPage.qml</file>
+        <file>EbContactPage.qml</file>
+        <file>EbIconButton.qml</file>
+        <file>EbMyGroupPage.qml</file>
+        <file>EbGroupInfoView.qml</file>
+        <file>EbKeyFilterRectangle.qml</file>
+        <file>EbTextLine.qml</file>
+        <file>EbImageNameInfo.qml</file>
+        <file>EbGroupMemberView.qml</file>
+        <file>EbSubGroupView.qml</file>
+        <file>EbMenu.qml</file>
+        <file>EbMenuItem.qml</file>
+        <file>EbInputView.qml</file>
+        <file>EbMemberInfoView.qml</file>
+        <file>EbGenderSelect.qml</file>
+        <file>EbDateSelect.qml</file>
+        <file>EbRadioButton.qml</file>
+        <file>EbGroupListItem.qml</file>
+        <file>EbMyContactPage.qml</file>
+        <file>EbContactListItem.qml</file>
+        <file>EbImage.qml</file>
+        <file>EbContactInfoView.qml</file>
+        <file>EbContactGroupSelect.qml</file>
+        <file>EbApplicationsPage.qml</file>
+        <file>EbWebBrowser.qml</file>
+        <file>EbMyPage.qml</file>
+        <file>EbModifyPassword.qml</file>
+        <file>EbIconTextField.qml</file>
+        <file>EbMessageNotifySetting.qml</file>
+        <file>EbSwitchCheckedSelect.qml</file>
+        <file>EbAccountInfoView.qml</file>
+        <file>EbWheelBase.qml</file>
+        <file>EbDateSelectView.qml</file>
+        <file>EbAreaSelectView.qml</file>
+        <file>EbChangeHeadImageView.qml</file>
+        <file>EbMyVideoHead.qml</file>
+        <file>EbHeadImageView.qml</file>
+        <file>EbChatSessionView.qml</file>
+        <file>EbSessionsPage.qml</file>
+        <file>EbSwipeArea.qml</file>
+        <file>EbVoiceRecordView.qml</file>
+        <file>EbSearchView.qml</file>
+        <file>EbSearchResultBar.qml</file>
+        <file>EbTimerPress.qml</file>
+        <file>js/ebbase.js</file>
+        <file>EbMessageTipBar.qml</file>
+        <file>EbMenuSeparator.qml</file>
+        <file>EbUserECardInfoView.qml</file>
+    </qresource>
+    <qresource prefix="/locales">
+        <file alias="en-US.json">locales/en-US.json</file>
+        <file alias="locales.json">locales/locales.json</file>
+        <file alias="zh-CN.json">locales/zh-CN.json</file>
+        <file alias="zh-TW.json">locales/zh-TW.json</file>
+    </qresource>
+    <qresource prefix="/wav">
+        <file alias="msg.wav">wav/msg.wav</file>
+    </qresource>
+</RCC>

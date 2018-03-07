@@ -107,9 +107,14 @@ static char theAllFilesFilter[] = "All Files (*.*)|*.*||";
 ////typedef __int64				bigint;
 //typedef mycp::bigint        bigint;
 //#endif
-const double const_kb_size = 1024.0;
-const double const_mb_size = 1024*const_kb_size;
-const double const_gb_size = 1024*const_mb_size;
+#ifndef const_kb_size
+#define  const_kb_size  1024.0
+#define const_mb_size   1024*const_kb_size
+#define const_gb_size   1024*const_mb_size
+#endif
+//const double const_kb_size = 1024.0;
+//const double const_mb_size = 1024*const_kb_size;
+//const double const_gb_size = 1024*const_mb_size;
 
 #define MAKEINT64(lo, hi)    ((INT64)(((DWORD)(((INT64)(lo)) & 0xffffffff)) | ((INT64)((DWORD)(((INT64)(hi)) & 0xffffffff))) << 32))
 #define LOINT64(l)         ((DWORD)(((INT64)(l)) & 0xffffffff))

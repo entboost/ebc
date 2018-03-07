@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"중지"</string>
+    <string name="hms_abort_message">"다운로드를 중지할까요?"</string>
+    <string name="hms_cancel">"취소"</string>
+    <string name="hms_check_failure">"업데이트 확인에 실패했습니다."</string>
+    <string name="hms_check_no_update">"이미 최신 버전을 사용하고 있습니다."</string>
+    <string name="hms_checking">"업데이트 확인 중…"</string>
+    <string name="hms_confirm">"확인"</string>
+    <string name="hms_download_failure">"Huawei 모바일 서비스 패키지 다운로드에 실패했습니다."</string>
+    <string name="hms_download_no_space">"빈 공간이 부족합니다. 다운로드를 완료할 수 없습니다."</string>
+    <string name="hms_download_retry">"다운로드에 실패했습니다. 다시 시도할까요?"</string>
+    <string name="hms_downloading">"Huawei 모바일 서비스 다운로드 중 | 진행률: %d%%"</string>
+    <string name="hms_install">"설치"</string>
+    <string name="hms_install_message">"이 기능을 사용하려면 Huawei 모바일 서비스를 설치해야 합니다. 설치할까요?"</string>
+    <string name="hms_retry">"재시도"</string>
+    <string name="hms_update">"업데이트"</string>
+    <string name="hms_update_message">"이 기능을 사용하려면 Huawei 모바일 서비스를 최신 버전으로 업데이트해야 합니다. 지금 업데이트할까요?"</string>
+    <string name="hms_update_title">"Huawei 모바일 서비스"</string>
+</resources>

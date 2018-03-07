@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Стоп"</string>
+    <string name="hms_abort_message">"Зупинити завантаження?"</string>
+    <string name="hms_cancel">"Скасувати"</string>
+    <string name="hms_check_failure">"Не вдалося перевірити наявність оновлень."</string>
+    <string name="hms_check_no_update">"Ви вже використовуєте найновішу версію."</string>
+    <string name="hms_checking">"Перевірка оновлень..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Не вдалося завантажити пакет Мобільних служб Huawei."</string>
+    <string name="hms_download_no_space">"Недостатньо вільного місця. Завантаження не може бути завершено."</string>
+    <string name="hms_download_retry">"Не вдалося завантажити. Повторити спробу?"</string>
+    <string name="hms_downloading">"Завантаження Мобільних служб Huawei | виконано: %d%%"</string>
+    <string name="hms_install">"Встановити"</string>
+    <string name="hms_install_message">"Щоб використовувати цю функцію, потрібно встановити Мобільні служби Huawei. Встановити?"</string>
+    <string name="hms_retry">"Повтор"</string>
+    <string name="hms_update">"Оновити"</string>
+    <string name="hms_update_message">"Щоб використовувати цю функцію, оновіть Мобільні служби Huawei до останньої версії. Оновити зараз?"</string>
+    <string name="hms_update_title">"Мобільні служби Huawei"</string>
+</resources>

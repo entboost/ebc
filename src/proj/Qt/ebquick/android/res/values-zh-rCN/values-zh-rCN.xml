@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"终止"</string>
+    <string name="hms_abort_message">"是否终止下载？"</string>
+    <string name="hms_cancel">"取消"</string>
+    <string name="hms_check_failure">"检查华为移动服务更新失败。"</string>
+    <string name="hms_check_no_update">"华为移动服务已经是最新版本"</string>
+    <string name="hms_checking">"正在检查华为移动服务更新，请稍候..."</string>
+    <string name="hms_confirm">"知道了"</string>
+    <string name="hms_download_failure">"下载华为移动服务安装包失败。"</string>
+    <string name="hms_download_no_space">"剩余空间不足，无法下载。"</string>
+    <string name="hms_download_retry">"下载华为移动服务失败。是否重试？"</string>
+    <string name="hms_downloading">"正在下载华为移动服务 | 已完成：%d%%"</string>
+    <string name="hms_install">"安装"</string>
+    <string name="hms_install_message">"您尚未安装华为移动服务，安装之后才可用此功能。是否安装？"</string>
+    <string name="hms_retry">"重试"</string>
+    <string name="hms_update">"更新"</string>
+    <string name="hms_update_message">"华为移动服务版本太旧，更新到最新版本才可用此功能。是否更新？"</string>
+    <string name="hms_update_title">"华为移动服务"</string>
+</resources>

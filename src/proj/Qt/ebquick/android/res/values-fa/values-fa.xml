@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"توقف"</string>
+    <string name="hms_abort_message">"دانلود متوقف شود؟"</string>
+    <string name="hms_cancel">"لغو"</string>
+    <string name="hms_check_failure">"به‌روزرسانی‌های نرم‌افزار بررسی نشد."</string>
+    <string name="hms_check_no_update">"شما از قبل از آخرین نسخه استفاده می‌کنید."</string>
+    <string name="hms_checking">"در حال بررسی به‌روزرسانی‌ها..."</string>
+    <string name="hms_confirm">"تأييد"</string>
+    <string name="hms_download_failure">"دانلود بسته خدمات موبایل Huawei انجام نشد."</string>
+    <string name="hms_download_no_space">"فضای آزاد کافی موجود نيست. تکميل دانلود ممکن نيست."</string>
+    <string name="hms_download_retry">"دانلود ناموفق بود. دوباره سعی کنيد؟"</string>
+    <string name="hms_downloading">"در حال دانلود خدمات موبایل Huawei | پیشرفت: %d%%"</string>
+    <string name="hms_install">"نصب"</string>
+    <string name="hms_install_message">"برای استفاده از این ویژگی، Huawei Mobile Services باید نصب شود. نصب شود؟"</string>
+    <string name="hms_retry">"امتحان مجدد"</string>
+    <string name="hms_update">"به‌روزرسانى"</string>
+    <string name="hms_update_message">"برای استفاده از این ویژگی، به آخرین نسخه از خدمات موبایل Huawei به‌روزرسانی کنید. اکنون به‌روزرسانی شود؟"</string>
+    <string name="hms_update_title">"خدمات موبایل Huawei"</string>
+</resources>

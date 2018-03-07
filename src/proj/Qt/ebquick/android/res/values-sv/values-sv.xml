@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Stoppa"</string>
+    <string name="hms_abort_message">"Vill du stoppa hämtningen?"</string>
+    <string name="hms_cancel">"Avbryt"</string>
+    <string name="hms_check_failure">"Det gick inte att söka efter uppdateringar."</string>
+    <string name="hms_check_no_update">"Du använder redan den senaste versionen."</string>
+    <string name="hms_checking">"Söker efter uppdateringar..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Det gick inte att hämta Huawei Mobile Services-paketet."</string>
+    <string name="hms_download_no_space">"Inte tillräckligt med ledigt utrymme. Hämtningen kan inte genomföras."</string>
+    <string name="hms_download_retry">"Hämtningen misslyckades. Vill du försöka igen?"</string>
+    <string name="hms_downloading">"Hämtar Huawei Mobile Services | status: %d%%"</string>
+    <string name="hms_install">"Installera"</string>
+    <string name="hms_install_message">"Huawei Mobile Services måste vara installerad för att använda den här funktionen. Installera?"</string>
+    <string name="hms_retry">"Försök igen"</string>
+    <string name="hms_update">"Uppdatera"</string>
+    <string name="hms_update_message">"Uppdatera till den senaste versionen av Huawei Mobile Services om du vill använda den här funktionen. Vill du uppdatera nu?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

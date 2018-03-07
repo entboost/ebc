@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"עצור"</string>
+    <string name="hms_abort_message">"להפסיק את ההורדה?"</string>
+    <string name="hms_cancel">"ביטול"</string>
+    <string name="hms_check_failure">"חיפוש העדכונים נכשל."</string>
+    <string name="hms_check_no_update">"אתה כבר משתמש בגרסה העדכנית ביותר."</string>
+    <string name="hms_checking">"מחפש עדכונים…"</string>
+    <string name="hms_confirm">"אישור"</string>
+    <string name="hms_download_failure">"נכשלה ההורדה של חבילת Huawei Mobile Services."</string>
+    <string name="hms_download_no_space">"אין מספיק מקום פנוי. אין אפשרות להשלים את ההורדה."</string>
+    <string name="hms_download_retry">"ההורדה נכשלה. האם לנסות שנית?"</string>
+    <string name="hms_downloading">"מוריד את Huawei Mobile Services | התקדמות: ‪‎%d%%‬"</string>
+    <string name="hms_install">"התקן"</string>
+    <string name="hms_install_message">"יש להתקין את השירותים הניידים של Huawei כדי להשתמש בתכונה זו. להתקין?"</string>
+    <string name="hms_retry">"נסה שנית"</string>
+    <string name="hms_update">"עדכון"</string>
+    <string name="hms_update_message">"עדכן לגרסה העדכנית ביותר של Huawei Mobile Services כדי להשתמש בתכונה זו. לעדכן עכשיו?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

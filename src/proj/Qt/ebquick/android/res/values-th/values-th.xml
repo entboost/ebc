@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"หยุด"</string>
+    <string name="hms_abort_message">"หยุดการดาวน์โหลดหรือไม่"</string>
+    <string name="hms_cancel">"ยกเลิก"</string>
+    <string name="hms_check_failure">"ตรวจสอบการอัปเดตไม่สำเร็จ"</string>
+    <string name="hms_check_no_update">"คุณกำลังใช้เวอร์ชันล่าสุด"</string>
+    <string name="hms_checking">"กำลังตรวจสอบการอัปเดต..."</string>
+    <string name="hms_confirm">"ตกลง"</string>
+    <string name="hms_download_failure">"ดาวน์โหลดแพคเกจบริการมือถือ Huawei ไม่สำเร็จ"</string>
+    <string name="hms_download_no_space">"พื้นที่ว่างไม่เพียงพอ ไม่สามารถดาวน์โหลดได้อย่างสมบูรณ์"</string>
+    <string name="hms_download_retry">"ดาวน์โหลดไม่สำเร็จ ลองอีกครั้งหรือไม่"</string>
+    <string name="hms_downloading">"กำลังดาวน์โหลดบริการมือถือ Huawei | ความคืบหน้า: %d%%"</string>
+    <string name="hms_install">"ติดตั้ง"</string>
+    <string name="hms_install_message">"การบริการมือถือ Huawei จะต้องถูกติดตั้งเพื่อใช้ฟีเจอร์นี้ ติดตั้งหรือไม่"</string>
+    <string name="hms_retry">"ลองใหม่"</string>
+    <string name="hms_update">"อัปเดต"</string>
+    <string name="hms_update_message">"อัปเดตบริการมือถือ Huawei เป็นเวอร์ชันล่าสุด เพื่อใช้ฟีเจอร์นี้ อัปเดตตอนนี้หรือไม่"</string>
+    <string name="hms_update_title">"บริการมือถือ Huawei"</string>
+</resources>

@@ -50,12 +50,17 @@ static const char * theHideMainFrame  = "eb-hide-mainframe";
 static const char * theOpenFileManager  = "eb-open-filemanager";
 static const char * theMailTo  = "mailto";
 
-#ifdef Q_OS_ANDROID
-//#ifndef Q_OS_MAC
-const double const_kb_size = 1024.0;
-const double const_mb_size = 1024*const_kb_size;
-const double const_gb_size = 1024*const_mb_size;
+#ifndef const_kb_size
+#define  const_kb_size  1024.0
+#define const_mb_size   1024*const_kb_size
+#define const_gb_size   1024*const_mb_size
 #endif
+//#if defined(Q_OS_ANDROID) || defined(_QT_MAKE_)
+////#ifndef Q_OS_MAC
+//const double const_kb_size = 1024.0;
+//const double const_mb_size = 1024*const_kb_size;
+//const double const_gb_size = 1024*const_mb_size;
+//#endif
 
 const qint64 constGroupShareSubId = 1002300105;
 
