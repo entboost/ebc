@@ -1,0 +1,823 @@
+﻿{
+	"menu-bar": {
+		"window": { "text": "Window", "tooltip": "" }
+	},
+  "base-dialog": {
+  	"title": { "background-height": 40 },
+    "setting-button": { "tooltip": "Setting" },
+    "minimize-button": { "text": "Minimize", "tooltip": "Minimize" },
+    "maximize-button": { "text": "Maximize", "tooltip": "Maximize" },
+    "exit-button": { "text": "Exit", "tooltip": "Exit" },
+    "ok-button": { "text": "Ok" },
+    "yes-button": { "text": "Yes" },
+    "retry-button": { "text": "Retry" },
+    "save-button": { "text": "Save" },
+    "open-button": { "text": "Open" },
+    "abort-button": { "text": "Abort" },
+    "cancel-button": { "text": "Cancel" },
+    "close-button": {"text": "Close", "tooltip": "Close" },
+    "no-button": { "tooltip": "No" },
+    "ignore-button": { "tooltip": "Ignore" },
+    "register-button": { "text": "Registration" },
+    "new-button": { "text": "New" },
+    "request-contact": {"text": "Add", "tooltip": "Click to send an request" },
+    "add-contact-button": {"text": "Add", "tooltip": "Click to send an request" },
+    "send-msg-button": {"text": "Send", "tooltip": "Click to send a message" }
+  },
+  "line-state": {
+    "online": { "text": "Online", "tooltip": "Online" },
+    "away": { "text": "Away", "tooltip": "Away" },
+    "busy": { "text": "Busy", "tooltip": "Busy" },
+    "offline": { "text":"offline", "tooltip": "offline" }
+  },
+  "gender": {
+    "1": { "short": "Male", "name": "Male" },
+    "2": { "short": "Female", "name": "Female" }
+  },
+  "day-of-week": {
+  	"0": { "short":"Sun.", "name":"Sunday" },
+  	"1": { "short":"Mon.", "name":"Monday" },
+  	"2": { "short":"Tues.", "name":"Tuesday" },
+  	"3": { "short":"Wed.", "name":"Wednesday" },
+  	"4": { "short":"Thur.", "name":"Thursday" },
+  	"5": { "short":"Fri.", "name":"Friday" },
+  	"6": { "short":"Sat.", "name":"Saturday" }
+  },
+  "group-name": {
+  	"0": { "short":"Department", "name":"Department", "member": "Member", "manager": "Department Manager" },
+  	"1": { "short":"Project", "name":"Project", "member": "Member", "manager": "Project Manager" },
+  	"2": { "short":"Groups", "name":"M ", "member": "Member", "manager": "Group Manager" },
+  	"9": { "short":"Discussions", "name":"Discussions", "member": "Member", "manager": "Discussions Manager" }
+  },
+  "web-engine-view" : {
+  	"zoom": "Zoom",
+	  "context-menu": {
+	  	"back": { "text": "Back(&B)", "tooltip": "" },
+	  	"forward": { "text": "Forward(&F)", "tooltip": "" },
+	  	"stop": { "text": "Stop", "tooltip": "" },
+	  	"reload": { "text": "Reload(&R)", "tooltip": "" },
+	  	
+	  	"open-link-in-new-tab": { "text": "Open link in new tab(&T)", "tooltip": "" },
+	  	"open-link-in-new-window": { "text": "Open link in new window(&W)", "tooltip": "" },
+	  	"download-link": { "text": "Save link as(&K)...", "tooltip": "" },
+	  	"copy-link": { "text": "Copy link address(&E)", "tooltip": "" },
+	  	
+	  	"download-image": { "text": "Save image as(&V)...", "tooltip": "" },
+	  	"copy-image": { "text": "Copy image(&Y)", "tooltip": "" },
+	  	"copy-image-link": { "text": "Copy image address(&O)", "tooltip": "" },
+	  	
+	  	"copy": { "text": "Copy(&C)", "tooltip": "" },
+	  	
+	  	"saveas": { "text": "Save as(&A)...", "tooltip": "" },
+	  	"print": { "text": "Print(&P)...", "tooltip": "" },
+	  	
+	  	"find": { "text": "Find", "tooltip": "" },
+	  	"view-source": { "text": "View page source(&V)...", "tooltip": "" },
+	  	"inspect-element": { "text": "Inspect(&N)...", "tooltip": "" }
+		}
+  },
+  "context-menu": {
+  	"send-ecard": { "text": "Send Business Card", "tooltip": "" },
+  	"delete-session-msg": { "text": "Delete Message Notification(&D)", "tooltip": "" },
+  	
+  	"delete-session-chat": { "text": "Delete The Session Record(&D)", "tooltip": "" },
+  	"clear-session": { "text": "Empty The Session Record", "tooltip": "" },
+  	
+  	"add-contact": { "text": "Add Contact", "tooltip": "" },
+  	"edit-contact": { "text": "View Profile", "tooltip": "" },
+  	"move-contact-to": { "text": "Move Contact To", "tooltip": "" },
+  	"delete-contact": { "text": "Delete Contact", "tooltip": "" },
+  	"add-contact-group": { "text": "Add Category", "tooltip": "" },
+  	"rename-contact-group": { "text": "Modify Category", "tooltip": "" },
+  	"delete-contact-group": { "text": "Delete Category", "tooltip": "" },
+  	
+  	"system-manager": { "text": "Management Center", "tooltip": "" },
+  	"new-sub-group": { "text": "Add Sub-group[GROUP_TYPE_NAME]", "tooltip": "" },
+  	
+    "add-member": { "text": "Add Member", "tooltip": "" },
+  	"new-group": { "text": "Create [GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-group": { "text": "Edit [GROUP_TYPE_NAME] information", "tooltip": "" },
+  	"delete-group": { "text": "Disband [GROUP_TYPE_NAME]", "tooltip": "" },
+  	"exit-group": { "text": "Quit [GROUP_TYPE_NAME]", "tooltip": "" },
+  	"edit-my-member": { "text": "Modify Contact", "tooltip": "" },
+  	"edit-user-member": { "text": "Modify Contact", "tooltip": "" },
+  	"new-member": { "text": "Create [GROUP_TYPE_MEMBER]", "tooltip": "" },
+  	"del-member": { "text": "Delete Member", "tooltip": "" },
+  	"open-chat": { "text": "Send Messages(&C)", "tooltip": "" },
+  	"chat-record": { "text": "View Messsage History", "tooltip": "" },
+  	"group-share": { "text": "Group Sharing(&S)", "tooltip": "" },
+  	"member-add-admin": { "text": "Add Administrator  Privileges", "tooltip": "" },
+  	"member-del-admin": { "text": "Remove Administrator Privileges", "tooltip": "" },
+  	"group-add-forbid-speech": { "text": "Group Ban", "tooltip": "" },
+  	"group-del-forbid-speech": { "text": "Remove Group Ban", "tooltip": "" },
+  	"member-del-forbid-speech": { "text": "Remove Ban", "tooltip": "" },
+  	"member-forbid-speech": {
+  			"text": "Ban",
+  			"10": "10 Minutes",
+  			"60": "1 Hour",
+  			"720": "12 Hour",
+  			"1440": "1 Day",
+  			"0": "Permanent"
+		},
+  	"my-collection": { "text": "Favorite", "tooltip": "" },
+  	"open-frame-list": { "text": "Open The Workbench", "tooltip": "" },
+    "logout": { "text": "Logout", "tooltip": "Logout" },
+    "quit": { "text": "Exit", "tooltip": "Exit" }
+  },
+  "name-text": {
+  	"group-chat": "Group chat",
+  	"more": "More",
+  	"detail": "Detail",
+  	"mobile": "Mobile",
+  	"tel": "Tel",
+  	"fax": "Fax",
+  	"email": "Email",
+  	"url": "Homepage",
+  	"address": "Address",
+  	"no-apps": "No Application",
+  	"mail-type-contact": "Email Contact",
+  	"unname-group": "Unnamed Category",
+  	"default-group-name": "Default Category",
+  	"visitor": "Visitor",
+  	"text": "Text",
+  	"file": "File",
+    "ecard": "ECard",
+    "album": "Album",
+  	"shoot": "Shoot",
+  	"image": "Image",
+  	"yesterday": "Yesterday",
+  	"year": "Year",
+  	"month": "Month",
+  	"date": "Date",
+  	"day": "Day",
+  	"hour": "Hour",
+  	"minute": "Minute"
+  },
+  "color-skin": {
+  	"select-color": {"text": "Select A Color...","tooltip":"" },
+  	"colors": [
+	  	{"name": "Purple", "r": 163, "g": 73, "b": 164},  
+			{"name": "Indigo", "r": 63, "g": 72, "b": 204},   
+			{"name": "Blue", "r": 0, "g": 162, "b": 232},   
+			{"name": "Green", "r": 34, "g": 177, "b": 76},   
+			{"name": "Brown", "r": 185, "g": 122, "b": 87},  
+			{"name": "Orange", "r": 255, "g": 127, "b": 39},  
+			{"name": "Red", "r": 237, "g": 28, "b": 36},   
+			{"name": "Rose Color", "r": 255, "g": 174, "b": 201},
+			{"name": "Grey Blue", "r": 112, "g": 146, "b": 190},
+			{"name": "Dark Gray", "r": 96, "g": 96, "b": 96}    
+  	]
+  },
+  "login-dialog": {
+  	"window-size": { "width": 288, "height": 588 },
+    "window-text": "[PRODUCT_NAME]-Login Interface",
+    "edit-account": { "bg-text": "Enter account/Email" },
+    "edit-password": { "bg-text": "Enter Password" },
+    "checkbox-savepwd": { "text": "Remember password", "tooltip": "Remember password" },
+    "checkbox-autorun": { "text": "Login automatically" },
+    "button-logon": { "text": "Login", "tooltip": "Login" },
+    "button-visitor-logon": { "text": "Visitor", "tooltip": "Click to Login" },
+    "button-delete-account": { "tooltip": "Delete account information" },
+    "button-register": {
+      "text": "Register",
+      "tooltip": "Click to register"
+    },
+    "button-forget-pwd": {
+      "text": "Forgot?",
+      "tooltip": "Click to reset the password"
+    },
+    "button-connect-setting": {
+      "text": "Setting",
+      "tooltip": "Click to set Server Address"
+    }
+  },
+  "message-tip-dialog": {
+    "title": "Message Notification",
+    "button-ignore-item": { "tooltip": "Ignore" },
+    "button-ignore-all": { "text":"Ignore All", "tooltip": "" },
+    "button-view-all": { "text":"View All", "tooltip": "" }
+  },
+  "group-info-dialog": {
+  	"title": "[GROUP_TYPE_NAME] information",
+    "label-group-name": { "label": "[GROUP_TYPE_NAME] name", "text": "[GROUP_TYPE_NAME]:" },
+    "edit-group-name": { "bg-text": "Please input [GROUP_TYPE_NAME]"},
+    "label-manager": { "text": "[GROUP_TYPE_MANAGER]:" },
+    "set-manager": { "label": "Set [GROUP_TYPE_MANAGER]" },
+    "label-manager-user-name": { "tooltip": "Click to modify [GROUP_TYPE_MANAGER]" },
+    "label-tel": { "label": "Tel", "text": "Tel:" },
+    "label-fax": { "label": "Fax", "text": "Fax:" },
+    "label-email": { "label": "Email", "text": "Email:" },
+    "label-url": { "label": "Homepage", "text": "Homepage:" },
+    "label-address": { "label": "Adderss", "text": "Address:" },
+    "label-display-index": { "text": "Sort No.:" },
+    "label-description": { "label": "Remark", "text": "Remark:" },
+    "label-parent-group": { "label": "Parent Group"},
+    "label-sub-group": { "label": "Child Group"},
+    "label-enterprise": { "label": "Company"}    
+  },
+  "member-info-dialog": {
+    "title": "[GROUP_TYPE_MEMBER] information",
+    "label-user-head": { "tooltip": "Click to change icon" },
+    "label-account": { "label": "Account", "text": "Account:" },
+    "edit-account": {
+      "tooltip": "Account",
+      "bg-text": "** Enter account **"
+    },
+    "label-group-name": { "label": "[GROUP_TYPE_NAME]", "text": "[GROUP_TYPE_NAME]:" },
+    "label-enterprise": { "label": "Company" },
+    "label-user-name": { "label": "Name", "text": "Name:" },
+    "edit-user-name": {
+      "tooltip": "User name",
+      "bg-text": "Enter user name"
+    },
+    "label-job-title": { "label": "Office", "text": "Office:" },
+    "label-gender": { "label": "Gender", "text": "Gender:" },
+    "label-job-position": { "label": "Position", "text": "Position:" },
+    "label-birthday": { "label": "Birthday", "text": "Birthday:" },
+    "date-birthday": { "format": "yyyy MM dd" },
+    "label-tel": { "label": "Tel", "text": "Tel:" },
+    "label-phone": { "label": "Phone", "text": "Phone:" },
+    "label-fax": { "label": "Fax", "text": "Fax:" },
+    "label-email": { "label": "Email", "text": "Email:" },
+    "label-display-index": { "text": "Sort No.:" },
+    "label-address": { "label": "Address", "text": "Address:" },
+    "label-description": { "label": "Personal Message", "text": "Personal Message:" },
+
+    "edit-account": { "tooltip": "Enter a new account", "bg-text": "Enter a new account"},
+    "button-default-member": { "text-0":"Set As Default", "text-1":"Default Business Card", "tooltip": "The default business card is used to display in the chat window." }
+  },
+  "request-add-contact-dialog": {
+    "title": "Add as a contact",
+    "edit-description": {
+      "tooltip": "",
+      "bg-text": "Please enter the verification information."
+    }
+  },
+  "contact-info-dialog": {
+    "title": "Contact information",
+    "label-contact": { "label": "Contact", "text": "Contact:" },
+    "edit-contact": {
+      "tooltip": "Contact Account",
+      "bg-text": "** Please enter the contact account **"
+    },
+    "label-group-name": { "label": "Category", "text": "Category:" },
+    "label-user-name": { "label": "Name", "text": "Name:" },
+    "edit-user-name": {
+      "tooltip": "User name",
+      "bg-text": "** Please enter the contact name **"
+    },
+    "label-phone": { "label": "Phone", "text": "Phone:" },
+    "label-enterprise": { "label": "Company", "text": "Company:" },
+    "label-job-title": { "label": "Office", "text": "Office:" },
+    "label-url": { "label": "Homepage", "text": "Homepage:" },
+    "label-tel": { "label": "Tel", "text": "Tel:" },
+    "label-email": { "label": "Email", "text": "Email:" },
+    "label-fax": { "label": "Fax", "text": "Fax:" },
+    "label-address": { "label": "Address", "text": "Address:" },
+    "label-description": { "label": "Remark", "text": "Remark:" },
+    "button-add-contact": { "text": "Add","tooltip": "Click to send an request" }
+  },
+  "register-dialog": {
+    "title": "Register New Account",
+    "label-account": { "text": "Account:" },
+    "label-password": { "text": "Password:" },
+    "label-confirm": { "text": "Password repeat:" },
+    "label-user-name": { "text": "Name:" },
+    "label-ent-name": { "text": "Company Name:" },
+    "edit-account": { "tooltip": "Please enter an account!", "bg-text": "Please enter an account!"}
+  },
+  "on-appid-response": {
+  	"not-support-version" : {"title": "", "text": "Does not support:<br>Please update the client and try again!"},
+  	"timeout-error": { "title": "Verify the APPID", "text": "Timeout please try again after restarting the program or check the network or server address and try again!<br>Error Code: [STATE_CODE]" },
+  	"other-error": { "title": "Verify the APPID", "text": "Verify the A is failed please try again after restarting the program or check the network or server address!<br>Error Code: [STATE_CODE]" }
+
+  },
+  "on-group-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "Create successful:<br>[GROUP_NAME]([GROUP_ID])"},
+  	"edit-state-ok" : {"title": "", "text": "Modified successfully:<br>[GROUP_NAME]([GROUP_ID])"},
+  	"not-auth-error" : {"title": "", "text": "Permission denied:<br>Please contact the administrator!"},
+  	"other-error" : {"title": "", "text": "Operation failed,Please try again or contact customer service:<br>Error Code: [STATE_CODE]"}
+  },
+  "on-member-edit-response": {
+  	"new-state-ok" : {"title": "", "text": "Create successful!"},
+  	"edit-state-ok" : {"title": "", "text": "Modified successfully!"},
+  	"oauth-forward" : {"title": "", "text": "Invite successful:<br>Waiting for validation!"},
+  	"not-auth-error" : {"title": "", "text": "Permission denied:<br>Please contact the administrator!"},
+  	"account-already-exist" : {"title": "", "text": "Account exists:<br>Please enter a new account!"},
+  	"another-ent-account" : {"title": "", "text": "Another company has occupied:<br>Please enter a new account!"},
+  	"other-error" : {"title": "", "text": "Operation failed,Please try again or contact customer service:<br>Error Code: [STATE_CODE]"}
+  },
+  "on-register-response": {
+  	"ok-send-mail" : {"title": "", "text": "Register successful:<br>Please check your emails, complete account verification!"},
+  	"ok-login" : {"title": "", "text": "Register successful:\r\nPlease use \"[ACCOUNT]\" or \"[USERID]\" to login!"},
+  	"not-auth-error": {"title": "", "text": "Permission denied:<br>Please try again or contact customer service!"},
+  	"number-not-auth" : {"title": "", "text": "Pure numbers are not supported:<br>Please enter other account to try again!"},
+  	"content-big-length" : {"title": "", "text": "Exceed the maximum length:<br>Please enter again!"},
+  	"error" : {"title": "", "text": "Register failed:<br>Please try again or contact customer service!"},
+  	"account-already-exist" : {"title": "", "text": "Account exists:<br>Please enter other account!"},
+  	"enterprise-already-exist" : {"title": "", "text": "Company name exists:<br>Please enter other name!"},
+  	"appid-key-error" : {"title": "", "text": "APPID KEY error:<br>Please try again or contact customer service!"},
+  	"disable-register-account" : {"title": "", "text": "Disable user registration:<br>Please contact customer service!"},
+  	"disable-register-ent" : {"title": "", "text": "Disable enterprise registration:<br>Please contact customer service!"},
+  	"disable-register-account" : {"title": "", "text": "Disable user registration:<br>Please contact customer service!"},
+  	"other-error" : {"title": "", "text": "Register failed Please try again or contact customer service:<br>Error Code: [STATE_CODE]"}
+  },
+  "on-logon-response": {
+  	"unauth-error" : {"title": "", "text": "Your account is not yet activated please check your email to activate your account!<br>Error Code: [STATE_CODE]"},
+  	"account-freeze" : {"title": "", "text": "Account has been temporarily frozen. Please contact customer service!<br>Error Code: [STATE_CODE]"},
+  	"max-retry-error" : {"title": "", "text": "Too many incorrect,the account has been temporarily locked, please try again later!<br>Error Code: [STATE_CODE]"},
+  	"not-auth-error" : {"title": "", "text": "Permission denied!<br>Error Code: [STATE_CODE]"},
+  	"account-not-exist" : {"title": "", "text": "Account does not exist, please try again!<br>Error Code: [STATE_CODE]"},
+  	"acc-pwd-error" : {"title": "", "text": "Account number or password is incrrect, please try again!<br>Error Code: [STATE_CODE]"},
+  	"logon-timeout" : {"title": "", "text": "Timeout,Please try again!<br>Error Code: [STATE_CODE]"},
+  	"appid-key-error" : {"title": "Login Failed", "text": "APPID KEY error, please try again!<br>Error Code: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "Login failed, Please try again!<br>Error Code: [STATE_CODE]"}
+	},
+  "on-send-file": {
+  	"group-forbid-speech" : {"title": "", "text": "Group Ban:<br>Can not send group file!"},
+  	"forbid-speech" : {"title": "", "text": "You have been banned in:<br>Can not send group file!"},
+  	"not-auth-error" : {"title": "", "text": "You have been banned in:<br>Can not send group file!"},
+  	"file-big-long" : {"title": "", "text": "File size exceeds the maximum limit:<br>Please send a small file!"},
+  	"timeout-error" : {"title": "", "text": "Send file failed:<br>Please try again!"},
+  	"not-member-error" : {"title": "", "text": "No other group members:<br>Can not send file!"},
+  	"other-error" : {"title": "", "text": "Send file failed, please check and try again!<br>Error Code: [STATE_CODE]"}
+ 
+  },
+
+  "on-call-response": {
+  	"account-not-exist" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) does not exist!"},
+  	"user-offline" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) is offline!"},
+  	"unauth-error" : {"title": "", "text": "Account:<br>[USER_ACCOUNT]([USER_ID]) is not verified!"},
+  	"account-freeze" : {"title": "", "text": "Account:<br>[USER_ACCOUNT]([USER_ID]) has been temporarily frozen!"},
+  	"max-retry-error" : {"title": "", "text": "Too many incorrect:<br>The account has been temporarily locked, please try again later!"},
+  	"user-busy" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) Busy!"},
+  	"timeout-error" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) session timeout!"},
+  	"user-hangup" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) cancled session!"},
+  	"account-disable-offcall" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) is offline and opened the function of shielding receive an offline message!"},
+  	"account-disable-extcall" : {"title": "", "text": "User:<br>[USER_ACCOUNT]([USER_ID]) opened the function of shielding Cross-enterprise chat!"},
+  	"oauth-forward" : {"title": "", "text": "Operation is successful, please wait for :<br>[USER_ACCOUNT]([USER_ID]) pass validation!"},
+  	"other-error" : {"title": "", "text": "Request session :<br>[USER_ACCOUNT]([USER_ID]) Failed<br>Error Code: [STATE_CODE]"}
+  },
+  "on-editinfo-response": {
+  	"modify-password-ok" : {"title": "", "text": "Password modified successfully:<br>Please login again"},
+  	"modify-password-error" : {"title": "", "text": "Password modified failed, please try again!<br>Error Code: [STATE_CODE]"},
+  	"state-ok" : {"title": "", "text": "Personal information modified successfully!"},
+  	"acc-pwd-error" : {"title": "", "text": "Password is incorrect, please try again!<br>Error Code: [STATE_CODE]"},
+  	"other-error" : {"title": "", "text": "Personal information modified failed, please try again!<br>Error Code: [STATE_CODE]"}
+  },
+  "account-info-widget" : {
+  	"label-account": { "label": "Account", "text": "Account:" },
+  	"label-name": { "label": "Name", "text": "Name:" },
+  	"label-gender": { "label": "Gender", "text": "Gender:" },
+  	"label-birthday": { "label": "Birthday", "text": "Birthday:" },
+  	"date-birthday": { "format": "yyyy  MM  dd" },
+  	"label-phone": { "label": "Phone", "text": "Phone:" },
+  	"label-tel": { "label": "Tel", "text": "Tel:" },
+  	"label-email": { "label": "Email", "text": "Email:" },
+  	"label-url": { "label": "Homepage", "text": "Homepage:" },
+  	"label-area": { "label": "Location", "text": "Location:" },
+  	"label-address": { "label": "Address", "text": "Address:" },
+  	"label-zipcode": { "label": "Zipcode", "text": "Zipcode:" },
+  	"label-description": { "label": "Remarks", "text": "Remarks:" }
+  },
+
+  "my-center-dialog": {
+    "title": "Personal Center",
+    "button-account-info": { "text": "Information", "tooltip": ""},
+    "button-my-setting": { "text": "Setting", "tooltip": "" },
+    "button-message-notify": { "text": "Message notify", "tooltip": "" },
+    "button-modify-password": { "text": "Password", "tooltip": "" },
+    "button-video-setting": { "text": "Video", "tooltip": "" },
+    "account-info-widget" : {
+    	"label-account": { "text": "Account:" },
+    	"label-name": { "text": "Name:" },
+    	"label-gender": { "text": "Gender:" },
+    	"label-birthday": { "text": "Birthday:" },
+    	"date-birthday": { "format": "yyyy  MM  dd" },
+    	"label-phone": { "text": "Phone:" },
+    	"label-tel": { "text": "Tel:" },
+    	"label-email": { "text": "Email:" },
+    	"label-url": { "text": "Homepage:" },
+    	"label-area": { "text": "Location:" },
+    	"label-address": { "text": "Address:" },
+    	"label-zipcode": { "text": "Zipcode:" },
+    	"label-description": { "text": "Remarks:" }
+    },
+    "modify-password-widget" : {
+    	"label-current-password": { "text": "Old Password:", "bg-text": "Current password" },
+    	"label-new-password": { "text": "New Password:", "bg-text": "New password" },
+    	"label-confirm-password": { "text": "Password repeat:", "bg-text": "Password repeat" }
+    },
+    "video-setting-widget" : {
+    	"combo-video-devices": { "tooltip": "Select a video device, open the preview video and set it as the default video call device." },
+    	"button-open": { "text": "Open", "tooltip": "Open the preview video" },
+    	"button-close": { "text": "Close", "tooltip": "Close video" }
+    },
+    "button-default-member": { "text": "Default Business Card", "tooltip": "Displays the default contact information" }
+  },
+  "select-user-dialog": {
+    "title": "Select User",
+    "button-group": { "text": "Department", "tooltip": ""},
+    "button-contact": { "text": "Contact", "tooltip": "" },
+    "button-enterprise": { "text": "Company", "tooltip": "" },
+    "edit-search": { "bg-text": "Serch: user、account、contact", "tooltip": "Enter keywords" },
+    "label-selected": { "text": "Selected User:" },
+    "button-add": { "tooltip": "Add" },
+    "button-delete": { "tooltip": "Delete" }
+  },
+  "change-head-dialog": {
+    "title": "Change Icon",
+    "button-default": { "text": "Default Icon", "tooltip": ""},
+    "button-custom": { "text": "Customer Profile Picture", "tooltip": "" },
+    "button-open-file": { "text": "Local Picture", "tooltip": "Click to select a local picture." },
+    "button-open-video": { "text": "Open Video", "tooltip": "" },
+    "button-ok": { "text": "Change" },
+    "open-file-dialog": { "caption": "Select local image", "filter":"Image" },
+    "label-image-file-tip": { "text": "Image File" },
+    "label-image-result-tip": { "text": "Preview" }
+  },
+  "connect-setting-dialog": {
+    "title": "Connection Setting",
+    "label-server-address": { "text": "Server address:" },
+    "edit-server-address": {
+      "tooltip": "Format:IP:PORT (Domain:PORT) ; eg: 192.168.10.100:18012",
+      "bg-text": "Blank will connect to the Entboost environment!"
+    }
+  },
+  "pop-tip-dialog": {
+  	"0": { "title": "Verification Message", "button": {"text": "My Message", "tooltip": "Click to view my message" } },
+  	"1": { "title": "Notification Message", "button": {"text": "My Message", "tooltip": "Click to view my message" } },
+  	"2": { "title": "Broadcast Message", "button": {"text": "My Message", "tooltip": "Click to view my message" } },
+  	"type-bc-message": "Broadcast Message\n[MESSAGE_TITLE]",
+  	"type-request-join-to-group": "Verification Message:\n[USER_ACCOUNT] Apply to join group[GROUP_ID]",
+  	"type-invite-join-to-group": "Verification Message:\n[USER_ACCOUNT] Invite to join group[GROUP_ID]",
+  	"type-group-message": "Verification Message:\nAccount\"[USER_ACCOUNT]\" Group\"[GROUP_ID]\"",
+  	"type-request-add-contact": "Verification Message:\n[USER_ACCOUNT] Apply to add as a contact person",
+  	"type-rejest-add-contact": "Notification Message:\n[USER_ACCOUNT] Refuse to add as a contact person",
+  	"request-add-to-group": "<font color=\"#6c6c6c\">User:[USER_ACCOUNT]<br>Apply to join group:[GROUP_ID]<br>P.S.:[DESCRIPTION]</font>",
+  	"invite-add-to-group": "<font color=\"#6c6c6c\">User:[USER_ACCOUNT]<br>Invite to join group:[GROUP_NAME]<br>P.S.:[DESCRIPTION]</font>",
+  	"request-add-contact": "<font color=\"#6c6c6c\">User:[USER_ACCOUNT]<br>Apply to add as a contact person<br>P.S.:[DESCRIPTION]</font>",
+  	"reject-add-contact": "<font color=\"#6c6c6c\">User:[USER_ACCOUNT]<br>Refuse to add as a contact<br>P.S.:[DESCRIPTION]</font>",
+  	"accept-add-contact": "<font color=\"#6c6c6c\">User:[CONTACT_NAME]<br>Add contact successful</font>"
+  },
+  "chat-msg-text": {
+  	"visitor": "Visitor",
+  	"text": "Text",
+  	"image": "Image",
+  	"voice": "Voice",
+  	"map-pos": "Map Postion",
+  	"user-ecard": "Personal business card",
+  	"user-data": "User-defined data",
+  	"file": "File",
+  	"download": "Download",
+  	"group-share": "Grop Shareing",
+    "new-message": "New Message",
+
+  	"history-msg-separate": "-------- The above is the history message  --------",
+  	"group-video-reqeust-ok": "Open the video and join the video conference...",
+  	"video-reqeust-ok": "Invite the other to video chat...",
+  	"group-video-ack-ok": "Video conferencing request successful!”!",
+  	"group-video-ack-error": "Video conferencing request failed!",
+  	"video-ack-ok": "Accept video chat, Video chat...",
+  	"member-video-request": "[MEMBER_NAME] open the video...",
+  	"dest-video-request": "Other video chat invite...",
+  	"member-video-accept": "[MEMBER_NAME] open the video...",
+  	"dest-video-accept": "The other accept video chat, Video chat...",
+  	"member-video-exit": "[MEMBER_NAME] exit the video conference",
+  	"dest-video-reject": "Refused video Chat",
+  	"video-request-timeout": "Video chat timeout",
+  	"member-video-close": "[MEMBER_NAME] close the video",
+  	"local-video-close": "Close the video",
+  	"video-end": "Video chat ends",
+  	
+  	"file-not-exist": "File does not exist",
+  	"file-saveas-ok": "Save success",
+  	"voice-msg": "Voice messages",
+  	"voice-msg-not-exist": "Voice messages does not exist",
+  	"voice-msg-format-error": "Voice messages wrong format",
+
+  	"save2-cloud-ok": "Save to personal cloud success!",
+  	"save2-cloud-error": "Save to personal cloud fail!([STATE_CODE])",
+  	"down-file-ok": "Download successful",
+  	"receive-file-ok": "Received successfully",
+  	"send-file-ok": "Send successfully",
+  	"send-group-file": "Upload to group sharing",
+  	"send-off-file-ok": "Send offline file successfully",
+  	"change-p2p-sending": "the other is online, using P2P",
+  	"send-file": "Send file",
+  	"cancel-file": "Cancle",
+  	"dest-send-off-file": "The other send offline file",
+  	"dest-send-file": "The other send file",
+  	"dest-reject-file": "The other refused to receive",
+  	"dest-receive-file": "The other has received the file",
+  	"user-reject-file": "Refused to receive",
+  	"user-receive-file": "Received the file",
+  	"on-user-exit": "The other has exited this conversation!",
+  	"on-alerting-call": "The other has exited this conversation!, re-invite, please wait ...!",
+    "send-rich-timeout": "Send timeout, please waiting or check the WIFI and retry.",
+    "send-rich-error": "Send timeout, please waiting or check the WIFI and retry.",
+  	
+  	"max-capacity-error": "Exceed the maximum length!",
+  	"group-forbid-speech": "Group ban...",
+  	"forbid-speech": "You are banned!",
+  	"your-forbid-speech": "You are banned",
+  	"your-forbid-speech-forever": "You are permanently banned:",
+  	"your-delete-forbid-speech": "Ban release:",
+  	"group-delete-forbid-speech": "Group ban release:",
+  	"group-forbid-speech-tip": "Group ban, group administrators can send messages:",
+  	"excess-quota-error": "Send failed, the other's offline message is full!",
+  	"not-member-error": "No other group members, can not send chat messages!",
+  	"send-rich-error": "Send failed, please try again!Error Code: [STATE_CODE]"
+  },
+  "withdraw-msg-response": {
+  	"state-ok": "Request to recall a message!",
+  	"state-ok-update": "[Recalled a message]",
+  	"other-error": "Messages that send more than 2 minutes:<br>Can not be recalled!",
+  	"msg-receipt-dest": "The other has recalled a message!",
+  	"msg-receipt-group": "[USER_NAME] has recalled a message!"
+  },
+  "message-show": {
+    "logon-another": "Already logon another.",
+  	"finger-up-cancel": "Finger quick up, cancel send",
+  	"press-again-exit": "Press again exit",
+  	"video-not-auth-error": "No video conferencing permissions:<br>Please contact customer service!",
+  	"video-excess-quota-error": "Exceeds the number of video conferencing users:<br>Please contact customer service!",
+  	"video-devices-empty-tip": "Can not find video device:<br>Please check again and try again!",
+  	"open-video-device-error": "Open video camera failed:<br>Check that the camera is not in use or other hardware failure!",
+  	"open-mic-device-error": "Open the microphone failed:<br>Please check whether the microphone is occupied or other hardware failure!",
+  	"disable-group-share-tip": "Disable Group Sharing:<br>Please use one-to-one chat window to send files!",
+  	"forbid-send-ecard-tip": "Banned:<br>Can not send business card!",
+  	"forbid-send-file-tip": "Banned:<br>Can not send file!",
+  	"add-user-not-auth": "No administrator privileges:<br>Can not invite contacts!",
+  	"file-exclusive-error": "The file is occupied:<br>Please close the file and try again!",
+  	"collect-msg-ok": "Message added successfully!",
+  	"collect-msg-not-auth": "No operating privileges:<br>Message added failed!",
+  	"collect-msg-error": "The message does not exist or has been deleted:<br>Message added failed!",
+  	"withdraw-msg-ok": "[Recalled a message]",
+  	"withdraw-msg-dest": "[USER_NAME] has recalled a message!",
+  	"withdraw-msg-error": "Messages that send more than 2 minutes:<br>Can not be recalled!",
+  	"new-email-tip":"New Email:",
+  	"unread-email-tip":"You have [%1] unread email!\nView!",
+  	"clear-chrome-cache-ok":"Google Chrome cache cleared successfully",
+  	"group-empty-error": "The name of [GROUP_TYPE_NAME] can not be empty:<br>Please enter a name!",
+  	"remove-from-group": "You are removed by the administrator:<br>[GROUP_NAME]([GROUP_ID])",
+  	"delete-group": "[GROUP_NAME] ([GROUP_ID])<br>Has been disbanded!",
+  	"delete-has-sub-group": "Sub-department exists:<br>[GROUP_TYPE_NAME] can not be disbanded!",
+  	"delete-group-has-member": "[GROUP_TYPE_MEMBER] is not empty:<br>Can not be disbanded!",
+  	"member-exit-group": "[USER_NAME]([USER_ACCOUNT])<br>Has been quitted from [GROUP_NAME]([GROUP_ID])",
+  	"delete-logon-account-error": "Deleting user data failed:<br>Please try again!",
+  	"account-empty-error": "Account can not be empty:<br>Please enter an account!",
+  	"user-name-empty-error": "The user name can not be empty:<br>Please enter a name!",
+  	"contact-name-empty-error": "The contact name can not be empty:<br>Please enter a name!",
+  	"not-support-auth-contact": "Contact verification is not open:<br>Please contact the administrator!",
+  	"account-exist-error": "[USER_ACCOUNT] already exists<br>Please enter a new account!",
+  	"account-format-error": "Account format error:<br>Please enter a new account!",
+  	"password-empty": "Password can not be empty:<br>Please enter a password!",
+  	"current-pwd-empty": "The current password can not be empty:<br>Please enter the password!",
+  	"new-pwd-empty": "The new password can not be empty:<br>Please enter the password!",
+  	"confirm-pwd-empty": "Password repeat can not be empty:<br>Please enter the password!",
+  	"password-not-equal": "Passwords do not match:<br>Please try again!",
+  	"password-equal-warning": "The new password is the same as the old password:<br>Please enter aggin!",
+  	"ebum-start-error": "Start local service failed:<br>Please try again!",
+  	"open-image-error": "Open image file failed:<br>Please try again!",
+  	"image-save-error": "Image conversion failed:<br>Please try again!",
+  	"head-image-too-large": "The image file exceed 500k 500KB:<br>Please select a new image!"
+  },
+  "message-box": {
+  	"delete-contact-empty-group": { "title": "Delete Category", "text": "Are you sure you want to delete \"[GROUP_NAME]\"?" },
+  	"delete-contact-group": { "title": "Delete Category", "text": "Are you sure to delete \"[GROUP_NAME]\"?" },
+  	"delete-download-file": { "title": "Delete File", "text": "Are you sure to delete the file:<br>\"[FILE_NAME]\" and delete its download record?" },
+  	"delete-chat-file": { "title": "Delete File", "text": "Are you sureto delete the file:\"[FILE_NAME]\" and delete its download record?" },
+  	"clear-session": { "title": "Empty the session record", "text": "Are you sure to empty all session and chat record?" },
+  	"clear-group-chat-record": { "title": "Empty the chat record", "text": "Are you sure to empty the chat record of \"[GROUP_NAME]\"?" },
+  	"clear-user-chat-record": { "title": "Empty the chat record", "text": "Are you sure to empty the chat record of \"[USER_NAME]([USER_ID])\"?" },
+  	"delete-session-group-chat": { "title": "Delete chat", "text": "Are you sure to delete the local chat record of \"[GROUP_NAME]\"?" },
+  	"delete-session-user-chat": { "title": "Delete chat", "text": "Are you sure to delete the local chat record of \"[USER_NAME]([USER_ID])\"?" },
+  	"clear-session-group-chat-record": { "title": "Empty the chat record", "text": "The session record has been deledted. Are you sure to empty the local chat record of \"[GROUP_NAME]\"?" },
+  	"clear-session-user-chat-record": { "title": "Empty the chat record", "text": "The session record has been deledted. Are you sure to empty the local chat record of \"[USER_NAME]([USER_ID])\"?" },
+  	"creator-exit-group": { "title": "Quit [GROUP_TYPE_NAME]", "text": "Are you sure to disband the group:\"[GROUP_NAME]\"?" },
+  	"member-exit-group": { "title": "Quit [GROUP_TYPE_NAME]", "text": "Are you sure to quite from \"[GROUP_NAME]\"?" },
+  	"video-chat-exit-chat": { "title": "Close chatting", "text": "Video chatting:<br>Are you sure to close the chat?" },
+  	"tran-file-exit-chat": { "title": "Close chatting", "text": "Transmitting file:<br>Are you sure to close the chat?" },
+  	"delete-chat-msg": { "title": "Delete chat history", "text": "Are you sure to delete the history message?" },
+  	"clear-all-history": { "title": "Clear all browsing history", "text": "Are you sure to clear all browsing history?" },
+  	"clear-chrome-cache": { "title": "Clear Chrome cache", "text": "Are you sure to clear Chrome cache?" },
+  	"delete-member": { "title": "Remove members", "text": "Are you sure to remove \"[USER_ACCOUNT]([USER_ID])\"?" },
+  	"delete-auth-contact": { "title": "Delete contact", "text": "Are you sure to delete \"[USER_NAME]([USER_ACCOUNT])\"?" },
+  	"delete-contact": { "title": "Delete contact", "text": "Are you sure to delete \"[USER_NAME]([USER_ACCOUNT])\"?" },
+  	"exit-group": { "title": "Quit [GROUP_TYPE_NAME]", "text": "Are you sure to quite from \"[GROUP_NAME]([GROUP_ID])\"?" },
+  	"delete-group": { "title": "Disband [GROUP_TYPE_NAME]", "text": "Are you sure to disband \"[GROUP_NAME]([GROUP_ID])\"?" },
+  	"change-server": { "title": "Modify the server address", "text": "It will take effect after re-load:<br>Are you sure to load immediately??" },
+  	"delete-logon-account": { "title": "Delete the login information", "text": "Are you sure to delete the account and chat record of \"[USER_ACCOUNT]([USER_ID])\"?" },
+  	"not-support-visitor": { "title": "", "text": "Visitor login does not support:<br>Please contact customer service!" },
+  	"ebc-file-error": { "title": "", "text": "The current installation directory file is corrupt:<br>Please re-install or contact customer service!" }
+  },
+  "main-frame": {
+  	"window-size": { "0": {"width": 1180, "height": 668}, "1" : {"width": 288, "height": 568} },
+    "window-text": "[PRODUCT_NAME]-Login Interface",
+    "label-user-head": { "tooltip": "Click to open the personal center" },
+    "edit-user-description": { "bg-text": "[Personal Message]", "tooltip": "Edit Personal Message" },
+    "up-button-my-center": { "tooltip": "Personal center" },
+    "up-button-file-manager": { "tooltip": "File management" },
+    "up-button-my-share": { "tooltip": "Personal cloud" },
+    "up-button-apps": { "tooltip": "Integrated Application" },
+    "edit-search": { "bg-text": "Search users, browse history, App(/)", "tooltip": "Search" },
+    "mid-button-my-group": { "text": "Groups", "tooltip": "Departments/Groups/Discussions) " },
+    "mid-button-my-contact": { "text": "Contacts", "tooltip": "Contacts" },
+    "mid-button-my-session": { "tooltip": "Chats" },
+    "mid-button-my-ent": { "text": "Company", "tooltip": "Company" },
+    "mid-button-my-app": { "tooltip": "My Apps" },
+    "button-call": { "text": "", "tooltip": "Send Messages" },
+    "button-edit": { "text": "", "tooltip": "Modify my business card" },
+    "button-select": { "text": "", "tooltip": "Add" },
+    "button-add-contact": { "text": "", "tooltip": "Add to my contacts" },
+    "button-delete-session": { "text": "Delete", "tooltip": "Delete the session record" },
+    "delete-chat": { "label": "Delete chat" },
+    "main-phone" : {
+    	"chat": "Chat",
+    	"contact": "Contact",
+    	"application": "Application",
+    	"me": "Me"
+    	}
+
+  },
+  "emotion-select-dialog": {
+    "title": "Emoticon"
+  },
+  "find-text-frame": {
+    "edit-search": { "bg-text": "Find..." },
+    "button-up": { "tooltip": "Back" },
+    "button-down": { "tooltip": "Forward" },
+    "button-close": { "tooltip": "Close the search bar" }
+  },
+  "search-bar": {
+    "button-back": { "tooltip": "Back" },
+    "button-forward": { "tooltip": "Forward" },
+    "button-refresh": { "tooltip": "Reload" },
+    "button-stop": { "tooltip": "Stop loading" },
+    "button-options": { "tooltip": "Option" },
+    "options-menu" : {
+  		"save-url-history": { "text": "Save the current browsing history", "tooltip": "" },
+  		"clear-all-history": { "text": "Clear all browsing history...", "tooltip": "" },
+  		"clear-chrome-cache": { "text": "Clear Chrome local cache...", "tooltip": "" }
+   	}
+  },
+  "search-result": {
+    "context-menu" : {
+    	"copy": { "text": "Copy(&C)", "tooltip": "" },
+   	  "delete": { "text": "Delete(&D)", "tooltip": "" },
+   	  "open-chat": { "text": "Send Messages", "tooltip": "" }
+   	}
+  },
+  "file-manager": {
+  	"title" : "File management",
+  	"button-traning-file": { "text": "Send","tooltip": "" },
+  	"button-traned-file": { "text": "Receive","tooltip": "" },
+  	"edit-search": { "bg-text": "Searching files","tooltip": "" },
+  	"button-refresh": { "text": "Refresh","tooltip": "" },
+  	"button-delete-file": { "tooltip": "Delete" },
+  	"button-open-file": { "tooltip": "Open" },
+  	"button-open-dir": { "tooltip": "Open Directory" }
+ 	},
+  "tran-file": {
+  	"title" : "File Transfer",
+  	"button-save-cloud": { "text": "Cloud","tooltip": "Save to my cloud" },
+  	"button-save-as": {
+  		"text": "Save as...","tooltip": "Save the file to the specified directory",
+  		"file-dialog": { "caption": "Save the file", "filter": "All file" }
+  	},
+  	"button-save": { "text": "Save","tooltip": "Save the file to the default directory" },
+  	"button-reject": { "text": "Refuse","tooltip": "Refuse to receive file" },
+  	"button-reject-cancel": { "text": "Cancle","tooltip": "Stop to receive file" },
+  	"button-off-send": { "text": "Offline","tooltip": "Send offline file" },
+  	"button-cancel-send": { "text": "Cancle","tooltip": "Cancel send" },
+  	"button-cancel-down": { "text": "Cancle","tooltip": "Cancel download" }
+ 	},
+  "user-info": {
+  	"title": "Business card",
+    "label-user-name": { "text": "Name:" },
+    "label-account": { "text": "Account:" },
+    "label-tel": { "text": "Tel:" },
+    "label-phone": { "text": "Phone:" },
+    "label-email": { "text": "Email:" },
+    "label-job-title": { "text": "Office:" },
+    "label-group-name": { "text": "Department:" },
+    "label-enterprise": { "text": "Company:" },
+    "label-address": { "text": "Address:" },
+    "button-add-contact": { "text": "Add","tooltip": "Click Add a contact" }
+  },
+  "user-list": {
+  	"title": "Group Members"
+  },
+  "chat-record": {
+  	"title": "Chat Records",
+  	"button-view-all": { "text": "All", "tooltip": "" },
+  	"button-view-image": { "text": "Image", "tooltip": "" },
+  	"button-view-file": { "text": "File", "tooltip": "" },
+  	"button-view-audio": { "text": "Voice", "tooltip": "" },
+  	"button-view-text": { "text": "Text", "tooltip": "" },
+  	"edit-search": { "bg-text": "Serch...", "tooltip": "" },
+  	"button-clear-all": { "text": "Empty", "tooltip": "Delete all local chats for the current session" },
+  	"checkbox-online-msg": { "text": "View Roaming Messages", "tooltip": "View Roaming Messages" },
+  	"date-search": { "format": "yyyy MM dd " },
+  	"button-move-first": { "tooltip": "First" },
+  	"button-move-prev": { "tooltip": "Back" },
+  	"button-move-next": { "tooltip": "Forward" },
+  	"button-move-last": { "tooltip": "Last" }
+  },
+  "video-frame": {
+  	"title": "Video Panel",
+  	"button-on-group": { "text": "Open Video", "tooltip": "Open Video" },
+  	"button-end-group": { "text": "Close Video", "tooltip": "Close Video" },
+  	"button-group-join": { "text": "Join", "tooltip": "Join a video conference" },
+  	"button-group-exit": { "text": "Exit", "tooltip": "Exit the video conference" },
+  	"button-accept": { "text": "Accept", "tooltip": "Accept the video chat" },
+  	"button-end": { "text": "End", "tooltip": "End the video chat" },
+  	"button-reject": { "text": "Refuse", "tooltip": "Refuse the video chat" }
+  },
+  "work-frame": {
+  	"user-list": { "text": "Group Members", "tooltip": "Member List" },
+  	"about-blank": { "text": "Tab" },
+    "button-showhide-show": { "tooltip": "Show application navigation bar" },
+    "button-showhide-hide": { "tooltip": "Hide the application navigation bar" },
+    "button-add": { "tooltip": "New tab" }
+  },
+  "frame-list": {
+  	"window-size": { "width": 1180, "height": 668 },
+  	"work-frame" : {"text": "Workbench", "tooltip": "Workbench" },
+  	"main-frame" : {"text": "Contact", "tooltip": "" },
+    "button-showhide-show": { "tooltip": "Show the panel" },
+    "button-showhide-hide": { "tooltip": "Hide the panel" },
+    "context-menu" :
+    	{
+    		"show-icon-only": { "text": "Only icons are displayed", "tooltip": "" },
+    		"open-work-frame": { "text": "Open the workbench", "tooltip": "" }
+    	}
+  },
+  "chat-base-dialog": {
+  	"button-add-user": { "label": "Invite user", "tooltip": "Create Discussion" },
+  	"button-send-file": { "tooltip": "Send Files" },
+  	"button-video-chat": { "tooltip": "Start Video Chat" },
+  	"button-group-video": { "tooltip": "Start Video Conference" },
+  	"button-group-share": { "tooltip": "Group Sharing" },
+  	"button-chat-apps": { "tooltip": "Integrated Application" },
+  	"button-exit-chat": { "tooltip": "Exit" }
+  },
+  "chat-input-widget": {
+  	"button-emotion": { "tooltip": "Send an expression" },
+  	"button-msg-record": { "label": "Message History", "tooltip": "Show Message History" },
+  	"button-close": { "text": "Close(&C)",  "tooltip": "Close" },
+  	"press-speech": { "label": "Press speech" },
+  	"button-send": {
+  		"label": "Send",
+  		"text": "Send(&S)",
+  		"tooltip": { "1": "Press Enter to send the message, Press Ctrl+Enter to wrap", "2": "Press Ctrl+Enter to send the message, Press Enter to wrap" },
+  		"switch-menu" : { "1": "Press Enter to send the message", "2": "Press Ctrl+Enter to send the message" }
+  	}  	
+  },
+  "chat-toolbar": {
+  	"selected-text": {
+  		"copy": { "text": "Copy", "tooltip": "Copy the selection text to the clipboard" },
+        "forward": { "text": "Forward", "tooltip": "" },
+  		"saveas": {
+  			"text": "Save as...", "tooltip": "Save the selection text to a text fiel.",
+  			"file-dialog": { "caption": "Save to a text file", "filter": "Text" }
+  		}
+  	},
+  	"point-image": {
+  		"open": { "text": "Open", "tooltip": "Open image" },
+  		"open-dir": { "text": "Open Directory", "tooltip": "Open the image file directory" },
+  		"copy": { "text": "Copy", "tooltip": "Copy the image to the clipboard" },
+  		"saveas": {
+  			"text": "Save as...", "tooltip": "Saving image as" ,
+  			"file-dialog": { "caption": "Save the image to a file", "filter": "Image" }
+  		}
+  	},
+  	"point-file": {
+  		"open": { "text": "Open", "tooltip": "Open file" },
+  		"open-dir": { "text": "Open Directory", "tooltip": "Open the file directory" },
+  		"copy": { "text": "Copy", "tooltip": "Copy the file to the clipboard" },
+  		"saveas": {
+  			"text": "Save as...", "tooltip": "Saving file as" ,
+  			"file-dialog": { "caption": "Save as", "filter": "All" }
+  		}
+  	},
+  	"point-user-head": {
+  		"delete": { "text": "Delete", "tooltip": "Delete the local chat message" },
+  		"collect": { "text": "Favorite", "tooltip": "Add a message to favorites" },
+  		"withdraw": { "text": "Recall", "tooltip": "Recall a message" }
+  	}
+
+  },
+  "message-notify-setting" : {
+  	"title": "Message notify setting", 
+  	"new-message-notify": "New message notify", 
+  	"detail-message-notify": "View message detail", 
+  	"voice": "Voice",
+  	"vibrate": "Vibrate",
+  	"checked": "Open",
+  	"uncheck": "Close"
+ 
+  }
+  
+}

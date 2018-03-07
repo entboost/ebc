@@ -334,7 +334,11 @@ public:
 	int ReLogon(void);
 	int m_nLoadSubFunc;
 	void LoadInfo(int nLoadSubFunc=1,int nLoadMsg=1,int nLoadGroupVer=0,mycp::bigint nLoadOLSGroupId=0, int nLoadEntGroupOLS=0,int nLoadUserGroupOLS=0, mycp::bigint nLoadGroupOLSGid=0, const tstring& sLoadGroupOLSGid="");
+<<<<<<< HEAD
     void Logout(bool bAcceptPush=true);
+=======
+    void Logout(bool acceptPush);
+>>>>>>> develop
 
 	int GetSubGroupMemberSize(eb::bigint nParentGroupId) const;
 	bool GetSubGroupMemberSize(eb::bigint nParentGroupId, int& pOutMemberSize, int& pOutOnlineSize) const;

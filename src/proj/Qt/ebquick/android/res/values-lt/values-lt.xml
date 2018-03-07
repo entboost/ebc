@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Sustabdyti"</string>
+    <string name="hms_abort_message">"Ar stabdyti atsisiuntimą?"</string>
+    <string name="hms_cancel">"Atšaukti"</string>
+    <string name="hms_check_failure">"Nepavyko patikrinti, ar yra naujinių."</string>
+    <string name="hms_check_no_update">"Jūs jau naudojate naujausią versiją."</string>
+    <string name="hms_checking">"Tikrinama, ar yra naujinių..."</string>
+    <string name="hms_confirm">"Gerai"</string>
+    <string name="hms_download_failure">"Nepavyko atnaujinti „Huawei“ mobiliųjų paslaugų paketo."</string>
+    <string name="hms_download_no_space">"Neužtenka laisvos vietos. Negalima atsisiųsti."</string>
+    <string name="hms_download_retry">"Atsisiųsti nepavyko. Bandyti dar kartą?"</string>
+    <string name="hms_downloading">"Atsisiunčiamos „Huawei“ mobiliosios paslaugos | eiga: %d%%"</string>
+    <string name="hms_install">"Įdiegti"</string>
+    <string name="hms_install_message">"Norint naudotis šia funkcija, turi būti įdiegta „Huawei Mobile Services“. Ar įdiegti?"</string>
+    <string name="hms_retry">"Bandyti dar kartą"</string>
+    <string name="hms_update">"Naujinti"</string>
+    <string name="hms_update_message">"Atnaujinkite į naujausią „Huawei“ mobiliųjų paslaugų versiją, kad galėtumėte naudotis šia funkcija. Naujinti dabar?"</string>
+    <string name="hms_update_title">"„Huawei“ mobiliosios paslaugos"</string>
+</resources>

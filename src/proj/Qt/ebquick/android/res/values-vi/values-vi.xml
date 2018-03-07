@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Dừng"</string>
+    <string name="hms_abort_message">"Bạn muốn dừng tải về?"</string>
+    <string name="hms_cancel">"Hủy"</string>
+    <string name="hms_check_failure">"Kiểm tra cập nhật thất bại."</string>
+    <string name="hms_check_no_update">"Bạn đang sử dụng phiên bản mới nhất."</string>
+    <string name="hms_checking">"Đang kiểm tra cập nhật..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Thất bại tải về gói Dịch vụ Di động Huawei."</string>
+    <string name="hms_download_no_space">"Không đủ không gian trống. Không thể hoàn tất tải về máy."</string>
+    <string name="hms_download_retry">"Tải về thất bại. Thử lại?"</string>
+    <string name="hms_downloading">"Đang tải về Dịch vụ Di động Huawei | tiến độ: %d%%"</string>
+    <string name="hms_install">"Cài đặt"</string>
+    <string name="hms_install_message">"Bạn cần cài đặt Dịch vụ Di động Huawei mới có thể sử dụng tính năng này. Cài đặt?"</string>
+    <string name="hms_retry">"Thử lại"</string>
+    <string name="hms_update">"Cập nhật"</string>
+    <string name="hms_update_message">"Để sử dụng tính năng này bạn cần cập nhật phiên bản mới nhất của Dịch vụ Di động Huawei. Cập nhật ngay?"</string>
+    <string name="hms_update_title">"Dịch vụ Di động Huawei"</string>
+</resources>

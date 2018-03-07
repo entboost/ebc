@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Zatrzymaj"</string>
+    <string name="hms_abort_message">"Zatrzymać pobieranie?"</string>
+    <string name="hms_cancel">"Anuluj"</string>
+    <string name="hms_check_failure">"Nie udało się sprawdzić aktualizacji."</string>
+    <string name="hms_check_no_update">"Używasz obecnie najnowszej wersji."</string>
+    <string name="hms_checking">"Sprawdzanie dostępność aktualizacji…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Pobieranie pakietu Mobilnych usług Huawei nie powiodło się."</string>
+    <string name="hms_download_no_space">"Za mało wolnego miejsca. Nie można dokończyć pobierania."</string>
+    <string name="hms_download_retry">"Pobieranie nie powiodło się. Spróbować ponownie?"</string>
+    <string name="hms_downloading">"Pobieranie Mobilnych usług Huawei | postęp: %d%%"</string>
+    <string name="hms_install">"Zainstaluj"</string>
+    <string name="hms_install_message">"Należy zainstalować Mobilne usługi Huawei, aby korzystać z tej funkcji. Zainstalować?"</string>
+    <string name="hms_retry">"Ponów"</string>
+    <string name="hms_update">"Aktualizuj"</string>
+    <string name="hms_update_message">"Zaktualizuj Mobilne usługi Huawei do najnowszej wersji, aby użyć tej funkcji. Zaktualizować teraz?"</string>
+    <string name="hms_update_title">"Mobilne usługi Huawei"</string>
+</resources>

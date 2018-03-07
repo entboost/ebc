@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Stoppen"</string>
+    <string name="hms_abort_message">"Download stoppen?"</string>
+    <string name="hms_cancel">"Annuleren"</string>
+    <string name="hms_check_failure">"Controleren op updates mislukt."</string>
+    <string name="hms_check_no_update">"U hebt al de meest recente versie."</string>
+    <string name="hms_checking">"Bezig met controleren op updates…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Kan pakket Huawei Mobile Services niet downloaden."</string>
+    <string name="hms_download_no_space">"Onvoldoende vrije ruimte. Download kan niet worden voltooid."</string>
+    <string name="hms_download_retry">"Downloaden mislukt. Opnieuw proberen?"</string>
+    <string name="hms_downloading">"Bezig met downloaden Huawei Mobile Services | voortgang: %d%%"</string>
+    <string name="hms_install">"Installeren"</string>
+    <string name="hms_install_message">"Voor het gebruik van deze functie moet Huawei Mobile Services worden geïnstalleerd. Installeren?"</string>
+    <string name="hms_retry">"Opnieuw proberen"</string>
+    <string name="hms_update">"Bijwerken"</string>
+    <string name="hms_update_message">"Voer een update uit naar de nieuwste versie van Huawei Mobile Services om deze functie te gebruiken. Nu updaten?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

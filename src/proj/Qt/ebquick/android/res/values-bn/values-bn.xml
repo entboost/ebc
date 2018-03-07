@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"থামুন"</string>
+    <string name="hms_abort_message">"ডাউনলোড থামাবেন?"</string>
+    <string name="hms_cancel">"বাতিল করুন"</string>
+    <string name="hms_check_failure">"আপডেট আছে কিনা পরীক্ষা করা গেল না।"</string>
+    <string name="hms_check_no_update">"আপনি ইতিমধ্যেই সাম্প্রতিক সংস্করণটি ব্যবহার করছেন।"</string>
+    <string name="hms_checking">"আপডেট আছে কিনা দেখা হচ্ছে..."</string>
+    <string name="hms_confirm">"ওকে"</string>
+    <string name="hms_download_failure">"Huawei মোবাইল পরিষেবা প্যাকেজ ডাউনলোড করা গেল না।"</string>
+    <string name="hms_download_no_space">"পর্যাপ্ত মুক্ত স্থান নেই। ডাউনলোড শেষ করতে পারা যাবে না।"</string>
+    <string name="hms_download_retry">"ডাউনলোড করা গেল না। আবার চেষ্টা করবেন?"</string>
+    <string name="hms_downloading">"Huawei মোবাইল পরিষেবা ডাউনলোড হচ্ছে | প্রগতি: %d%%"</string>
+    <string name="hms_install">"ইন্সটল করুন"</string>
+    <string name="hms_install_message">"এই বৈশিষ্ট্য ব্যবহার করতে, Huawei মোবাইল পরিষেবা অবশ্যই ইন্সটল করতে হবে। ইন্সটল করবেন?"</string>
+    <string name="hms_retry">"পুনরায় চেষ্টা করুন"</string>
+    <string name="hms_update">"আপডেট করুন"</string>
+    <string name="hms_update_message">"এই বৈশিষ্ট্যটি ব্যবহার করতে, Huawei মোবাইল পরিষেবার সাম্প্রতিক সংস্করণে আপডেট করুন। এখন আপডেট করবেন?"</string>
+    <string name="hms_update_title">"Huawei মোবাইল পরিষেবা"</string>
+</resources>

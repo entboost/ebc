@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Остановить"</string>
+    <string name="hms_abort_message">"Остановить загрузку?"</string>
+    <string name="hms_cancel">"Отмена"</string>
+    <string name="hms_check_failure">"Сбой проверки обновлений."</string>
+    <string name="hms_check_no_update">"Вы используете последнюю версию."</string>
+    <string name="hms_checking">"Проверка обновлений..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Сбой загрузки пакета мобильных служб Huawei."</string>
+    <string name="hms_download_no_space">"Недостаточно памяти. Невозможно завершить загрузку."</string>
+    <string name="hms_download_retry">"Сбой загрузки. Повторить попытку?"</string>
+    <string name="hms_downloading">"Загрузка мобильных служб Huawei | выполнено: %d%%"</string>
+    <string name="hms_install">"Установить"</string>
+    <string name="hms_install_message">"Для использования этой функции необходимо установить мобильные службы Huawei. Установить?"</string>
+    <string name="hms_retry">"Повтор"</string>
+    <string name="hms_update">"Обновить"</string>
+    <string name="hms_update_message">"Чтобы использовать эту функцию, необходимо обновить мобильные службы Huawei до последней версии. Обновить?"</string>
+    <string name="hms_update_title">"Мобильные службы Huawei"</string>
+</resources>

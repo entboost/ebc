@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Спыніць"</string>
+    <string name="hms_abort_message">"Спыніць спампоўку?"</string>
+    <string name="hms_cancel">"Адмяніць"</string>
+    <string name="hms_check_failure">"Не ўдалося праверыць наяўнасць абнаўленняў."</string>
+    <string name="hms_check_no_update">"Вы ўжо карыстаецеся апошняй версіяй."</string>
+    <string name="hms_checking">"Праверка абнаўленняў…"</string>
+    <string name="hms_confirm">"ОК"</string>
+    <string name="hms_download_failure">"Не атрымалася спампаваць пакет Паслуг Мабільнай Сувязі Huawei."</string>
+    <string name="hms_download_no_space">"Недастаткова свабоднага месца. Немагчыма завяршыць спампоўку."</string>
+    <string name="hms_download_retry">"Памылка падчас спампоўкі. Паўтарыць спробу?"</string>
+    <string name="hms_downloading">"Спампоўка пакета Паслуг Мабільнай Сувязі Huawei | прагрэс: %d%%"</string>
+    <string name="hms_install">"Усталяваць"</string>
+    <string name="hms_install_message">"Для карыстання гэтай функцыяй неабходна ўсталяваць Мабільныя сэрвісы Huawei. Усталяваць?"</string>
+    <string name="hms_retry">"Паўтарыць"</string>
+    <string name="hms_update">"Абнавіць"</string>
+    <string name="hms_update_message">"Абнавіцеся да апошняй версіі Паслуг Мабільнай Сувязі Huawei, каб выкарыстоўваць гэту функцыю. Абнавіць зараз?"</string>
+    <string name="hms_update_title">"Паслугі Мабільнай Сувязі Huawei"</string>
+</resources>

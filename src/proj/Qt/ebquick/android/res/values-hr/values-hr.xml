@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Zaustavi"</string>
+    <string name="hms_abort_message">"Prekinuti preuzimanje?"</string>
+    <string name="hms_cancel">"Odustani"</string>
+    <string name="hms_check_failure">"Provjera ažuriranja nije uspjela."</string>
+    <string name="hms_check_no_update">"Već rabite najnoviju verziju."</string>
+    <string name="hms_checking">"U tijeku je provjera ažuriranja…"</string>
+    <string name="hms_confirm">"U redu"</string>
+    <string name="hms_download_failure">"Preuzimanje paketa Huawei Mobilne usluge nije uspjelo."</string>
+    <string name="hms_download_no_space">"Nema dovoljno slobodnog prostora. Nije moguće dovršiti preuzimanje."</string>
+    <string name="hms_download_retry">"Preuzimanje nije uspjelo. Pokušati ponovno?"</string>
+    <string name="hms_downloading">"Preuzimanje Huawei Mobilnih usluga | napredak: %d%%"</string>
+    <string name="hms_install">"Instaliraj"</string>
+    <string name="hms_install_message">"Da biste mogli koristiti ovu značajku Huawei mobilne usluge moraju biti instalirane. Instalirati?"</string>
+    <string name="hms_retry">"Pokušaj opet"</string>
+    <string name="hms_update">"Ažuriraj"</string>
+    <string name="hms_update_message">"Ažurirajte na najnoviju verziju Huawei Mobilnih usluga kako biste mogli koristiti ovu značajku. Ažurirati sada?"</string>
+    <string name="hms_update_title">"Huawei Mobilne usluge"</string>
+</resources>

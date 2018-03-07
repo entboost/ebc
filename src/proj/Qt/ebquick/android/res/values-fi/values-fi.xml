@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Lopeta"</string>
+    <string name="hms_abort_message">"Pysäytetäänkö lataus?"</string>
+    <string name="hms_cancel">"Peruuta"</string>
+    <string name="hms_check_failure">"Päivitysten tarkistaminen epäonnistui."</string>
+    <string name="hms_check_no_update">"Käytössä on jo uusin versio."</string>
+    <string name="hms_checking">"Tarkistetaan päivityksiä…"</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Huawein mobiilipalvelupaketin lataus epäonnistui."</string>
+    <string name="hms_download_no_space">"Vapaa tila ei riitä. Latausta ei voi suorittaa."</string>
+    <string name="hms_download_retry">"Lataaminen epäonnistui. Yritetäänkö uudelleen?"</string>
+    <string name="hms_downloading">"Huawein mobiilidatapalveluja ladataan | edistyminen: %d%%"</string>
+    <string name="hms_install">"Asenna"</string>
+    <string name="hms_install_message">"Huawei-mobiilipalvelut pitää olla asennettuna, jotta tätä ominaisuutta voi käyttää. Asennetaanko?"</string>
+    <string name="hms_retry">"Yritä uudelleen"</string>
+    <string name="hms_update">"Päivitä"</string>
+    <string name="hms_update_message">"Päivitä Huawein mobiilipalvelujen uusimpaan versioon, jotta voit käyttää tätä ominaisuutta. Päivitetäänkö nyt?"</string>
+    <string name="hms_update_title">"Huawein mobiilipalvelut"</string>
+</resources>

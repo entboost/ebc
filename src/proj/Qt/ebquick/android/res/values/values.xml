@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hms_background">#f7f7f7</color>
+    <color name="hms_black">#000000</color>
+    <dimen name="hms_dialog_padding">15dp</dimen>
+    <dimen name="hms_textview_jump_size">14sp</dimen>
+    <string name="hms_abort">Stop</string>
+    <string name="hms_abort_message">Stop downloading?</string>
+    <string name="hms_cancel">Cancel</string>
+    <string name="hms_check_failure">Failed to check for updates.</string>
+    <string name="hms_check_no_update">You are already using the latest version.</string>
+    <string name="hms_checking">Checking for updates…</string>
+    <string name="hms_confirm">OK</string>
+    <string name="hms_download_failure">Failed to download Huawei Mobile Services package.</string>
+    <string name="hms_download_no_space">Not enough free space. Download cannot be completed.</string>
+    <string name="hms_download_retry">Download failed. Try again?</string>
+    <string name="hms_downloading">Downloading Huawei Mobile Services\nprogress: %d%%</string>
+    <string name="hms_install">Install</string>
+    <string name="hms_install_message">Huawei Mobile Services must be installed to use this feature. Install?</string>
+    <string name="hms_retry">Retry</string>
+    <string name="hms_update">Update</string>
+    <string name="hms_update_message">Update to the latest version of Huawei Mobile Services to use this feature. Update now?</string>
+    <string name="hms_update_title">Huawei Mobile Services</string>
+</resources>

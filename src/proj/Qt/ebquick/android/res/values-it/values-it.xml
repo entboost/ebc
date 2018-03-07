@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Interrompi"</string>
+    <string name="hms_abort_message">"Vuoi interrompere il download?"</string>
+    <string name="hms_cancel">"Annulla"</string>
+    <string name="hms_check_failure">"Ricerca aggiornamenti non riuscita."</string>
+    <string name="hms_check_no_update">"La versione più aggiornata è già in uso."</string>
+    <string name="hms_checking">"Ricerca aggiornamenti..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Impossibile scaricare il pacchetto Huawei Mobile Services."</string>
+    <string name="hms_download_no_space">"Spazio insufficiente. Impossibile completare il download."</string>
+    <string name="hms_download_retry">"Download non riuscito. Vuoi riprovare?"</string>
+    <string name="hms_downloading">"Download Huawei Mobile Services | avanzamento: %d%%"</string>
+    <string name="hms_install">"Installa"</string>
+    <string name="hms_install_message">"Per l\'utilizzo della funzione occorre installare Servizi mobili Huawei. Vuoi installare?"</string>
+    <string name="hms_retry">"Riprova"</string>
+    <string name="hms_update">"Aggiorna"</string>
+    <string name="hms_update_message">"Aggiorna Huawei Mobile Services all\'ultima versione per utilizzare questa funzione. Vuoi aggiornare ora?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

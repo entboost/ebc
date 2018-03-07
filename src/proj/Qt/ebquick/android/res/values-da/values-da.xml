@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Stop"</string>
+    <string name="hms_abort_message">"Vil du stoppe download?"</string>
+    <string name="hms_cancel">"Annullér"</string>
+    <string name="hms_check_failure">"Kunne ikke søge efter opdateringer."</string>
+    <string name="hms_check_no_update">"Du bruger allerede den nyeste version."</string>
+    <string name="hms_checking">"Søger efter opdateringer..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Kunne ikke downloade Huawei Mobile Services-pakken."</string>
+    <string name="hms_download_no_space">"Ikke nok ledig plads. Download kan ikke fuldføres."</string>
+    <string name="hms_download_retry">"Download mislykkedes. Vil du prøve igen?"</string>
+    <string name="hms_downloading">"Downloader Huawei Mobile Services | status: %d%%"</string>
+    <string name="hms_install">"Installér"</string>
+    <string name="hms_install_message">"Huawei Mobile Services skal være installeret for at benytte denne funktion. Installér?"</string>
+    <string name="hms_retry">"Prøv igen"</string>
+    <string name="hms_update">"Opdatér"</string>
+    <string name="hms_update_message">"Opdatér til den nyeste version af Huawei Mobile Services for at kunne benytte denne funktion. Opdatér nu?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>

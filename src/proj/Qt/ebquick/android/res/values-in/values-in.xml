@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Hentikan"</string>
+    <string name="hms_abort_message">"Hentikan pengunduhan?"</string>
+    <string name="hms_cancel">"Batal"</string>
+    <string name="hms_check_failure">"Gagal memeriksa pembaruan."</string>
+    <string name="hms_check_no_update">"Anda sudah menggunakan versi terbaru."</string>
+    <string name="hms_checking">"Memeriksa pembaruan..."</string>
+    <string name="hms_confirm">"OK"</string>
+    <string name="hms_download_failure">"Gagal mengunduh paket Layanan Seluler Huawei."</string>
+    <string name="hms_download_no_space">"Ruang kosong tidak cukup. Pengunduhan tidak dapat diselesaikan."</string>
+    <string name="hms_download_retry">"Pengunduhan gagal. Coba lagi?"</string>
+    <string name="hms_downloading">"Mengunduh Layanan Seluler Huawei | kemajuan: %d%%"</string>
+    <string name="hms_install">"Pasang"</string>
+    <string name="hms_install_message">"Layanan Seluler Huawei harus dipasang untuk dapat menggunakan fitur ini. Pasang?"</string>
+    <string name="hms_retry">"Coba lagi"</string>
+    <string name="hms_update">"Perbarui"</string>
+    <string name="hms_update_message">"Perbarui ke versi terbaru Layanan Seluler Huawei untuk menggunakan fitur ini. Perbarui sekarang?"</string>
+    <string name="hms_update_title">"Layanan Seluler Huawei"</string>
+</resources>

@@ -745,7 +745,7 @@ CUserManagerApp::~CUserManagerApp(void)
 //	abctest1(12);
 //#endif
 	LogoutAppCenter();
-	Logout();
+    Logout(true);
 	m_pUserManager.reset();
 	m_pLogonCenter.reset();
 	m_pAppCenter.reset();
@@ -1805,14 +1805,22 @@ void CUserManagerApp::LoadInfo(int nLoadSubFunc,int nLoadMsg,int nLoadGroupVer,m
 		}
 	}
 }
+<<<<<<< HEAD
 void CUserManagerApp::Logout(bool bAcceptPush)
+=======
+void CUserManagerApp::Logout(bool acceptPush)
+>>>>>>> develop
 {
 	// 必须放在前面处理
 	if (m_userStatus == US_Logging || m_userStatus == US_Logoned)
 	{
 		if (m_pUserManager.get() != NULL)
 		{
+<<<<<<< HEAD
             m_pUserManager->SendUMSMOffline(bAcceptPush);
+=======
+            m_pUserManager->SendUMSMOffline(acceptPush);
+>>>>>>> develop
 		}
 		m_userStatus = US_Logout;	// ?
 	}

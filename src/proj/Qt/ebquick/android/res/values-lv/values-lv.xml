@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hms_abort">"Apturēt"</string>
+    <string name="hms_abort_message">"Vai apturēt lejupielādi?"</string>
+    <string name="hms_cancel">"Atcelt"</string>
+    <string name="hms_check_failure">"Neizdevās pārbaudīt, vai nav atjauninājumu."</string>
+    <string name="hms_check_no_update">"Jūs jau lietojat jaunāko versiju."</string>
+    <string name="hms_checking">"Notiek atjauninājumu pārbaude…"</string>
+    <string name="hms_confirm">"Labi"</string>
+    <string name="hms_download_failure">"Neizdevās lejupielādēt Huawei Mobile Services pakotni."</string>
+    <string name="hms_download_no_space">"Nepietiek brīvas vietas. Lejupielādi nevar pabeigt."</string>
+    <string name="hms_download_retry">"Lejupielāde neizdevās. Vai mēģināt vēlreiz?"</string>
+    <string name="hms_downloading">"Notiek Huawei Mobile Services lejupielādēšana | norise: %d%%"</string>
+    <string name="hms_install">"Instalēt"</string>
+    <string name="hms_install_message">"Lai lietotu šo funkciju, ir jābūt instalētam pakalpojumam Huawei Mobile Services. Vai instalēt?"</string>
+    <string name="hms_retry">"Atkārtot"</string>
+    <string name="hms_update">"Atjaunināt"</string>
+    <string name="hms_update_message">"Lai lietotu šo funkciju, atjauniniet uz Huawei Mobile Services jaunāko versiju. Vai atjaunināt tūlīt?"</string>
+    <string name="hms_update_title">"Huawei Mobile Services"</string>
+</resources>
