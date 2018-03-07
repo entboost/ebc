@@ -843,20 +843,12 @@ void CEBAppClient::EB_LoadInfo(void)
 		pManager->LoadInfo();
 	}
 }
-<<<<<<< HEAD
-void CEBAppClient::EB_Logout(bool bAcceptPush)
-=======
 void CEBAppClient::EB_Logout(bool acceptPush)
->>>>>>> develop
 {
 	CUserManagerApp * pManager = (CUserManagerApp*)m_handle;
 	if (pManager != NULL)
 	{
-<<<<<<< HEAD
-        pManager->Logout(bAcceptPush);
-=======
         pManager->Logout(acceptPush);
->>>>>>> develop
 	}
 }
 

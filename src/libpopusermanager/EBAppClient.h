@@ -211,13 +211,9 @@ public:
 
 	/****
 	功能：用户退出
-    参数：bAcceptPush主要用于IOS/ANDROID设置，是否接收消息推送
+    参数：acceptPush主要用于IOS/ANDROID设置，是否接收消息推送
 	====================================================================*/
-<<<<<<< HEAD
-    void EB_Logout(bool bAcceptPush = true);
-=======
     void EB_Logout(bool acceptPush=true);
->>>>>>> develop
 
 	/**** 基本信息管理 ***********************************************************************/
 	/****
