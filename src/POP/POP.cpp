@@ -4123,7 +4123,7 @@ void CPOPApp::LogMessage(const char * format,...)
 void CPOPApp::OnAbout()
 {
 	CString sText;
-	sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2017"),theSetting.GetVersion().c_str());
+	sText.Format(_T("当前版本：%s\r\nCopyright (C) 2012-2018"),theSetting.GetVersion().c_str());
 	CDlgMessageBox::EbMessageBox(AfxGetMainWnd(),"关于恩布互联 Entboost.com",sText,CDlgMessageBox::IMAGE_ENTBOOST,10);
 	//if (m_dlgAbout==NULL)
 	//{
