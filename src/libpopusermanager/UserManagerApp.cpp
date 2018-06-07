@@ -532,10 +532,12 @@ inline int SplitIntValue(const tstring& sSource, const char* sStart, const char*
 	}
 	return nResult;
 }
-#ifdef _DEBUG
-int abctest3(int a) {return 22+a;}
-tstring abctest2(void) {return "abc";}
-#endif
+
+//#ifdef _DEBUG
+//int abctest3(int a) {return 22+a;}
+//tstring abctest2(void) {return "abc";}
+//#endif
+
 #ifdef _QT_MAKE_
 inline bool checkCreateDir(const QString &dirName)
 {
@@ -566,10 +568,12 @@ CUserManagerApp::CUserManagerApp(void)
 , m_tReLogonTime(0)
 , m_tReLoadInfo(0)
 {
-#ifdef _DEBUG
-	abctest3(1);
-//	abctest6();
-#endif
+//#ifdef _DEBUG
+//	abctest3(1);
+//	//tstring s = abctest2();
+//	//s = "";
+////	abctest6();
+//#endif
 
 #ifndef _QT_MAKE_
 //#ifdef _MSC_VER
@@ -6942,7 +6946,8 @@ void CUserManagerApp::OnProcessTimer(const CPOPCUserManager* pUMOwner)
 		{
 			this->LoadInfo(0,0,0,nLoadGroupId);
 		}while ((nIndex++)<5 && theNeedLoadOLSList.front(nLoadGroupId));
-	}else if (m_tReLoadInfo>0 && m_tReLoadInfo<tNow)
+	}else if (m_tReLoadInfo>0 && m_tReLoadInfo<tNow && 
+		(theCheckGroupMemberList.empty() || (tNow-m_tReLoadInfo)>120))
 	{
 		theLoadOLSCount = 0;
 		LoadInfo(0,1,0);
@@ -12613,16 +12618,15 @@ void CUserManagerApp::OnFUMEMDepInfo(const CEBGroupInfo::pointer& pDepartmentInf
 	//	SaveMyGroupInfo(m_nServerMyDepInfoVer);
 	//}
 
-	if (nGroupInfoVer>0)
-	{
+	if (nGroupInfoVer>0) {
 		// 单独加载某群组资料时，返回版本号，自动判断并更新；
 		UpdateLocalGroupInfoVer(pDepartmentInfo->m_sEnterpriseCode,nGroupInfoVer);
 		// 加载一次群组在线人数；
-		if (pDepartmentInfo->m_nOnlineSize<=0)	// 可能是群组（讨论组），需要加载一次在线人数；
+		if (pDepartmentInfo->m_nOnlineSize<=0) {	// 可能是群组（讨论组），需要加载一次在线人数；
 			LoadInfo(0,0,0,0,0,0,pDepartmentInfo->m_sGroupCode);
+		}
 
-		if ((int)pDepartmentInfo->m_pMemberList.size()>=pDepartmentInfo->m_nEmpCount)
-		{
+		if ((int)pDepartmentInfo->m_pMemberList.size()>=pDepartmentInfo->m_nEmpCount) {
 			theCheckGroupMemberList.remove(s_dep_code);
 			theGroupMemberDataTime.remove(s_dep_code);
 			SaveGroupMemberInfo(pDepartmentInfo);
@@ -12630,11 +12634,11 @@ void CUserManagerApp::OnFUMEMDepInfo(const CEBGroupInfo::pointer& pDepartmentInf
 	}
 	ProcessGroupInfo(pDepartmentInfo);
 
-	if (nCallGroupId>0 && nCallGroupId==s_dep_code)
-	{
+	if (nCallGroupId>0 && nCallGroupId==s_dep_code) {
 		CallGroup(nCallGroupId,true);
 	}
 }
+
 void CUserManagerApp::OnFUMEMDepInfo(const CPOPSotpRequestInfo::pointer & pSotpRequestInfo, const CPOPSotpResponseInfo::pointer & pSotpResponseInfo,const CPOPCUserManager* pUMOwner)
 {
 	// 是否请求呼叫该群组；
@@ -12727,6 +12731,11 @@ void CUserManagerApp::OnFUMEMDepInfo(const CPOPSotpRequestInfo::pointer & pSotpR
 		{
 			m_nReturnEntGroupInfoSize++;
 		}
+		
+		if (m_tReLoadInfo>0) {
+			m_tReLoadInfo = time(0) + 5;				// 延迟5秒后再加载离线消息
+		}
+
 	}else if (pDepartmentInfo->m_sEnterpriseCode!=s_ent_code)
 	{
 		pDepartmentInfo->m_sEnterpriseCode = s_ent_code;
@@ -15715,40 +15724,37 @@ void CUserManagerApp::OnFUMEMEmpInfo(const CPOPSotpRequestInfo::pointer & pSotpR
 
 	// fro search key
 	cgcParameter::pointer pCallback;
-	if (pSotpRequestInfo.get()!=NULL)
+	if (pSotpRequestInfo.get()!=NULL) {
 		pCallback = pSotpRequestInfo->m_pRequestList.getParameter("search-callback");
-	if (pCallback.get()!=NULL && pCallback->getPointer()!=NULL)
-	{
-		if (s_emp_code==0 || sMemberUserId==0)
-		{
+	}
+
+	if (pCallback.get()!=NULL && pCallback->getPointer()!=NULL) {
+		if (s_emp_code==0 || sMemberUserId==0) {
 			const tstring sSearchKey = pSotpRequestInfo->m_pRequestList.getParameterValue("search-key");
-			if (!IsFullNumber(sSearchKey.c_str(),sSearchKey.size()) && (m_sSearchNullKey.empty() || sSearchKey.find(m_sSearchNullKey)==std::string::npos))
-			{
+			if (!IsFullNumber(sSearchKey.c_str(),sSearchKey.size()) && (m_sSearchNullKey.empty() || sSearchKey.find(m_sSearchNullKey)==std::string::npos)) {
 				m_sSearchNullKey = sSearchKey;
 			}
 			return;
 		}
 		//const tstring sSearchkey = pSotpRequestInfo->m_pRequestList.getParameterValue("search-key");
 		CEBGroupInfo::pointer pDepartmentInfo;
-		if (!theDepartmentList.find(s_dep_code, pDepartmentInfo))
-		{
+		if (!theDepartmentList.find(s_dep_code, pDepartmentInfo)) {
 			pDepartmentInfo = CEBGroupInfo::create(0,s_dep_code);
 		}
 		const unsigned long nSearchParam = (unsigned long)pSotpRequestInfo->m_pRequestList.getParameterValue("search-param",(mycp::bigint)0);
 		CEBSearchCallback* pSearchCallback = (CEBSearchCallback*)pCallback->getPointer();
-		try
-		{
+
+		try {
 			bool bNewMemberInfo = !pDepartmentInfo->m_pMemberList.exist(sMemberUserId);
 			//bool bNewMemberInfo = false;
 			CEBMemberInfo::pointer pEmployeeInfo;
-			if (!theEmployeeList.find(s_emp_code, pEmployeeInfo))
-			{
+			if (!theEmployeeList.find(s_emp_code, pEmployeeInfo)) {
 				//bNewMemberInfo = true;
 				pEmployeeInfo = CEBMemberInfo::create(s_dep_code,sMemberUserId);
 				pEmployeeInfo->m_nMemberData |= EB_MEMBER_DATA_SEARCH_INFO;
 				theEmployeeList.insert(s_emp_code, pEmployeeInfo,false);
-			}else if (bNewMemberInfo)
-			{
+			}
+			else if (bNewMemberInfo) {
 				bNewMemberInfo = false;
 			}
 
@@ -15787,8 +15793,8 @@ void CUserManagerApp::OnFUMEMEmpInfo(const CPOPSotpRequestInfo::pointer & pSotpR
 
 		return;
 	}
-	if (s_emp_code==0 || nEmpCount>=0)
-	{
+
+	if (s_emp_code==0 || nEmpCount>=0) {
 		//const mycp::bigint sGroupCode = pSotpResponseInfo->m_pResponseList.getParameterValue("dep-code",(mycp::bigint)0);
 		//theCheckGroupMemberList.remove(sGroupCode);
 		////if (sGroupCode==999004)
@@ -15818,11 +15824,14 @@ void CUserManagerApp::OnFUMEMEmpInfo(const CPOPSotpRequestInfo::pointer & pSotpR
 
 	bool bNewMemberInfo = false;
 	CEBMemberInfo::pointer pEmployeeInfo;
-	if (!theEmployeeList.find(s_emp_code, pEmployeeInfo))
-	{
+	if (!theEmployeeList.find(s_emp_code, pEmployeeInfo)) {
 		bNewMemberInfo = true;
 		pEmployeeInfo = CEBMemberInfo::create(s_dep_code,sMemberUserId);
 		theEmployeeList.insert(s_emp_code, pEmployeeInfo);
+
+		if (m_tReLoadInfo>0) {
+			m_tReLoadInfo = time(0) + 5;				// 延迟5秒后再加载离线消息
+		}
 	}
 	pEmployeeInfo->m_sMemberAccount = s_emp_account;
 	pEmployeeInfo->m_nMemberUserId = sMemberUserId;

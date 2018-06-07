@@ -3414,10 +3414,14 @@ int CPOPCUserManager::SendUMEMLoad(mycp::bigint sDepCode,int nLoadEntDep,int nLo
 		sotp()->doAddParameter(CGC_PARAMETER("emp-code", nEmpCode));
 	if (sDepCode > 0)
 		sotp()->doAddParameter(CGC_PARAMETER("dep-code", sDepCode));
+	/// default=1
 	sotp()->doAddParameter(CGC_PARAMETER("load-ent-dep", nLoadEntDep));
+	/// default=1
 	sotp()->doAddParameter(CGC_PARAMETER("load-my-group", nLoadMyGroup));
 	//sotp()->doAddParameter(CGC_PARAMETER("send-dep-info", nSendDepInfo));
+	/// default=1
 	sotp()->doAddParameter(CGC_PARAMETER("load-emp", nLoadEmp));
+	/// default=1
 	sotp()->doAddParameter(CGC_PARAMETER("load-image", (int)(bLoadImage?1:0)));
 	sotp()->doAddParameter(CGC_PARAMETER("search-key", sSearchKey),false);
 	const unsigned long nCallId = sotp()->doGetNextCallId();

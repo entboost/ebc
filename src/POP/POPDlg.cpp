@@ -11301,6 +11301,9 @@ void CPOPDlg::OnMove(int x, int y)
 		GetCursorPos(&pCursorPos);
 
 		int nNeedHideWin = 0;
+		if ((pCursorPos.y<=0 && y<=0) || (!m_bOpenOk && x>0 && y<=0))
+			nNeedHideWin = 2;		// top
+		/*
 		if ((pCursorPos.x<=0 && y>0) || (!m_bOpenOk && x<=0 && y>0))
 			nNeedHideWin = 1;		// left
 		else if ((pCursorPos.y<=0 && y<=0) || (!m_bOpenOk && x>0 && y<=0))
@@ -11321,6 +11324,7 @@ void CPOPDlg::OnMove(int x, int y)
 			//if (rect.right>=nScreenWidth && y>0)
 			//	nNeedHideWin = 3;	// right
 		}
+		*/
 		if (nNeedHideWin>0)
 		{
 			CRect rect;

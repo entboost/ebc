@@ -588,6 +588,9 @@ bool CDlgFrameList::CheckAutoHide(int x, int y, bool bFromShowCheck)
 	GetCursorPos(&pCursorPos);
 
 	int nNeedHideWin = 0;
+	if ((pCursorPos.y<=0 && y<=0) || (bFromShowCheck && m_bOpenOk && x>0 && y==0))
+		nNeedHideWin = 2;		// top
+	/*
 	if ((pCursorPos.x<=0 && y>0) || (bFromShowCheck && m_bOpenOk && x==0 && y>0))
 	//if (pCursorPos.x<=0 && y>0)
 		nNeedHideWin = 1;		// left
@@ -603,6 +606,7 @@ bool CDlgFrameList::CheckAutoHide(int x, int y, bool bFromShowCheck)
 		//if ((pCursorPos.x+1)>=nScreenWidth && y>0)
 			nNeedHideWin = 3;	// right
 	}
+	*/
 	if (nNeedHideWin>0)
 	{
 		CRect rect;
