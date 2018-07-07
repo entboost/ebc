@@ -32,8 +32,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebupdate2", "..\..\ebupdate
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebstesttool", "..\..\ebstesttool\ebstesttool.vcproj", "{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebpwdmgr", "..\..\ebpwdmgr\ebpwdmgr.vcproj", "{A5E1884C-7FCF-415F-866D-649DF0B48898}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebs_config_win", "..\..\ebs_config_win\ebs_config_win.vcproj", "{0F25071C-D099-4108-AB11-D42E0E998088}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ebcore", "..\..\ebcore\ebcore.vcproj", "{03A33F5E-88F1-4BA1-A8B2-0DC68976C16B}"
@@ -127,14 +125,6 @@ Global
 		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|Win32.Build.0 = Release|Win32
 		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|x64.ActiveCfg = Release|x64
 		{F6835A49-3445-4DA1-B1B0-8F68C4C2A2B2}.Release|x64.Build.0 = Release|x64
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Debug|Win32.Build.0 = Debug|Win32
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Debug|x64.ActiveCfg = Debug|x64
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Debug|x64.Build.0 = Debug|x64
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Release|Win32.ActiveCfg = Release|Win32
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Release|Win32.Build.0 = Release|Win32
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Release|x64.ActiveCfg = Release|x64
-		{A5E1884C-7FCF-415F-866D-649DF0B48898}.Release|x64.Build.0 = Release|x64
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Debug|Win32.Build.0 = Debug|Win32
 		{0F25071C-D099-4108-AB11-D42E0E998088}.Debug|x64.ActiveCfg = Debug|x64
