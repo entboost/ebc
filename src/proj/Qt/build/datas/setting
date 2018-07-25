@@ -1,7 +1,7 @@
 [setting]
 sdk-ver=559
 version=1.25.1.559
-server=test-lc.entboost.com:18012
+server=entboost.entboost.com:18012
 enterprise=恩布互联
 call-key=52e71e0e6477d527afb0d9767e3670a8
 key=entboost

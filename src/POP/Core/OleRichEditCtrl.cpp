@@ -6,7 +6,7 @@
 #include "afxole.h"
 #include <string>
 #ifdef USES_IDB_BITMAP_MENU_TOOLBAR
-#include <resource.h>
+#include "resource.h"
 #endif
 
 //#include "EBOleImage_i.h"
