@@ -754,6 +754,11 @@ int GetWaveTimeLength(const char* lpszWavFilePath)
 		return -2;
 	}
 
+	fseek(f,0,SEEK_END);
+	const long fileSize = ftell(f);
+
+	unsigned long size = 0;
+
     /// WAV格式文件所占容量（KB) = （取样频率 X 量化位数 X 声道） X 时间 / 8 (字节= 8bit) ，
     /// 每一分钟WAV格式的音频文件的大小为10MB，其大小不随音量大小及清晰度的变化而变化。
 
@@ -762,21 +767,33 @@ int GetWaveTimeLength(const char* lpszWavFilePath)
     fread((char*)&format,1,sizeof(EB_PCMWAVEFORMAT),f); ///获取该结构的数据；
 	if (format.wf.nAvgBytesPerSec==0)
 	{
-		fclose(f);
-		return -3;
+		/// ios 11 WAV格式
+		fseek(f,56,SEEK_SET);
+		fread((char*)&format,1,sizeof(EB_PCMWAVEFORMAT),f); ///获取该结构的数据；
+		if (format.wf.nAvgBytesPerSec==0) {
+			fclose(f);
+			return -3;
+		}
+		fseek(f,4,SEEK_SET);
+		fread((char*)&size,1,4,f);
+	}
+	else {
+
+		/// 获取WAVE文件 data 数据标识
+		fseek(f,36,SEEK_SET);
+		fread(style,1,4,f);
+		///判断是否标准data文件，如果是使用44字节文件头，否则使用46字节文件头
+		if(style[0]!='d'||style[1]!='a'||style[2]!='t'||style[3]!='a') {
+			fseek(f,42,SEEK_SET);
+		}
+		//fseek(f,40,SEEK_SET);
+		////获取WAVE文件的声音数据的大小；
+		fread((char*)&size,1,4,f);
 	}
 
-    /// 获取WAVE文件 data 数据标识
-	fseek(f,36,SEEK_SET);
-	fread(style,1,4,f);
-    ///判断是否标准data文件，如果是使用44字节文件头，否则使用46字节文件头
-    if(style[0]!='d'||style[1]!='a'||style[2]!='t'||style[3]!='a') {
-		fseek(f,42,SEEK_SET);
-    }
-	//fseek(f,40,SEEK_SET);
-	////获取WAVE文件的声音数据的大小；
-	unsigned long size = 0;
-	fread((char*)&size,1,4,f);
+	if (size == 0 || size > fileSize) {
+		size = fileSize;
+	}
 
     /// 计算文件时长
 	const int timeLength = size/format.wf.nAvgBytesPerSec;

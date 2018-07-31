@@ -10191,6 +10191,11 @@ void CPOPDlg::NewAppFrame(void)
 }
 void CPOPDlg::AddAppUrl(bool bSaveBrowseTitle, const std::string& sAppUrl, const std::string& sPostData, const EB_SubscribeFuncInfo& pSubscribeFuncInfo, bool nOpenNewClose, HWND hwndFrom)
 {
+	if (m_pDlgFrameList != NULL && m_pDlgFrameList->IsIconic()) {
+		/// 解决win10环境下，最小化窗口后，点击应用，导致程序卡死问题；
+		m_pDlgFrameList->ShowWindow(SW_RESTORE);
+	}
+
 	// 应用面板
 	if (theApp.GetHideMainFrame() && theApp.GetAutoOpenSubId()>0)
 	{
