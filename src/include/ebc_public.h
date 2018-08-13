@@ -109,8 +109,8 @@ static char theAllFilesFilter[] = "All Files (*.*)|*.*||";
 //#endif
 #ifndef const_kb_size
 #define  const_kb_size  1024.0
-#define const_mb_size   1024*const_kb_size
-#define const_gb_size   1024*const_mb_size
+#define const_mb_size   (1024*const_kb_size)
+#define const_gb_size   (1024*const_mb_size)
 #endif
 //const double const_kb_size = 1024.0;
 //const double const_mb_size = 1024*const_kb_size;
