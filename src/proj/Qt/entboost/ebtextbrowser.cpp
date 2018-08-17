@@ -467,7 +467,8 @@ void EbTextBrowser::onReceivingFile(bool offLineUser, const CCrFileInfo *fileInf
         getFromToName( true,fileInfo->m_sSendFrom,0,fromUserName,toUserName );
         writeTitle( true,msgId,false,fileInfo->m_sSendFrom,fromUserName,0,"",tMsgTime,0 );
         this->addChatMsgBlock( msgId,true );
-        writeFileMessage(true, fileInfo->m_nMsgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize);
+//        writeFileMessage(true, fileInfo->m_nMsgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize);
+        writeFileMessage(false, fileInfo->m_nMsgId, fileInfo->m_sResId, fileInfo->m_sFileName, fileInfo->m_nFileSize);
     }
 }
 
@@ -1314,7 +1315,8 @@ void EbTextBrowser::loadMsgRecord(const char *sql, bool desc)
             const QString sFileName = sMsgName.c_str();
             const mycp::bigint nResourceId = cgc_atoi64(sMsgText.substr(0,nFind).c_str());
             const mycp::bigint nFileSize = cgc_atoi64(sMsgText.substr(nFind+1).c_str());
-            writeFileMessage(receive, msgId, nResourceId, sFileName, nFileSize);
+//            writeFileMessage(receive, msgId, nResourceId, sFileName, nFileSize);
+            writeFileMessage(false, msgId, nResourceId, sFileName, nFileSize);
             break;
         }
         case MRT_FILE: {
@@ -1662,6 +1664,7 @@ void EbTextBrowser::writeFileMessage(bool receive, eb::bigint msgId, eb::bigint 
         sprintf(fileText,"%s%s (%lldByte)",textTemp,fileName.c_str(),fileSize);
     else if (resourceId>0)
         sprintf(fileText,"%s%s",textTemp,fileName.c_str());
+
     if (!receive && m_callInfo->isGroupCall() && resourceId>0) {
         this->insertPlainText(fileText);
     }
