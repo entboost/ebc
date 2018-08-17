@@ -101,7 +101,7 @@ LIBS += -L"F:/THIRDPARTY/openssl-android-master/libs/armeabi-v7a" -lcrypto -lssl
 }
 else:unix: {
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
-#INCLUDEPATH += "/usr/local/ssl/include"
+INCLUDEPATH += "/usr/local/opt/openssl/include"
 #INCLUDEPATH += "/usr/local/opt/zlib/include"
 INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
@@ -118,7 +118,7 @@ LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_system.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
 LIBS += -L"/usr/lib" -lz
-LIBS += -L"/usr/lib" -lcrypto -lssl
+LIBS += -L"/usr/local/opt/openssl/lib" -lcrypto -lssl
 
 }
 

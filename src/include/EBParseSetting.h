@@ -9,15 +9,15 @@
 #include <QRgb>
 #endif  /// _QT_MAKE_
 
-#ifdef Q_OS_ANDROID
-#define EB_EBPARSESETTING_API
-#else   /// Q_OS_ANDROID
+#ifdef Q_OS_WIN32
 #ifdef EB_APPCLIENT_EXPORTS
 #define EB_EBPARSESETTING_API __declspec(dllexport)
 #else // EB_APPCLIENT_EXPORTS
 #define EB_EBPARSESETTING_API __declspec(dllimport)
 #endif // EB_APPCLIENT_EXPORTS
-#endif  /// Q_OS_ANDROID
+#else   /// Q_OS_WIN32
+#define EB_EBPARSESETTING_API
+#endif  /// Q_OS_WIN32
 
 namespace entboost {
 

@@ -16,7 +16,6 @@
 #endif
 #ifdef _QT_MAKE_
 #include <QFileInfo>
-#include <QThread>
 #else
 #include "ShlObj.h"
 #include "shlwapi.h"
@@ -1126,7 +1125,11 @@ long CUserManagerApp::waitEventResult(unsigned long resultKey, int waitMaxSecond
     long result = defaultResult;
     for (int i=0; i<waitMaxSecond*200; i++) {
         QCoreApplication::processEvents();
-        QThread::msleep (5);
+#ifdef WIN32
+        Sleep(5);
+#else
+        usleep(5000);
+#endif
         if (m_eventResult.find(resultKey,result)) {
             break;
         }

@@ -84,6 +84,7 @@ LIBS += -lWinmm
 else:unix: {
 INCLUDEPATH += "/usr/local/include"
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
+INCLUDEPATH += "/usr/local/opt/openssl/include"
 #INCLUDEPATH += "/usr/local/opt/zlib/include"
 INCLUDEPATH += "../../include"
 INCLUDEPATH += "../../mycp"
@@ -105,7 +106,8 @@ LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_thread.a"
 LIBS += "/Users/akee/src/boost_1_62_0/stage/lib/libboost_filesystem.a"
 LIBS += -L"/usr/local/lib" -lavcodec -lavformat -lavutil -lswscale
 #LIBS += -L"/usr/local/lib" -lopencv_core -lopencv_video -lopencv_videoio -lopencv_videostab -lopencv_imgproc
-LIBS += -L"/usr/lib" -lcrypto -lssl -lz
+LIBS += -L"/usr/local/opt/openssl/lib" -lcrypto -lssl
+LIBS += -L"/usr/lib" -lz
 }
 
 

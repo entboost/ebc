@@ -77,8 +77,8 @@ LIBS += -L"F:/THIRDPARTY/openssl-1.0.2k/vc2015" -llibeay32 -lssleay32
 }
 else:unix: {
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
-#INCLUDEPATH += "/usr/local/opt/zlib/include"
-INCLUDEPATH += "/usr/local/include/sqlite3"
+INCLUDEPATH += "/usr/local/opt/openssl/include"
+INCLUDEPATH += "/usr/local/opt/sqlite3"
 INCLUDEPATH += "../../../mycp"
 INCLUDEPATH += "../../../mycp/ThirdParty"
 INCLUDEPATH += "../../../libchatroom"

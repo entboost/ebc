@@ -59,6 +59,7 @@ INCLUDEPATH += F:/THIRDPARTY/openssl-android-master/include
 else:unix: {
 # for OSX
 INCLUDEPATH += "/Users/akee/src/boost_1_62_0"
+INCLUDEPATH += "/usr/local/opt/openssl/include"
 }
 
 SOURCES += ../../CGCLib/CgcBaseClient.cpp \

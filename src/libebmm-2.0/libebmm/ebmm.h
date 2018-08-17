@@ -13,7 +13,11 @@
 
 namespace entboost {
 
+#ifdef Q_OS_WIN32
 class EBMM_API Cebmm
+#else
+class Cebmm
+#endif
 {
 public:
 	typedef boost::shared_ptr<Cebmm> pointer;
