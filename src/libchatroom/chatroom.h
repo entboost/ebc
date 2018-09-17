@@ -20,7 +20,7 @@
 
 namespace entboost {
 
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32) || defined(WIN32)
 class CHATROOM_API Cchatroom
 #else
 class Cchatroom

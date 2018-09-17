@@ -675,10 +675,14 @@ LRESULT CDlgResourceMgr::OnTreeItemSelChanged(WPARAM wp, LPARAM lp)
 
 	m_pSelectDirItemInfo.reset();
 	const bool bIsAllResParent = pTreeItemInfo == m_pAllResParent.get();
-	if (bIsAllResParent)
+	if (bIsAllResParent) {
+		m_nSelectType = RES_SELECT_ALLRES;
 		m_pSelectDirItemInfo = m_pAllResParent;
-	else
+	}
+	else {
+		m_nSelectType = RES_SELECT_DIR;
 		m_pDirItemInfo.find(pTreeItemInfo->m_sId,m_pSelectDirItemInfo);
+	}
 #ifdef USES_EBCOM_TEST
 	_variant_t pResourceInfoList;
 	if (bIsAllResParent && m_nManagerType==RES_MANAGER_GROUP)

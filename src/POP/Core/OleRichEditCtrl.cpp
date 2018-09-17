@@ -1010,9 +1010,11 @@ bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDa
 		HRESULT ret=pEnumFmt->Next(1,&fm,&Fetched);
 		if(SUCCEEDED(ret))
 		{
+
 			if(fm.cfFormat == CF_METAFILEPICT //Ã½Ìå
 				||fm.cfFormat == CF_BITMAP //Î»Í¼
-				|| fm.cfFormat == CF_DIB) //DIB
+				|| fm.cfFormat == CF_DIB //DIB
+				|| fm.cfFormat == CF_ENHMETAFILE) //win10
 			{
 				//if(fm.cfFormat == CF_DIB)
 				//	fm.cfFormat = CF_BITMAP;
@@ -1057,8 +1059,8 @@ bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDa
 
 					::ReleaseStgMedium(&sm);
 					break;
-				}else
-				{
+				}
+				else if (fm.cfFormat == CF_METAFILEPICT) {
 					LPMETAFILEPICT pMFP = (LPMETAFILEPICT) GlobalLock (sm.hMetaFilePict);
 					//SaveToBitMap(pMFP, strPath);
 					CDC* pDC = GetDC();
@@ -1102,6 +1104,55 @@ bool COleRichEditCtrl::GetObjectData(long nIndex, char ** pOutData, DWORD & dwDa
 					::ReleaseStgMedium(&sm);
 					break;
 				}
+				else {
+
+					UINT hHeadSize = ::GetEnhMetaFileHeader(sm.hEnhMetaFile, 0, NULL);
+					ENHMETAHEADER pEnhMH;
+					memset(&pEnhMH, 0,sizeof(pEnhMH));
+					::GetEnhMetaFileHeader(sm.hEnhMetaFile, hHeadSize, &pEnhMH);
+
+					CDC* pDC = GetDC();
+					if (pDC!=NULL)
+					{
+						SIZE size;
+						size.cx = pEnhMH.rclFrame.right - pEnhMH.rclFrame.left;
+						size.cy = pEnhMH.rclFrame.bottom - pEnhMH.rclFrame.top;
+						pDC->HIMETRICtoDP(&size);
+
+						CBitmap bm;
+						bm.CreateCompatibleBitmap(pDC, abs(size.cx), abs(size.cy));
+
+						CDC memdc;
+						memdc.CreateCompatibleDC(pDC);
+						CBitmap* pOldBitmap = memdc.SelectObject(&bm);
+
+						CRect rectBounds(pEnhMH.rclBounds.left, pEnhMH.rclBounds.top, pEnhMH.rclBounds.right, pEnhMH.rclBounds.bottom);
+						//memdc.SetMapMode(pMFP->mm) ;
+						memdc.SetViewportExt(abs(size.cx), abs(size.cy)) ;
+						memdc.SetViewportOrg(0, 0);
+						memdc.PlayMetaFile(sm.hEnhMetaFile, &rectBounds);
+
+						HGLOBAL hGlobal = DDBToDIB(bm,BI_RGB);
+						if (hGlobal!=NULL)
+						{
+							dwDataSize = ::GlobalSize(hGlobal);
+							*pOutData = new char[dwDataSize];
+							::CopyMemory(*pOutData, (LPVOID)::GlobalLock(hGlobal), dwDataSize);
+							::GlobalUnlock(hGlobal);
+							GlobalFree(hGlobal);
+						}
+						//CImage img;
+						//img.Attach((HBITMAP)bm.GetSafeHandle());
+						//img.Save(strPath);
+						memdc.SelectObject(pOldBitmap);
+						memdc.DeleteDC();
+						bm.DeleteObject();
+						ReleaseDC(pDC);
+					}
+					::ReleaseStgMedium(&sm);
+					break;
+				}
+
 				//dRet = reobject.dwUser = SetImagePath(strPath);
 				//::ReleaseStgMedium(&sm);
 				//Ret = S_FALSE;

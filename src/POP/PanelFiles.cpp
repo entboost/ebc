@@ -198,6 +198,27 @@ void CPanelFiles::OnReceivingFile(const CCrFileInfo * pCrFileInfo)
 	m_pAddTranFile.add(*pCrFileInfo);
 	SetTimer(TIMER_ID_OPEN_TRAN_FILE,10,NULL);
 
+	if (pCrFileInfo->m_bOffFile) {
+		/// 离线文件，找到前面在线文件，删除
+		BoostWriteLock wtlock(m_pTranFiles.mutex());
+		CLockMap<eb::bigint, CDlgTranFile::pointer>::const_iterator pIter = m_pTranFiles.begin();
+		for (; pIter!=m_pTranFiles.end(); pIter++)
+		{
+			const CDlgTranFile::pointer pDlgTranFile = pIter->second;
+			if (!pDlgTranFile->m_pCrFileInfo.m_bOffFile && 
+				pDlgTranFile->m_pCrFileInfo.m_sFileName == pCrFileInfo->m_sFileName &&
+				pDlgTranFile->m_pCrFileInfo.m_nFileSize == pCrFileInfo->m_nFileSize &&
+				pDlgTranFile->m_pCrFileInfo.m_sSendFrom == pCrFileInfo->m_sSendFrom) {
+					m_pTranFiles.erase(pIter);
+					wtlock.unlock();
+					m_pDelTranFile.add(pDlgTranFile);
+					SetTimer(TIMER_ID_CLOSE_TRAN_FILE,10,NULL);
+					break;
+			}
+
+		}
+
+	}
 	//CRect rect;
 	//this->GetClientRect(&rect);
 	//int index = m_pTranFiles.size();
@@ -220,6 +241,7 @@ void CPanelFiles::DeleteDlgTranFile(eb::bigint nMsgId)
 		m_pDelTranFile.add(pDlgTranFile);
 		SetTimer(TIMER_ID_CLOSE_TRAN_FILE,10,NULL);
 	}
+
 	//CDlgTranFile::pointer pDlgTranFile;
 	//if (m_pTranFiles.find(nMsgId, pDlgTranFile, true))
 	//{

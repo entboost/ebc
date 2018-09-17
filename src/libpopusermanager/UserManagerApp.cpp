@@ -532,11 +532,6 @@ inline int SplitIntValue(const tstring& sSource, const char* sStart, const char*
 	return nResult;
 }
 
-//#ifdef _DEBUG
-//int abctest3(int a) {return 22+a;}
-//tstring abctest2(void) {return "abc";}
-//#endif
-
 #ifdef _QT_MAKE_
 inline bool checkCreateDir(const QString &dirName)
 {
@@ -632,13 +627,11 @@ CUserManagerApp::CUserManagerApp(void)
 	m_sAppPath = lpszBuffer;
 	m_sAppPath = m_sAppPath.substr(0,m_sAppPath.rfind('\\'));
 	m_sImgPath = m_sAppPath+_T("/img");
-    if (!::PathFileExistsA(m_sImgPath.c_str()))
-	{
+    if (!::PathFileExistsA(m_sImgPath.c_str())) {
         ::CreateDirectoryA(m_sImgPath.c_str(), NULL);
 	}
 	m_sEbResourcePath = m_sAppPath+_T("\\res");
-    if (!::PathFileExistsA(m_sEbResourcePath.c_str()))
-	{
+    if (!::PathFileExistsA(m_sEbResourcePath.c_str())) {
         ::CreateDirectoryA(m_sEbResourcePath.c_str(), NULL);
 	}
 	m_sEbDataPath = m_sAppPath+_T("\\datas");
@@ -759,14 +752,12 @@ CUserManagerApp::~CUserManagerApp(void)
 #endif
 
 	m_bKilled = true;
-	if (m_pProcessThread.get() != NULL)
-	{
+	if (m_pProcessThread.get() != NULL) {
 		m_pProcessThread->join();
 		m_pProcessThread.reset();
 	}
 
-	for (size_t i=0;i<m_pExit2DeleteFileList.size(); i++)
-	{
+	for (size_t i=0;i<m_pExit2DeleteFileList.size(); i++) {
 #ifdef _QT_MAKE_
         QFile::remove(m_pExit2DeleteFileList[i]);
 #else
@@ -779,16 +770,14 @@ CUserManagerApp::~CUserManagerApp(void)
 
 void CUserManagerApp::process_thread_svr(void)
 {
-	while (!m_bKilled)
-	{
-		try
-		{
+	while (!m_bKilled) {
+		try {
 			DoProcess();
 		}catch(std::exception&)
 		{}catch(...)
 		{}
-		if (!m_bKilled)
-		{
+
+		if (!m_bKilled) {
 #ifdef WIN32
 			Sleep(1000);
 #else
@@ -804,33 +793,28 @@ void CUserManagerApp::DoProcess(void)
 {
 	time_t theRelogonTime = 0;
 	unsigned int nIndex = 0;
-	while (!m_bKilled)
-	{
+	while (!m_bKilled) {
 #ifdef WIN32
 		Sleep(10);
 #else
 		usleep(10000);
 #endif
-		if (((nIndex++)%100)!=99)
-		{
+		if (((nIndex++)%100)!=99) {
 			continue;
 		}
 		// 1 秒
 
 		const time_t tNow = time(0);
-		if (m_tReLogonTime > 0 && m_tReLogonTime<tNow)
-		{
-			if (theRelogonTime!=m_tReLogonTime)	// 避免异常跳出 DoProcess() 重进打印太多
-			{
+		if (m_tReLogonTime > 0 && m_tReLogonTime<tNow) {
+			if (theRelogonTime!=m_tReLogonTime) {	// 避免异常跳出 DoProcess() 重进打印太多
 				theRelogonTime = m_tReLogonTime;
 				//LogMessage("DoProcess Relogon... (m_sDevAppOnlineKey=%s,m_sDevAppId=%lld,m_sDevAppKey=%s,m_userStatus=%d)\r\n",m_sDevAppOnlineKey.c_str(),m_sDevAppId,m_sDevAppKey.c_str(),(int)m_userStatus);
 			}
-			if (m_sDevAppOnlineKey.empty())
-			{
+			if (m_sDevAppOnlineKey.empty()) {
 				m_tReLogonTime = tNow+20;					// 30S后继续处理；（**开发者ID验证成功返回，也会立即申请重新登录；）
 				SetDevAppId(m_sDevAppId,m_sDevAppKey,true);	// 登录前，需要重新验证appkey
-			}else
-			{
+			}
+			else {
 				m_tReLogonTime = tNow+30;					// 30S后会重新登录；（如果登录成功，会设为0；）
 				ReLogon();
 			}
@@ -840,11 +824,12 @@ void CUserManagerApp::DoProcess(void)
 		CProcessMsgInfo::pointer pProcessMsgInfo;
         while (!m_bKilled && !bBreak && m_pProcessMsgList.front(pProcessMsgInfo))
 		{
-			if (pProcessMsgInfo->m_tProcessTime>0 && pProcessMsgInfo->m_tProcessTime>=time(0))
-			{
+			if (pProcessMsgInfo->m_tProcessTime>0 && pProcessMsgInfo->m_tProcessTime>=time(0)) {
 				m_pProcessMsgList.add(pProcessMsgInfo);
-				if (m_pProcessMsgList.size()==1)
+				if (m_pProcessMsgList.size()==1) {
 					break;
+				}
+
 #ifdef WIN32
 				Sleep(100);
 #else
@@ -4161,11 +4146,23 @@ int CUserManagerApp::SendCrRichBuffer(eb::bigint sCallId,mycp::bigint sTo,bool b
 	}
 	if (sTo==0 || !bPrivate)
 	{
-		if (InviteCall(pCallInfo,0) != 0) return 3;
+		if (InviteCall(pCallInfo,0) != 0) {
+			return 3;
+		}
+		else if (pCallInfo->m_nCallState == EB_CALL_STATE_ALERTING) {
+			return 3;
+		}
+
 	}else
 	{
 		// 群组，私聊
-		if (InviteCall(pCallInfo,0, sTo) != 0) return 3;
+		if (InviteCall(pCallInfo,0, sTo) != 0) {
+			return 3;
+		}
+		else if (pCallInfo->m_nCallState == EB_CALL_STATE_ALERTING) {
+			return 3;
+		}
+
 	}
 	return pCallInfo->m_pChatRoom->SendRichBuffser(sTo,bPrivate);
 }
@@ -4173,46 +4170,51 @@ int CUserManagerApp::SendCrRichBuffer(eb::bigint sCallId,mycp::bigint sTo,bool b
 int CUserManagerApp::SendCrRich(eb::bigint sCallId,const EB_ChatRoomRichMsg* pRichMsg,mycp::bigint sTo,bool bPrivate, bool bFromToSendList)
 {
 	CEBCallInfo::pointer pCallInfo;
-	if (!theCallInfoList.find(sCallId,pCallInfo))
-	{
+	if (!theCallInfoList.find(sCallId,pCallInfo)) {
 		return 1;
 	}
+
 	//LogMessage("SendCrRich... (callid=%lld,touid=%lld)\r\n",sCallId,sTo);
-	if (sTo==0 || !bPrivate)
-	{
-		if (InviteCall(pCallInfo,0) != 0 && !bFromToSendList)
-		{
-			CToSendList::pointer pCallToSendList;
-			if (!theCallToSendList.find(sCallId,pCallToSendList))
-			{
-				pCallToSendList = CToSendList::create(sCallId,pCallInfo->m_sGroupCode);
-				theCallToSendList.insert(sCallId,pCallToSendList);
-			}
-			//LogMessage("SendCrRich->pCallToSendList->m_list.add... (callid=%lld,touid=%lld)\r\n",sCallId,sTo);
-			pCallToSendList->m_list.add(CToSendInfo::create(CEBChatRoomRichMsg::create(*pRichMsg),sTo,bPrivate));
-			return 0;
-			//return 3;
+	if (sTo==0 || !bPrivate) {
+
+		if (InviteCall(pCallInfo,0) != 0 && !bFromToSendList) {
+			//CToSendList::pointer pCallToSendList;
+			//if (!theCallToSendList.find(sCallId,pCallToSendList))
+			//{
+			//	pCallToSendList = CToSendList::create(sCallId,pCallInfo->m_sGroupCode);
+			//	theCallToSendList.insert(sCallId,pCallToSendList);
+			//}
+			////LogMessage("SendCrRich->pCallToSendList->m_list.add... (callid=%lld,touid=%lld)\r\n",sCallId,sTo);
+			//pCallToSendList->m_list.add(CToSendInfo::create(CEBChatRoomRichMsg::create(*pRichMsg),sTo,bPrivate));
+			//return 0;
+			return 3;
 		}
-	}else
-	{
+		else if (pCallInfo->m_nCallState == EB_CALL_STATE_ALERTING) {
+			return 3;
+		}
+	}
+	else {
 		// 群组，私聊
-		if (InviteCall(pCallInfo,0, sTo) != 0 && !bFromToSendList)
-		{
-			CToSendList::pointer pCallToSendList;
-			if (!theCallToSendList.find(sCallId,pCallToSendList))
-			{
-				pCallToSendList = CToSendList::create(sCallId,pCallInfo->m_sGroupCode);
-				theCallToSendList.insert(sCallId,pCallToSendList);
-			}
-			pCallToSendList->m_list.add(CToSendInfo::create(CEBChatRoomRichMsg::create(*pRichMsg),sTo,bPrivate));
-			return 0;
-			//return 3;
+		if (InviteCall(pCallInfo,0, sTo) != 0 && !bFromToSendList) {
+			//CToSendList::pointer pCallToSendList;
+			//if (!theCallToSendList.find(sCallId,pCallToSendList))
+			//{
+			//	pCallToSendList = CToSendList::create(sCallId,pCallInfo->m_sGroupCode);
+			//	theCallToSendList.insert(sCallId,pCallToSendList);
+			//}
+			//pCallToSendList->m_list.add(CToSendInfo::create(CEBChatRoomRichMsg::create(*pRichMsg),sTo,bPrivate));
+			//return 0;
+			return 3;
 		}
+		else if (pCallInfo->m_nCallState == EB_CALL_STATE_ALERTING) {
+			return 3;
+		}
+
 	}
 	if(pCallInfo->m_pChatRoom.get()==NULL)
 	{
         this->InviteCall(pCallInfo, 0);
-		return 2;
+		return 3;
 	}
 	//LogMessage("SendCrRich->m_pChatRoom->SendRich... (callid=%lld,touid=%lld)\r\n",sCallId,sTo);
 	return pCallInfo->m_pChatRoom->SendRich(pRichMsg,sTo,bPrivate);
@@ -6834,13 +6836,11 @@ void CUserManagerApp::OnProcessTimer(const CPOPCUserManager* pUMOwner)
 		theCheckTime = tNow;
 		BoostReadLock lockCallInfoList(theCallInfoList.mutex());
 		CLockMap<eb::bigint, CEBCallInfo::pointer>::const_iterator pIter = theCallInfoList.begin();
-		for (;pIter!=theCallInfoList.end(); pIter++)
-		{
+		for (;pIter!=theCallInfoList.end(); pIter++) {
 			const CEBCallInfo::pointer& pCallInfo = pIter->second;
 			if (pCallInfo->m_tLastTime==0 || (pCallInfo->m_nCallState != EB_CALL_STATE_EXIT && pCallInfo->m_nCallState != EB_CALL_STATE_HANGUP)) continue;
-			//if ((tNow-pCallInfo->m_tLastTime)>20)			// 测试20秒
-			if ((tNow-pCallInfo->m_tLastTime)>5*60)			// 5*60
-			{
+			//if ((tNow-pCallInfo->m_tLastTime)>20) {			// 测试20秒
+			if ((tNow-pCallInfo->m_tLastTime)>5*60) {			// 5*60
 				const mycp::bigint nCallId = pCallInfo->GetCallId();
 				lockCallInfoList.unlock();
 				ClearCallInfo(nCallId,true,false);
@@ -7129,7 +7129,7 @@ tstring CUserManagerApp::GetNextLCAddress(void)
 		sFindLCAddress.append(":18012");
 	return sFindLCAddress;
 }
-void CUserManagerApp::ProcessTimeout(const CPOPSotpRequestInfo::pointer& pSotpRequestInfo)
+void CUserManagerApp::ProcessTimeout(const CPOPSotpRequestInfo::pointer& pSotpRequestInfo, const void * p)
 {
 	if (m_userStatus == US_DevAppIdLogoning)
 	{
@@ -7201,6 +7201,15 @@ void CUserManagerApp::ProcessTimeout(const CPOPSotpRequestInfo::pointer& pSotpRe
 
 			}else
 			{
+				const mycp::bigint nCallId = pSotpRequestInfo->m_pRequestList.getParameterValue("call-id", (mycp::bigint)0);
+				if (nCallId > 0) {
+					CPOPCUserManager::pointer pPOPCUserManager;
+					if (theUserManagerList.find(nCallId, pPOPCUserManager) && pPOPCUserManager.get() == p) {
+						theUserManagerList.remove(nCallId);
+						m_pHangupUm.add(pPOPCUserManager);
+					}
+				}
+
 				const mycp::bigint nGroupId = pSotpRequestInfo->m_pRequestList.getParameterValue("group-id",(mycp::bigint)0);
 				const mycp::bigint nFromUserId = pSotpRequestInfo->m_pRequestList.getParameterValue("from_uid",(mycp::bigint)0);
 				const tstring sFromAccount = pSotpRequestInfo->m_pRequestList.getParameterValue("from");
@@ -7241,7 +7250,7 @@ void CUserManagerApp::ProcessTimeout(const CPOPSotpRequestInfo::pointer& pSotpRe
 			if (m_nUmServerState!=EB_SS_INIT)
 			{
 				// 可能是系统重启，再登录一次；
-                m_tReLogonTime = time(0)+5+(((long)this)%10);
+                m_tReLogonTime = time(0)+5+(((long)this)%12);
 			}else
 			{
 				const EB_AccountInfo* pAccountInfo = m_pMyAccountInfo.get(); 
@@ -7262,15 +7271,15 @@ void CUserManagerApp::ProcessTimeout(const CPOPSotpRequestInfo::pointer& pSotpRe
 }
 void CUserManagerApp::OnTimeout(const CPOPSotpRequestInfo::pointer& pSotpRequestInfo,const CPOPCUserManager* pUMOwner)
 {
-	ProcessTimeout(pSotpRequestInfo);
+	ProcessTimeout(pSotpRequestInfo, pUMOwner);
 }
 void CUserManagerApp::OnTimeout(const CPOPSotpRequestInfo::pointer& pSotpRequestInfo,const CPOPCLogonCenter* pLCOwner)
 {
-	ProcessTimeout(pSotpRequestInfo);
+	ProcessTimeout(pSotpRequestInfo, pLCOwner);
 }
 void CUserManagerApp::OnTimeout(const CPOPSotpRequestInfo::pointer& pSotpRequestInfo,const CEBCAppCenter* pAPOwner)
 {
-	ProcessTimeout(pSotpRequestInfo);
+	ProcessTimeout(pSotpRequestInfo, pAPOwner);
 }
 
 void CUserManagerApp::OnInvalidateSession(int nResultCode,const CPOPCUserManager* pUMOwner)
@@ -7987,6 +7996,7 @@ void CUserManagerApp::OnLCULQueryResponse(const CPOPSotpRequestInfo::pointer & p
 				theUserManagerList.remove(sCallId);
 				theUserManagerList.insert(sCallId, pPOPCUserManager);	// 统一放在这里
 				pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("um-key", sCallUmKey));
+				pSotpRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("call-id", sCallId));
 				pPOPCUserManager->SendUMIUUser(0,0,pGroupCallInfo,0,pSotpRequestInfo);
 				return;
             }
@@ -13086,11 +13096,7 @@ void CUserManagerApp::OnSendRich(const CCrRichInfo& pCrMsgInfo)
 	default:
 		break;
 	}
-	//}else if (nState == EB_STATE_TIMEOUT_ERROR)
-	//{
-	//	pCallInfo->m_nCallState = EB_CALL_STATE_INVALIDATE;
-	//	this->InviteCall(pCallInfo,0);
-	//}
+
 	if (m_callback)
 		m_callback->OnSendRich(pCrMsgInfo);
 	if (m_pHwnd!=NULL) {
@@ -13106,11 +13112,10 @@ void CUserManagerApp::OnSendRich(const CCrRichInfo& pCrMsgInfo)
 int CUserManagerApp::OnReceiveRich(const CCrRichInfo& pCrMsgInfo)
 {
 	const mycp::bigint sCallId = pCrMsgInfo.GetCallId();
-	//MessageBox(NULL,_T("OnReceiveRich"),_T(""),MB_OK);
 	CEBCallInfo::pointer pCallInfo;
 	if (!theCallInfoList.find(sCallId, pCallInfo))
 	{
-		LogMessage("CUserManagerApp::OnReceiveRich not find callinfo, callid=%lld, msgid=%lld\r\n",sCallId,pCrMsgInfo.m_pRichMsg->GetMsgId());
+		//LogMessage("CUserManagerApp::OnReceiveRich not find callinfo, callid=%lld, msgid=%lld\r\n",sCallId,pCrMsgInfo.m_pRichMsg->GetMsgId());
 		//// ?这里不知有没有用
 		//const tstring sSender(pCrMsgInfo.m_pSendInfo.m_sFrom);
 		//EB_USER_LINE_STATE pOutLineState = EB_LINE_STATE_UNKNOWN;
@@ -20765,7 +20770,7 @@ void CUserManagerApp::OnResEditResponse(const CPOPSotpRequestInfo::pointer & pSo
 				pResourceInfo->m_nCreateUserId = m_pMyAccountInfo->GetUserId();
 				time_t tNow = time(0);
 				struct tm *nowtime = localtime(&tNow);
-				char lpszDateDir[32];
+				char lpszDateDir[64];
 				sprintf(lpszDateDir,"%04d-%02d-%02d %02d:%02d:%02d",nowtime->tm_year+1900,nowtime->tm_mon+1,nowtime->tm_mday,nowtime->tm_hour,nowtime->tm_min,nowtime->tm_sec);
 				pResourceInfo->m_sTime = lpszDateDir;
 			}
@@ -20818,8 +20823,10 @@ void CUserManagerApp::ProcessSubResourceInfo(mycp::bigint sResId)
         /// 找到下一级部门，需要处理
 		const CEBResourceInfo::pointer pResourceInfo = pSubInfos[i];
 		theResourceList.insert(pResourceInfo->m_sResId,pResourceInfo);
-		if (this->m_callback)
+		if (this->m_callback) {
 			m_callback->onResourceInfo(pResourceInfo.get());
+		}
+
 		if (m_pHwnd!=NULL) {
 #ifdef _QT_MAKE_
 			EB_ResourceInfo * pEvent = new EB_ResourceInfo(pResourceInfo.get());
@@ -20829,8 +20836,10 @@ void CUserManagerApp::ProcessSubResourceInfo(mycp::bigint sResId)
 			::SendMessage(m_pHwnd, EB_WM_RESOURCE_INFO, (WPARAM)(const EB_ResourceInfo*)pResourceInfo.get(), 0);
 #endif
 		}
-		if (pResourceInfo->m_nResType == EB_RESOURCE_DIR)
+		if (pResourceInfo->m_nResType == EB_RESOURCE_DIR) {
 			ProcessSubResourceInfo(pResourceInfo->m_sResId);
+		}
+
 	}
 	theTempResourceList.remove(sResId);
 }
@@ -20925,8 +20934,9 @@ void CUserManagerApp::OnResInfo(const CPOPSotpRequestInfo::pointer & pReqeustInf
 	}
 	//pResourceInfo->m_sEnterpriseCode = sEntCode;
 	//pResourceInfo->m_sGroupCode = sDepCode;
-	if (!sResCmServer.empty())
+	if (!sResCmServer.empty()) {
 		pResourceInfo->m_sCmServer = sResCmServer;
+	}
 	//LogMessage("OnResInfo sResId=%lld,sResCmServer=%s\r\n",sResId,sResCmServer.c_str());
 
 	//pResourceInfo->m_sCmHttpServer = sResHttpCmServer;
@@ -20938,8 +20948,9 @@ void CUserManagerApp::OnResInfo(const CPOPSotpRequestInfo::pointer & pReqeustInf
 	pResourceInfo->m_nDownloads = nDownloads;
 	pResourceInfo->m_nSize = nSize;
 	pResourceInfo->m_nCmServiceId = nCmServiceId;
-	if (!sOnlineViewUrl.empty())
+	if (!sOnlineViewUrl.empty()) {
 		pResourceInfo->m_sOnlineViewUrl = sOnlineViewUrl;
+	}
 
 	if (sParentResId>0)
 	{

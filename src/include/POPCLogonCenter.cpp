@@ -418,6 +418,7 @@ void CPOPCLogonCenter::OnCgcResponse(const cgcParserSotp & response)
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -441,6 +442,7 @@ int CPOPCLogonCenter::SendLCQueryInfo(const tstring& sSystemKey,int nQueryLicens
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -463,6 +465,7 @@ int CPOPCLogonCenter::SendLCPutInfo(mycp::bigint nPutKey,EB_PUT_INFO_TYPE nPutTy
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -486,6 +489,7 @@ int CPOPCLogonCenter::SendLCPutInfo(mycp::bigint nPutKey,EB_PUT_INFO_TYPE nPutTy
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -524,6 +528,7 @@ int CPOPCLogonCenter::SendLCQuery(mycp::bigint nFromIpAddress,mycp::bigint sAppI
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -667,6 +672,7 @@ int CPOPCLogonCenter::SendLCLogon(const tstring& sUserData, int nSDKVersion,mycp
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -699,6 +705,7 @@ int CPOPCLogonCenter::SendLCAuthAppId(int nSDKVersion,mycp::bigint nFromIpAddres
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -733,6 +740,7 @@ int CPOPCLogonCenter::SendLCRegAuth(const tstring& sAuthKey, mycp::bigint nUserI
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -759,6 +767,7 @@ int CPOPCLogonCenter::SendLCFindPwd(mycp::bigint nFromIpAddress,const tstring& s
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -793,6 +802,7 @@ int CPOPCLogonCenter::SendLCResetPwd(mycp::bigint nFromIpAddress,const tstring& 
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);

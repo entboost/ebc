@@ -164,6 +164,7 @@ protected:
 	void FormatMsg(EB_ChatRoomRichMsg* pOutMsgFormat);
 	void save();
 	void send();
+	void call();
 
 	//void ShowImageWindow(bool bShow);
 

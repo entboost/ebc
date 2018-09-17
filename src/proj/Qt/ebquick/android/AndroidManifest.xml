@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.qtproject.entboost" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.0.0.523" android:versionCode="2" android:installLocation="auto">
+<manifest package="org.qtproject.entboost" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.0.0.526" android:versionCode="2" android:installLocation="auto">
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="恩布互联" android:icon="@drawable/icon">
         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.entboost.NotificationClient" android:label="恩布互联" android:screenOrientation="unspecified" android:launchMode="singleTop">
         <!--<activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="恩布互联" android:screenOrientation="unspecified" android:launchMode="singleTop">-->

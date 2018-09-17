@@ -52,8 +52,8 @@ static const char * theMailTo  = "mailto";
 
 #ifndef const_kb_size
 #define  const_kb_size  1024.0
-#define const_mb_size   1024*const_kb_size
-#define const_gb_size   1024*const_mb_size
+#define const_mb_size   (1024*const_kb_size)
+#define const_gb_size   (1024*const_mb_size)
 #endif
 //#if defined(Q_OS_ANDROID) || defined(_QT_MAKE_)
 ////#ifndef Q_OS_MAC

@@ -362,6 +362,7 @@ int CEBCAppCenter::SendAOn(mycp::bigint nFromAddress,mycp::bigint sAppId,const t
 		//	m_pRequestList.insert(nCallId, pRequestInfo2);
 		//}else
 		//{
+		//	pRequestInfo->SetResponseTime(0);
 		//	pRequestInfo->SetRequestTime();
 		//	pRequestInfo->SetCallId(nCallId);
 		//	pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("ap-app-id", sAppId));
@@ -385,6 +386,7 @@ int CEBCAppCenter::SendAOff(mycp::bigint nFromAddress,const CPOPSotpRequestInfo:
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -420,6 +422,7 @@ int CEBCAppCenter::SendAMsg(mycp::bigint nFromAddress,const EB_APMsgInfo& pAPMsg
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -450,6 +453,7 @@ int CEBCAppCenter::SendExecJob(bool bCheckLimitTime,mycp::bigint nJobId,const ts
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -495,6 +499,7 @@ int CEBCAppCenter::SendAUMsg(const tstring& sCallKey,const EB_APMsgInfo& pAPMsgI
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -534,6 +539,7 @@ int CEBCAppCenter::SendAUMail(const tstring& sCallKey,const EB_APMsgInfo& pAPMsg
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -557,6 +563,7 @@ int CEBCAppCenter::SendAMAck(mycp::bigint nMsgId,const CPOPSotpRequestInfo::poin
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -588,6 +595,7 @@ int CEBCAppCenter::SendSyncEditPwd(mycp::bigint nUserId,const tstring& sOldPwd,c
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -619,6 +627,7 @@ int CEBCAppCenter::SendSyncUserInfo(mycp::bigint nGroupId, mycp::bigint nUserId,
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -693,6 +702,7 @@ int CEBCAppCenter::SendSysEdit(mycp::bigint nFromAddress,const CPopParameterList
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);

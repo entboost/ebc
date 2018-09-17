@@ -215,8 +215,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("theApp", theApp);
     engine.rootContext()->setContextProperty("theLocales", theLocales);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
+    if (engine.rootObjects().isEmpty()) {
         return -1;
+    }
 
     const int ret = app.exec();
     theApp->logout(false, true);

@@ -387,14 +387,14 @@ void CPOPCChatManager::DoProcess2(unsigned int theTenMSIndex)
 
     // process timeout
     const int const_time_flag = (m_bLocalIpAddress||m_nP2PTryOwnerAccount>0)?100:200;	// P2P 100=1秒，处理一次；其他200=2秒，处理一次；
-    const int const_time_second = (m_bLocalIpAddress||m_nP2PTryOwnerAccount>0)?8:20;		// P2P 8秒超时，其他20秒超时；
+    const int const_time_second = (m_bLocalIpAddress||m_nP2PTryOwnerAccount>0)?8:15;		// P2P 8秒超时，其他15秒超时；
     if ((theTenMSIndex % const_time_flag)==1 && !m_pRequestList.empty())
     {
         BoostReadLock rdlock(m_pRequestList.mutex());
         CLockMap<unsigned long, CPOPSotpRequestInfo::pointer>::iterator pIter;
         for (pIter=m_pRequestList.begin(); pIter!=m_pRequestList.end(); pIter++)
         {
-            const CPOPSotpRequestInfo::pointer& pRequestInfo = pIter->second;
+            const CPOPSotpRequestInfo::pointer pRequestInfo = pIter->second;
             if (pRequestInfo->GetResponseTime()==0 && (pRequestInfo->GetRequestTime() + const_time_second) <= time(0))	// 28
             {
                 // timeout
@@ -1833,6 +1833,7 @@ int CPOPCChatManager::SendDSCheck(mycp::bigint nMsgId,bool bNeedAck,CPOPSotpRequ
         //return 0;
     }else
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
     }
     sotp()->doBeginCallLock();
@@ -1936,6 +1937,7 @@ int CPOPCChatManager::SendDSAck(mycp::bigint nMsgId)
 //			pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("v-type", nVideoType));
 //		}else
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //		}
@@ -1964,6 +1966,7 @@ int CPOPCChatManager::SendDSAck(mycp::bigint nMsgId)
 //			pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("ack-type", nAckType));
 //		}else
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //		}
@@ -2023,6 +2026,7 @@ int CPOPCChatManager::SendP2PRequest(cr::bigint nFromUid,cr::bigint sChatId,cr::
     {
         //if (pRequestInfo.get() != NULL)
         //{
+		//	pRequestInfo->SetResponseTime(0);
         //	pRequestInfo->SetRequestTime();
         //	pRequestInfo->SetCallId(nCallId);
         //	m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2063,6 +2067,7 @@ int CPOPCChatManager::SendP2PResponse(cr::bigint nFromUid,cr::bigint sChatId,cr:
     const unsigned long nCallId = sotp()->doGetNextCallId();
     if (pRequestInfo.get() != NULL)
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
         pRequestInfo->SetCallId(nCallId);
         m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2102,6 +2107,7 @@ int CPOPCChatManager::SendP2PTry(cr::bigint sCallId,cr::bigint sChatId,cr::bigin
     {
         //if (pRequestInfo.get() != NULL)
         //{
+		//	pRequestInfo->SetResponseTime(0);
         //	pRequestInfo->SetRequestTime();
         //	pRequestInfo->SetCallId(nCallId);
         //	m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2207,6 +2213,7 @@ int CPOPCChatManager::SendCMAck(mycp::bigint nMsgId,mycp::bigint sResourceId,EB_
     }
     if (pRequestInfo.get() != NULL)
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
         pRequestInfo->SetCallId(nCallId);
         m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2767,6 +2774,7 @@ eb::bigint CPOPCChatManager::GetNextBigId(void)
 //		pRequestInfo = CPOPSotpRequestInfo::create(0);
 //	else
 //	{
+//		pRequestInfo->SetResponseTime(0);
 //		pRequestInfo->SetRequestTime();
 //	}
 //	EB_ChatRoomRichMsg pRichMsg1;
@@ -2822,6 +2830,7 @@ eb::bigint CPOPCChatManager::GetNextBigId(void)
 //		pRequestInfo = CPOPSotpRequestInfo::create(0);
 //	else
 //	{
+//		pRequestInfo->SetResponseTime(0);
 //		pRequestInfo->SetRequestTime();
 //	}
 //	EB_ChatRoomRichMsg pRichMsg1;
@@ -2893,6 +2902,7 @@ int CPOPCChatManager::SendCMMsg(const tstring & sPathName,const tstring & sInFil
         pRequestInfo = CPOPSotpRequestInfo::create(0);
     else
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
     }
     pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("cm-msg-type", (int)msgtype));
@@ -2966,6 +2976,7 @@ int CPOPCChatManager::SendCMMsg(const CEBChatRoomRichMsg::pointer& pRichMsg,unsi
         pRequestInfo = CPOPSotpRequestInfo::create(0);
     else
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
     }
     //pRequestInfo->m_pRichMsg = pRichMsg;
@@ -3020,6 +3031,7 @@ int CPOPCChatManager::SendCMExit(int nExitSes,CPOPSotpRequestInfo::pointer pRequ
         pRequestInfo = CPOPSotpRequestInfo::create(0);
     else
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
     }
     //pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("cm-from", sFromAccount));
@@ -3072,6 +3084,7 @@ int CPOPCChatManager::SendCMEnter(mycp::bigint nAppId,mycp::bigint nFromIpAddres
         pRequestInfo = CPOPSotpRequestInfo::create(0);
     else
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
     }
     pRequestInfo->m_pRequestList.SetParameter(CGC_PARAMETER("cm-from", sFromAccount));
@@ -3112,6 +3125,7 @@ int CPOPCChatManager::SendCMNotify(cr::bigint nToUserId, int nNotifyType, cr::bi
     //	pRequestInfo = CPOPSotpRequestInfo::create(0);
     //else
     //{
+	//	pRequestInfo->SetResponseTime(0);
     //	pRequestInfo->SetRequestTime();
     //}
     sotp()->doBeginCallLock();
@@ -3127,6 +3141,7 @@ int CPOPCChatManager::SendCMNotify(cr::bigint nToUserId, int nNotifyType, cr::bi
     const unsigned long nCallId = sotp()->doGetNextCallId();
     if (pRequestInfo.get() != NULL)
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
         pRequestInfo->SetCallId(nCallId);
         m_pRequestList.insert(nCallId, pRequestInfo);

@@ -284,8 +284,7 @@ class CUserManagerApp
 #endif
 {
 public:
-    enum UserStatus
-	{
+    enum UserStatus {
 		US_Logout
 		, US_DevAppIdLogoning
 		, US_Logging
@@ -298,13 +297,10 @@ public:
 	CUserManagerApp(void);
 	virtual ~CUserManagerApp(void);
 //#ifdef _DEBUG
-//	tstring abctest3(void) const {return "abc";}
-//	tstring abctest4(void) const {return "abc";}
-//	tstring abctest6(void) const {return "abc";}
-//	tstring abctest5(void) const {return "abc";}
-//	tstring abctest2(void) const {return "abc";}
+//	tstring abctest3(int a) const {return "abc";}
 //	int abctest1(int a) const {return 22+a;}
 //#endif
+
 	int LogonAppCenter(void);
 	int LogoutAppCenter(void);
 	int SendAPMsg(const EB_APMsgInfo& pAPMsgInfo, bool bSaveOffMsg);
@@ -783,7 +779,7 @@ private:
 	}
 	virtual void OnProcessTimer(const CPOPCUserManager* pUMOwner);
 	tstring GetNextLCAddress(void);
-	void ProcessTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo);
+	void ProcessTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo, const void * p);
 	virtual void OnTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo,const CPOPCUserManager* pUMOwner);
 	virtual void OnTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo,const CPOPCLogonCenter* pLCOwner);
 	virtual void OnTimeout(const CPOPSotpRequestInfo::pointer& pRequestInfo,const CEBCAppCenter* pAPOwner);

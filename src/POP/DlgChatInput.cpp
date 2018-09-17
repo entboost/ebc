@@ -751,7 +751,8 @@ void CDlgChatInput::send()
 	CComVariant var(m_sa);
 	if (theEBClientCore->EB_SendRich(m_pCallInfo.GetCallId(),&var,nToUserId,m_checkPrivate.GetCheck()?VARIANT_TRUE:VARIANT_FALSE)==S_OK)
 #else
-	if (theEBAppClient.EB_SendRich(m_pCallInfo.GetCallId(),&pRichMsg,nToUserId,m_checkPrivate.GetCheck()?true:false)==0)
+	int ret = theEBAppClient.EB_SendRich(m_pCallInfo.GetCallId(),&pRichMsg,nToUserId,m_checkPrivate.GetCheck()?true:false);
+	if (ret == 0)
 #endif
 	{
 		m_richInput.SetSel(0, -1);
@@ -759,25 +760,29 @@ void CDlgChatInput::send()
 		//m_richInput.SetWindowText(_T(""));
 		//m_btnSend.SetWindowText(_T("发送"));
 	}
+#ifndef USES_EBCOM_TEST
+	else {
+		/// 3=底层已经自动重连
+		/// other=其他情况，由上层自动重连
+		if (ret != 3) {
+			call();
+		}
+		CDlgMessageBox::EbMessageBox(this,"",_T("当前会话掉线：\r\n正在自动重连，请稍候再试！"),CDlgMessageBox::IMAGE_WARNING,10);
+	}
+#endif
 	m_richInput.SetFocus();
-	//return;
-	//// TODO: Add your control notification handler code here
-	////EDITSTREAM es;
-	////es.dwCookie = 0;//(DWORD) &cFile; //设置用例参数,以便回调函数调用
-	////es.pfnCallback = MyStreamOutCallback;
-	////m_richInput.StreamOut(SF_RTF, es);
-	////return; 
+}
 
-	//save();
-	//return;
+void CDlgChatInput::call()
+{
 
-	//CString sInputText;
-	//m_richInput.GetWindowText(sInputText);
-	//if (sInputText.IsEmpty())
-	//{
-	//	m_richInput.SetFocus();
-	//	return;
-	//}
+	if (m_pCallInfo.m_sGroupCode > 0) {
+		theEBAppClient.EB_CallGroup(m_pCallInfo.m_sGroupCode);
+	}
+	else {
+		theEBAppClient.EB_CallUserId(m_pCallInfo.GetFromUserId(), m_pCallInfo.GetCallId());
+	}
+
 }
 
 void CDlgChatInput::OnBnClickedButtonSend()
@@ -2185,19 +2190,20 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 	{
 		return;
 	}
-	if (nState==EB_STATE_MAX_CAPACITY_ERROR)
-	{
+	if (nState==EB_STATE_MAX_CAPACITY_ERROR) {
 		AddLineString(0,_T("超过最大消息长度！"),1);
 		return;
 	}
-	else if (nState==EB_STATE_GROUP_FORBID_SPEECH)
-	{
+	else if (nState==EB_STATE_GROUP_FORBID_SPEECH) {
 		AddLineString(0,_T("群禁言中！"),1);
 		return;
 	}
-	else if (nState==EB_STATE_FORBID_SPEECH)
-	{
+	else if (nState==EB_STATE_FORBID_SPEECH) {
 		AddLineString(0,_T("你被禁言中！"),1);
+		return;
+	}
+	else if (nState==EB_STATE_TIMEOUT_ERROR) {
+		AddLineString(0,_T("当前会话掉线，发送消息超时，正在自动重连，请稍候再试！"),1);
 		return;
 	}
 

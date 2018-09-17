@@ -191,7 +191,7 @@ void CPOPCUserManager::DoProcess2(unsigned int nIndex)
 		for (; pIter!=m_pRequestList.end(); pIter++)
 		{
 			const CPOPSotpRequestInfo::pointer& pRequestInfo = pIter->second;
-			if (pRequestInfo->GetResponseTime()==0 && pRequestInfo->GetRequestTime() + 20 < time(0))
+			if (pRequestInfo->GetResponseTime()==0 && pRequestInfo->GetRequestTime() + 15 < time(0))
 			{
 				// timeout
 				const unsigned long nCid = pIter->first;
@@ -1470,6 +1470,7 @@ int CPOPCUserManager::SendUQuery(mycp::bigint nFromIpAddress, const tstring& pQu
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1495,6 +1496,7 @@ int CPOPCUserManager::SendDictLoad(EB_DICT_TYPE nDictType,mycp::bigint nValue,co
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1522,6 +1524,7 @@ int CPOPCUserManager::SendUGEdit(mycp::bigint nUGId,const tstring& sGroupName,co
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1547,6 +1550,7 @@ int CPOPCUserManager::SendUGDelete(mycp::bigint nUGId,const CPOPSotpRequestInfo:
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1573,6 +1577,7 @@ int CPOPCUserManager::SendUGLoad(int nOffset,const CPOPSotpRequestInfo::pointer&
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1603,6 +1608,7 @@ int CPOPCUserManager::SendCSAdd(mycp::bigint nFromIpAddress,const CPopParameterL
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1629,6 +1635,7 @@ int CPOPCUserManager::SendCSDel(mycp::bigint nFromIpAddress,const CPopParameterL
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1664,6 +1671,7 @@ int CPOPCUserManager::SendFuncNavSet(mycp::bigint nFromIpAddress,const CPopParam
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1693,6 +1701,7 @@ int CPOPCUserManager::SendFuncNavDel(mycp::bigint nFromIpAddress,const CPopParam
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1722,6 +1731,7 @@ int CPOPCUserManager::SendFuncNavLoad(mycp::bigint nFromIpAddress,const CPopPara
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1756,6 +1766,7 @@ int CPOPCUserManager::SendFuncSub(mycp::bigint nFromIpAddress,const CPopParamete
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1785,6 +1796,7 @@ int CPOPCUserManager::SendFuncDel(mycp::bigint nFromIpAddress,const CPopParamete
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1827,6 +1839,7 @@ int CPOPCUserManager::SendFuncEdit(mycp::bigint nFromIpAddress,const CPopParamet
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1855,6 +1868,7 @@ int CPOPCUserManager::SendFuncSetIcon(mycp::bigint nFromIpAddress,const CPopPara
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1886,6 +1900,7 @@ int CPOPCUserManager::SendFuncLoad(mycp::bigint nFromIpAddress,const CPopParamet
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1922,6 +1937,7 @@ int CPOPCUserManager::SendFuncReq(mycp::bigint nUserId,const tstring& sOnlineKey
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1953,6 +1969,7 @@ int CPOPCUserManager::SendFuncAuth(mycp::bigint nAppId,const tstring& sAppOnline
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1978,6 +1995,7 @@ int CPOPCUserManager::SendVersinoCheck(mycp::bigint sAppId,const tstring& sClien
 	{
 		//if (pRequestInfo.get() != NULL)
 		//{
+		//	pRequestInfo->SetResponseTime(0);
 		//	pRequestInfo->SetRequestTime();
 		//	pRequestInfo->SetCallId(nCallId);
 		//	m_pRequestList.insert(nCallId, pRequestInfo);
@@ -1998,6 +2016,7 @@ int CPOPCUserManager::SendRDRequest(mycp::bigint sCallId,int nRDType, const CPOP
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2023,6 +2042,7 @@ int CPOPCUserManager::SendRDAck(mycp::bigint sCallId,int nAckType,mycp::bigint n
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2045,6 +2065,7 @@ int CPOPCUserManager::SendRDEnd(mycp::bigint sCallId,const CPOPSotpRequestInfo::
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2075,6 +2096,7 @@ int CPOPCUserManager::SendVRequest(mycp::bigint sCallId,int nVideoType, const CP
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2100,6 +2122,7 @@ int CPOPCUserManager::SendVAck(mycp::bigint sCallId,int nAckType,mycp::bigint nT
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2122,6 +2145,7 @@ int CPOPCUserManager::SendVEnd(mycp::bigint sCallId,const CPOPSotpRequestInfo::p
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2168,6 +2192,7 @@ int CPOPCUserManager::SendRNew(const tstring& sName,EB_RESOURCE_TYPE nResType,my
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2195,6 +2220,7 @@ int CPOPCUserManager::SendREdit(mycp::bigint nFromIpAddress,const CPopParameterL
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2222,6 +2248,7 @@ int CPOPCUserManager::SendREdit(mycp::bigint sResourceId,const tstring& sName,co
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2247,6 +2274,7 @@ int CPOPCUserManager::SendRDelete(mycp::bigint nFromIpAddress,mycp::bigint sReso
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2296,6 +2324,7 @@ int CPOPCUserManager::SendRLoad(int nVerifyValid,mycp::bigint sResourceId, int n
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2320,6 +2349,7 @@ int CPOPCUserManager::SendUMSPush(bigint nSslId, const cgcSmartString &sPushToke
     const unsigned long nCallId = sotp()->doGetNextCallId();
     if (pRequestInfo.get() != NULL)
     {
+		pRequestInfo->SetResponseTime(0);
         pRequestInfo->SetRequestTime();
         pRequestInfo->SetCallId(nCallId);
         m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2347,6 +2377,7 @@ int CPOPCUserManager::SendUMReset(mycp::bigint nFromIpAddress,mycp::bigint nRese
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2375,6 +2406,7 @@ int CPOPCUserManager::SendUMSHead(mycp::bigint nSetUserId, mycp::bigint sDepCode
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2422,6 +2454,7 @@ int CPOPCUserManager::SendUMSInfo(mycp::bigint nFromIpAddress, mycp::bigint nSet
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2446,6 +2479,7 @@ int CPOPCUserManager::SendUMGInfo(mycp::bigint nFromIpAddress, const CPOPSotpReq
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2486,6 +2520,7 @@ int CPOPCUserManager::SendUMReg2(mycp::bigint nFromIpAddress,mycp::bigint sAppId
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2523,6 +2558,7 @@ int CPOPCUserManager::SendUMReg3(mycp::bigint nFromIpAddress,const CPopParameter
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2546,6 +2582,7 @@ int CPOPCUserManager::SendUMIUHangup(mycp::bigint sCallId, bool bHangup, const C
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2569,6 +2606,7 @@ int CPOPCUserManager::SendUMIUAck(mycp::bigint sCallId, EB_CALL_ACK_TYPE nCallAc
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2620,6 +2658,7 @@ int CPOPCUserManager::SendUMIUAck(mycp::bigint sCallId, EB_CALL_ACK_TYPE nCallAc
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2643,6 +2682,7 @@ int CPOPCUserManager::SendUMIUEnter(mycp::bigint sCallId, const tstring& sUmKey,
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2707,6 +2747,7 @@ int CPOPCUserManager::SendUMIUUser(mycp::bigint sToMemberCode,mycp::bigint nToUs
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2739,6 +2780,7 @@ int CPOPCUserManager::SendUMIUUser(mycp::bigint sToMemberCode,mycp::bigint nToUs
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2762,6 +2804,7 @@ int CPOPCUserManager::SendUMMack(mycp::bigint nFromIpAddress,mycp::bigint nMsgId
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2792,6 +2835,7 @@ int CPOPCUserManager::SendUMMack(mycp::bigint nFromIpAddress,mycp::bigint nMsgId
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2810,6 +2854,7 @@ int CPOPCUserManager::SendUMSMOnline(int nSDKVersion, int nLogonType, mycp::bigi
 		pRequestInfoTemp = CPOPSotpRequestInfo::create(0, EB_REQ_TYPE_LOGON);
 	else
 	{
+		pRequestInfoTemp->SetResponseTime(0);
 		pRequestInfoTemp->SetRequestTime();
 	}
 	pRequestInfoTemp->m_pRequestList.SetParameter(CGC_PARAMETER("um-uid", nUserId));
@@ -2851,6 +2896,7 @@ int CPOPCUserManager::SendUMSMLoad2(EB_UM_LOAD2_TYPE nLoadType,const CPOPSotpReq
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2886,6 +2932,7 @@ int CPOPCUserManager::SendUMSMLoad(int nLoadSubFunc,int nLoadMsg,int nLoadGroupV
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2914,6 +2961,7 @@ int CPOPCUserManager::SendUMSMOffline(bool bAcceptPush,
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2953,6 +3001,7 @@ int CPOPCUserManager::SendUMCMEdit(mycp::bigint nFromIpAddress,const CPopParamet
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -2989,6 +3038,7 @@ int CPOPCUserManager::SendUMCMEdit(mycp::bigint nFromIpAddress,const CPopParamet
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3012,6 +3062,7 @@ int CPOPCUserManager::SendUMCMDelete(mycp::bigint nContactId,mycp::bigint nConta
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3039,6 +3090,7 @@ int CPOPCUserManager::SendUMCMQuery(mycp::bigint nOnlyContactId,mycp::bigint nOn
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3070,6 +3122,7 @@ int CPOPCUserManager::SendUMEMEntEdit(const EB_EnterpriseInfo* pEnterpriseInfo, 
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3126,6 +3179,7 @@ int CPOPCUserManager::SendUMEMDepEdit(mycp::bigint nFromIpAddress,const CPopPara
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3168,6 +3222,7 @@ int CPOPCUserManager::SendUMEMDepEdit(mycp::bigint nFromIpAddress,const EB_Group
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3194,6 +3249,7 @@ int CPOPCUserManager::SendUMEMDepEdit(mycp::bigint nFromIpAddress,const EB_Group
 //	{
 //		if (pRequestInfo.get() != NULL)
 //		{
+//			pRequestInfo->SetResponseTime(0);
 //			pRequestInfo->SetRequestTime();
 //			pRequestInfo->SetCallId(nCallId);
 //			m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3217,6 +3273,7 @@ int CPOPCUserManager::SendUMEMDepDelete(mycp::bigint nFromIpAddress,mycp::bigint
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3292,6 +3349,7 @@ int CPOPCUserManager::SendUMEMEmpEdit(mycp::bigint nFromIpAddress,const CPopPara
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3360,6 +3418,7 @@ int CPOPCUserManager::SendUMEMEmpEdit(const EB_MemberInfo* pEmployeeInfo,int nFo
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3389,6 +3448,7 @@ int CPOPCUserManager::SendUMEMEmpDelete(mycp::bigint sEmpCode, mycp::bigint nGro
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);
@@ -3427,6 +3487,7 @@ int CPOPCUserManager::SendUMEMLoad(mycp::bigint sDepCode,int nLoadEntDep,int nLo
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
 	{
+		pRequestInfo->SetResponseTime(0);
 		pRequestInfo->SetRequestTime();
 		pRequestInfo->SetCallId(nCallId);
 		m_pRequestList.insert(nCallId, pRequestInfo);

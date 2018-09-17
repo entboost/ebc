@@ -9,7 +9,7 @@
 #include <QRgb>
 #endif  /// _QT_MAKE_
 
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32) || defined(WIN32)
 #ifdef EB_APPCLIENT_EXPORTS
 #define EB_EBPARSESETTING_API __declspec(dllexport)
 #else // EB_APPCLIENT_EXPORTS

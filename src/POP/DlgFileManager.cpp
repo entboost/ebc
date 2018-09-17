@@ -512,16 +512,16 @@ void CDlgFileManager::OnTimer(UINT_PTR nIDEvent)
 			if (::PathFileExists(sMsgText.c_str()))
 			{
 				if (sFromName.empty())
-					sItemName.Format(_T(" %s\n %s"),sFileName.c_str(),pTime.FormatGmt(_T("%Y-%m-%d %H:%M:%S")));
+					sItemName.Format(_T(" %s\n %s"),sFileName.c_str(),pTime.Format(_T("%Y-%m-%d %H:%M:%S")));
 				else
-					sItemName.Format(_T(" %s\n %s - %s"),sFileName.c_str(),pTime.FormatGmt(_T("%Y-%m-%d %H:%M:%S")),sFromName.c_str());
+					sItemName.Format(_T(" %s\n %s - %s"),sFileName.c_str(),pTime.Format(_T("%Y-%m-%d %H:%M:%S")),sFromName.c_str());
 			}else
 			{
 				nSubType = -1;
 				if (sFromName.empty())
-					sItemName.Format(_T(" %s（文件不存在）\n %s"),sFileName.c_str(),pTime.FormatGmt(_T("%Y-%m-%d %H:%M:%S")));
+					sItemName.Format(_T(" %s（文件不存在）\n %s"),sFileName.c_str(),pTime.Format(_T("%Y-%m-%d %H:%M:%S")));
 				else
-					sItemName.Format(_T(" %s（文件不存在）\n %s - %s"),sFileName.c_str(),pTime.FormatGmt(_T("%Y-%m-%d %H:%M:%S")),sFromName.c_str());
+					sItemName.Format(_T(" %s（文件不存在）\n %s - %s"),sFileName.c_str(),pTime.Format(_T("%Y-%m-%d %H:%M:%S")),sFromName.c_str());
 			}
 			CTreeItemInfo::pointer pTreeItemInfo;
 			if (!m_pItemItemInfo.find(sMsgId,pTreeItemInfo))

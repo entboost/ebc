@@ -4128,9 +4128,10 @@ LRESULT CPOPDlg::OnMessageCallError(WPARAM wParam, LPARAM lParam)
 	{
 		// 本地太久未响应，也会有该事件
 		DeleteDlgIncomingCall(pCallInfo->GetFromUserId());
-		//if (pCallInfo->m_nFromUserId)
-		//	return;
-		sErrorText.Format(_T("用户：\r\n%s 会话超时！"),pCallInfo->GetFromAccount().c_str());
+		if (pCallInfo->GetFromUserId() == 0 &&  pCallInfo->m_sGroupCode == 0) {
+			return 0;
+		}
+		sErrorText.Format(_T("用户：\r\n%s 会话超时！\r\n正在自动重连，请稍候再试！"),pCallInfo->GetFromAccount().c_str());
 	}else if (nResultValue == EB_STATE_USER_HANGUP)
 	{
 		DeleteDlgIncomingCall(pCallInfo->GetFromUserId());
