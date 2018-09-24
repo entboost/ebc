@@ -2391,23 +2391,28 @@ void CDlgDialog::UserExitRoom(eb::bigint nUserId, bool bExitDep)
 	{
 		m_pDlgChatRight->OnExitUser(nUserId,bExitDep);
 	}
-	bool bIsDepCall = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
-	if (bIsDepCall)
+	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
 	{
-
-	}else
-	{
-		if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
-		{
-			m_pDlgChatInput->OnUserExit(nUserId);
-		}
-		// ??
-		//size_t nUserSize = m_pEbCallInfo->m_pChatRoom->GetUserSize();
-		//if (nUserSize <= 1)
-		//{
-		//	m_btnSendFile.EnableWindow(FALSE);
-		//}
+		m_pDlgChatInput->OnUserExit(nUserId);
 	}
+
+	//bool bIsDepCall = m_pEbCallInfo->m_pCallInfo.m_sGroupCode>0;
+	//if (bIsDepCall)
+	//{
+
+	//}else
+	//{
+	//	if (m_pDlgChatInput.get() != NULL && m_pDlgChatInput->GetSafeHwnd())
+	//	{
+	//		m_pDlgChatInput->OnUserExit(nUserId);
+	//	}
+	//	// ??
+	//	//size_t nUserSize = m_pEbCallInfo->m_pChatRoom->GetUserSize();
+	//	//if (nUserSize <= 1)
+	//	//{
+	//	//	m_btnSendFile.EnableWindow(FALSE);
+	//	//}
+	//}
 }
 
 //void CDlgDialog::ReceiveMsg(CChatMsgInfo::pointer pChatMsgInfo)

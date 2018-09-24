@@ -316,6 +316,8 @@ protected:
 	LRESULT OnMessageSendingFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageSendedFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageCancelFile(WPARAM wParam, LPARAM lParam);
+	time_t m_tLastPlayMsgSound;
+	void PlayMsgSound(bool limitTime = true);
 	LRESULT OnMessageReceivingFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageReceivedFile(WPARAM wParam, LPARAM lParam);
 	LRESULT OnMessageFilePercent(WPARAM wParam, LPARAM lParam);

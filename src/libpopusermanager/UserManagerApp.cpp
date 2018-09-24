@@ -13272,8 +13272,24 @@ int CUserManagerApp::OnReceiveRich(const CCrRichInfo& pCrMsgInfo)
 			::SendMessage(m_pHwnd, CR_WM_SEND_RICH, (WPARAM)&pCrMsgInfo, 0);	// EB_STATE_FORWARD_MSG
 #endif
 		}
-	}else
-	{
+	}
+	else {
+
+		CEBGroupInfo::pointer pDepartmentInfo;
+		if (pCallInfo->m_sGroupCode > 0 && 
+			(!theDepartmentList.find(pCallInfo->m_sGroupCode, pDepartmentInfo) || !pDepartmentInfo->m_pMemberList.exist(pCrMsgInfo.m_sSendFrom)))
+		{
+			/// 群组需要判断，成员是否存在，成员如果不存在，界面不处理，等待正常业务逻辑跑完，进入聊天后，重新拉取
+			/// 解决新拉群组，开始发消息时，偶发第一条消息，不能正常显示用户名称问题；
+			CProcessMsgInfo::pointer pProcessMsgInfo = CProcessMsgInfo::create(CProcessMsgInfo::PROCESS_MSG_TYPE_INVITE_CALL);
+			pProcessMsgInfo->m_tProcessTime = time(0)+8;
+			pProcessMsgInfo->m_pCallInfo = pCallInfo;
+			pProcessMsgInfo->m_nBigInt1 = 0;														// bSendFile false
+			m_pProcessMsgList.add(pProcessMsgInfo);
+			return -1;
+		}
+
+
 		if (m_callback)
 			ret = m_callback->OnReceiveRich(pCrMsgInfo);
 		if (m_pHwnd!=NULL) {

@@ -155,14 +155,6 @@ END_MESSAGE_MAP()
 //
 //}// end TrayIcon
 
-#ifdef _DEBUG
-int abc(int a)
-{
-	return a+1+20;
-}
-#endif
-
-
 CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 	: CEbDialogBase(CPOPDlg::IDD, pParent)
 	, CFrameWndInfoProxy(this,true,this)
@@ -174,11 +166,6 @@ CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 	, m_pDlgMySession(NULL)
 
 {
-#ifdef _DEBUG
-	//int aa1 = abc(2);
-	//int aa2 = abc(3);
-	//int aa3 = abc(4);
-#endif
 	//m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	//m_bTimerToSwitchOnUIStyleTypeOffice = false;
 	m_bShowedLeft = true;
@@ -211,6 +198,7 @@ CPOPDlg::CPOPDlg(CWnd* pParent /*=NULL*/)
 
 	memset(&m_rectAdjustOld,0,sizeof(m_rectAdjustOld));
 	m_pPanelStatus = NULL;
+	m_tLastPlayMsgSound = 0;
 }
 
 void CPOPDlg::DoDataExchange(CDataExchange* pDX)
@@ -2030,9 +2018,7 @@ LRESULT CPOPDlg::OnMessageReceiveRich(WPARAM wParam, LPARAM lParam)
 
 	if (!pDlgDialog->IsWindowVisible())
 	{
-		CString sSoundFile;
-		sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-		sndPlaySound(sSoundFile, SND_ASYNC);
+		PlayMsgSound();
 
 #ifdef USES_NEW_UI_1220
 		bool bRet = false;
@@ -2408,11 +2394,8 @@ LRESULT CPOPDlg::OnMessageSendedFile(WPARAM wParam, LPARAM lParam)
 		CDlgDialog::pointer pDlgDialog = GetCallIdDialog(sCallId);
 		if (pDlgDialog.get()!=NULL)
 		{
-			if (pDlgDialog->OnSentFile(pCrFileInfo, nState) && !pDlgDialog->IsWindowVisible())
-			{
-				CString sSoundFile;
-				sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-				sndPlaySound(sSoundFile, SND_ASYNC);
+			if (pDlgDialog->OnSentFile(pCrFileInfo, nState) && !pDlgDialog->IsWindowVisible()) {
+				PlayMsgSound(false);
 			}
 		}else
 		{
@@ -2497,11 +2480,8 @@ LRESULT CPOPDlg::OnMessageCancelFile(WPARAM wParam, LPARAM lParam)
 		pDlgDialog->OnCancelFile(pCrFileInfo,bChangeP2PSending);
 		if (!pDlgDialog->IsWindowVisible())
 		{
-			if (lParam!=10)
-			{
-				CString sSoundFile;
-				sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-				sndPlaySound(sSoundFile, SND_ASYNC);
+			if (lParam!=10) {
+				PlayMsgSound(false);
 			}
 		}
 	}
@@ -2560,6 +2540,22 @@ LRESULT CPOPDlg::OnMessageCancelFile(WPARAM wParam, LPARAM lParam)
 	//	pFuncWindow->Create(CDlgFuncWindow::IDD,pParent);
 	//}
 	return 0;
+}
+
+void CPOPDlg::PlayMsgSound(bool limitTime)
+{
+	const time_t tNow = time(0);
+	if (m_tLastPlayMsgSound == 0 || !limitTime) {
+		m_tLastPlayMsgSound = tNow;
+	}
+	else if ((tNow - m_tLastPlayMsgSound) <= 3) {
+		/// 3秒内不重复播放消息提示音，直接返回；
+		m_tLastPlayMsgSound = tNow;
+		return;
+	}
+	CString sSoundFile;
+	sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
+	sndPlaySound(sSoundFile, SND_ASYNC);
 }
 
 LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
@@ -2624,9 +2620,7 @@ LRESULT CPOPDlg::OnMessageReceivingFile(WPARAM wParam, LPARAM lParam)
 	{
 		if (lParam!=10)
 		{
-			CString sSoundFile;
-			sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-			sndPlaySound(sSoundFile, SND_ASYNC);
+			PlayMsgSound();
 		}
 
 #ifdef USES_NEW_UI_1220
@@ -2765,11 +2759,8 @@ LRESULT CPOPDlg::OnMessageReceivedFile(WPARAM wParam, LPARAM lParam)
 		pDlgDialog->OnReceivedFile(pCrFileInfo);
 		if (!pDlgDialog->IsWindowVisible())
 		{
-			if (lParam!=10)
-			{
-				CString sSoundFile;
-				sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-				sndPlaySound(sSoundFile, SND_ASYNC);
+			if (lParam!=10) {
+				PlayMsgSound(false);
 			}
 		}
 	}
@@ -2852,11 +2843,8 @@ LRESULT CPOPDlg::OnMessageSave2CloudDrive(WPARAM wParam, LPARAM lParam)
 	if (pDlgDialog.get()!=NULL)
 	{
 		pDlgDialog->OnSave2CloudDrive(pCrFileInfo,nState);
-		if (!pDlgDialog->IsWindowVisible())
-		{
-			CString sSoundFile;
-			sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-			sndPlaySound(sSoundFile, SND_ASYNC);
+		if (!pDlgDialog->IsWindowVisible()) {
+			PlayMsgSound(false);
 		}
 	}
 
@@ -2912,11 +2900,8 @@ LRESULT CPOPDlg::OnMessageRDRequestResponse(WPARAM wParam, LPARAM lParam)
 	CDlgDialog::pointer pDlgDialog = GetDlgDialog(pEbCallInfo);
 	pDlgDialog->RDRequestResponse(pVideoInfo,nState);
 
-	if (!pDlgDialog->IsWindowVisible())
-	{
-		CString sSoundFile;
-		sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-		sndPlaySound(sSoundFile, SND_ASYNC);
+	if (!pDlgDialog->IsWindowVisible()) {
+		PlayMsgSound(false);
 	}
 #endif
 	return 0;
@@ -7401,7 +7386,10 @@ void CPOPDlg::HideSearchResult(void)
 #ifdef USES_NEW_UI_160111
 		m_btnMyCenter.ShowWindow(SW_SHOW);
 		m_btnFileMgr.ShowWindow(SW_SHOW);
-		m_btnMyShare.ShowWindow(SW_SHOW);
+	
+		if (!theApp.GetDisableUserCloudDrive() && !theApp.IsLogonVisitor()) {
+			m_btnMyShare.ShowWindow(SW_SHOW);
+		}
 		m_btnMainFunc.ShowWindow(SW_SHOW);
 #endif
 #ifndef USES_NEW_UI_1220
@@ -7626,11 +7614,9 @@ void CPOPDlg::OnTimer(UINT_PTR nIDEvent)
 				default:
 					break;
 				}
-				if (!bCancel && pEbcMsgInfo->GetPlayMsgSound())
-				{
-					CString sSoundFile;
-					sSoundFile.Format(_T("%s/wav/msg.wav"), theApp.GetAppDataPath());
-					sndPlaySound(sSoundFile, SND_ASYNC);
+
+				if (!bCancel && pEbcMsgInfo->GetPlayMsgSound()) {
+					PlayMsgSound();
 				}
 			}
 		}break;
@@ -9338,10 +9324,14 @@ void CPOPDlg::ShowSearchResult(void)
 		searchRect.bottom = rect.bottom;
 #ifdef USES_NEW_UI_160111
 		searchRect.right = rect.right;
-		m_btnMyCenter.ShowWindow(SW_HIDE);
-		m_btnFileMgr.ShowWindow(SW_HIDE);
-		m_btnMyShare.ShowWindow(SW_HIDE);
-		m_btnMainFunc.ShowWindow(SW_HIDE);
+
+		const EB_UI_STYLE_TYPE nDefaultUIStyleType = theApp.GetDefaultUIStyleType();
+		if (nDefaultUIStyleType == EB_UI_STYLE_TYPE_OFFICE) {
+			m_btnMyCenter.ShowWindow(SW_HIDE);
+			m_btnFileMgr.ShowWindow(SW_HIDE);
+			m_btnMyShare.ShowWindow(SW_HIDE);
+			m_btnMainFunc.ShowWindow(SW_HIDE);
+		}
 #endif
 		this->ScreenToClient(&searchRect);
 		m_treeSearch.MoveWindow(&searchRect);
@@ -11463,7 +11453,9 @@ LRESULT CPOPDlg::OnMessageReturnMainFrame(WPARAM wParam, LPARAM lParam)
 	m_nFrameType = CFrameWndInfo::FRAME_WND_MAIN_FRAME;
 	m_btnMyCenter.ShowWindow(SW_SHOW);
 	m_btnFileMgr.ShowWindow(SW_SHOW);
-	m_btnMyShare.ShowWindow(SW_SHOW);
+	if (!theApp.GetDisableUserCloudDrive() && !theApp.IsLogonVisitor()) {
+		m_btnMyShare.ShowWindow(SW_SHOW);
+	}
 	m_btnMainFunc.ShowWindow(SW_SHOW);
 	m_editSearch.ShowWindow(SW_SHOW);
 #ifndef USES_NEW_UI_160111
@@ -11649,7 +11641,9 @@ void CPOPDlg::OnBnClickedButtonSwitchFrame()
 #else
 	m_btnMyCenter.ShowWindow(SW_SHOW);
 	m_btnFileMgr.ShowWindow(SW_SHOW);
-	m_btnMyShare.ShowWindow(SW_SHOW);
+	if (!theApp.GetDisableUserCloudDrive() && !theApp.IsLogonVisitor()) {
+		m_btnMyShare.ShowWindow(SW_SHOW);
+	}
 	m_btnLineState.ShowWindow(SW_SHOW);
 #endif
 	if (pDlgAppFrame!=NULL && !pDlgAppFrame->IsEmpty())

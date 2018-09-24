@@ -1770,9 +1770,16 @@ void CDlgChatInput::OnUserExit(eb::bigint sFromAccount)
 	//	m_btnSend.SetWindowText(_T("邀请"));
 	//	m_btnSend.Invalidate();
 	//}
-	if (theApp.IsLogonVisitor() ||
-		m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType == EB_ACCOUNT_TYPE_VISITOR)	// 游客不能被动邀请
-	{
+	
+	bool bIsDepCall = m_pCallInfo.m_sGroupCode>0;
+	if (bIsDepCall) {
+		CTreeItemInfo::pointer pTreeItemInfo;
+		if (m_pSendToAccount.find(sFromAccount, pTreeItemInfo, true)) {
+			m_comboSendTo.DeleteString(pTreeItemInfo->m_nIndex);
+		}
+	}
+	else if (theApp.IsLogonVisitor() ||
+		m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType == EB_ACCOUNT_TYPE_VISITOR) {	// 游客不能被动邀请
 		// 不是公司内部员工，需要重新呼叫才能通讯
 		AddLineString(0,_T("对方已经退出本次会话！"),1);
 		//m_richInput.EnableWindow(FALSE);
@@ -2236,18 +2243,15 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 	const bool bIsDepDialog = m_pCallInfo.m_sGroupCode>0;
 	CEBString sFromName;
 	CEBString sToName;// = pCrMsgInfo->m_sSendTo;
-	if (bReceive)
-	{
-		if (m_pCallInfo.m_sGroupCode==0)
-		{
+	if (bReceive) {
+		if (m_pCallInfo.m_sGroupCode ==0 ) {
 			if (m_pFromAccountInfo.m_pFromCardInfo.m_nAccountType==EB_ACCOUNT_TYPE_VISITOR)
 				sFromName = _T("游客") + m_pFromAccountInfo.GetAccount();
 			else
 				sFromName = m_pFromAccountInfo.m_pFromCardInfo.m_sName;
 			sToName = theEBAppClient.EB_GetUserName();
 
-			if (m_pPanelStatus!=NULL && m_pPanelStatus->IsWindowVisible())
-			{
+			if (m_pPanelStatus != NULL && m_pPanelStatus->IsWindowVisible()) {
 				KillTimer(TIMERID_HIDE_NOTIFY1);
 				SetTimer(TIMERID_HIDE_NOTIFY1,1000,NULL);
 			}
@@ -2256,11 +2260,16 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 			//	m_labelNotify1.ShowWindow(SW_HIDE);
 			//	//SetTimer(TIMERID_HIDE_NOTIFY1,100,NULL);
 			//}
-		}else
-		{
-			theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,sSender,sFromName);
-			if (pCrMsgInfo->m_sSendTo>0)
-				theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendTo,sToName);
+		}
+		else {
+			if (!theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,sSender,sFromName)) {
+				theEBAppClient.EB_GetMemberNameByUserId2(sSender, sFromName);
+			}
+			if (pCrMsgInfo->m_sSendTo>0) {
+				if (!theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendTo,sToName)) {
+					theEBAppClient.EB_GetMemberNameByUserId2(pCrMsgInfo->m_sSendTo, sToName);
+				}
+			}
 
 			//if (m_pShowNotifyList.exist(sSender))
 			//{
@@ -2281,16 +2290,21 @@ void CDlgChatInput::ProcessMsg(bool bReceive,const CCrRichInfo* pCrMsgInfo,CStri
 			//	}
 			//}
 		}
-	}else
-	{
-		if (m_pCallInfo.m_sGroupCode==0)
+	}
+	else {
+		if (m_pCallInfo.m_sGroupCode ==0 ) {
 			sFromName = theEBAppClient.EB_GetUserName();
-		else
-		{
-			theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,theApp.GetLogonUserId(),sFromName);
 		}
-		if (pCrMsgInfo->m_sSendTo>0)
-			theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode,pCrMsgInfo->m_sSendTo,sToName);
+		else {
+			if (!theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode, theApp.GetLogonUserId(), sFromName)) {
+				theEBAppClient.EB_GetMemberNameByUserId2(theApp.GetLogonUserId(), sFromName);
+			}
+		}
+		if (pCrMsgInfo->m_sSendTo>0) {
+			if (!theEBAppClient.EB_GetMemberNameByUserId(m_pCallInfo.m_sGroupCode, pCrMsgInfo->m_sSendTo, sToName)) {
+				theEBAppClient.EB_GetMemberNameByUserId2(pCrMsgInfo->m_sSendTo, sToName);
+			}
+		}
 	}
 	CString sPrivateText;
 	CString sToText;

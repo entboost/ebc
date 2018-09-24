@@ -66,8 +66,10 @@ void CDlgEditInfo::OnAreaInfo(const EB_AreaInfo* pAreaInfo,unsigned int nParamet
 
 void CDlgEditInfo::CheckData(void)
 {
-	if (m_pDlgEditAccInfo!=NULL)
+	if (m_pDlgEditAccInfo!=NULL) {
+		m_pDlgEditAccInfo->Load();
 		m_pDlgEditAccInfo->CheckData();
+	}
 }
 
 void CDlgEditInfo::SetCtrlColor(void)

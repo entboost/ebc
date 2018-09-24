@@ -528,6 +528,7 @@ void CDlgChangeHead::OnTimer(UINT_PTR nIDEvent)
 
 void CDlgChangeHead::OnBnClickedButtonHead1()
 {
+	m_btnOk.ShowWindow(SW_HIDE);
 	m_btnOpenFile.ShowWindow(SW_HIDE);
 	m_btnMyVideo.ShowWindow(SW_HIDE);
 	m_pDlgSelectHead->ShowWindow(SW_SHOW);
@@ -540,6 +541,7 @@ void CDlgChangeHead::OnBnClickedButtonHead1()
 
 void CDlgChangeHead::OnBnClickedButtonHead2()
 {
+	m_btnOk.ShowWindow(SW_SHOW);
 	m_btnOpenFile.ShowWindow(SW_SHOW);
 	m_btnMyVideo.ShowWindow(SW_SHOW);
 	m_pDlgSelectHead->ShowWindow(SW_HIDE);
