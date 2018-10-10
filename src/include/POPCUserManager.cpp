@@ -2430,26 +2430,26 @@ int CPOPCUserManager::SendUMSInfo(mycp::bigint nFromIpAddress, mycp::bigint nSet
 	sotp()->doAddParameter(CGC_PARAMETER("online-key", m_sOnlineKey),false);
 	if (nSetUserId>0)
 		sotp()->doAddParameter(CGC_PARAMETER("set-uid", nSetUserId));
-	sotp()->doAddParameter(pInfoList.getParameter("user-name"),false);
+	sotp()->doAddParameter(pInfoList.getParameter("user-name"),true);
 	sotp()->doAddParameter(pInfoList.getParameter("desc"),true);
 	sotp()->doAddParameter(pInfoList.getParameter("old_pwd"),false);	// **新版本，加密好密码；
 	//sotp()->doAddParameter(pInfoList.getParameter("pwd"),false);		// 未加密密码
 	sotp()->doAddParameter(pInfoList.getParameter("passwd"),false);		// **加密好密码
-	sotp()->doAddParameter(pInfoList.getParameter("setting"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("default_emp"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("phone"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("area1"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("area2"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("area3"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("area4"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("add"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("url"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("gender"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("tel"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("mobile"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("email"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("birthday"),false);
-	sotp()->doAddParameter(pInfoList.getParameter("zipcode"),false);
+	sotp()->doAddParameter(pInfoList.getParameter("setting"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("default_emp"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("phone"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("area1"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("area2"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("area3"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("area4"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("add"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("url"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("gender"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("tel"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("mobile"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("email"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("birthday"),true);
+	sotp()->doAddParameter(pInfoList.getParameter("zipcode"),true);
 
 	const unsigned long nCallId = sotp()->doGetNextCallId();
 	if (pRequestInfo.get() != NULL)
