@@ -1,7 +1,7 @@
 
 # 恩布开源企业IM、协同办公管理平台
-+ [服务端下载](http://doc.entboost.com/index.php/Downloads)
-+ [恩布开源项目](http://doc.entboost.com/index.php/Im_source)
++ [服务端下载](https://pan.baidu.com/s/16puVIV0GKkhc5sIpV99K_g)
+<!-- + [恩布开源项目](http://doc.entboost.com/index.php/Im_source) -->
 
 ## 登录界面&色调换肤功能
 ![登录界面](/image/1.png "登录界面")
